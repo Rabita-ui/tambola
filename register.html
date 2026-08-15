@@ -3,224 +3,349 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KBTV - Register</title>
 
-    <link rel="stylesheet" href="style.css">
+    <title>Register - Tambola House</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        header {
+            background: #222;
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+        }
+
+        .container {
+            max-width: 450px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            margin-top: 25px;
+            border: none;
+            border-radius: 6px;
+            background: #ff6b00;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #message {
+            margin-top: 18px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .login-link a {
+            color: #ff6b00;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
 
-<nav>
+<header>
+    <h1>Tambola House</h1>
 
-<div class="logo">
-<span>K</span>BTV
-</div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="login.html">Login</a>
+    </nav>
+</header>
 
-<ul>
-<li><a href="index.html">Home</a></li>
-<li><a href="login.html">Login</a></li>
-</ul>
+<div class="container">
 
-</nav>
+    <h2>Create Account</h2>
 
-<section class="login-page">
+    <form id="registerForm">
 
-<div class="login-box">
+        <label for="name">Full Name</label>
+        <input
+            type="text"
+            id="name"
+            required
+            placeholder="Enter your name"
+        >
 
-<h1>Create Account</h1>
+        <label for="phone">Phone Number</label>
+        <input
+            type="tel"
+            id="phone"
+            required
+            placeholder="Enter your phone number"
+        >
 
-<p>Join KBTV and enjoy premium movies.</p>
+        <label for="email">Email</label>
+        <input
+            type="email"
+            id="email"
+            required
+            placeholder="Enter your email"
+        >
 
-<form id="registerForm">
+        <label for="password">Password</label>
+        <input
+            type="password"
+            id="password"
+            required
+            minlength="6"
+            placeholder="Minimum 6 characters"
+        >
 
-<input
-id="name"
-type="text"
-placeholder="Full Name"
-required>
+        <label for="confirmPassword">Confirm Password</label>
+        <input
+            type="password"
+            id="confirmPassword"
+            required
+            minlength="6"
+            placeholder="Confirm your password"
+        >
 
-<input
-id="email"
-type="email"
-placeholder="Email Address"
-required>
+        <button type="submit">
+            Create Account
+        </button>
 
-<input
-id="mobile"
-type="tel"
-placeholder="Mobile Number"
-required>
+    </form>
 
-<input
-id="password"
-type="password"
-placeholder="Password"
-required>
+    <div id="message"></div>
 
-<input
-id="confirmPassword"
-type="password"
-placeholder="Confirm Password"
-required>
-
-<button type="submit">
-Create Account
-</button>
-
-</form>
-
-<div id="errorMessage" style="color:red;margin-top:10px;font-size:14px;"></div>
-<div id="successMessage" style="color:green;margin-top:10px;font-size:14px;display:none;"></div>
-
-<p>
-
-Already have an account?
-
-<a href="login.html">
-
-Login
-
-</a>
-
-</p>
+    <div class="login-link">
+        Already have an account?
+        <a href="login.html">Login here</a>
+    </div>
 
 </div>
-
-</section>
-
-<footer>
-
-<h2>KBTV</h2>
-
-<p>© 2026 KBTV Movie Rental. All Rights Reserved.</p>
-
-</footer>
-
-<!-- =========================
-     FIREBASE AUTH - UPDATED
-========================= -->
 
 <script type="module">
-    // ============ IMPORT FROM FIREBASE.JS ============
-    import { auth, db } from './firebase.js';
-    import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // ============ REGISTER FORM HANDLER ============
-    const registerForm = document.getElementById('registerForm');
-    const errorMessage = document.getElementById('errorMessage');
-    const successMessage = document.getElementById('successMessage');
+    import { initializeApp }
+        from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 
-    registerForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        // Get form values
-        const fullName = document.getElementById('name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const mobile = document.getElementById('mobile').value.trim();
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        
-        // Clear previous messages
-        errorMessage.textContent = '';
-        errorMessage.style.display = 'block';
-        successMessage.style.display = 'none';
-        successMessage.textContent = '';
+    import {
+        getAuth,
+        createUserWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-        // ============ VALIDATION ============
-        
-        // Check if passwords match
+    import {
+        getFirestore,
+        doc,
+        setDoc,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    import { firebaseConfig }
+        from "./firebase-config.js";
+
+
+    // Initialize Firebase
+
+    const app = initializeApp(firebaseConfig);
+
+    const auth = getAuth(app);
+
+    const db = getFirestore(app);
+
+
+    // Registration form
+
+    const registerForm =
+        document.getElementById("registerForm");
+
+    const message =
+        document.getElementById("message");
+
+
+    registerForm.addEventListener("submit", async (event) => {
+
+        event.preventDefault();
+
+        const name =
+            document.getElementById("name").value.trim();
+
+        const phone =
+            document.getElementById("phone").value.trim();
+
+        const email =
+            document.getElementById("email").value.trim();
+
+        const password =
+            document.getElementById("password").value;
+
+        const confirmPassword =
+            document.getElementById("confirmPassword").value;
+
+
+        // Check passwords
+
         if (password !== confirmPassword) {
-            errorMessage.textContent = '❌ Passwords do not match.';
+
+            message.style.color = "red";
+
+            message.textContent =
+                "Passwords do not match.";
+
             return;
         }
 
-        // Check password length
+
         if (password.length < 6) {
-            errorMessage.textContent = '❌ Password must be at least 6 characters.';
+
+            message.style.color = "red";
+
+            message.textContent =
+                "Password must contain at least 6 characters.";
+
             return;
         }
 
-        // Check mobile number (basic validation)
-        if (mobile.length < 10) {
-            errorMessage.textContent = '❌ Please enter a valid mobile number (10+ digits).';
-            return;
-        }
 
-        // ============ CREATE USER ============
+        message.style.color = "#333";
+
+        message.textContent =
+            "Creating your account...";
+
+
         try {
-            // Create user with Firebase Auth
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-            
-            console.log('✅ User registered:', user.email);
 
-            // Update user profile with full name
-            await updateProfile(user, {
-                displayName: fullName
-            });
+            // Create Firebase Authentication account
 
-            // Save user data to Firestore
-            await setDoc(doc(db, 'users', user.uid), {
-                fullName: fullName,
-                email: user.email,
-                mobile: mobile,
-                role: 'customer',
-                createdAt: serverTimestamp(),
-                uid: user.uid,
-                updatedAt: serverTimestamp()
-            });
+            const userCredential =
+                await createUserWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
 
-            // Show success message
-            successMessage.style.display = 'block';
-            successMessage.textContent = '✅ Account created successfully! Redirecting to login...';
-            
-            // Disable submit button
-            const submitButton = registerForm.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.textContent = 'Processing...';
 
-            // Redirect to login after 2 seconds
+            const user =
+                userCredential.user;
+
+
+            // Create user profile in Firestore
+
+            await setDoc(
+                doc(db, "users", user.uid),
+                {
+                    name: name,
+                    phone: phone,
+                    email: email,
+
+                    role: "user",
+
+                    tokenBalance: 0,
+
+                    createdAt: serverTimestamp()
+                }
+            );
+
+
+            message.style.color = "green";
+
+            message.textContent =
+                "Registration successful! Redirecting...";
+
+
             setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 2000);
+
+                window.location.href =
+                    "login.html";
+
+            }, 1500);
+
 
         } catch (error) {
-            console.error('Registration error:', error);
-            
-            // Show user-friendly error message
-            let message = '';
-            switch (error.code) {
-                case 'auth/email-already-in-use':
-                    message = 'This email is already registered. Please login instead.';
-                    break;
-                case 'auth/invalid-email':
-                    message = 'Invalid email format. Please check your email.';
-                    break;
-                case 'auth/weak-password':
-                    message = 'Password is too weak. Use at least 6 characters.';
-                    break;
-                case 'auth/operation-not-allowed':
-                    message = 'Email/password accounts are not enabled.';
-                    break;
-                default:
-                    message = error.message;
+
+            console.error(error);
+
+            message.style.color = "red";
+
+
+            if (error.code === "auth/email-already-in-use") {
+
+                message.textContent =
+                    "This email is already registered.";
+
+            } else if (error.code === "auth/invalid-email") {
+
+                message.textContent =
+                    "Please enter a valid email address.";
+
+            } else if (error.code === "auth/weak-password") {
+
+                message.textContent =
+                    "Password is too weak.";
+
+            } else {
+
+                message.textContent =
+                    "Registration failed: " + error.message;
             }
-            errorMessage.textContent = '❌ ' + message;
-            
-            // Re-enable submit button
-            const submitButton = registerForm.querySelector('button[type="submit"]');
-            submitButton.disabled = false;
-            submitButton.textContent = 'Create Account';
+
         }
+
     });
 
-    console.log('✅ register.html - Firebase imported from firebase.js');
 </script>
 
 </body>
