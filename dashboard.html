@@ -1,573 +1,453 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>KBTV - Payment Confirmation</title>
-
-    <link rel="stylesheet" href="style.css">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
-        rel="stylesheet">
+    <title>Dashboard - Tambola House</title>
 
     <style>
-        .confirmation-container {
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 40px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            text-align: center;
+        * {
+            box-sizing: border-box;
         }
-        .confirmation-container .icon {
-            font-size: 80px;
-            margin-bottom: 20px;
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            color: #222;
         }
-        .confirmation-container h1 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-        .confirmation-container .subtitle {
-            color: #666;
-            font-size: 16px;
-            margin-bottom: 20px;
-        }
-        .confirmation-container .movie-details {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .confirmation-container .movie-details h2 {
-            color: #333;
-            margin-bottom: 5px;
-        }
-        .confirmation-container .movie-details .price {
-            font-size: 24px;
-            font-weight: 600;
-            color: #4CAF50;
-        }
-        .confirmation-container .status-box {
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .status-pending {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            color: #856404;
-        }
-        .status-approved {
-            background: #d4edda;
-            border-left: 4px solid #28a745;
-            color: #155724;
-        }
-        .status-rejected {
-            background: #f8d7da;
-            border-left: 4px solid #dc3545;
-            color: #721c24;
-        }
-        .status-info {
-            background: #cce5ff;
-            border-left: 4px solid #004085;
-            color: #004085;
-        }
-        .btn-primary {
-            display: inline-block;
-            padding: 14px 40px;
-            background: #4CAF50;
+
+        header {
+            background: #222;
             color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 16px;
-            transition: background 0.3s;
-            border: none;
-            cursor: pointer;
-            margin: 5px;
-        }
-        .btn-primary:hover {
-            background: #45a049;
-        }
-        .btn-secondary {
-            display: inline-block;
-            padding: 14px 40px;
-            background: #6c757d;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 16px;
-            transition: background 0.3s;
-            border: none;
-            cursor: pointer;
-            margin: 5px;
-        }
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-        .btn-watch {
-            display: inline-block;
-            padding: 14px 40px;
-            background: #28a745;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 16px;
-            transition: background 0.3s;
-            border: none;
-            cursor: pointer;
-            margin: 5px;
-        }
-        .btn-watch:hover {
-            background: #218838;
-        }
-        .info-text {
-            color: #888;
-            font-size: 14px;
-            margin-top: 20px;
-        }
-        .info-text a {
-            color: #4CAF50;
-            text-decoration: none;
-        }
-        .info-text a:hover {
-            text-decoration: underline;
-        }
-        /* Navigation */
-        nav {
+            padding: 18px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 30px;
-            background: #1a1a2e;
-            color: white;
         }
-        nav .logo {
+
+        header h1 {
+            margin: 0;
             font-size: 24px;
+        }
+
+        #logoutBtn {
+            background: #e53935;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
             font-weight: bold;
         }
-        nav .logo span {
-            color: #4CAF50;
-        }
-        nav ul {
-            list-style: none;
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            margin: 0;
-            padding: 0;
-        }
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        nav ul li a:hover {
-            color: #4CAF50;
-        }
-        #userEmail {
-            color: #aaa;
-            margin-right: 10px;
-        }
-        #logoutBtn {
-            padding: 8px 18px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        #logoutBtn:hover {
-            background: #c82333;
-        }
-        footer {
-            text-align: center;
-            padding: 20px;
-            background: #1a1a2e;
-            color: #888;
-            margin-top: 40px;
-        }
-        footer h2 {
-            color: white;
-            margin-bottom: 5px;
-        }
+
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
         }
-        .loading-spinner {
-            display: inline-block;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #4CAF50;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 10px auto;
+
+        .welcome {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        .welcome h2 {
+            margin-top: 0;
         }
-        .retry-btn {
-            background: #ff9800;
+
+        .balance {
+            background: #ff6b00;
             color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 10px;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
         }
-        .retry-btn:hover {
-            background: #e68900;
+
+        .balance h3 {
+            margin: 0 0 10px;
+        }
+
+        .balanceAmount {
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card h3 {
+            margin-top: 0;
+        }
+
+        .card button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background: #ff6b00;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .card button:hover {
+            opacity: 0.9;
+        }
+
+        #message {
+            text-align: center;
+            margin-top: 25px;
+            font-weight: bold;
         }
     </style>
-
 </head>
 
 <body>
 
-    <nav>
-        <div class="logo"><span>K</span>BTV</div>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="moovie.html">Movies</a></li>
-            <li id="loginLink"><a href="login.html">Login</a></li>
-            <li id="userInfo" style="display:none;">
-                <span id="userEmail"></span>
-            </li>
-            <li id="logoutLi" style="display:none;">
-                <button id="logoutBtn">Logout</button>
-            </li>
-        </ul>
-    </nav>
+<header>
 
-    <main class="container">
-        <div class="confirmation-container" id="confirmationContainer">
-            <div class="icon">✅</div>
-            <h1>Payment Confirmation</h1>
-            <p class="subtitle">Thank you for your payment. Please wait for admin verification.</p>
+    <h1>Tambola House</h1>
 
-            <div class="movie-details">
-                <h2 id="confirmationMovie">Movie</h2>
-                <p>Rental Price: <strong>₹100</strong></p>
-            </div>
+    <button id="logoutBtn">
+        Logout
+    </button>
 
-            <div id="statusContainer">
-                <div class="status-box status-pending">
-                    <strong>⏳ Loading Payment Status...</strong>
-                    <div class="loading-spinner"></div>
-                    <p style="margin:5px 0 0 0;font-size:14px;">
-                        Checking your payment status...
-                    </p>
-                </div>
-            </div>
+</header>
 
-            <div id="actionButtons">
-                <button id="submitPaymentBtn" class="btn-primary">
-                    📤 Submit Payment Details
-                </button>
-                <br>
-                <a href="moovie.html" class="btn-secondary">← Browse More Movies</a>
-            </div>
 
-            <div class="info-text">
-                <p>💡 Having trouble? <a href="mailto:support@kbtv.com">Contact Support</a></p>
-                <p style="margin-top:10px;font-size:12px;color:#aaa;">
-                    Payment ID: <span id="paymentId">-</span>
-                </p>
-            </div>
+<div class="container">
+
+    <div class="welcome">
+
+        <h2>
+            Welcome, <span id="userName">User</span>
+        </h2>
+
+        <p>
+            Your Tambola House account dashboard
+        </p>
+
+    </div>
+
+
+    <div class="balance">
+
+        <h3>
+            Token Balance
+        </h3>
+
+        <div class="balanceAmount">
+            <span id="tokenBalance">0</span>
+            Tokens
         </div>
-    </main>
 
-    <footer>
-        <h2>🎬 KBTV</h2>
-        <p>© 2026 KBTV Movie Rental. All Rights Reserved.</p>
-    </footer>
+    </div>
 
-    <!-- =========================
-         FIREBASE AUTH - UPDATED
-    ========================= -->
 
-    <script type="module">
-        // ============ IMPORT FROM FIREBASE.JS ============
-        import { auth, db } from './firebase.js';
-        import { 
-            onAuthStateChanged,
-            signOut 
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { 
-            collection, 
-            query, 
-            where, 
-            getDocs,
-            orderBy,
-            limit,
-            doc,
-            getDoc,
-            onSnapshot
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <div class="actions">
 
-        // ============ DOM ELEMENTS ============
-        const loginLink = document.getElementById('loginLink');
-        const userInfo = document.getElementById('userInfo');
-        const userEmail = document.getElementById('userEmail');
-        const logoutLi = document.getElementById('logoutLi');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const submitPaymentBtn = document.getElementById('submitPaymentBtn');
-        const statusContainer = document.getElementById('statusContainer');
-        const actionButtons = document.getElementById('actionButtons');
-        const paymentIdSpan = document.getElementById('paymentId');
 
-        // ============ GET MOVIE FROM URL ============
-        const params = new URLSearchParams(window.location.search);
-        const movieNumber = params.get('movie') || '1';
+        <div class="card">
 
-        const movies = {
-            1: 'Movie One',
-            2: 'Movie Two',
-            3: 'Movie Three',
-            4: 'Movie Four'
-        };
+            <h3>💰 Deposit Tokens</h3>
 
-        const movieTitle = movies[movieNumber] || 'Movie';
-        document.getElementById('confirmationMovie').textContent = movieTitle;
+            <p>
+                Request tokens by making a payment.
+            </p>
 
-        // ============ NAVIGATION AUTH ============
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                loginLink.style.display = 'none';
-                userInfo.style.display = 'inline-block';
-                logoutLi.style.display = 'inline-block';
-                userEmail.textContent = '👤 ' + user.email;
-                checkPaymentStatus(user);
+            <button onclick="depositTokens()">
+                Deposit Tokens
+            </button>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>🎟️ Book Ticket</h3>
+
+            <p>
+                Choose a ticket for the next game.
+            </p>
+
+            <button onclick="bookTicket()">
+                Book Ticket
+            </button>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>⚡ Auto Ticket</h3>
+
+            <p>
+                Let the system select a ticket automatically.
+            </p>
+
+            <button onclick="autoTicket()">
+                Auto Ticket
+            </button>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>🎯 Manual Ticket</h3>
+
+            <p>
+                Choose your preferred ticket manually.
+            </p>
+
+            <button onclick="manualTicket()">
+                Manual Ticket
+            </button>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>🏆 Prizes</h3>
+
+            <p>
+                View the current prize structure.
+            </p>
+
+            <button onclick="viewPrizes()">
+                View Prizes
+            </button>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>📋 My Bookings</h3>
+
+            <p>
+                View your previous bookings.
+            </p>
+
+            <button onclick="myBookings()">
+                My Bookings
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div id="message"></div>
+
+</div>
+
+
+<script type="module">
+
+    import { initializeApp }
+        from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
+    import {
+        getAuth,
+        onAuthStateChanged,
+        signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    import {
+        getFirestore,
+        doc,
+        getDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    import { firebaseConfig }
+        from "./firebase-config.js";
+
+
+    // Firebase
+
+    const app =
+        initializeApp(firebaseConfig);
+
+    const auth =
+        getAuth(app);
+
+    const db =
+        getFirestore(app);
+
+
+    // Page elements
+
+    const userName =
+        document.getElementById("userName");
+
+    const tokenBalance =
+        document.getElementById("tokenBalance");
+
+    const message =
+        document.getElementById("message");
+
+    const logoutBtn =
+        document.getElementById("logoutBtn");
+
+
+    // Check login
+
+    onAuthStateChanged(auth, async (user) => {
+
+        if (!user) {
+
+            window.location.href =
+                "login.html";
+
+            return;
+        }
+
+
+        try {
+
+            const userRef =
+                doc(db, "users", user.uid);
+
+            const userSnapshot =
+                await getDoc(userRef);
+
+
+            if (userSnapshot.exists()) {
+
+                const data =
+                    userSnapshot.data();
+
+
+                userName.textContent =
+                    data.name || "User";
+
+
+                tokenBalance.textContent =
+                    data.tokenBalance || 0;
+
             } else {
-                loginLink.style.display = 'inline-block';
-                userInfo.style.display = 'none';
-                logoutLi.style.display = 'none';
-                statusContainer.innerHTML = `
-                    <div class="status-box status-pending">
-                        <strong>⚠️ Please Login</strong>
-                        <p style="margin:5px 0 0 0;font-size:14px;">
-                            <a href="login.html" style="color:#4CAF50;font-weight:bold;">Login</a> to check your payment status.
-                        </p>
-                    </div>
-                `;
-                actionButtons.innerHTML = `
-                    <a href="login.html" class="btn-primary">🔐 Login</a>
-                    <br>
-                    <a href="moovie.html" class="btn-secondary">← Browse Movies</a>
-                `;
+
+                userName.textContent =
+                    user.email;
+
+                tokenBalance.textContent =
+                    0;
             }
-        });
 
-        // ============ LOGOUT ============
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                window.location.href = 'login.html';
-            } catch (error) {
-                console.error('Logout error:', error);
-                alert('Logout error: ' + error.message);
-            }
-        });
 
-        // ============ SUBMIT PAYMENT BUTTON ============
-        submitPaymentBtn.addEventListener('click', function () {
-            window.location.href = 'payment-upload.html?movie=' + movieNumber;
-        });
+        } catch (error) {
 
-        // ============ CHECK PAYMENT STATUS ============
-        async function checkPaymentStatus(user) {
-            try {
-                console.log('🔍 Checking payment status for user:', user.uid);
-                console.log('🎬 Movie ID:', movieNumber);
+            console.error(error);
 
-                // First, check if user has any payments at all
-                const allPaymentsQuery = query(
-                    collection(db, 'payments'),
-                    where('userId', '==', user.uid),
-                    where('movieId', '==', movieNumber),
-                    orderBy('submittedAt', 'desc'),
-                    limit(1)
-                );
+            message.style.color = "red";
 
-                console.log('📊 Querying payments...');
-                const paymentsSnapshot = await getDocs(allPaymentsQuery);
-                
-                console.log('📄 Payments found:', paymentsSnapshot.size);
+            message.textContent =
+                "Unable to load account information.";
 
-                if (paymentsSnapshot.empty) {
-                    // No payment found - show info to submit payment
-                    statusContainer.innerHTML = `
-                        <div class="status-box status-info">
-                            <strong>📤 No Payment Found</strong>
-                            <p style="margin:5px 0 0 0;font-size:14px;">
-                                You haven't submitted a payment for this movie yet.
-                                Please complete the payment process.
-                            </p>
-                        </div>
-                    `;
-                    actionButtons.innerHTML = `
-                        <button onclick="window.location.href='payment-upload.html?movie=${movieNumber}'" class="btn-primary">
-                            📤 Submit Payment Details
-                        </button>
-                        <br>
-                        <a href="moovie.html" class="btn-secondary">← Browse Movies</a>
-                    `;
-                    return;
-                }
-
-                // Get the latest payment
-                const paymentDoc = paymentsSnapshot.docs[0];
-                const paymentData = paymentDoc.data();
-                const paymentId = paymentDoc.id;
-                paymentIdSpan.textContent = paymentId.slice(0, 8) + '...';
-
-                console.log('✅ Payment found:', paymentId);
-                console.log('📊 Payment status:', paymentData.status);
-
-                // Listen for real-time updates
-                const paymentRef = doc(db, 'payments', paymentId);
-                onSnapshot(paymentRef, (doc) => {
-                    if (doc.exists()) {
-                        const data = doc.data();
-                        console.log('🔄 Payment updated:', data.status);
-                        updatePaymentStatus(data, paymentId);
-                    }
-                }, (error) => {
-                    console.error('❌ Real-time update error:', error);
-                });
-
-                // Initial status update
-                updatePaymentStatus(paymentData, paymentId);
-
-            } catch (error) {
-                console.error('❌ Error checking payment status:', error);
-                console.error('Error details:', error.message);
-                
-                statusContainer.innerHTML = `
-                    <div class="status-box status-pending">
-                        <strong>⚠️ Could Not Check Payment Status</strong>
-                        <p style="margin:5px 0 0 0;font-size:14px;">
-                            ${error.message}
-                        </p>
-                        <button onclick="location.reload()" class="retry-btn">
-                            🔄 Retry
-                        </button>
-                    </div>
-                `;
-            }
         }
 
-        // ============ UPDATE PAYMENT STATUS ============
-        function updatePaymentStatus(paymentData, paymentId) {
-            const status = paymentData.status || 'pending';
-            const transactionId = paymentData.transactionId || 'N/A';
-            
-            console.log('📊 Updating UI for status:', status);
-            
-            let statusHTML = '';
-            let buttonsHTML = '';
-            let icon = '⏳';
-            let statusClass = 'status-pending';
-            let statusText = 'Pending Verification';
-            let message = 'Your payment is being reviewed by our team. This usually takes 5-10 minutes.';
+    });
 
-            switch (status) {
-                case 'approved':
-                    icon = '✅';
-                    statusClass = 'status-approved';
-                    statusText = 'Approved! 🎉';
-                    message = 'Your payment has been approved! You can now watch the movie.';
-                    buttonsHTML = `
-                        <a href="watch.html?movieId=${movieNumber}&title=${encodeURIComponent(movieTitle)}" class="btn-watch">
-                            ▶️ Watch Now
-                        </a>
-                        <br>
-                        <a href="moovie.html" class="btn-secondary">← Browse More Movies</a>
-                    `;
-                    break;
 
-                case 'rejected':
-                    icon = '❌';
-                    statusClass = 'status-rejected';
-                    statusText = 'Rejected';
-                    message = 'Your payment was rejected. Please contact support or try again.';
-                    buttonsHTML = `
-                        <button onclick="window.location.href='payment-upload.html?movie=${movieNumber}'" class="btn-primary">
-                            🔄 Try Again
-                        </button>
-                        <br>
-                        <a href="moovie.html" class="btn-secondary">← Browse Movies</a>
-                    `;
-                    break;
+    // Logout
 
-                case 'pending':
-                default:
-                    icon = '⏳';
-                    statusClass = 'status-pending';
-                    statusText = 'Pending Verification';
-                    message = 'Your payment is being reviewed by our team. This usually takes 5-10 minutes.';
-                    buttonsHTML = `
-                        <button onclick="window.location.href='payment-upload.html?movie=${movieNumber}'" class="btn-primary">
-                            📤 Submit Payment Details
-                        </button>
-                        <br>
-                        <a href="moovie.html" class="btn-secondary">← Browse Movies</a>
-                    `;
-                    break;
-            }
+    logoutBtn.addEventListener("click", async () => {
 
-            statusContainer.innerHTML = `
-                <div class="status-box ${statusClass}">
-                    <strong>${icon} Payment Status: ${statusText}</strong>
-                    <p style="margin:5px 0 0 0;font-size:14px;">
-                        ${message}
-                    </p>
-                    ${status === 'pending' ? `
-                        <p style="margin:5px 0 0 0;font-size:12px;color:#856404;">
-                            Transaction ID: ${transactionId}
-                        </p>
-                        <p style="margin:5px 0 0 0;font-size:12px;color:#856404;">
-                            Submitted: ${paymentData.submittedAt ? new Date(paymentData.submittedAt.seconds * 1000).toLocaleString() : 'Unknown'}
-                        </p>
-                    ` : ''}
-                    ${status === 'approved' ? `
-                        <p style="margin:5px 0 0 0;font-size:12px;color:#155724;">
-                            Approved at: ${paymentData.approvedAt ? new Date(paymentData.approvedAt.seconds * 1000).toLocaleString() : 'Unknown'}
-                        </p>
-                    ` : ''}
-                </div>
-            `;
+        try {
 
-            actionButtons.innerHTML = buttonsHTML;
-            
-            // Update the icon at the top
-            const iconElement = document.querySelector('.icon');
-            if (iconElement) {
-                iconElement.textContent = icon;
-            }
+            await signOut(auth);
+
+            window.location.href =
+                "login.html";
+
+        } catch (error) {
+
+            console.error(error);
+
+            message.style.color = "red";
+
+            message.textContent =
+                "Logout failed.";
+
         }
 
-        console.log('✅ payment-confirmation.html - Firebase imported from firebase.js');
-        console.log('🎬 Movie:', movieTitle);
-        console.log('🆔 Movie ID:', movieNumber);
-    </script>
+    });
+
+
+    // Temporary buttons
+
+    window.depositTokens = function () {
+
+        alert(
+            "Token deposit system will be added next."
+        );
+
+    };
+
+
+    window.bookTicket = function () {
+
+        alert(
+            "Ticket booking system will be added next."
+        );
+
+    };
+
+
+    window.autoTicket = function () {
+
+        alert(
+            "Automatic ticket selection will be added next."
+        );
+
+    };
+
+
+    window.manualTicket = function () {
+
+        alert(
+            "Manual ticket selection will be added next."
+        );
+
+    };
+
+
+    window.viewPrizes = function () {
+
+        alert(
+            "Prize system will be added next."
+        );
+
+    };
+
+
+    window.myBookings = function () {
+
+        alert(
+            "Booking history will be added next."
+        );
+
+    };
+
+</script>
 
 </body>
-
 </html>
