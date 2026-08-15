@@ -1,114 +1,163 @@
-import { auth, db } from "./firebase.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-import {
-createUserWithEmailAndPassword,
-signInWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    <title>Tambola House</title>
 
-import {
-doc,
-setDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-// ------------------------
-// REGISTER
-// ------------------------
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            color: #222;
+        }
 
-const registerForm=document.getElementById("registerForm");
+        header {
+            background: #222;
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-if(registerForm){
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
 
-registerForm.addEventListener("submit",async(e)=>{
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+        }
 
-e.preventDefault();
+        .hero {
+            text-align: center;
+            padding: 80px 20px;
+            background: white;
+        }
 
-const name=document.getElementById("fullName").value;
+        .hero h2 {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
 
-const mobile=document.getElementById("mobile").value;
+        .hero p {
+            font-size: 18px;
+            color: #666;
+        }
 
-const email=document.getElementById("email").value;
+        .buttons {
+            margin-top: 30px;
+        }
 
-const password=document.getElementById("password").value;
+        .btn {
+            display: inline-block;
+            padding: 13px 25px;
+            margin: 5px;
+            border-radius: 6px;
+            text-decoration: none;
+            background: #ff6b00;
+            color: white;
+            font-weight: bold;
+        }
 
-const confirm=document.getElementById("confirmPassword").value;
+        .btn.login {
+            background: #333;
+        }
 
-if(password!==confirm){
+        .features {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
 
-alert("Passwords do not match.");
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
 
-return;
+        .card h3 {
+            margin-top: 0;
+        }
 
-}
+        footer {
+            text-align: center;
+            padding: 25px;
+            background: #222;
+            color: white;
+            margin-top: 40px;
+        }
+    </style>
+</head>
 
-try{
+<body>
 
-const userCredential=
-await createUserWithEmailAndPassword(
-auth,
-email,
-password
-);
+<header>
+    <h1>Tambola House</h1>
 
-await setDoc(doc(db,"users",userCredential.user.uid),{
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="login.html">Login</a>
+        <a href="register.html">Register</a>
+    </nav>
+</header>
 
-name:name,
+<section class="hero">
 
-mobile:mobile,
+    <h2>Welcome to Tambola House</h2>
 
-email:email,
+    <p>
+        Play Tambola, book tickets and enjoy exciting games.
+    </p>
 
-createdAt:new Date()
+    <div class="buttons">
+        <a class="btn" href="register.html">Register</a>
+        <a class="btn login" href="login.html">Login</a>
+    </div>
 
-});
+</section>
 
-alert("Account Created Successfully!");
+<section class="features">
 
-window.location="login.html";
+    <div class="card">
+        <h3>🎟️ Tickets</h3>
+        <p>Choose your Tambola ticket manually or automatically.</p>
+    </div>
 
-}catch(error){
+    <div class="card">
+        <h3>⚡ Auto Tick</h3>
+        <p>Let the system automatically mark called numbers.</p>
+    </div>
 
-alert(error.message);
+    <div class="card">
+        <h3>💰 Tokens</h3>
+        <p>Use your token balance to book tickets.</p>
+    </div>
 
-}
+    <div class="card">
+        <h3>🏆 Prizes</h3>
+        <p>Quick 5, lines and House Full prizes.</p>
+    </div>
 
-});
+</section>
 
-}
+<footer>
+    © 2026 Tambola House
+</footer>
 
-// ------------------------
-// LOGIN
-// ------------------------
-
-const loginForm=document.getElementById("loginForm");
-
-if(loginForm){
-
-loginForm.addEventListener("submit",async(e)=>{
-
-e.preventDefault();
-
-const email=document.getElementById("loginEmail").value;
-
-const password=document.getElementById("loginPassword").value;
-
-try{
-
-await signInWithEmailAndPassword(
-auth,
-email,
-password
-);
-
-alert("Login Successful!");
-
-window.location="index.html";
-
-}catch(error){
-
-alert(error.message);
-
-}
-
-});
-
-}
+</body>
+</html>
