@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KBTV - Register</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<nav>
+
+<div class="logo">
+<span>K</span>BTV
+</div>
+
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="login.html">Login</a></li>
+</ul>
+
+</nav>
+
+<section class="login-page">
+
+<div class="login-box">
+
+<h1>Create Account</h1>
+
+<p>Join KBTV and enjoy premium movies.</p>
+
+<form id="registerForm">
+
+<input
+id="name"
+type="text"
+placeholder="Full Name"
+required>
+
+<input
+id="email"
+type="email"
+placeholder="Email Address"
+required>
+
+<input
+id="mobile"
+type="tel"
+placeholder="Mobile Number"
+required>
+
+<input
+id="password"
+type="password"
+placeholder="Password"
+required>
+
+<input
+id="confirmPassword"
+type="password"
+placeholder="Confirm Password"
+required>
+
+<button type="submit">
+Create Account
+</button>
+
+</form>
+
+<div id="errorMessage" style="color:red;margin-top:10px;font-size:14px;"></div>
+<div id="successMessage" style="color:green;margin-top:10px;font-size:14px;display:none;"></div>
+
+<p>
+
+Already have an account?
+
+<a href="login.html">
+
+Login
+
+</a>
+
+</p>
+
+</div>
+
+</section>
+
+<footer>
+
+<h2>KBTV</h2>
+
+<p>© 2026 KBTV Movie Rental. All Rights Reserved.</p>
+
+</footer>
+
+<!-- =========================
+     FIREBASE AUTH - UPDATED
+========================= -->
+
+<script type="module">
+    // ============ IMPORT FROM FIREBASE.JS ============
+    import { auth, db } from './firebase.js';
+    import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // ============ REGISTER FORM HANDLER ============
+    const registerForm = document.getElementById('registerForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Get form values
+        const fullName = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const mobile = document.getElementById('mobile').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        // Clear previous messages
+        errorMessage.textContent = '';
+        errorMessage.style.display = 'block';
+        successMessage.style.display = 'none';
+        successMessage.textContent = '';
+
+        // ============ VALIDATION ============
+        
+        // Check if passwords match
+        if (password !== confirmPassword) {
+            errorMessage.textContent = '❌ Passwords do not match.';
+            return;
+        }
+
+        // Check password length
+        if (password.length < 6) {
+            errorMessage.textContent = '❌ Password must be at least 6 characters.';
+            return;
+        }
+
+        // Check mobile number (basic validation)
+        if (mobile.length < 10) {
+            errorMessage.textContent = '❌ Please enter a valid mobile number (10+ digits).';
+            return;
+        }
+
+        // ============ CREATE USER ============
+        try {
+            // Create user with Firebase Auth
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            
+            console.log('✅ User registered:', user.email);
+
+            // Update user profile with full name
+            await updateProfile(user, {
+                displayName: fullName
+            });
+
+            // Save user data to Firestore
+            await setDoc(doc(db, 'users', user.uid), {
+                fullName: fullName,
+                email: user.email,
+                mobile: mobile,
+                role: 'customer',
+                createdAt: serverTimestamp(),
+                uid: user.uid,
+                updatedAt: serverTimestamp()
+            });
+
+            // Show success message
+            successMessage.style.display = 'block';
+            successMessage.textContent = '✅ Account created successfully! Redirecting to login...';
+            
+            // Disable submit button
+            const submitButton = registerForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Processing...';
+
+            // Redirect to login after 2 seconds
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+
+        } catch (error) {
+            console.error('Registration error:', error);
+            
+            // Show user-friendly error message
+            let message = '';
+            switch (error.code) {
+                case 'auth/email-already-in-use':
+                    message = 'This email is already registered. Please login instead.';
+                    break;
+                case 'auth/invalid-email':
+                    message = 'Invalid email format. Please check your email.';
+                    break;
+                case 'auth/weak-password':
+                    message = 'Password is too weak. Use at least 6 characters.';
+                    break;
+                case 'auth/operation-not-allowed':
+                    message = 'Email/password accounts are not enabled.';
+                    break;
+                default:
+                    message = error.message;
+            }
+            errorMessage.textContent = '❌ ' + message;
+            
+            // Re-enable submit button
+            const submitButton = registerForm.querySelector('button[type="submit"]');
+            submitButton.disabled = false;
+            submitButton.textContent = 'Create Account';
+        }
+    });
+
+    console.log('✅ register.html - Firebase imported from firebase.js');
+</script>
+
+</body>
+</html>

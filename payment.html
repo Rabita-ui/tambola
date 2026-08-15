@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KBTV - Pay with UPI</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .payment-container {
+            max-width: 480px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .payment-container h1 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .payment-container .subtitle {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        
+        .movie-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        .movie-summary h3 {
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+        .movie-summary .price {
+            font-size: 32px;
+            font-weight: 700;
+            color: #4CAF50;
+        }
+        .movie-summary .rental-info {
+            color: #888;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+        
+        /* QR Code Section */
+        .qr-section {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+        .qr-section h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .qr-section .qr-container {
+            display: inline-block;
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .qr-section .qr-container img {
+            max-width: 200px;
+            height: auto;
+            display: block;
+        }
+        .qr-section .pay-amount {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin: 12px 0 8px 0;
+        }
+        .qr-section .upi-id {
+            background: #e3f2fd;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: inline-block;
+            color: #1565c0;
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 8px;
+            word-break: break-all;
+        }
+        
+        /* Divider */
+        .divider {
+            border: none;
+            border-top: 2px dashed #e0e0e0;
+            margin: 20px 0;
+        }
+        
+        /* Pay Using UPI Button */
+        .btn-pay-upi {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #6C63FF 0%, #4CAF50 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 22px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4);
+            margin-top: 10px;
+        }
+        .btn-pay-upi:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 30px rgba(76, 175, 80, 0.5);
+        }
+        .btn-pay-upi:active {
+            transform: scale(0.98);
+        }
+        .btn-pay-upi:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-pay-upi .icon {
+            font-size: 30px;
+        }
+        .btn-pay-upi .arrow {
+            font-size: 22px;
+            margin-left: 5px;
+        }
+        
+        .btn-continue {
+            width: 100%;
+            padding: 14px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 15px;
+        }
+        .btn-continue:hover {
+            background: #45a049;
+        }
+        .btn-continue:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .btn-back {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-top: 15px;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+        .btn-back:hover {
+            background: #5a6268;
+        }
+        .info-box {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin: 15px 0;
+            text-align: left;
+        }
+        .info-box p {
+            margin: 5px 0;
+            color: #856404;
+            font-size: 13px;
+        }
+        
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: #1a1a2e;
+            color: white;
+        }
+        nav .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        nav .logo span {
+            color: #4CAF50;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        nav ul li a:hover {
+            color: #4CAF50;
+        }
+        #userEmail {
+            color: #aaa;
+            margin-right: 10px;
+        }
+        #logoutBtn {
+            padding: 8px 18px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        #logoutBtn:hover {
+            background: #c82333;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #888;
+            margin-top: 40px;
+        }
+        footer h2 {
+            color: white;
+            margin-bottom: 5px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        .toast.success {
+            background: #28a745;
+        }
+        .toast.error {
+            background: #dc3545;
+        }
+        .toast.info {
+            background: #17a2b8;
+        }
+        
+        @media (max-width: 600px) {
+            nav {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px 15px;
+            }
+            nav ul {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .btn-pay-upi {
+                font-size: 18px;
+                padding: 16px;
+            }
+            .payment-container {
+                margin: 20px 10px;
+                padding: 20px;
+            }
+            .qr-section .qr-container img {
+                max-width: 150px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo"><span>K</span>BTV</div>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="moovie.html">Movies</a></li>
+            <li id="loginLink"><a href="login.html">Login</a></li>
+            <li id="userInfo" style="display:none;">
+                <span id="userEmail"></span>
+            </li>
+            <li id="logoutLi" style="display:none;">
+                <button id="logoutBtn">Logout</button>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <div class="payment-container">
+            <h1>📱 Pay with UPI</h1>
+            <p class="subtitle">Scan QR code or click the button to pay</p>
+
+            <!-- Movie Summary -->
+            <div class="movie-summary">
+                <h3 id="movieTitle">Movie Two</h3>
+                <div class="price">₹<span id="moviePrice">100</span></div>
+                <div class="rental-info">🎬 24-Hour Rental Access</div>
+            </div>
+
+            <!-- QR Code Section -->
+            <div class="qr-section">
+                <h4>📲 Scan to Pay</h4>
+                <div class="qr-container">
+                    <img src="Qrc.png" alt="UPI QR Code" id="qrCodeImage" />
+                </div>
+                <div class="pay-amount">Amount: ₹<span id="qrPrice">100</span></div>
+                <div class="upi-id">📧 <span id="upiId">kbtv@upi</span></div>
+            </div>
+
+            <!-- Divider -->
+            <hr class="divider">
+
+            <!-- Pay Using UPI Button -->
+            <button id="payUpiBtn" class="btn-pay-upi">
+                <span class="icon">📱</span>
+                Pay Using UPI
+                <span class="arrow">→</span>
+            </button>
+            
+            <p style="color:#888;font-size:13px;margin:12px 0 0 0;">
+                ⚡ Opens your UPI app with pre-filled amount
+            </p>
+
+            <div class="info-box">
+                <p>💡 After payment, click "Continue" to upload your payment screenshot.</p>
+                <p>⏱️ Verification usually takes 5-10 minutes.</p>
+            </div>
+
+            <button id="continueBtn" class="btn-continue">
+                ✅ I've Made the Payment - Continue
+            </button>
+
+            <br>
+            <a href="movie-details.html?movieId=1" class="btn-back">← Back to Movie</a>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <footer>
+        <h2>🎬 KBTV</h2>
+        <p>© 2026 KBTV Movie Rental. All Rights Reserved.</p>
+    </footer>
+
+    <!-- =========================
+         FIREBASE AUTH - UPDATED
+    ========================= -->
+
+    <script type="module">
+        // ============ IMPORT FROM FIREBASE.JS ============
+        import { auth } from './firebase.js';
+        import { 
+            onAuthStateChanged,
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // ============ DOM ELEMENTS ============
+        const loginLink = document.getElementById('loginLink');
+        const userInfo = document.getElementById('userInfo');
+        const userEmail = document.getElementById('userEmail');
+        const logoutLi = document.getElementById('logoutLi');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const continueBtn = document.getElementById('continueBtn');
+        const payUpiBtn = document.getElementById('payUpiBtn');
+
+        // ============ CONFIGURATION ============
+        // ⭐ CHANGE THIS TO YOUR UPI ID ⭐
+        const UPI_ID = 'kbtv@upi';  // Replace with your actual UPI ID
+        const PAYEE_NAME = 'KBTV Movies';
+        
+        // ============ GET MOVIE FROM URL ============
+        const params = new URLSearchParams(window.location.search);
+        const movieId = params.get('movieId') || '1';
+        const movieTitle = params.get('title') || 'Movie Two';
+        const moviePrice = params.get('price') || '100';
+
+        // Update movie details
+        document.getElementById('movieTitle').textContent = movieTitle;
+        document.getElementById('moviePrice').textContent = moviePrice;
+        document.getElementById('qrPrice').textContent = moviePrice;
+        document.getElementById('upiId').textContent = UPI_ID;
+
+        // ============ NAVIGATION AUTH ============
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginLink.style.display = 'none';
+                userInfo.style.display = 'inline-block';
+                logoutLi.style.display = 'inline-block';
+                userEmail.textContent = '👤 ' + user.email;
+                payUpiBtn.disabled = false;
+                continueBtn.disabled = false;
+            } else {
+                loginLink.style.display = 'inline-block';
+                userInfo.style.display = 'none';
+                logoutLi.style.display = 'none';
+                continueBtn.textContent = '🔐 Login to Continue';
+                continueBtn.disabled = true;
+                payUpiBtn.disabled = true;
+                payUpiBtn.style.opacity = '0.5';
+                payUpiBtn.style.cursor = 'not-allowed';
+                payUpiBtn.onclick = () => {
+                    window.location.href = 'login.html';
+                };
+            }
+        });
+
+        // ============ LOGOUT ============
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('Logout error: ' + error.message);
+            }
+        });
+
+        // ============ PAY USING UPI BUTTON ============
+        payUpiBtn.addEventListener('click', function() {
+            const user = auth.currentUser;
+            
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Build UPI payment URL
+            const transactionNote = `Rental for ${movieTitle}`;
+            const upiLink = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${moviePrice}&cu=INR&tn=${encodeURIComponent(transactionNote)}`;
+            
+            console.log('📱 Opening UPI app...');
+            console.log('💰 Amount: ₹' + moviePrice);
+            console.log('📧 UPI ID:', UPI_ID);
+            console.log('📝 Note:', transactionNote);
+            
+            // Try to open UPI app
+            try {
+                window.location.href = upiLink;
+                showToast('📱 Opening UPI app...', 'info');
+                
+                // Fallback: If UPI app doesn't open, show UPI ID after 3 seconds
+                setTimeout(() => {
+                    if (document.visibilityState === 'visible') {
+                        showToast(`💡 Please send ₹${moviePrice} to ${UPI_ID} manually`, 'info');
+                    }
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Error opening UPI:', error);
+                showToast(`💡 Please send ₹${moviePrice} to ${UPI_ID} manually`, 'error');
+            }
+        });
+
+        // ============ CONTINUE TO PAYMENT UPLOAD ============
+        continueBtn.addEventListener('click', function() {
+            const user = auth.currentUser;
+            
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const redirectUrl = `payment-upload.html?movieId=${movieId}&movieTitle=${encodeURIComponent(movieTitle)}&price=${moviePrice}&method=upi`;
+            
+            console.log('🔄 Redirecting to:', redirectUrl);
+            
+            window.location.href = redirectUrl;
+        });
+
+        // ============ TOAST NOTIFICATION ============
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            
+            void toast.offsetWidth;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
+        }
+
+        // ============ LISTEN FOR PAGE VISIBILITY CHANGE ============
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                showToast('✅ Welcome back! Click "Continue" to upload screenshot.', 'success');
+            }
+        });
+
+        console.log('✅ payment.html - UPI Payment Page loaded');
+        console.log('🎬 Movie:', movieTitle);
+        console.log('💰 Price: ₹' + moviePrice);
+        console.log('📧 UPI ID:', UPI_ID);
+    </script>
+
+</body>
+</html>
