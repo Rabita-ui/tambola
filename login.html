@@ -1,155 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KBTV - Login</title>
 
-    <link rel="stylesheet" href="style.css">
+    <title>Login - Tambola House</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        header {
+            background: #222;
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+        }
+
+        .container {
+            max-width: 450px;
+            margin: 60px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            margin-top: 25px;
+            border: none;
+            border-radius: 6px;
+            background: #ff6b00;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #message {
+            margin-top: 18px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .register-link a {
+            color: #ff6b00;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
 
+<header>
+
+    <h1>Tambola House</h1>
+
     <nav>
-
-        <div class="logo">
-            <span>K</span>BTV
-        </div>
-
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="register.html">Register</a></li>
-        </ul>
-
+        <a href="index.html">Home</a>
+        <a href="register.html">Register</a>
     </nav>
 
-    <section class="login-page">
+</header>
 
-        <div class="login-box">
 
-            <h1>Welcome Back</h1>
+<div class="container">
 
-            <p>Login to your KBTV account</p>
+    <h2>Login</h2>
 
-            <form id="loginForm">
+    <form id="loginForm">
 
-                <input
-                    id="loginEmail"
-                    type="email"
-                    placeholder="Email Address"
-                    required>
+        <label for="email">Email</label>
 
-                <input
-                    id="loginPassword"
-                    type="password"
-                    placeholder="Password"
-                    required>
+        <input
+            type="email"
+            id="email"
+            required
+            placeholder="Enter your email"
+        >
 
-                <button type="submit">
-                    Login
-                </button>
 
-            </form>
+        <label for="password">Password</label>
 
-            <div id="errorMessage" style="color:red;margin-top:10px;font-size:14px;"></div>
+        <input
+            type="password"
+            id="password"
+            required
+            placeholder="Enter your password"
+        >
 
-            <p>
-                Don't have an account?
 
-                <a href="register.html">
-                    Register
-                </a>
-            </p>
+        <button type="submit">
+            Login
+        </button>
 
-        </div>
+    </form>
 
-    </section>
 
-    <footer>
+    <div id="message"></div>
 
-        <h2>KBTV</h2>
 
-        <p>© 2026 KBTV Movie Rental. All Rights Reserved.</p>
+    <div class="register-link">
 
-    </footer>
+        Don't have an account?
 
-    <!-- =========================
-         FIREBASE AUTH - UPDATED
-    ========================= -->
+        <a href="register.html">
+            Register here
+        </a>
 
-    <script type="module">
-        // ============ IMPORT FROM FIREBASE.JS ============
-        import { auth, db } from './firebase.js';
-        import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    </div>
 
-        // ============ LOGIN FORM HANDLER ============
-        const loginForm = document.getElementById('loginForm');
-        const errorMessage = document.getElementById('errorMessage');
+</div>
 
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            // Clear previous error
-            errorMessage.textContent = '';
-            errorMessage.style.color = 'red';
 
-            try {
-                // Sign in with Firebase Auth
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                
-                console.log('✅ Login successful for:', user.email);
+<script type="module">
 
-                // Check if user is admin
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                const userData = userDoc.data();
-                
-                if (userData && userData.role === 'admin') {
-                    // Redirect to admin dashboard
-                    window.location.href = 'admin-dashboard.html';
-                } else {
-                    // Redirect to home page
-                    window.location.href = 'index.html';
-                }
-                
-            } catch (error) {
-                console.error('Login error:', error);
-                
-                // Show user-friendly error message
-                let message = 'Login failed. ';
-                switch (error.code) {
-                    case 'auth/user-not-found':
-                        message += 'No account found with this email.';
-                        break;
-                    case 'auth/wrong-password':
-                        message += 'Incorrect password.';
-                        break;
-                    case 'auth/invalid-email':
-                        message += 'Invalid email format.';
-                        break;
-                    case 'auth/too-many-requests':
-                        message += 'Too many failed attempts. Please try again later.';
-                        break;
-                    default:
-                        message += error.message;
-                }
-                errorMessage.textContent = '❌ ' + message;
+    import { initializeApp }
+        from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
+    import {
+        getAuth,
+        signInWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    import { firebaseConfig }
+        from "./firebase-config.js";
+
+
+    // Initialize Firebase
+
+    const app = initializeApp(firebaseConfig);
+
+    const auth = getAuth(app);
+
+
+    // Login form
+
+    const loginForm =
+        document.getElementById("loginForm");
+
+    const message =
+        document.getElementById("message");
+
+
+    loginForm.addEventListener("submit", async (event) => {
+
+        event.preventDefault();
+
+
+        const email =
+            document.getElementById("email").value.trim();
+
+        const password =
+            document.getElementById("password").value;
+
+
+        message.style.color = "#333";
+
+        message.textContent =
+            "Logging in...";
+
+
+        try {
+
+            await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+
+
+            message.style.color = "green";
+
+            message.textContent =
+                "Login successful!";
+
+
+            setTimeout(() => {
+
+                window.location.href =
+                    "dashboard.html";
+
+            }, 1000);
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            message.style.color = "red";
+
+
+            if (
+                error.code ===
+                "auth/invalid-credential"
+            ) {
+
+                message.textContent =
+                    "Incorrect email or password.";
+
+            } else if (
+                error.code ===
+                "auth/user-not-found"
+            ) {
+
+                message.textContent =
+                    "No account found with this email.";
+
+            } else if (
+                error.code ===
+                "auth/wrong-password"
+            ) {
+
+                message.textContent =
+                    "Incorrect password.";
+
+            } else {
+
+                message.textContent =
+                    "Login failed: " +
+                    error.message;
             }
-        });
 
-        console.log('✅ login.html - Firebase imported from firebase.js');
-    </script>
+        }
+
+    });
+
+</script>
 
 </body>
-
 </html>
