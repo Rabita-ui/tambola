@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Deposit Tokens - Tambola House</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        header {
+            background: #222;
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 23px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 13px;
+            border: none;
+            border-radius: 6px;
+            background: #ff6b00;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #ff6b00;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        #message {
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Tambola House</h1>
+</header>
+
+<div class="container">
+
+    <div class="card">
+
+        <h2>Deposit Tokens</h2>
+
+        <p>
+            Enter the amount you want to deposit.
+            Your request will be reviewed by the administrator.
+        </p>
+
+        <form id="depositForm">
+
+            <label for="amount">
+                Payment Amount (₹)
+            </label>
+
+            <input
+                type="number"
+                id="amount"
+                min="1"
+                step="1"
+                required
+                placeholder="Enter amount"
+            >
+
+            <label for="reference">
+                UPI Transaction / Reference Number
+            </label>
+
+            <input
+                type="text"
+                id="reference"
+                required
+                placeholder="Enter transaction reference"
+            >
+
+            <button type="submit">
+                Submit Deposit Request
+            </button>
+
+        </form>
+
+        <div id="message"></div>
+
+        <a class="back" href="dashboard.html">
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+
+<script type="module">
+
+    import { initializeApp }
+        from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
+    import {
+        getAuth,
+        onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    import {
+        getFirestore,
+        collection,
+        addDoc,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    import { firebaseConfig }
+        from "./firebase-config.js";
+
+
+    const app = initializeApp(firebaseConfig);
+
+    const auth = getAuth(app);
+
+    const db = getFirestore(app);
+
+
+    let currentUser = null;
+
+
+    onAuthStateChanged(auth, (user) => {
+
+        if (!user) {
+
+            window.location.href = "login.html";
+
+            return;
+        }
+
+        currentUser = user;
+
+    });
+
+
+    const form =
+        document.getElementById("depositForm");
+
+    const message =
+        document.getElementById("message");
+
+
+    form.addEventListener("submit", async (event) => {
+
+        event.preventDefault();
+
+
+        if (!currentUser) {
+
+            message.style.color = "red";
+
+            message.textContent =
+                "Please login again.";
+
+            return;
+        }
+
+
+        const amount =
+            Number(
+                document.getElementById("amount").value
+            );
+
+        const reference =
+            document.getElementById("reference")
+                .value.trim();
+
+
+        if (amount <= 0) {
+
+            message.style.color = "red";
+
+            message.textContent =
+                "Enter a valid amount.";
+
+            return;
+        }
+
+
+        if (!reference) {
+
+            message.style.color = "red";
+
+            message.textContent =
+                "Enter the transaction reference.";
+
+            return;
+        }
+
+
+        message.style.color = "#333";
+
+        message.textContent =
+            "Submitting request...";
+
+
+        try {
+
+            await addDoc(
+                collection(db, "depositRequests"),
+                {
+                    userId: currentUser.uid,
+                    email: currentUser.email,
+
+                    amount: amount,
+
+                    reference: reference,
+
+                    status: "pending",
+
+                    createdAt: serverTimestamp()
+                }
+            );
+
+
+            message.style.color = "green";
+
+            message.textContent =
+                "Deposit request submitted successfully. Waiting for admin approval.";
+
+            form.reset();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            message.style.color = "red";
+
+            message.textContent =
+                "Unable to submit request: " +
+                error.message;
+
+        }
+
+    });
+
+</script>
+
+</body>
+</html>
