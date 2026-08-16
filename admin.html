@@ -1,216 +1,755 @@
-<!-- setup-admin.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KBTV - Setup Admin</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Panel - Tambola House</title>
+
     <style>
-        .setup-container {
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 40px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        * {
+            box-sizing: border-box;
         }
-        .setup-container h2 {
-            text-align: center;
-            margin-bottom: 20px;
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            color: #222;
         }
-        .form-group {
-            margin-bottom: 20px;
+
+        header {
+            background: #222;
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
         }
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        .btn-primary {
-            width: 100%;
-            padding: 12px;
-            background: #4CAF50;
+
+        #logoutBtn {
+            background: #e53935;
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            padding: 10px 18px;
+            border-radius: 6px;
             cursor: pointer;
+            font-weight: bold;
         }
-        .btn-primary:hover {
-            background: #45a049;
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
         }
-        .result {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 8px;
+
+        .welcome {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .section h2 {
+            margin-top: 0;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat {
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f8f8;
             text-align: center;
         }
-        .success {
-            background: #d4edda;
-            color: #155724;
+
+        .stat h3 {
+            margin: 0 0 10px;
         }
-        .error {
-            background: #f8d7da;
-            color: #721c24;
+
+        .statNumber {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .request {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 18px;
+            margin-top: 15px;
+        }
+
+        .request p {
+            margin: 7px 0;
+        }
+
+        .requestButtons {
+            margin-top: 15px;
+        }
+
+        .approve,
+        .reject {
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        .approve {
+            background: #2e7d32;
+        }
+
+        .reject {
+            background: #d32f2f;
+        }
+
+        .empty {
+            color: #777;
+            padding: 15px 0;
+        }
+
+        #message {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 20px;
         }
     </style>
 </head>
+
 <body>
-    <header>
-        <div class="container">
-            <h1>🎬 KBTV</h1>
-            <nav>
-                <a href="index.html">Home</a>
-                <a href="login.html">Login</a>
-            </nav>
-        </div>
-    </header>
 
-    <main class="container">
-        <div class="setup-container">
-            <h2>🔑 Setup Admin Account</h2>
-            <p style="text-align:center;color:#666;margin-bottom:20px;">
-                Make an existing user an administrator
-            </p>
-            
-            <div class="form-group">
-                <label for="adminEmail">Admin Email Address</label>
-                <input 
-                    type="email" 
-                    id="adminEmail" 
-                    placeholder="Enter the email you want to make admin"
-                    required
-                />
+<header>
+
+    <h1>Tambola House - Admin</h1>
+
+    <button id="logoutBtn">
+        Logout
+    </button>
+
+</header>
+
+
+<div class="container">
+
+    <div class="welcome">
+
+        <h2>
+            Welcome, <span id="adminName">Admin</span>
+        </h2>
+
+        <p>
+            Administrator Control Panel
+        </p>
+
+    </div>
+
+
+    <div class="section">
+
+        <h2>Overview</h2>
+
+        <div class="stats">
+
+            <div class="stat">
+
+                <h3>Registered Users</h3>
+
+                <div
+                    class="statNumber"
+                    id="userCount">
+                    0
+                </div>
+
             </div>
-            
-            <div class="form-group">
-                <label for="adminPassword">Your Password</label>
-                <input 
-                    type="password" 
-                    id="adminPassword" 
-                    placeholder="Enter your password to confirm"
-                    required
-                />
+
+
+            <div class="stat">
+
+                <h3>Pending Deposits</h3>
+
+                <div
+                    class="statNumber"
+                    id="pendingCount">
+                    0
+                </div>
+
             </div>
-            
-            <button onclick="setupAdmin()" class="btn-primary">
-                Make this user an Admin
-            </button>
-            
-            <div id="result" class="result"></div>
+
+
+            <div class="stat">
+
+                <h3>Tickets</h3>
+
+                <div
+                    class="statNumber"
+                    id="ticketCount">
+                    0
+                </div>
+
+            </div>
+
         </div>
-    </main>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { 
-            getAuth, 
-            signInWithEmailAndPassword,
-            onAuthStateChanged
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            setDoc,
-            getDoc,
-            serverTimestamp
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+    <div class="section">
 
-        window.setupAdmin = async function() {
-            const email = document.getElementById('adminEmail').value.trim();
-            const password = document.getElementById('adminPassword').value;
-            const resultDiv = document.getElementById('result');
-            
-            if (!email || !password) {
-                resultDiv.className = 'result error';
-                resultDiv.innerHTML = '❌ Please enter both email and password';
+        <h2>Token Deposit Requests</h2>
+
+        <div id="depositRequests">
+
+            <div class="empty">
+                Loading deposit requests...
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="section">
+
+        <h2>Tambola Management</h2>
+
+        <p>
+            Ticket generation, games and prize management
+            will be added here in the next steps.
+        </p>
+
+    </div>
+
+
+    <div id="message"></div>
+
+</div>
+
+
+<script type="module">
+
+    import { initializeApp }
+        from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
+    import {
+        getAuth,
+        onAuthStateChanged,
+        signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    import {
+        getFirestore,
+        doc,
+        getDoc,
+        collection,
+        getDocs,
+        query,
+        where,
+        orderBy,
+        updateDoc,
+        increment,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    import { firebaseConfig }
+        from "./firebase-config.js";
+
+
+    const app =
+        initializeApp(firebaseConfig);
+
+    const auth =
+        getAuth(app);
+
+    const db =
+        getFirestore(app);
+
+
+    const adminName =
+        document.getElementById("adminName");
+
+    const userCount =
+        document.getElementById("userCount");
+
+    const pendingCount =
+        document.getElementById("pendingCount");
+
+    const ticketCount =
+        document.getElementById("ticketCount");
+
+    const depositRequests =
+        document.getElementById("depositRequests");
+
+    const message =
+        document.getElementById("message");
+
+    const logoutBtn =
+        document.getElementById("logoutBtn");
+
+
+    let currentAdmin = null;
+
+
+    // Check authentication and admin role
+
+    onAuthStateChanged(auth, async (user) => {
+
+        if (!user) {
+
+            window.location.href =
+                "login.html";
+
+            return;
+        }
+
+
+        try {
+
+            const userRef =
+                doc(db, "users", user.uid);
+
+            const userSnapshot =
+                await getDoc(userRef);
+
+
+            if (!userSnapshot.exists()) {
+
+                alert("Admin profile not found.");
+
+                await signOut(auth);
+
+                window.location.href =
+                    "login.html";
+
                 return;
             }
 
-            try {
-                resultDiv.className = 'result';
-                resultDiv.innerHTML = '⏳ Logging in...';
-                
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
 
-                const userRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userRef);
-                
-                if (!userDoc.exists()) {
-                    await setDoc(userRef, {
-                        email: user.email,
-                        role: 'admin',
-                        createdAt: serverTimestamp(),
-                        uid: user.uid
-                    });
-                } else {
-                    await setDoc(userRef, {
-                        role: 'admin',
-                        updatedAt: serverTimestamp()
-                    }, { merge: true });
-                }
+            const userData =
+                userSnapshot.data();
 
-                resultDiv.className = 'result success';
-                resultDiv.innerHTML = `
-                    ✅ <strong>${email}</strong> is now an admin!<br>
-                    <a href="admin-dashboard.html" style="color:#155724;font-weight:bold;">Go to Admin Dashboard →</a>
+
+            if (userData.role !== "admin") {
+
+                alert(
+                    "Access denied. Admin account required."
+                );
+
+                window.location.href =
+                    "dashboard.html";
+
+                return;
+            }
+
+
+            currentAdmin = user;
+
+            adminName.textContent =
+                userData.name || "Admin";
+
+
+            await loadStatistics();
+
+            await loadDepositRequests();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            message.style.color = "red";
+
+            message.textContent =
+                "Unable to load admin panel.";
+
+        }
+
+    });
+
+
+    // Load statistics
+
+    async function loadStatistics() {
+
+        try {
+
+            const usersSnapshot =
+                await getDocs(
+                    collection(db, "users")
+                );
+
+
+            userCount.textContent =
+                usersSnapshot.size;
+
+
+            const pendingQuery =
+                query(
+                    collection(db, "depositRequests"),
+                    where("status", "==", "pending")
+                );
+
+
+            const pendingSnapshot =
+                await getDocs(pendingQuery);
+
+
+            pendingCount.textContent =
+                pendingSnapshot.size;
+
+
+            const ticketsSnapshot =
+                await getDocs(
+                    collection(db, "tickets")
+                );
+
+
+            ticketCount.textContent =
+                ticketsSnapshot.size;
+
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
+    }
+
+
+    // Load deposit requests
+
+    async function loadDepositRequests() {
+
+        depositRequests.innerHTML =
+            '<div class="empty">Loading...</div>';
+
+
+        try {
+
+            const requestQuery =
+                query(
+                    collection(db, "depositRequests"),
+                    where("status", "==", "pending"),
+                    orderBy("createdAt", "desc")
+                );
+
+
+            const snapshot =
+                await getDocs(requestQuery);
+
+
+            pendingCount.textContent =
+                snapshot.size;
+
+
+            if (snapshot.empty) {
+
+                depositRequests.innerHTML =
+                    '<div class="empty">No pending deposit requests.</div>';
+
+                return;
+            }
+
+
+            depositRequests.innerHTML = "";
+
+
+            snapshot.forEach((requestDoc) => {
+
+                const data =
+                    requestDoc.data();
+
+
+                const div =
+                    document.createElement("div");
+
+                div.className =
+                    "request";
+
+
+                div.innerHTML = `
+
+                    <p>
+                        <strong>User:</strong>
+                        ${escapeHtml(data.email || "")}
+                    </p>
+
+                    <p>
+                        <strong>Amount:</strong>
+                        ₹${Number(data.amount || 0)}
+                    </p>
+
+                    <p>
+                        <strong>Transaction Reference:</strong>
+                        ${escapeHtml(data.reference || "")}
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+                        ${escapeHtml(data.status || "")}
+                    </p>
+
+                    <div class="requestButtons">
+
+                        <button
+                            class="approve"
+                            data-id="${requestDoc.id}"
+                            data-user="${data.userId}"
+                            data-amount="${Number(data.amount || 0)}">
+
+                            Approve
+
+                        </button>
+
+
+                        <button
+                            class="reject"
+                            data-id="${requestDoc.id}">
+
+                            Reject
+
+                        </button>
+
+                    </div>
+
                 `;
-                
-                await user.updateProfile({
-                    displayName: 'Admin'
+
+
+                depositRequests.appendChild(div);
+
+            });
+
+
+            document
+                .querySelectorAll(".approve")
+                .forEach((button) => {
+
+                    button.addEventListener(
+                        "click",
+                        () => approveDeposit(
+                            button.dataset.id,
+                            button.dataset.user,
+                            Number(button.dataset.amount)
+                        )
+                    );
+
                 });
 
-            } catch (error) {
-                console.error('Error:', error);
-                resultDiv.className = 'result error';
-                if (error.code === 'auth/user-not-found') {
-                    resultDiv.innerHTML = '❌ User not found. Please create this account first.';
-                } else if (error.code === 'auth/wrong-password') {
-                    resultDiv.innerHTML = '❌ Wrong password. Please try again.';
-                } else {
-                    resultDiv.innerHTML = '❌ Error: ' + error.message;
-                }
-            }
-        };
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                try {
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
-                    if (userDoc.exists() && userDoc.data().role === 'admin') {
-                        document.getElementById('result').className = 'result success';
-                        document.getElementById('result').innerHTML = `
-                            ✅ You are already an admin!<br>
-                            <a href="admin-dashboard.html" style="color:#155724;font-weight:bold;">Go to Dashboard →</a>
-                        `;
-                    }
-                } catch (error) {
-                    console.error('Error checking admin status:', error);
+            document
+                .querySelectorAll(".reject")
+                .forEach((button) => {
+
+                    button.addEventListener(
+                        "click",
+                        () => rejectDeposit(
+                            button.dataset.id
+                        )
+                    );
+
+                });
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            depositRequests.innerHTML =
+                `<div class="empty">
+                    Unable to load requests.
+                    ${escapeHtml(error.message)}
+                 </div>`;
+
+        }
+
+    }
+
+
+    // Approve deposit
+
+    async function approveDeposit(
+        requestId,
+        userId,
+        amount
+    ) {
+
+        if (amount <= 0) {
+
+            alert("Invalid deposit amount.");
+
+            return;
+        }
+
+
+        const confirmed =
+            confirm(
+                `Approve ₹${amount} deposit?`
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            // Update user's token balance
+
+            await updateDoc(
+                doc(db, "users", userId),
+                {
+                    tokenBalance:
+                        increment(amount)
                 }
-            }
-        });
-    </script>
+            );
+
+
+            // Mark request approved
+
+            await updateDoc(
+                doc(
+                    db,
+                    "depositRequests",
+                    requestId
+                ),
+                {
+                    status: "approved",
+                    approvedBy: currentAdmin.uid,
+                    approvedAt: serverTimestamp()
+                }
+            );
+
+
+            alert(
+                "Deposit approved and tokens added."
+            );
+
+
+            await loadStatistics();
+
+            await loadDepositRequests();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                "Approval failed: " +
+                error.message
+            );
+
+        }
+
+    }
+
+
+    // Reject deposit
+
+    async function rejectDeposit(requestId) {
+
+        const confirmed =
+            confirm(
+                "Reject this deposit request?"
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            await updateDoc(
+                doc(
+                    db,
+                    "depositRequests",
+                    requestId
+                ),
+                {
+                    status: "rejected",
+                    rejectedBy: currentAdmin.uid,
+                    rejectedAt: serverTimestamp()
+                }
+            );
+
+
+            alert(
+                "Deposit request rejected."
+            );
+
+
+            await loadStatistics();
+
+            await loadDepositRequests();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                "Rejection failed: " +
+                error.message
+            );
+
+        }
+
+    }
+
+
+    // HTML escaping
+
+    function escapeHtml(value) {
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    // Logout
+
+    logoutBtn.addEventListener(
+        "click",
+        async () => {
+
+            await signOut(auth);
+
+            window.location.href =
+                "login.html";
+
+        }
+    );
+
+</script>
+
 </body>
 </html>
