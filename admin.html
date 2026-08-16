@@ -48,14 +48,7 @@
             padding: 20px;
         }
 
-        .welcome {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
+        .welcome,
         .section {
             background: white;
             padding: 25px;
@@ -133,6 +126,29 @@
             text-align: center;
             font-weight: bold;
             margin-top: 20px;
+        }
+
+        .ticketButton {
+            background: #ff6600;
+            color: white;
+            border: none;
+            padding: 14px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .ticketButton:hover {
+            background: #e65c00;
+        }
+
+        .ticketInfo {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f8f8;
+            border-radius: 8px;
         }
     </style>
 </head>
@@ -234,9 +250,24 @@
         <h2>Tambola Management</h2>
 
         <p>
-            Ticket generation, games and prize management
-            will be added here in the next steps.
+            Generate the 300 tickets for the Tambola game.
         </p>
+
+        <button
+            id="generateTicketsBtn"
+            class="ticketButton">
+
+            Generate 300 Tickets
+
+        </button>
+
+        <div
+            id="ticketInfo"
+            class="ticketInfo">
+
+            Checking tickets...
+
+        </div>
 
     </div>
 
@@ -268,12 +299,15 @@
         orderBy,
         updateDoc,
         increment,
-        serverTimestamp
+        serverTimestamp,
+        writeBatch
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     import { firebaseConfig }
         from "./firebase-config.js";
 
+
+    // Firebase
 
     const app =
         initializeApp(firebaseConfig);
@@ -284,6 +318,8 @@
     const db =
         getFirestore(app);
 
+
+    // Elements
 
     const adminName =
         document.getElementById("adminName");
@@ -306,11 +342,19 @@
     const logoutBtn =
         document.getElementById("logoutBtn");
 
+    const generateTicketsBtn =
+        document.getElementById("generateTicketsBtn");
+
+    const ticketInfo =
+        document.getElementById("ticketInfo");
+
 
     let currentAdmin = null;
 
 
-    // Check authentication and admin role
+    // ==========================================
+    // CHECK ADMIN
+    // ==========================================
 
     onAuthStateChanged(auth, async (user) => {
 
@@ -364,6 +408,7 @@
 
             currentAdmin = user;
 
+
             adminName.textContent =
                 userData.name || "Admin";
 
@@ -371,6 +416,8 @@
             await loadStatistics();
 
             await loadDepositRequests();
+
+            await checkTickets();
 
 
         } catch (error) {
@@ -387,7 +434,9 @@
     });
 
 
-    // Load statistics
+    // ==========================================
+    // STATISTICS
+    // ==========================================
 
     async function loadStatistics() {
 
@@ -437,7 +486,9 @@
     }
 
 
-    // Load deposit requests
+    // ==========================================
+    // DEPOSIT REQUESTS
+    // ==========================================
 
     async function loadDepositRequests() {
 
@@ -586,7 +637,9 @@
     }
 
 
-    // Approve deposit
+    // ==========================================
+    // APPROVE DEPOSIT
+    // ==========================================
 
     async function approveDeposit(
         requestId,
@@ -615,8 +668,6 @@
 
         try {
 
-            // Update user's token balance
-
             await updateDoc(
                 doc(db, "users", userId),
                 {
@@ -625,8 +676,6 @@
                 }
             );
 
-
-            // Mark request approved
 
             await updateDoc(
                 doc(
@@ -666,7 +715,9 @@
     }
 
 
-    // Reject deposit
+    // ==========================================
+    // REJECT DEPOSIT
+    // ==========================================
 
     async function rejectDeposit(requestId) {
 
@@ -721,7 +772,457 @@
     }
 
 
-    // HTML escaping
+    // ==========================================
+    // CHECK TICKETS
+    // ==========================================
+
+    async function checkTickets() {
+
+        try {
+
+            const snapshot =
+                await getDocs(
+                    collection(db, "tickets")
+                );
+
+
+            ticketCount.textContent =
+                snapshot.size;
+
+
+            if (snapshot.size === 0) {
+
+                ticketInfo.textContent =
+                    "No tickets have been generated yet.";
+
+                generateTicketsBtn.disabled =
+                    false;
+
+                return;
+            }
+
+
+            ticketInfo.textContent =
+                `${snapshot.size} ticket(s) already exist.`;
+
+            generateTicketsBtn.disabled =
+                true;
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            ticketInfo.textContent =
+                "Unable to check tickets.";
+
+        }
+
+    }
+
+
+    // ==========================================
+    // GENERATE 300 TICKETS
+    // ==========================================
+
+    generateTicketsBtn.addEventListener(
+        "click",
+        generateTickets
+    );
+
+
+    async function generateTickets() {
+
+        const confirmed =
+            confirm(
+                "Generate 300 Tambola tickets now?"
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        generateTicketsBtn.disabled =
+            true;
+
+        ticketInfo.textContent =
+            "Checking existing tickets...";
+
+
+        try {
+
+            // Check again before writing
+
+            const existingSnapshot =
+                await getDocs(
+                    collection(db, "tickets")
+                );
+
+
+            if (existingSnapshot.size > 0) {
+
+                alert(
+                    "Tickets already exist. No new tickets were created."
+                );
+
+                await checkTickets();
+
+                return;
+            }
+
+
+            ticketInfo.textContent =
+                "Generating 300 tickets. Please wait...";
+
+
+            // One Firestore batch can contain up to 500 writes.
+            // Therefore all 300 tickets can be created in one batch.
+
+            const batch =
+                writeBatch(db);
+
+
+            for (
+                let ticketNumber = 1;
+                ticketNumber <= 300;
+                ticketNumber++
+            ) {
+
+                const ticket =
+                    createTambolaTicket();
+
+
+                const ticketRef =
+                    doc(
+                        db,
+                        "tickets",
+                        String(ticketNumber)
+                    );
+
+
+                batch.set(
+                    ticketRef,
+                    {
+                        ticketNumber:
+                            ticketNumber,
+
+                        numbers:
+                            ticket,
+
+                        available:
+                            true,
+
+                        bookedBy:
+                            null,
+
+                        bookedAt:
+                            null,
+
+                        createdAt:
+                            serverTimestamp()
+                    }
+                );
+
+            }
+
+
+            await batch.commit();
+
+
+            alert(
+                "300 Tambola tickets created successfully!"
+            );
+
+
+            ticketInfo.textContent =
+                "300 tickets have been generated successfully.";
+
+
+            await loadStatistics();
+
+            await checkTickets();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                "Ticket generation failed: " +
+                error.message
+            );
+
+
+            generateTicketsBtn.disabled =
+                false;
+
+            ticketInfo.textContent =
+                "Ticket generation failed.";
+
+        }
+
+    }
+
+
+    // ==========================================
+    // CREATE STANDARD TAMBOLA TICKET
+    // ==========================================
+
+    function createTambolaTicket() {
+
+        /*
+            Standard Tambola ticket:
+
+            3 rows
+            9 columns
+            15 numbers total
+
+            Each column represents:
+
+            Column 1 = 1-9
+            Column 2 = 10-19
+            Column 3 = 20-29
+            ...
+            Column 9 = 80-90
+        */
+
+
+        const ranges = [
+            [1, 9],
+            [10, 19],
+            [20, 29],
+            [30, 39],
+            [40, 49],
+            [50, 59],
+            [60, 69],
+            [70, 79],
+            [80, 90]
+        ];
+
+
+        // Empty 3 x 9 grid
+
+        const grid = [
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null]
+        ];
+
+
+        // Choose 5 columns for each row initially
+
+        const rowColumns = [
+            randomColumns(5),
+            randomColumns(5),
+            randomColumns(5)
+        ];
+
+
+        /*
+            Make sure every column gets at least one number.
+        */
+
+        for (let column = 0; column < 9; column++) {
+
+            let hasNumber = false;
+
+            for (let row = 0; row < 3; row++) {
+
+                if (
+                    rowColumns[row].includes(column)
+                ) {
+
+                    hasNumber = true;
+
+                    break;
+                }
+
+            }
+
+
+            if (!hasNumber) {
+
+                const row =
+                    Math.floor(
+                        Math.random() * 3
+                    );
+
+
+                const replaceIndex =
+                    Math.floor(
+                        Math.random() *
+                        rowColumns[row].length
+                    );
+
+
+                rowColumns[row][replaceIndex] =
+                    column;
+
+            }
+
+        }
+
+
+        /*
+            Fill each selected column with numbers.
+        */
+
+        for (let column = 0; column < 9; column++) {
+
+            const rows = [];
+
+
+            for (let row = 0; row < 3; row++) {
+
+                if (
+                    rowColumns[row].includes(column)
+                ) {
+
+                    rows.push(row);
+
+                }
+
+            }
+
+
+            const [min, max] =
+                ranges[column];
+
+
+            const numbers =
+                randomNumbers(
+                    min,
+                    max,
+                    rows.length
+                );
+
+
+            numbers.sort(
+                (a, b) => a - b
+            );
+
+
+            rows.sort(
+                (a, b) => a - b
+            );
+
+
+            for (
+                let i = 0;
+                i < rows.length;
+                i++
+            ) {
+
+                grid[rows[i]][column] =
+                    numbers[i];
+
+            }
+
+        }
+
+
+        return grid;
+
+    }
+
+
+    // ==========================================
+    // RANDOM COLUMNS
+    // ==========================================
+
+    function randomColumns(count) {
+
+        const columns = [];
+
+
+        while (
+            columns.length < count
+        ) {
+
+            const column =
+                Math.floor(
+                    Math.random() * 9
+                );
+
+
+            if (
+                !columns.includes(column)
+            ) {
+
+                columns.push(column);
+
+            }
+
+        }
+
+
+        return columns;
+
+    }
+
+
+    // ==========================================
+    // RANDOM NUMBERS
+    // ==========================================
+
+    function randomNumbers(
+        min,
+        max,
+        count
+    ) {
+
+        const numbers = [];
+
+
+        for (
+            let number = min;
+            number <= max;
+            number++
+        ) {
+
+            numbers.push(number);
+
+        }
+
+
+        // Shuffle
+
+        for (
+            let i = numbers.length - 1;
+            i > 0;
+            i--
+        ) {
+
+            const j =
+                Math.floor(
+                    Math.random() * (i + 1)
+                );
+
+
+            [
+                numbers[i],
+                numbers[j]
+            ] = [
+                numbers[j],
+                numbers[i]
+            ];
+
+        }
+
+
+        return numbers.slice(
+            0,
+            count
+        );
+
+    }
+
+
+    // ==========================================
+    // HTML ESCAPING
+    // ==========================================
 
     function escapeHtml(value) {
 
@@ -735,7 +1236,9 @@
     }
 
 
-    // Logout
+    // ==========================================
+    // LOGOUT
+    // ==========================================
 
     logoutBtn.addEventListener(
         "click",
