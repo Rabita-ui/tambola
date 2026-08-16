@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -54,7 +55,7 @@
             padding: 25px;
             border-radius: 12px;
             margin-bottom: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
 
         .section h2 {
@@ -128,19 +129,27 @@
             margin-top: 20px;
         }
 
+        .ticketInfo {
+            background: #fff8e1;
+            border-left: 5px solid #ff9800;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
         #generateTicketsBtn {
-            background: #1976d2;
+            background: #ff6600;
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 12px 22px;
             border-radius: 6px;
-            cursor: pointer;
             font-weight: bold;
+            cursor: pointer;
             font-size: 15px;
         }
 
         #generateTicketsBtn:hover {
-            background: #125ca3;
+            background: #e65c00;
         }
 
         #generateTicketsBtn:disabled {
@@ -149,11 +158,20 @@
         }
 
         #ticketStatus {
-            font-weight: bold;
             margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .success {
+            color: #2e7d32;
+        }
+
+        .error {
+            color: #d32f2f;
         }
     </style>
 </head>
+
 
 <body>
 
@@ -259,18 +277,31 @@
 
         <h2>Tambola Management</h2>
 
-        <p>
-            This system uses exactly 300 permanent Tambola tickets.
-        </p>
+        <div class="ticketInfo">
 
-        <p>
-            The ticket designs remain fixed and will be reused
-            for every draw.
-        </p>
+            <strong>Fixed Ticket System</strong>
+
+            <p>
+                This system uses exactly
+                <strong>300 permanent Tambola tickets</strong>.
+            </p>
+
+            <p>
+                The ticket designs are generated once
+                and reused for every draw.
+            </p>
+
+            <p>
+                Tickets will not be regenerated for each draw.
+            </p>
+
+        </div>
+
 
         <button id="generateTicketsBtn">
-            Generate 300 Tickets
+            Create / Check 300 Tickets
         </button>
+
 
         <p id="ticketStatus">
             Checking tickets...
@@ -286,19 +317,23 @@
 
 <script type="module">
 
-    /* =========================================
-       FIREBASE IMPORTS
-    ========================================= */
 
-    import { initializeApp }
-        from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    // ============================================================
+    // FIREBASE IMPORTS
+    // ============================================================
+
+    import {
+        initializeApp
+    } from
+    "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 
 
     import {
         getAuth,
         onAuthStateChanged,
         signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    } from
+    "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 
     import {
@@ -314,102 +349,94 @@
         increment,
         serverTimestamp,
         writeBatch
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    } from
+    "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 
-    /* =========================================
-       FIREBASE CONFIG
-    ========================================= */
-
-    import { firebaseConfig }
-        from "./firebase-config.js";
+    import {
+        firebaseConfig
+    } from "./firebase-config.js";
 
 
-    /* =========================================
-       INITIALIZE FIREBASE
-    ========================================= */
+    // ============================================================
+    // FIREBASE INITIALIZATION
+    // ============================================================
 
     const app =
         initializeApp(firebaseConfig);
 
+
     const auth =
         getAuth(app);
+
 
     const db =
         getFirestore(app);
 
 
-    /* =========================================
-       HTML ELEMENTS
-    ========================================= */
+    // ============================================================
+    // HTML ELEMENTS
+    // ============================================================
 
     const adminName =
         document.getElementById("adminName");
 
+
     const userCount =
         document.getElementById("userCount");
+
 
     const pendingCount =
         document.getElementById("pendingCount");
 
+
     const ticketCount =
         document.getElementById("ticketCount");
+
 
     const depositRequests =
         document.getElementById("depositRequests");
 
+
     const message =
         document.getElementById("message");
+
 
     const logoutBtn =
         document.getElementById("logoutBtn");
 
+
     const generateTicketsBtn =
-        document.getElementById("generateTicketsBtn");
+        document.getElementById(
+            "generateTicketsBtn"
+        );
+
 
     const ticketStatus =
-        document.getElementById("ticketStatus");
+        document.getElementById(
+            "ticketStatus"
+        );
 
 
     let currentAdmin = null;
 
 
-    /* =========================================
-       CHECK LOGIN + ADMIN
-    ========================================= */
+    // ============================================================
+    // TOTAL FIXED TICKETS
+    // ============================================================
 
-    onAuthStateChanged(auth, async (user) => {
-
-        if (!user) {
-
-            window.location.href =
-                "login.html";
-
-            return;
-        }
+    const TOTAL_TICKETS = 300;
 
 
-        try {
+    // ============================================================
+    // AUTHENTICATION + ADMIN CHECK
+    // ============================================================
 
-            const userRef =
-                doc(
-                    db,
-                    "users",
-                    user.uid
-                );
+    onAuthStateChanged(
+        auth,
+        async (user) => {
 
-
-            const userSnapshot =
-                await getDoc(userRef);
-
-
-            if (!userSnapshot.exists()) {
-
-                alert(
-                    "Admin profile not found."
-                );
-
-                await signOut(auth);
+            if (!user) {
 
                 window.location.href =
                     "login.html";
@@ -418,63 +445,108 @@
             }
 
 
-            const userData =
-                userSnapshot.data();
+            try {
+
+                const userRef =
+                    doc(
+                        db,
+                        "users",
+                        user.uid
+                    );
 
 
-            if (userData.role !== "admin") {
+                const userSnapshot =
+                    await getDoc(userRef);
 
-                alert(
-                    "Access denied. Admin account required."
-                );
 
-                window.location.href =
-                    "dashboard.html";
+                if (!userSnapshot.exists()) {
 
-                return;
+                    alert(
+                        "Admin profile not found."
+                    );
+
+
+                    await signOut(auth);
+
+
+                    window.location.href =
+                        "login.html";
+
+
+                    return;
+                }
+
+
+                const userData =
+                    userSnapshot.data();
+
+
+                if (
+                    userData.role !==
+                    "admin"
+                ) {
+
+                    alert(
+                        "Access denied. Admin account required."
+                    );
+
+
+                    window.location.href =
+                        "dashboard.html";
+
+
+                    return;
+                }
+
+
+                // Admin verified
+
+                currentAdmin = user;
+
+
+                adminName.textContent =
+                    userData.name ||
+                    "Admin";
+
+
+                await loadStatistics();
+
+
+                await loadDepositRequests();
+
+
+                await checkTickets();
+
+
+            }
+            catch (error) {
+
+                console.error(error);
+
+
+                message.style.color =
+                    "red";
+
+
+                message.textContent =
+                    "Unable to load admin panel: " +
+                    error.message;
+
             }
 
-
-            currentAdmin =
-                user;
-
-
-            adminName.textContent =
-                userData.name || "Admin";
-
-
-            await loadStatistics();
-
-            await loadDepositRequests();
-
-            await checkTicketStatus();
-
         }
-
-        catch (error) {
-
-            console.error(error);
-
-            message.style.color =
-                "red";
-
-            message.textContent =
-                "Unable to load admin panel.";
-
-        }
-
-    });
+    );
 
 
-    /* =========================================
-       LOAD STATISTICS
-    ========================================= */
+    // ============================================================
+    // LOAD STATISTICS
+    // ============================================================
 
     async function loadStatistics() {
 
         try {
 
-            /* USERS */
+            // Users
 
             const usersSnapshot =
                 await getDocs(
@@ -489,7 +561,7 @@
                 usersSnapshot.size;
 
 
-            /* PENDING DEPOSITS */
+            // Pending deposits
 
             const pendingQuery =
                 query(
@@ -515,7 +587,7 @@
                 pendingSnapshot.size;
 
 
-            /* TICKETS */
+            // Tickets
 
             const ticketsSnapshot =
                 await getDocs(
@@ -530,7 +602,6 @@
                 ticketsSnapshot.size;
 
         }
-
         catch (error) {
 
             console.error(
@@ -543,84 +614,9 @@
     }
 
 
-    /* =========================================
-       CHECK TICKET STATUS
-    ========================================= */
-
-    async function checkTicketStatus() {
-
-        try {
-
-            const ticketsSnapshot =
-                await getDocs(
-                    collection(
-                        db,
-                        "tickets"
-                    )
-                );
-
-
-            const count =
-                ticketsSnapshot.size;
-
-
-            if (count === 300) {
-
-                ticketStatus.textContent =
-                    "✓ 300 permanent tickets are ready.";
-
-                ticketStatus.style.color =
-                    "#2e7d32";
-
-                generateTicketsBtn.textContent =
-                    "300 Tickets Already Created";
-
-                generateTicketsBtn.disabled =
-                    true;
-
-            }
-
-            else if (count === 0) {
-
-                ticketStatus.textContent =
-                    "No tickets have been created yet.";
-
-                ticketStatus.style.color =
-                    "#d32f2f";
-
-            }
-
-            else {
-
-                ticketStatus.textContent =
-                    count +
-                    " tickets currently exist. Missing tickets can be created.";
-
-                ticketStatus.style.color =
-                    "#f57c00";
-
-            }
-
-        }
-
-        catch (error) {
-
-            console.error(error);
-
-            ticketStatus.textContent =
-                "Unable to check ticket status.";
-
-            ticketStatus.style.color =
-                "#d32f2f";
-
-        }
-
-    }
-
-
-    /* =========================================
-       LOAD DEPOSIT REQUESTS
-    ========================================= */
+    // ============================================================
+    // LOAD DEPOSIT REQUESTS
+    // ============================================================
 
     async function loadDepositRequests() {
 
@@ -669,8 +665,7 @@
             }
 
 
-            depositRequests.innerHTML =
-                "";
+            depositRequests.innerHTML = "";
 
 
             snapshot.forEach(
@@ -732,13 +727,16 @@
                                 )}"
                                 data-amount="${Number(
                                     data.amount || 0
-                                )}">
+                                )}"
+                            >
                                 Approve
                             </button>
 
+
                             <button
                                 class="reject"
-                                data-id="${requestDoc.id}">
+                                data-id="${requestDoc.id}"
+                            >
                                 Reject
                             </button>
 
@@ -754,6 +752,8 @@
                 }
             );
 
+
+            // Approve buttons
 
             document
                 .querySelectorAll(".approve")
@@ -779,6 +779,8 @@
                 );
 
 
+            // Reject buttons
+
             document
                 .querySelectorAll(".reject")
                 .forEach(
@@ -799,28 +801,30 @@
                 );
 
         }
-
         catch (error) {
 
             console.error(error);
 
+
             depositRequests.innerHTML =
-                `<div class="empty">
+                `
+                <div class="empty error">
                     Unable to load requests.
                     <br><br>
                     ${escapeHtml(
                         error.message
                     )}
-                </div>`;
+                </div>
+                `;
 
         }
 
     }
 
 
-    /* =========================================
-       APPROVE DEPOSIT
-    ========================================= */
+    // ============================================================
+    // APPROVE DEPOSIT
+    // ============================================================
 
     async function approveDeposit(
         requestId,
@@ -851,7 +855,7 @@
 
         try {
 
-            /* ADD TOKENS */
+            // Add tokens
 
             await updateDoc(
                 doc(
@@ -866,7 +870,7 @@
             );
 
 
-            /* APPROVE REQUEST */
+            // Mark request approved
 
             await updateDoc(
                 doc(
@@ -894,13 +898,14 @@
 
             await loadStatistics();
 
+
             await loadDepositRequests();
 
         }
-
         catch (error) {
 
             console.error(error);
+
 
             alert(
                 "Approval failed: " +
@@ -912,9 +917,9 @@
     }
 
 
-    /* =========================================
-       REJECT DEPOSIT
-    ========================================= */
+    // ============================================================
+    // REJECT DEPOSIT
+    // ============================================================
 
     async function rejectDeposit(
         requestId
@@ -959,13 +964,14 @@
 
             await loadStatistics();
 
+
             await loadDepositRequests();
 
         }
-
         catch (error) {
 
             console.error(error);
+
 
             alert(
                 "Rejection failed: " +
@@ -977,258 +983,120 @@
     }
 
 
-    /* =========================================
-       GENERATE 300 PERMANENT TICKETS
-    ========================================= */
+    // ============================================================
+    // RANDOM NUMBERS
+    // ============================================================
 
-    generateTicketsBtn.addEventListener(
-        "click",
-        async () => {
+    function randomNumbers(
+        min,
+        max,
+        count
+    ) {
 
-            const confirmed =
-                confirm(
-                    "Generate 300 permanent Tambola tickets?\n\n" +
-                    "The ticket designs will remain fixed " +
-                    "for future draws."
-                );
+        const numbers = [];
 
 
-            if (!confirmed) {
-                return;
-            }
+        for (
+            let n = min;
+            n <= max;
+            n++
+        ) {
 
-
-            generateTicketsBtn.disabled =
-                true;
-
-            generateTicketsBtn.textContent =
-                "Generating...";
-
-
-            try {
-
-                const ticketsRef =
-                    collection(
-                        db,
-                        "tickets"
-                    );
-
-
-                /* CHECK EXISTING TICKETS */
-
-                const existingSnapshot =
-                    await getDocs(
-                        ticketsRef
-                    );
-
-
-                const existingNumbers =
-                    new Set();
-
-
-                existingSnapshot.forEach(
-                    (ticketDoc) => {
-
-                        const data =
-                            ticketDoc.data();
-
-
-                        if (
-                            data.ticketNumber
-                        ) {
-
-                            existingNumbers.add(
-                                Number(
-                                    data.ticketNumber
-                                )
-                            );
-
-                        }
-
-                    }
-                );
-
-
-                /* ALREADY COMPLETE */
-
-                if (
-                    existingNumbers.size >= 300
-                ) {
-
-                    alert(
-                        "All 300 tickets already exist."
-                    );
-
-                    await checkTicketStatus();
-
-                    await loadStatistics();
-
-                    return;
-                }
-
-
-                /* CREATE BATCH */
-
-                const batch =
-                    writeBatch(db);
-
-
-                let createdCount = 0;
-
-
-                /* CREATE MISSING TICKETS */
-
-                for (
-                    let number = 1;
-                    number <= 300;
-                    number++
-                ) {
-
-                    if (
-                        existingNumbers.has(
-                            number
-                        )
-                    ) {
-                        continue;
-                    }
-
-
-                    const ticketId =
-                        "ticket" +
-                        String(number)
-                            .padStart(3, "0");
-
-
-                    const ticketRef =
-                        doc(
-                            db,
-                            "tickets",
-                            ticketId
-                        );
-
-
-                    const ticket =
-                        generateTambolaTicket();
-
-
-                    batch.set(
-                        ticketRef,
-                        {
-
-                            ticketNumber:
-                                number,
-
-                            displayNumber:
-                                String(number)
-                                    .padStart(3, "0"),
-
-                            numbers:
-                                ticket,
-
-                            status:
-                                "available",
-
-                            bookedBy:
-                                null,
-
-                            bookedAt:
-                                null,
-
-                            drawId:
-                                null,
-
-                            createdAt:
-                                serverTimestamp()
-
-                        }
-                    );
-
-
-                    createdCount++;
-
-                }
-
-
-                /* SAVE */
-
-                await batch.commit();
-
-
-                alert(
-                    createdCount +
-                    " ticket(s) created successfully."
-                );
-
-
-                await loadStatistics();
-
-                await checkTicketStatus();
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "Ticket generation error:",
-                    error
-                );
-
-
-                alert(
-                    "Ticket generation failed:\n\n" +
-                    error.message
-                );
-
-
-                ticketStatus.textContent =
-                    "Ticket generation failed.";
-
-                ticketStatus.style.color =
-                    "#d32f2f";
-
-            }
-
-
-            generateTicketsBtn.disabled =
-                false;
+            numbers.push(n);
 
         }
-    );
 
 
-    /* =========================================
-       GENERATE VALID TAMBOLA TICKET
-    ========================================= */
+        // Fisher-Yates shuffle
 
-    function generateTambolaTicket() {
+        for (
+            let i = numbers.length - 1;
+            i > 0;
+            i--
+        ) {
 
-        while (true) {
+            const j =
+                Math.floor(
+                    Math.random() *
+                    (i + 1)
+                );
 
-            const grid = [
 
-                [null, null, null, null, null, null, null, null, null],
+            [
+                numbers[i],
+                numbers[j]
+            ] = [
+                numbers[j],
+                numbers[i]
+            ];
 
-                [null, null, null, null, null, null, null, null, null],
+        }
 
-                [null, null, null, null, null, null, null, null, null]
 
+        return numbers.slice(
+            0,
+            count
+        );
+
+    }
+
+
+    // ============================================================
+    // CREATE VALID TAMBOLA POSITION MATRIX
+    // ============================================================
+
+    function createPositionMatrix() {
+
+        // 3 rows x 9 columns
+        //
+        // true  = number
+        // false = blank
+        //
+        // Every row must have exactly 5 numbers.
+        // Every column must have at least 1 number.
+
+        for (
+            let attempt = 0;
+            attempt < 10000;
+            attempt++
+        ) {
+
+            const matrix = [
+                Array(9).fill(false),
+                Array(9).fill(false),
+                Array(9).fill(false)
             ];
 
 
-            /* SELECT 5 COLUMNS FOR EACH ROW */
+            // Each row gets exactly 5 positions
 
-            const rowPositions = [
+            for (
+                let row = 0;
+                row < 3;
+                row++
+            ) {
 
-                randomFivePositions(),
+                const columns =
+                    randomNumbers(
+                        0,
+                        8,
+                        5
+                    );
 
-                randomFivePositions(),
 
-                randomFivePositions()
+                columns.forEach(
+                    (column) => {
 
-            ];
+                        matrix[row][column] =
+                            true;
+
+                    }
+                );
+
+            }
 
 
-            /* COUNT NUMBERS PER COLUMN */
+            // Count numbers in columns
 
             const columnCounts =
                 Array(9).fill(0);
@@ -1241,44 +1109,230 @@
             ) {
 
                 for (
-                    const col
-                    of rowPositions[row]
+                    let col = 0;
+                    col < 9;
+                    col++
                 ) {
 
-                    columnCounts[col]++;
+                    if (
+                        matrix[row][col]
+                    ) {
+
+                        columnCounts[col]++;
+
+                    }
 
                 }
 
             }
 
 
-            /* EVERY COLUMN MUST HAVE A NUMBER */
+            // Every column must have
+            // at least one number
 
-            if (
-                columnCounts.some(
-                    count => count === 0
-                )
-            ) {
+            const valid =
+                columnCounts.every(
+                    count =>
+                        count >= 1 &&
+                        count <= 3
+                );
 
-                continue;
+
+            if (valid) {
+
+                return matrix;
+
+            }
+
+        }
+
+
+        throw new Error(
+            "Unable to create a valid Tambola ticket."
+        );
+
+    }
+
+
+    // ============================================================
+    // GENERATE ONE TICKET
+    // ============================================================
+
+    function generateTicket() {
+
+        const matrix =
+            createPositionMatrix();
+
+
+        // IMPORTANT:
+        // This is a FLAT 27-element array.
+        //
+        // Example:
+        //
+        // [
+        //   1, null, 23, ...
+        // ]
+        //
+        // NOT:
+        //
+        // [
+        //   [1, null, 23],
+        //   [...]
+        // ]
+
+        const ticket =
+            Array(27).fill(null);
+
+
+        // --------------------------------------------------------
+        // Generate numbers column by column
+        // --------------------------------------------------------
+
+        for (
+            let col = 0;
+            col < 9;
+            col++
+        ) {
+
+            let min;
+            let max;
+
+
+            if (col === 0) {
+
+                min = 1;
+                max = 9;
+
+            }
+            else if (col === 8) {
+
+                min = 80;
+                max = 90;
+
+            }
+            else {
+
+                min = col * 10;
+                max = col * 10 + 9;
 
             }
 
 
-            /* MAXIMUM 3 NUMBERS PER COLUMN */
+            // Find rows containing a number
+            // in this column
 
-            if (
-                columnCounts.some(
-                    count => count > 3
-                )
+            const rows = [];
+
+
+            for (
+                let row = 0;
+                row < 3;
+                row++
             ) {
 
-                continue;
+                if (
+                    matrix[row][col]
+                ) {
+
+                    rows.push(row);
+
+                }
 
             }
 
 
-            /* FILL EACH COLUMN */
+            // Generate unique numbers
+
+            const numbers =
+                randomNumbers(
+                    min,
+                    max,
+                    rows.length
+                );
+
+
+            // Sort numbers so that
+            // numbers increase from top
+            // to bottom in each column
+
+            numbers.sort(
+                (a, b) => a - b
+            );
+
+
+            // Put numbers into flat array
+
+            rows.forEach(
+                (row, index) => {
+
+                    ticket[
+                        row * 9 + col
+                    ] =
+                        numbers[index];
+
+                }
+            );
+
+        }
+
+
+        return ticket;
+
+    }
+
+
+    // ============================================================
+    // VALIDATE TICKET
+    // ============================================================
+
+    function isValidTicket(
+        numbers
+    ) {
+
+        if (
+            !Array.isArray(numbers)
+        ) {
+
+            return false;
+
+        }
+
+
+        // Must contain exactly 27 cells
+
+        if (
+            numbers.length !== 27
+        ) {
+
+            return false;
+
+        }
+
+
+        // Nested arrays are NOT allowed
+
+        if (
+            numbers.some(
+                value =>
+                    Array.isArray(value)
+            )
+        ) {
+
+            return false;
+
+        }
+
+
+        // Count numbers in each row
+
+        for (
+            let row = 0;
+            row < 3;
+            row++
+        ) {
+
+            let count = 0;
+
 
             for (
                 let col = 0;
@@ -1286,198 +1340,554 @@
                 col++
             ) {
 
-                const numbers =
-                    getColumnNumbers(
-                        col,
-                        columnCounts[col]
+                if (
+                    numbers[
+                        row * 9 + col
+                    ] !== null
+                ) {
+
+                    count++;
+
+                }
+
+            }
+
+
+            if (count !== 5) {
+
+                return false;
+
+            }
+
+        }
+
+
+        // Every column must contain
+        // at least one number
+
+        for (
+            let col = 0;
+            col < 9;
+            col++
+        ) {
+
+            let count = 0;
+
+
+            for (
+                let row = 0;
+                row < 3;
+                row++
+            ) {
+
+                if (
+                    numbers[
+                        row * 9 + col
+                    ] !== null
+                ) {
+
+                    count++;
+
+                }
+
+            }
+
+
+            if (
+                count < 1 ||
+                count > 3
+            ) {
+
+                return false;
+
+            }
+
+        }
+
+
+        return true;
+
+    }
+
+
+    // ============================================================
+    // CHECK / CREATE / REPAIR 300 TICKETS
+    // ============================================================
+
+    async function generateFixedTickets() {
+
+        generateTicketsBtn.disabled =
+            true;
+
+
+        generateTicketsBtn.textContent =
+            "Checking...";
+
+
+        ticketStatus.className =
+            "";
+
+
+        ticketStatus.textContent =
+            "Checking existing tickets...";
+
+
+        try {
+
+            const snapshot =
+                await getDocs(
+                    collection(
+                        db,
+                        "tickets"
+                    )
+                );
+
+
+            // Map existing tickets
+
+            const existing =
+                new Map();
+
+
+            snapshot.forEach(
+                (ticketDoc) => {
+
+                    existing.set(
+                        ticketDoc.id,
+                        {
+                            ref: ticketDoc.ref,
+                            data: ticketDoc.data()
+                        }
+                    );
+
+                }
+            );
+
+
+            // ----------------------------------------------------
+            // Determine which tickets need creation/repair
+            // ----------------------------------------------------
+
+            const ticketsToCreate = [];
+
+
+            for (
+                let i = 1;
+                i <= TOTAL_TICKETS;
+                i++
+            ) {
+
+                const ticketId =
+                    "ticket" +
+                    String(i).padStart(
+                        3,
+                        "0"
                     );
 
 
-                const rows = [];
+                const existingTicket =
+                    existing.get(
+                        ticketId
+                    );
 
 
-                for (
-                    let row = 0;
-                    row < 3;
-                    row++
+                // Missing ticket
+
+                if (
+                    !existingTicket
                 ) {
 
-                    if (
-                        rowPositions[row]
-                            .includes(col)
-                    ) {
+                    ticketsToCreate.push(
+                        ticketId
+                    );
 
-                        rows.push(row);
+                    continue;
+
+                }
+
+
+                // Existing but invalid ticket
+
+                if (
+                    !isValidTicket(
+                        existingTicket.data.numbers
+                    )
+                ) {
+
+                    ticketsToCreate.push(
+                        ticketId
+                    );
+
+                }
+
+            }
+
+
+            // ----------------------------------------------------
+            // Nothing needs changing
+            // ----------------------------------------------------
+
+            if (
+                ticketsToCreate.length === 0
+            ) {
+
+                ticketStatus.className =
+                    "success";
+
+
+                ticketStatus.textContent =
+                    "✓ 300 fixed tickets are ready. They will be reused for every draw.";
+
+
+                generateTicketsBtn.textContent =
+                    "300 Tickets Ready";
+
+
+                await loadStatistics();
+
+
+                return;
+
+            }
+
+
+            ticketStatus.textContent =
+                "Creating " +
+                ticketsToCreate.length +
+                " ticket(s)...";
+
+
+            // ----------------------------------------------------
+            // Firestore batch
+            // ----------------------------------------------------
+
+            const batch =
+                writeBatch(db);
+
+
+            const generatedTickets =
+                new Set();
+
+
+            for (
+                const ticketId
+                of ticketsToCreate
+            ) {
+
+                let numbers;
+
+                let ticketKey;
+
+
+                // Prevent duplicate ticket layouts
+
+                do {
+
+                    numbers =
+                        generateTicket();
+
+
+                    ticketKey =
+                        JSON.stringify(
+                            numbers
+                        );
+
+                }
+                while (
+                    generatedTickets.has(
+                        ticketKey
+                    )
+                );
+
+
+                generatedTickets.add(
+                    ticketKey
+                );
+
+
+                const ticketRef =
+                    doc(
+                        db,
+                        "tickets",
+                        ticketId
+                    );
+
+
+                const ticketNumber =
+                    Number(
+                        ticketId.replace(
+                            "ticket",
+                            ""
+                        )
+                    );
+
+
+                // ------------------------------------------------
+                // IMPORTANT:
+                // numbers is a flat array.
+                // Firestore accepts this.
+                // ------------------------------------------------
+
+                batch.set(
+                    ticketRef,
+                    {
+
+                        ticketNumber:
+                            ticketNumber,
+
+                        numbers:
+                            numbers,
+
+                        active:
+                            true,
+
+                        createdAt:
+                            existing.has(
+                                ticketId
+                            )
+                                ? (
+                                    existing.get(
+                                        ticketId
+                                    ).data.createdAt ||
+                                    serverTimestamp()
+                                )
+                                : serverTimestamp()
+
+                    },
+                    {
+                        merge: true
+                    }
+                );
+
+            }
+
+
+            // ----------------------------------------------------
+            // Save
+            // ----------------------------------------------------
+
+            await batch.commit();
+
+
+            // ----------------------------------------------------
+            // Verify
+            // ----------------------------------------------------
+
+            const finalSnapshot =
+                await getDocs(
+                    collection(
+                        db,
+                        "tickets"
+                    )
+                );
+
+
+            ticketCount.textContent =
+                finalSnapshot.size;
+
+
+            if (
+                finalSnapshot.size >=
+                TOTAL_TICKETS
+            ) {
+
+                ticketStatus.className =
+                    "success";
+
+
+                ticketStatus.textContent =
+                    "✓ 300 fixed Tambola tickets are ready and will be reused for every draw.";
+
+
+                generateTicketsBtn.textContent =
+                    "300 Tickets Ready";
+
+
+                alert(
+                    "300 fixed Tambola tickets are ready."
+                );
+
+            }
+            else {
+
+                ticketStatus.className =
+                    "error";
+
+
+                ticketStatus.textContent =
+                    "Only " +
+                    finalSnapshot.size +
+                    " tickets exist. Please try again.";
+
+                generateTicketsBtn.disabled =
+                    false;
+
+                generateTicketsBtn.textContent =
+                    "Create / Check 300 Tickets";
+
+            }
+
+
+        }
+        catch (error) {
+
+            console.error(
+                "Ticket generation error:",
+                error
+            );
+
+
+            ticketStatus.className =
+                "error";
+
+
+            ticketStatus.textContent =
+                "Ticket generation failed: " +
+                error.message;
+
+
+            generateTicketsBtn.disabled =
+                false;
+
+
+            generateTicketsBtn.textContent =
+                "Create / Check 300 Tickets";
+
+
+            alert(
+                "Ticket generation failed:\n\n" +
+                error.message
+            );
+
+        }
+
+    }
+
+
+    // ============================================================
+    // CHECK TICKETS WHEN ADMIN PAGE OPENS
+    // ============================================================
+
+    async function checkTickets() {
+
+        try {
+
+            const snapshot =
+                await getDocs(
+                    collection(
+                        db,
+                        "tickets"
+                    )
+                );
+
+
+            ticketCount.textContent =
+                snapshot.size;
+
+
+            if (
+                snapshot.size ===
+                TOTAL_TICKETS
+            ) {
+
+                let allValid = true;
+
+
+                snapshot.forEach(
+                    (ticketDoc) => {
+
+                        const data =
+                            ticketDoc.data();
+
+
+                        if (
+                            !isValidTicket(
+                                data.numbers
+                            )
+                        ) {
+
+                            allValid =
+                                false;
+
+                        }
 
                     }
+                );
+
+
+                if (allValid) {
+
+                    ticketStatus.className =
+                        "success";
+
+
+                    ticketStatus.textContent =
+                        "✓ 300 valid fixed tickets are ready.";
+
+                    generateTicketsBtn.textContent =
+                        "300 Tickets Ready";
+
+
+                    generateTicketsBtn.disabled =
+                        true;
+
+                }
+                else {
+
+                    ticketStatus.className =
+                        "error";
+
+
+                    ticketStatus.textContent =
+                        "Some tickets need repair. Click the button below.";
+
+                    generateTicketsBtn.disabled =
+                        false;
 
                 }
 
+            }
+            else {
 
-                rows.sort(
-                    (a, b) => a - b
-                );
+                ticketStatus.className =
+                    "";
 
 
-                for (
-                    let i = 0;
-                    i < rows.length;
-                    i++
-                ) {
+                ticketStatus.textContent =
+                    snapshot.size +
+                    " of 300 tickets currently exist.";
 
-                    grid[rows[i]][col] =
-                        numbers[i];
 
-                }
+                generateTicketsBtn.disabled =
+                    false;
 
             }
 
+        }
+        catch (error) {
 
-            /* VERIFY 15 NUMBERS */
-
-            const total =
-                grid
-                    .flat()
-                    .filter(
-                        value =>
-                            value !== null
-                    )
-                    .length;
+            console.error(
+                "Ticket check error:",
+                error
+            );
 
 
-            if (total === 15) {
+            ticketStatus.className =
+                "error";
 
-                return grid;
 
-            }
+            ticketStatus.textContent =
+                "Unable to check tickets: " +
+                error.message;
 
         }
 
     }
 
 
-    /* =========================================
-       RANDOM 5 POSITIONS
-    ========================================= */
-
-    function randomFivePositions() {
-
-        const positions = [];
-
-
-        while (
-            positions.length < 5
-        ) {
-
-            const position =
-                Math.floor(
-                    Math.random() * 9
-                );
-
-
-            if (
-                !positions.includes(
-                    position
-                )
-            ) {
-
-                positions.push(
-                    position
-                );
-
-            }
-
-        }
-
-
-        return positions;
-
-    }
-
-
-    /* =========================================
-       COLUMN NUMBER GENERATOR
-    ========================================= */
-
-    function getColumnNumbers(
-        column,
-        count
-    ) {
-
-        let min;
-
-        let max;
-
-
-        if (column === 0) {
-
-            min = 1;
-
-            max = 9;
-
-        }
-
-        else if (column === 8) {
-
-            min = 80;
-
-            max = 90;
-
-        }
-
-        else {
-
-            min =
-                column * 10;
-
-            max =
-                column * 10 + 9;
-
-        }
-
-
-        const numbers = [];
-
-
-        while (
-            numbers.length < count
-        ) {
-
-            const number =
-                Math.floor(
-                    Math.random() *
-                    (max - min + 1)
-                ) + min;
-
-
-            if (
-                !numbers.includes(
-                    number
-                )
-            ) {
-
-                numbers.push(
-                    number
-                );
-
-            }
-
-        }
-
-
-        numbers.sort(
-            (a, b) => a - b
-        );
-
-
-        return numbers;
-
-    }
-
-
-    /* =========================================
-       HTML ESCAPE
-    ========================================= */
+    // ============================================================
+    // HTML ESCAPING
+    // ============================================================
 
     function escapeHtml(value) {
 
@@ -1511,23 +1921,48 @@
     }
 
 
-    /* =========================================
-       LOGOUT
-    ========================================= */
+    // ============================================================
+    // LOGOUT
+    // ============================================================
 
     logoutBtn.addEventListener(
         "click",
         async () => {
 
-            await signOut(auth);
+            try {
 
-            window.location.href =
-                "login.html";
+                await signOut(auth);
+
+
+                window.location.href =
+                    "login.html";
+
+            }
+            catch (error) {
+
+                console.error(
+                    error
+                );
+
+            }
 
         }
     );
 
+
+    // ============================================================
+    // GENERATE TICKET BUTTON
+    // ============================================================
+
+    generateTicketsBtn.addEventListener(
+        "click",
+        generateFixedTickets
+    );
+
+
 </script>
 
+
 </body>
+
 </html>
