@@ -162,7 +162,6 @@
 
     <div class="actions">
 
-
         <div class="card">
 
             <h3>💰 Deposit Tokens</h3>
@@ -392,23 +391,27 @@
     });
 
 
-    // Temporary buttons
+    // Dashboard buttons
 
-   window.depositTokens = function () {
+    window.depositTokens = function () {
 
-    window.location.href = "deposit.html";
+        window.location.href =
+            "deposit.html";
 
-};
-
-
-
-   window.bookTicket = function () {
-
-    window.location.href = "book-ticket.html";
-
-};
     };
 
+
+    // Book Ticket
+
+    window.bookTicket = function () {
+
+        window.location.href =
+            "book-ticket.html";
+
+    };
+
+
+    // Auto Ticket
 
     window.autoTicket = function () {
 
@@ -419,15 +422,17 @@
     };
 
 
+    // Manual Ticket
+
     window.manualTicket = function () {
 
-        window.manualTicket = function () {
+        window.location.href =
+            "book-ticket.html";
 
-    window.location.href = "book-ticket.html";
-
-};
     };
 
+
+    // Prizes
 
     window.viewPrizes = function () {
 
@@ -437,6 +442,8 @@
 
     };
 
+
+    // My Bookings
 
     window.myBookings = function () {
 
