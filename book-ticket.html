@@ -1,216 +1,926 @@
-<!-- setup-admin.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KBTV - Setup Admin</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Book Ticket - Tambola House</title>
+
     <style>
-        .setup-container {
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 40px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        * {
+            box-sizing: border-box;
         }
-        .setup-container h2 {
-            text-align: center;
-            margin-bottom: 20px;
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            color: #222;
         }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        .btn-primary {
-            width: 100%;
-            padding: 12px;
-            background: #4CAF50;
+
+        header {
+            background: #222;
             color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .back-btn {
+            background: #ff6600;
+            color: white;
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 25px auto;
+            padding: 15px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .balance {
+            background: #ff6600;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .balance h2 {
+            margin: 0 0 8px;
+        }
+
+        .balance-number {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .ticket-info {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .price {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .tickets {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 15px;
+        }
+
+        .ticket {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 12px;
+            background: #fff;
+        }
+
+        .ticket.booked {
+            background: #eeeeee;
+            border-color: #aaa;
+        }
+
+        .ticket-number {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .ticket-grid {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .ticket-grid td {
+            border: 1px solid #999;
+            text-align: center;
+            height: 35px;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .empty-cell {
+            background: #f1f1f1;
+        }
+
+        .book-btn {
+            width: 100%;
+            margin-top: 12px;
+            padding: 11px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
+            background: #ff6600;
+            color: white;
             font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
         }
-        .btn-primary:hover {
-            background: #45a049;
+
+        .book-btn:hover {
+            background: #e65c00;
         }
-        .result {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 8px;
+
+        .book-btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        .booked-label {
             text-align: center;
+            margin-top: 12px;
+            padding: 10px;
+            background: #ddd;
+            border-radius: 6px;
+            font-weight: bold;
         }
+
+        .message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: bold;
+        }
+
         .success {
-            background: #d4edda;
-            color: #155724;
+            background: #dff0d8;
+            color: #256029;
         }
+
         .error {
             background: #f8d7da;
-            color: #721c24;
+            color: #842029;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #777;
         }
     </style>
 </head>
+
 <body>
-    <header>
-        <div class="container">
-            <h1>🎬 KBTV</h1>
-            <nav>
-                <a href="index.html">Home</a>
-                <a href="login.html">Login</a>
-            </nav>
-        </div>
-    </header>
 
-    <main class="container">
-        <div class="setup-container">
-            <h2>🔑 Setup Admin Account</h2>
-            <p style="text-align:center;color:#666;margin-bottom:20px;">
-                Make an existing user an administrator
-            </p>
-            
-            <div class="form-group">
-                <label for="adminEmail">Admin Email Address</label>
-                <input 
-                    type="email" 
-                    id="adminEmail" 
-                    placeholder="Enter the email you want to make admin"
-                    required
-                />
+<header>
+    <h1>Tambola House</h1>
+
+    <a href="dashboard.html" class="back-btn">
+        Dashboard
+    </a>
+</header>
+
+
+<div class="container">
+
+    <div class="card">
+
+        <h2>Book Your Ticket</h2>
+
+        <p>
+            Select one available ticket for the current draw.
+        </p>
+
+        <div class="balance">
+
+            <h2>Your Token Balance</h2>
+
+            <div class="balance-number">
+                <span id="tokenBalance">0</span> Tokens
             </div>
-            
-            <div class="form-group">
-                <label for="adminPassword">Your Password</label>
-                <input 
-                    type="password" 
-                    id="adminPassword" 
-                    placeholder="Enter your password to confirm"
-                    required
-                />
-            </div>
-            
-            <button onclick="setupAdmin()" class="btn-primary">
-                Make this user an Admin
-            </button>
-            
-            <div id="result" class="result"></div>
+
         </div>
-    </main>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { 
-            getAuth, 
-            signInWithEmailAndPassword,
-            onAuthStateChanged
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            setDoc,
-            getDoc,
-            serverTimestamp
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        <div class="ticket-info">
 
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+            <div>
+                <strong>Current Draw:</strong>
+                <span id="drawName">Loading...</span>
+            </div>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+            <div class="price">
+                Ticket Price: 10 Tokens
+            </div>
 
-        window.setupAdmin = async function() {
-            const email = document.getElementById('adminEmail').value.trim();
-            const password = document.getElementById('adminPassword').value;
-            const resultDiv = document.getElementById('result');
-            
-            if (!email || !password) {
-                resultDiv.className = 'result error';
-                resultDiv.innerHTML = '❌ Please enter both email and password';
-                return;
+        </div>
+
+    </div>
+
+
+    <div id="message" class="message"></div>
+
+
+    <div class="card">
+
+        <h2>Available Tickets</h2>
+
+        <p>
+            Choose any available ticket.
+            Each ticket costs <strong>10 tokens</strong>.
+        </p>
+
+        <div id="tickets" class="tickets">
+
+            <div class="loading">
+                Loading tickets...
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script type="module">
+
+    import { initializeApp }
+        from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
+    import {
+        getAuth,
+        onAuthStateChanged
+    }
+        from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    import {
+        getFirestore,
+        doc,
+        getDoc,
+        collection,
+        getDocs,
+        query,
+        where,
+        runTransaction
+    }
+        from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    import { firebaseConfig }
+        from "./firebase-config.js";
+
+
+    // Firebase
+
+    const app = initializeApp(firebaseConfig);
+
+    const auth = getAuth(app);
+
+    const db = getFirestore(app);
+
+
+    // Settings
+
+    const TICKET_PRICE = 10;
+
+    // Temporary fixed draw ID.
+    // We will replace this with the admin-controlled
+    // current draw system in the next step.
+
+    const CURRENT_DRAW_ID = "draw1";
+
+
+    // Elements
+
+    const tokenBalance =
+        document.getElementById("tokenBalance");
+
+    const ticketsContainer =
+        document.getElementById("tickets");
+
+    const message =
+        document.getElementById("message");
+
+    const drawName =
+        document.getElementById("drawName");
+
+
+    let currentUser = null;
+
+    let currentUserData = null;
+
+
+    // Show message
+
+    function showMessage(text, type) {
+
+        message.textContent = text;
+
+        message.className =
+            "message " + type;
+
+        message.style.display = "block";
+
+    }
+
+
+    // Authentication
+
+    onAuthStateChanged(auth, async (user) => {
+
+        if (!user) {
+
+            window.location.href = "login.html";
+
+            return;
+        }
+
+        currentUser = user;
+
+        try {
+
+            await loadUser();
+
+            await loadTickets();
+
+        } catch (error) {
+
+            console.error(error);
+
+            showMessage(
+                "Unable to load booking system: " +
+                error.message,
+                "error"
+            );
+
+        }
+
+    });
+
+
+    // Load user
+
+    async function loadUser() {
+
+        const userRef =
+            doc(db, "users", currentUser.uid);
+
+        const snapshot =
+            await getDoc(userRef);
+
+
+        if (!snapshot.exists()) {
+
+            throw new Error(
+                "User profile not found."
+            );
+
+        }
+
+
+        currentUserData =
+            snapshot.data();
+
+
+        const balance =
+            Number(
+                currentUserData.tokenBalance || 0
+            );
+
+
+        tokenBalance.textContent =
+            balance;
+
+
+        drawName.textContent =
+            "Draw 1";
+
+
+    }
+
+
+    // Load tickets
+
+    async function loadTickets() {
+
+        ticketsContainer.innerHTML =
+            '<div class="loading">Loading tickets...</div>';
+
+
+        /*
+         * Read all 300 permanent tickets.
+         */
+
+        const ticketsSnapshot =
+            await getDocs(
+                collection(db, "tickets")
+            );
+
+
+        /*
+         * Find tickets already booked
+         * for the current draw.
+         */
+
+        const bookingQuery =
+            query(
+                collection(db, "bookings"),
+                where(
+                    "drawId",
+                    "==",
+                    CURRENT_DRAW_ID
+                )
+            );
+
+
+        const bookingsSnapshot =
+            await getDocs(bookingQuery);
+
+
+        const bookedTickets =
+            new Set();
+
+
+        bookingsSnapshot.forEach((bookingDoc) => {
+
+            const data =
+                bookingDoc.data();
+
+
+            if (data.ticketId) {
+
+                bookedTickets.add(
+                    data.ticketId
+                );
+
             }
 
-            try {
-                resultDiv.className = 'result';
-                resultDiv.innerHTML = '⏳ Logging in...';
-                
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
+        });
 
-                const userRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userRef);
-                
-                if (!userDoc.exists()) {
-                    await setDoc(userRef, {
-                        email: user.email,
-                        role: 'admin',
-                        createdAt: serverTimestamp(),
-                        uid: user.uid
-                    });
-                } else {
-                    await setDoc(userRef, {
-                        role: 'admin',
-                        updatedAt: serverTimestamp()
-                    }, { merge: true });
-                }
 
-                resultDiv.className = 'result success';
-                resultDiv.innerHTML = `
-                    ✅ <strong>${email}</strong> is now an admin!<br>
-                    <a href="admin-dashboard.html" style="color:#155724;font-weight:bold;">Go to Admin Dashboard →</a>
-                `;
-                
-                await user.updateProfile({
-                    displayName: 'Admin'
+        if (ticketsSnapshot.empty) {
+
+            ticketsContainer.innerHTML =
+                '<div class="loading">No tickets found.</div>';
+
+            return;
+
+        }
+
+
+        ticketsContainer.innerHTML = "";
+
+
+        /*
+         * Sort tickets by ticket number.
+         */
+
+        const tickets = [];
+
+
+        ticketsSnapshot.forEach((ticketDoc) => {
+
+            tickets.push({
+                id: ticketDoc.id,
+                data: ticketDoc.data()
+            });
+
+        });
+
+
+        tickets.sort((a, b) => {
+
+            const numberA =
+                Number(
+                    String(a.id).replace(/\D/g, "")
+                );
+
+            const numberB =
+                Number(
+                    String(b.id).replace(/\D/g, "")
+                );
+
+            return numberA - numberB;
+
+        });
+
+
+        /*
+         * Display tickets.
+         */
+
+        tickets.forEach((ticket) => {
+
+            const ticketId =
+                ticket.id;
+
+            const data =
+                ticket.data;
+
+            const isBooked =
+                bookedTickets.has(ticketId);
+
+
+            const div =
+                document.createElement("div");
+
+            div.className =
+                "ticket" +
+                (isBooked ? " booked" : "");
+
+
+            const title =
+                document.createElement("div");
+
+            title.className =
+                "ticket-number";
+
+            title.textContent =
+                ticketId;
+
+
+            div.appendChild(title);
+
+
+            /*
+             * Your ticket generator may store
+             * the numbers in "numbers".
+             */
+
+            let numbers =
+                data.numbers;
+
+
+            /*
+             * Support a few possible formats.
+             */
+
+            if (!Array.isArray(numbers)) {
+
+                numbers =
+                    data.grid ||
+                    data.ticket ||
+                    [];
+
+            }
+
+
+            const table =
+                document.createElement("table");
+
+            table.className =
+                "ticket-grid";
+
+
+            if (
+                Array.isArray(numbers) &&
+                numbers.length > 0
+            ) {
+
+                numbers.forEach((row) => {
+
+                    const tr =
+                        document.createElement("tr");
+
+
+                    if (Array.isArray(row)) {
+
+                        row.forEach((value) => {
+
+                            const td =
+                                document.createElement("td");
+
+
+                            if (
+                                value === null ||
+                                value === undefined ||
+                                value === ""
+                            ) {
+
+                                td.textContent = "";
+
+                                td.className =
+                                    "empty-cell";
+
+                            } else {
+
+                                td.textContent =
+                                    value;
+
+                            }
+
+
+                            tr.appendChild(td);
+
+                        });
+
+                    }
+
+
+                    table.appendChild(tr);
+
                 });
 
-            } catch (error) {
-                console.error('Error:', error);
-                resultDiv.className = 'result error';
-                if (error.code === 'auth/user-not-found') {
-                    resultDiv.innerHTML = '❌ User not found. Please create this account first.';
-                } else if (error.code === 'auth/wrong-password') {
-                    resultDiv.innerHTML = '❌ Wrong password. Please try again.';
-                } else {
-                    resultDiv.innerHTML = '❌ Error: ' + error.message;
-                }
-            }
-        };
+            } else {
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                try {
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
-                    if (userDoc.exists() && userDoc.data().role === 'admin') {
-                        document.getElementById('result').className = 'result success';
-                        document.getElementById('result').innerHTML = `
-                            ✅ You are already an admin!<br>
-                            <a href="admin-dashboard.html" style="color:#155724;font-weight:bold;">Go to Dashboard →</a>
-                        `;
-                    }
-                } catch (error) {
-                    console.error('Error checking admin status:', error);
-                }
+                const tr =
+                    document.createElement("tr");
+
+                const td =
+                    document.createElement("td");
+
+                td.colSpan = 9;
+
+                td.textContent =
+                    "Ticket design unavailable";
+
+                tr.appendChild(td);
+
+                table.appendChild(tr);
+
             }
+
+
+            div.appendChild(table);
+
+
+            if (isBooked) {
+
+                const booked =
+                    document.createElement("div");
+
+                booked.className =
+                    "booked-label";
+
+                booked.textContent =
+                    "BOOKED";
+
+                div.appendChild(booked);
+
+            } else {
+
+                const button =
+                    document.createElement("button");
+
+                button.className =
+                    "book-btn";
+
+                button.textContent =
+                    "Book for 10 Tokens";
+
+
+                button.addEventListener(
+                    "click",
+                    () => bookTicket(ticketId)
+                );
+
+
+                div.appendChild(button);
+
+            }
+
+
+            ticketsContainer.appendChild(div);
+
         });
-    </script>
+
+    }
+
+
+    // Book ticket
+
+    async function bookTicket(ticketId) {
+
+        showMessage("", "success");
+
+        message.style.display = "none";
+
+
+        if (!currentUser) {
+
+            showMessage(
+                "Please login first.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * Check the current displayed balance.
+         */
+
+        const currentBalance =
+            Number(
+                currentUserData.tokenBalance || 0
+            );
+
+
+        if (currentBalance < TICKET_PRICE) {
+
+            showMessage(
+                "You need at least 10 tokens to book a ticket.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const confirmed =
+            confirm(
+                "Book " +
+                ticketId +
+                " for 10 tokens?"
+            );
+
+
+        if (!confirmed) {
+
+            return;
+
+        }
+
+
+        try {
+
+            /*
+             * Firestore transaction prevents
+             * two users from booking the same
+             * ticket at the same time.
+             */
+
+            await runTransaction(
+                db,
+                async (transaction) => {
+
+                    const userRef =
+                        doc(
+                            db,
+                            "users",
+                            currentUser.uid
+                        );
+
+
+                    const bookingRef =
+                        doc(
+                            db,
+                            "bookings",
+                            CURRENT_DRAW_ID +
+                            "_" +
+                            ticketId
+                        );
+
+
+                    /*
+                     * Read both documents.
+                     */
+
+                    const userSnapshot =
+                        await transaction.get(
+                            userRef
+                        );
+
+
+                    const bookingSnapshot =
+                        await transaction.get(
+                            bookingRef
+                        );
+
+
+                    /*
+                     * Check ticket already booked.
+                     */
+
+                    if (bookingSnapshot.exists()) {
+
+                        throw new Error(
+                            "This ticket has already been booked."
+                        );
+
+                    }
+
+
+                    /*
+                     * Get latest token balance.
+                     */
+
+                    const userData =
+                        userSnapshot.data();
+
+
+                    const balance =
+                        Number(
+                            userData.tokenBalance || 0
+                        );
+
+
+                    if (balance < TICKET_PRICE) {
+
+                        throw new Error(
+                            "Insufficient token balance."
+                        );
+
+                    }
+
+
+                    /*
+                     * Deduct 10 tokens.
+                     */
+
+                    transaction.update(
+                        userRef,
+                        {
+                            tokenBalance:
+                                balance -
+                                TICKET_PRICE
+                        }
+                    );
+
+
+                    /*
+                     * Create booking.
+                     */
+
+                    transaction.set(
+                        bookingRef,
+                        {
+
+                            drawId:
+                                CURRENT_DRAW_ID,
+
+                            ticketId:
+                                ticketId,
+
+                            userId:
+                                currentUser.uid,
+
+                            email:
+                                currentUser.email || "",
+
+                            price:
+                                TICKET_PRICE,
+
+                            status:
+                                "booked",
+
+                            bookedAt:
+                                new Date()
+
+                        }
+                    );
+
+                }
+            );
+
+
+            showMessage(
+                "Ticket " +
+                ticketId +
+                " booked successfully!",
+                "success"
+            );
+
+
+            /*
+             * Reload balance and tickets.
+             */
+
+            await loadUser();
+
+            await loadTickets();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            showMessage(
+                "Booking failed: " +
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+</script>
+
 </body>
 </html>
