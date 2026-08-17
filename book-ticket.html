@@ -5,16 +5,20 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Book Ticket - Tambola House</title>
+
 
     <style>
 
         * {
             box-sizing: border-box;
         }
+
 
         body {
             margin: 0;
@@ -23,18 +27,2056 @@
             color: #222;
         }
 
+
+        /* =========================
+           HEADER
+        ========================= */
+
         header {
             background: #222;
             color: white;
             padding: 18px 25px;
+
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
+
         header h1 {
             margin: 0;
             font-size: 22px;
+        }
+
+
+        .back-btn {
+            background: #ff6600;
+            color: white;
+            text-decoration: none;
+
+            padding: 10px 16px;
+
+            border-radius: 6px;
+
+            font-weight: bold;
+        }
+
+
+        .back-btn:hover {
+            background: #e65c00;
+        }
+
+
+        /* =========================
+           CONTAINER
+        ========================= */
+
+        .container {
+            max-width: 1100px;
+            margin: 25px auto;
+            padding: 15px;
+        }
+
+
+        /* =========================
+           CARD
+        ========================= */
+
+        .card {
+            background: white;
+
+            padding: 25px;
+
+            border-radius: 12px;
+
+            margin-bottom: 20px;
+
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.08);
+        }
+
+
+        .card h2 {
+            margin-top: 0;
+        }
+
+
+        /* =========================
+           BALANCE
+        ========================= */
+
+        .balance {
+            background: #ff6600;
+            color: white;
+
+            padding: 20px;
+
+            border-radius: 10px;
+
+            margin-top: 20px;
+        }
+
+
+        .balance h2 {
+            margin: 0 0 8px;
+        }
+
+
+        .balance-number {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+
+        /* =========================
+           DRAW INFORMATION
+        ========================= */
+
+        .draw-info {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            flex-wrap: wrap;
+
+            gap: 15px;
+
+            margin-top: 20px;
+        }
+
+
+        .draw-item {
+            font-size: 17px;
+        }
+
+
+        .draw-status {
+            color: #16821d;
+            font-weight: bold;
+        }
+
+
+        .price {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+
+        /* =========================
+           MESSAGE
+        ========================= */
+
+        .message {
+            padding: 12px;
+
+            border-radius: 6px;
+
+            margin-bottom: 20px;
+
+            display: none;
+
+            font-weight: bold;
+        }
+
+
+        .success {
+            background: #dff0d8;
+            color: #256029;
+        }
+
+
+        .error {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+
+        .info {
+            background: #d9edf7;
+            color: #0c5460;
+        }
+
+
+        /* =========================
+           TICKET LIST
+        ========================= */
+
+        .tickets {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    auto-fill,
+                    minmax(280px, 1fr)
+                );
+
+            gap: 15px;
+        }
+
+
+        .ticket {
+            border: 2px solid #ddd;
+
+            border-radius: 10px;
+
+            padding: 15px;
+
+            background: white;
+        }
+
+
+        .ticket:hover {
+            border-color: #1976d2;
+        }
+
+
+        .ticket.booked {
+            background: #eeeeee;
+
+            border-color: #aaa;
+        }
+
+
+        .ticket-number {
+            font-size: 20px;
+
+            font-weight: bold;
+
+            margin-bottom: 12px;
+        }
+
+
+        /* =========================
+           PREVIEW BUTTON
+        ========================= */
+
+        .preview-btn {
+            width: 100%;
+
+            border: none;
+
+            border-radius: 6px;
+
+            padding: 12px;
+
+            background: #1976d2;
+
+            color: white;
+
+            font-size: 15px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+
+        .preview-btn:hover {
+            background: #1565c0;
+        }
+
+
+        /* =========================
+           BOOKED LABEL
+        ========================= */
+
+        .booked-label {
+            text-align: center;
+
+            padding: 11px;
+
+            background: #d5d5d5;
+
+            border-radius: 6px;
+
+            font-weight: bold;
+
+            color: #444;
+        }
+
+
+        /* =========================
+           LOADING
+        ========================= */
+
+        .loading {
+            text-align: center;
+
+            padding: 30px;
+
+            color: #777;
+
+            grid-column: 1 / -1;
+        }
+
+
+        /* =========================
+           PREVIEW MODAL
+        ========================= */
+
+        .modal {
+            display: none;
+
+            position: fixed;
+
+            z-index: 9999;
+
+            left: 0;
+
+            top: 0;
+
+            width: 100%;
+
+            height: 100%;
+
+            background:
+                rgba(0,0,0,0.75);
+
+            overflow-y: auto;
+
+            padding: 30px 15px;
+        }
+
+
+        .modal-content {
+            background: white;
+
+            max-width: 700px;
+
+            margin: 30px auto;
+
+            padding: 25px;
+
+            border-radius: 15px;
+
+            position: relative;
+
+            box-shadow:
+                0 5px 25px rgba(0,0,0,0.3);
+        }
+
+
+        .close-x {
+            position: absolute;
+
+            right: 18px;
+
+            top: 10px;
+
+            font-size: 30px;
+
+            cursor: pointer;
+
+            color: #555;
+        }
+
+
+        .close-x:hover {
+            color: #000;
+        }
+
+
+        .modal-title {
+            text-align: center;
+
+            margin-top: 0;
+
+            margin-bottom: 20px;
+
+            padding-right: 30px;
+        }
+
+
+        /* =========================
+           PREVIEW TICKET
+        ========================= */
+
+        .preview-ticket {
+            border: 3px solid #222;
+
+            border-radius: 10px;
+
+            padding: 15px;
+
+            background: white;
+
+            overflow-x: auto;
+        }
+
+
+        .ticket-grid {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            table-layout: fixed;
+        }
+
+
+        .ticket-grid td {
+            border: 1px solid #777;
+
+            text-align: center;
+
+            height: 60px;
+
+            font-weight: bold;
+
+            font-size: 20px;
+
+            width: 11.11%;
+        }
+
+
+        .ticket-grid td.empty-cell {
+            background: #eeeeee;
+        }
+
+
+        .preview-price {
+            text-align: center;
+
+            font-size: 18px;
+
+            margin-top: 15px;
+
+            font-weight: bold;
+        }
+
+
+        /* =========================
+           PREVIEW ACTIONS
+        ========================= */
+
+        .preview-actions {
+            display: flex;
+
+            gap: 10px;
+
+            margin-top: 20px;
+        }
+
+
+        .preview-actions button {
+            flex: 1;
+
+            padding: 13px;
+
+            border: none;
+
+            border-radius: 6px;
+
+            color: white;
+
+            font-weight: bold;
+
+            font-size: 15px;
+
+            cursor: pointer;
+        }
+
+
+        .book-btn {
+            background: #ff6600;
+        }
+
+
+        .book-btn:hover {
+            background: #e65c00;
+        }
+
+
+        .book-btn:disabled {
+            background: #999;
+
+            cursor: not-allowed;
+        }
+
+
+        .cancel-btn {
+            background: #777;
+        }
+
+
+        .cancel-btn:hover {
+            background: #555;
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 600px) {
+
+            header {
+                padding: 15px;
+            }
+
+
+            header h1 {
+                font-size: 18px;
+            }
+
+
+            .container {
+                padding: 10px;
+            }
+
+
+            .card {
+                padding: 18px;
+            }
+
+
+            .tickets {
+                grid-template-columns: 1fr;
+            }
+
+
+            .draw-info {
+                flex-direction: column;
+
+                align-items: flex-start;
+            }
+
+
+            .modal {
+                padding: 10px;
+            }
+
+
+            .modal-content {
+                margin: 15px auto;
+
+                padding: 15px;
+            }
+
+
+            .preview-ticket {
+                padding: 8px;
+
+                overflow-x: auto;
+            }
+
+
+            .ticket-grid {
+                min-width: 500px;
+            }
+
+
+            .ticket-grid td {
+                height: 50px;
+
+                font-size: 17px;
+            }
+
+
+            .preview-actions {
+                flex-direction: column;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     HEADER
+========================= -->
+
+<header>
+
+    <h1>Tambola House</h1>
+
+    <a
+        href="dashboard.html"
+        class="back-btn"
+    >
+        Dashboard
+    </a>
+
+</header>
+
+
+
+<!-- =========================
+     MAIN
+========================= -->
+
+<div class="container">
+
+
+    <!-- DRAW INFORMATION -->
+
+    <div class="card">
+
+        <h2>
+            Book Your Ticket
+        </h2>
+
+        <p>
+            Preview a ticket before booking it.
+        </p>
+
+
+        <!-- TOKEN BALANCE -->
+
+        <div class="balance">
+
+            <h2>
+                Your Token Balance
+            </h2>
+
+            <div class="balance-number">
+
+                <span id="tokenBalance">
+                    0
+                </span>
+
+                Tokens
+
+            </div>
+
+        </div>
+
+
+        <!-- DRAW INFO -->
+
+        <div class="draw-info">
+
+            <div class="draw-item">
+
+                <strong>
+                    Current Draw:
+                </strong>
+
+                <span id="drawName">
+                    Draw 1
+                </span>
+
+            </div>
+
+
+            <div class="draw-item">
+
+                <strong>
+                    Status:
+                </strong>
+
+                <span
+                    id="drawStatus"
+                    class="draw-status"
+                >
+                    OPEN
+                </span>
+
+            </div>
+
+
+            <div class="price">
+
+                Ticket Price:
+                10 Tokens
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- MESSAGE -->
+
+    <div
+        id="message"
+        class="message"
+    ></div>
+
+
+
+    <!-- TICKET LIST -->
+
+    <div class="card">
+
+        <h2>
+            Choose Your Ticket
+        </h2>
+
+        <p>
+            Click
+            <strong>Preview Ticket</strong>
+            to see the complete ticket.
+        </p>
+
+
+        <div
+            id="tickets"
+            class="tickets"
+        >
+
+            <div class="loading">
+                Loading tickets...
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================
+     PREVIEW MODAL
+========================= -->
+
+<div
+    id="previewModal"
+    class="modal"
+>
+
+    <div class="modal-content">
+
+
+        <!-- CLOSE -->
+
+        <span
+            id="closePreview"
+            class="close-x"
+        >
+            &times;
+        </span>
+
+
+        <!-- TITLE -->
+
+        <h2
+            id="previewTitle"
+            class="modal-title"
+        >
+            Ticket Preview
+        </h2>
+
+
+        <!-- TICKET -->
+
+        <div
+            id="previewTicket"
+            class="preview-ticket"
+        >
+        </div>
+
+
+        <!-- PRICE -->
+
+        <div class="preview-price">
+
+            Price:
+            10 Tokens
+
+        </div>
+
+
+        <!-- ACTIONS -->
+
+        <div class="preview-actions">
+
+            <button
+                id="confirmBookBtn"
+                class="book-btn"
+            >
+                Book This Ticket - 10 Tokens
+            </button>
+
+
+            <button
+                id="cancelPreviewBtn"
+                class="cancel-btn"
+            >
+                Cancel
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================
+     FIREBASE JAVASCRIPT
+========================= -->
+
+<script type="module">
+
+
+    /* =========================
+       FIREBASE IMPORTS
+    ========================= */
+
+    import {
+        initializeApp
+    } from
+    "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
+
+    import {
+        getAuth,
+        onAuthStateChanged
+    } from
+    "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+
+    import {
+        getFirestore,
+        doc,
+        getDoc,
+        collection,
+        getDocs,
+        query,
+        where,
+        runTransaction,
+        serverTimestamp
+    } from
+    "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+
+    import {
+        firebaseConfig
+    } from "./firebase-config.js";
+
+
+
+    /* =========================
+       FIREBASE INITIALIZATION
+    ========================= */
+
+    const app =
+        initializeApp(firebaseConfig);
+
+
+    const auth =
+        getAuth(app);
+
+
+    const db =
+        getFirestore(app);
+
+
+
+    /* =========================
+       SETTINGS
+    ========================= */
+
+    const TICKET_PRICE = 10;
+
+    const CURRENT_DRAW_ID = "draw1";
+
+
+
+    /* =========================
+       HTML ELEMENTS
+    ========================= */
+
+    const tokenBalance =
+        document.getElementById(
+            "tokenBalance"
+        );
+
+
+    const ticketsContainer =
+        document.getElementById(
+            "tickets"
+        );
+
+
+    const message =
+        document.getElementById(
+            "message"
+        );
+
+
+    const previewModal =
+        document.getElementById(
+            "previewModal"
+        );
+
+
+    const previewTitle =
+        document.getElementById(
+            "previewTitle"
+        );
+
+
+    const previewTicket =
+        document.getElementById(
+            "previewTicket"
+        );
+
+
+    const confirmBookBtn =
+        document.getElementById(
+            "confirmBookBtn"
+        );
+
+
+    const closePreview =
+        document.getElementById(
+            "closePreview"
+        );
+
+
+    const cancelPreviewBtn =
+        document.getElementById(
+            "cancelPreviewBtn"
+        );
+
+
+
+    /* =========================
+       VARIABLES
+    ========================= */
+
+    let currentUser = null;
+
+    let currentUserData = null;
+
+    let selectedTicketId = null;
+
+
+
+    /* =========================
+       SHOW MESSAGE
+    ========================= */
+
+    function showMessage(
+        text,
+        type
+    ) {
+
+        message.textContent = text;
+
+        message.className =
+            "message " + type;
+
+        message.style.display =
+            "block";
+
+    }
+
+
+
+    /* =========================
+       AUTHENTICATION
+    ========================= */
+
+    onAuthStateChanged(
+        auth,
+        async (user) => {
+
+            if (!user) {
+
+                window.location.href =
+                    "login.html";
+
+                return;
+            }
+
+
+            currentUser = user;
+
+
+            try {
+
+                /*
+                 * IMPORTANT:
+                 *
+                 * We do NOT read the "draws"
+                 * collection here.
+                 *
+                 * Draw 1 is fixed for now.
+                 */
+
+                await loadUser();
+
+                await loadTickets();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Booking system error:",
+                    error
+                );
+
+
+                showMessage(
+                    "Unable to load booking system: " +
+                    error.message,
+                    "error"
+                );
+
+            }
+
+        }
+    );
+
+
+
+    /* =========================
+       LOAD USER
+    ========================= */
+
+    async function loadUser() {
+
+        const userRef =
+            doc(
+                db,
+                "users",
+                currentUser.uid
+            );
+
+
+        const snapshot =
+            await getDoc(userRef);
+
+
+        if (!snapshot.exists()) {
+
+            throw new Error(
+                "User profile not found."
+            );
+
+        }
+
+
+        currentUserData =
+            snapshot.data();
+
+
+        const balance =
+            Number(
+                currentUserData.tokenBalance || 0
+            );
+
+
+        tokenBalance.textContent =
+            balance;
+
+    }
+
+
+
+    /* =========================
+       LOAD 300 FIXED TICKETS
+    ========================= */
+
+    async function loadTickets() {
+
+        ticketsContainer.innerHTML =
+            `
+            <div class="loading">
+                Loading tickets...
+            </div>
+            `;
+
+
+        /*
+         * Get all fixed tickets.
+         */
+
+        const ticketsSnapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "tickets"
+                )
+            );
+
+
+        /*
+         * Get bookings for Draw 1.
+         */
+
+        const bookingQuery =
+            query(
+                collection(
+                    db,
+                    "bookings"
+                ),
+                where(
+                    "drawId",
+                    "==",
+                    CURRENT_DRAW_ID
+                )
+            );
+
+
+        const bookingsSnapshot =
+            await getDocs(
+                bookingQuery
+            );
+
+
+        /*
+         * Store booked ticket IDs.
+         */
+
+        const bookedTickets =
+            new Set();
+
+
+        bookingsSnapshot.forEach(
+            (bookingDoc) => {
+
+                const data =
+                    bookingDoc.data();
+
+
+                if (data.ticketId) {
+
+                    bookedTickets.add(
+                        data.ticketId
+                    );
+
+                }
+
+            }
+        );
+
+
+        /*
+         * Check tickets.
+         */
+
+        if (
+            ticketsSnapshot.empty
+        ) {
+
+            ticketsContainer.innerHTML =
+                `
+                <div class="loading">
+                    No tickets found.
+                </div>
+                `;
+
+            return;
+
+        }
+
+
+        /*
+         * Convert Firebase
+         * documents to array.
+         */
+
+        const tickets = [];
+
+
+        ticketsSnapshot.forEach(
+            (ticketDoc) => {
+
+                tickets.push({
+
+                    id:
+                        ticketDoc.id,
+
+                    data:
+                        ticketDoc.data()
+
+                });
+
+            }
+        );
+
+
+        /*
+         * Sort ticket001,
+         * ticket002,
+         * ...
+         * ticket300.
+         */
+
+        tickets.sort(
+            (a, b) => {
+
+                const numberA =
+                    Number(
+                        String(a.id)
+                            .replace(
+                                /\D/g,
+                                ""
+                            )
+                    );
+
+
+                const numberB =
+                    Number(
+                        String(b.id)
+                            .replace(
+                                /\D/g,
+                                ""
+                            )
+                    );
+
+
+                return numberA - numberB;
+
+            }
+        );
+
+
+        /*
+         * Clear loading.
+         */
+
+        ticketsContainer.innerHTML =
+            "";
+
+
+        /*
+         * Display tickets.
+         */
+
+        tickets.forEach(
+            (ticket) => {
+
+                const ticketId =
+                    ticket.id;
+
+
+                const isBooked =
+                    bookedTickets.has(
+                        ticketId
+                    );
+
+
+                /*
+                 * Ticket card.
+                 */
+
+                const ticketDiv =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                ticketDiv.className =
+                    "ticket";
+
+
+                if (isBooked) {
+
+                    ticketDiv.classList.add(
+                        "booked"
+                    );
+
+                }
+
+
+                /*
+                 * Ticket number.
+                 */
+
+                const title =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                title.className =
+                    "ticket-number";
+
+
+                title.textContent =
+                    ticketId;
+
+
+                ticketDiv.appendChild(
+                    title
+                );
+
+
+                /*
+                 * IMPORTANT:
+                 *
+                 * We do NOT put the
+                 * ticket grid here.
+                 *
+                 * The grid appears only
+                 * after Preview Ticket.
+                 */
+
+
+                if (isBooked) {
+
+                    /*
+                     * Already booked.
+                     */
+
+                    const bookedLabel =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    bookedLabel.className =
+                        "booked-label";
+
+
+                    bookedLabel.textContent =
+                        "BOOKED";
+
+
+                    ticketDiv.appendChild(
+                        bookedLabel
+                    );
+
+
+                } else {
+
+                    /*
+                     * Preview button.
+                     */
+
+                    const previewBtn =
+                        document.createElement(
+                            "button"
+                        );
+
+
+                    previewBtn.className =
+                        "preview-btn";
+
+
+                    previewBtn.textContent =
+                        "Preview Ticket";
+
+
+                    previewBtn.addEventListener(
+                        "click",
+                        () => {
+
+                            const numbers =
+                                getTicketNumbers(
+                                    ticket.data
+                                );
+
+
+                            openPreview(
+                                ticketId,
+                                numbers
+                            );
+
+                        }
+                    );
+
+
+                    ticketDiv.appendChild(
+                        previewBtn
+                    );
+
+                }
+
+
+                ticketsContainer.appendChild(
+                    ticketDiv
+                );
+
+            }
+        );
+
+    }
+
+
+
+    /* =========================
+       GET TICKET NUMBERS
+    ========================= */
+
+    function getTicketNumbers(
+        data
+    ) {
+
+        /*
+         * Your tickets may use
+         * one of these field names.
+         */
+
+        let numbers =
+            data.numbers;
+
+
+        if (
+            !Array.isArray(numbers)
+        ) {
+
+            numbers =
+                data.grid;
+
+        }
+
+
+        if (
+            !Array.isArray(numbers)
+        ) {
+
+            numbers =
+                data.ticket;
+
+        }
+
+
+        if (
+            !Array.isArray(numbers)
+        ) {
+
+            numbers = [];
+
+        }
+
+
+        return numbers;
+
+    }
+
+
+
+    /* =========================
+       CREATE TICKET TABLE
+    ========================= */
+
+    function createTicketTable(
+        numbers
+    ) {
+
+        const table =
+            document.createElement(
+                "table"
+            );
+
+
+        table.className =
+            "ticket-grid";
+
+
+        /*
+         * Valid ticket.
+         */
+
+        if (
+            Array.isArray(numbers)
+            &&
+            numbers.length > 0
+        ) {
+
+            numbers.forEach(
+                (row) => {
+
+                    const tr =
+                        document.createElement(
+                            "tr"
+                        );
+
+
+                    if (
+                        Array.isArray(row)
+                    ) {
+
+                        row.forEach(
+                            (value) => {
+
+                                const td =
+                                    document.createElement(
+                                        "td"
+                                    );
+
+
+                                /*
+                                 * Empty cell.
+                                 */
+
+                                if (
+                                    value === null
+                                    ||
+                                    value === undefined
+                                    ||
+                                    value === ""
+                                ) {
+
+                                    td.textContent =
+                                        "";
+
+                                    td.className =
+                                        "empty-cell";
+
+                                } else {
+
+                                    td.textContent =
+                                        value;
+
+                                }
+
+
+                                tr.appendChild(
+                                    td
+                                );
+
+                            }
+                        );
+
+                    }
+
+
+                    table.appendChild(
+                        tr
+                    );
+
+                }
+            );
+
+
+        } else {
+
+            /*
+             * If ticket data is
+             * missing.
+             */
+
+            const tr =
+                document.createElement(
+                    "tr"
+                );
+
+
+            const td =
+                document.createElement(
+                    "td"
+                );
+
+
+            td.colSpan = 9;
+
+
+            td.textContent =
+                "Ticket design unavailable";
+
+
+            tr.appendChild(td);
+
+
+            table.appendChild(tr);
+
+        }
+
+
+        return table;
+
+    }
+
+
+
+    /* =========================
+       OPEN PREVIEW
+    ========================= */
+
+    function openPreview(
+        ticketId,
+        numbers
+    ) {
+
+        selectedTicketId =
+            ticketId;
+
+
+        previewTitle.textContent =
+            "Ticket " + ticketId;
+
+
+        previewTicket.innerHTML =
+            "";
+
+
+        /*
+         * Put ticket grid ONLY
+         * inside popup.
+         */
+
+        const table =
+            createTicketTable(
+                numbers
+            );
+
+
+        previewTicket.appendChild(
+            table
+        );
+
+
+        confirmBookBtn.disabled =
+            false;
+
+
+        confirmBookBtn.textContent =
+            "Book This Ticket - 10 Tokens";
+
+
+        previewModal.style.display =
+            "block";
+
+    }
+
+
+
+    /* =========================
+       CLOSE PREVIEW
+    ========================= */
+
+    function closePreviewModal() {
+
+        previewModal.style.display =
+            "none";
+
+
+        selectedTicketId =
+            null;
+
+
+        previewTicket.innerHTML =
+            "";
+
+    }
+
+
+
+    closePreview.addEventListener(
+        "click",
+        closePreviewModal
+    );
+
+
+    cancelPreviewBtn.addEventListener(
+        "click",
+        closePreviewModal
+    );
+
+
+
+    /* =========================
+       CLOSE BY CLICKING OUTSIDE
+    ========================= */
+
+    previewModal.addEventListener(
+        "click",
+        (event) => {
+
+            if (
+                event.target ===
+                previewModal
+            ) {
+
+                closePreviewModal();
+
+            }
+
+        }
+    );
+
+
+
+    /* =========================
+       CONFIRM BOOKING
+    ========================= */
+
+    confirmBookBtn.addEventListener(
+        "click",
+        async () => {
+
+            if (
+                !selectedTicketId
+            ) {
+
+                return;
+
+            }
+
+
+            const ticketToBook =
+                selectedTicketId;
+
+
+            /*
+             * Close the popup only
+             * after successful booking.
+             */
+
+            await bookTicket(
+                ticketToBook
+            );
+
+        }
+    );
+
+
+
+    /* =========================
+       BOOK TICKET
+    ========================= */
+
+    async function bookTicket(
+        ticketId
+    ) {
+
+        if (!currentUser) {
+
+            showMessage(
+                "Please login first.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * Check current displayed balance.
+         */
+
+        const currentBalance =
+            Number(
+                currentUserData.tokenBalance || 0
+            );
+
+
+        if (
+            currentBalance <
+            TICKET_PRICE
+        ) {
+
+            showMessage(
+                "You need at least 10 tokens to book a ticket.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * Ask confirmation.
+         */
+
+        const confirmed =
+            confirm(
+                "Book " +
+                ticketId +
+                " for 10 tokens?"
+            );
+
+
+        if (!confirmed) {
+
+            return;
+
+        }
+
+
+        try {
+
+            confirmBookBtn.disabled =
+                true;
+
+
+            confirmBookBtn.textContent =
+                "Booking...";
+
+
+            /*
+             * Booking document ID.
+             *
+             * Example:
+             *
+             * draw1_ticket001
+             *
+             * This guarantees that
+             * the same ticket cannot
+             * be booked twice for
+             * Draw 1.
+             */
+
+            const bookingId =
+                CURRENT_DRAW_ID +
+                "_" +
+                ticketId;
+
+
+            await runTransaction(
+                db,
+                async (transaction) => {
+
+
+                    /* =========================
+                       USER DOCUMENT
+                    ========================= */
+
+                    const userRef =
+                        doc(
+                            db,
+                            "users",
+                            currentUser.uid
+                        );
+
+
+                    /* =========================
+                       BOOKING DOCUMENT
+                    ========================= */
+
+                    const bookingRef =
+                        doc(
+                            db,
+                            "bookings",
+                            bookingId
+                        );
+
+
+                    /* =========================
+                       TICKET DOCUMENT
+                    ========================= */
+
+                    const ticketRef =
+                        doc(
+                            db,
+                            "tickets",
+                            ticketId
+                        );
+
+
+                    /*
+                     * Read documents.
+                     */
+
+                    const userSnapshot =
+                        await transaction.get(
+                            userRef
+                        );
+
+
+                    const bookingSnapshot =
+                        await transaction.get(
+                            bookingRef
+                        );
+
+
+                    const ticketSnapshot =
+                        await transaction.get(
+                            ticketRef
+                        );
+
+
+                    /*
+                     * User must exist.
+                     */
+
+                    if (
+                        !userSnapshot.exists()
+                    ) {
+
+                        throw new Error(
+                            "User profile not found."
+                        );
+
+                    }
+
+
+                    /*
+                     * Ticket must exist.
+                     */
+
+                    if (
+                        !ticketSnapshot.exists()
+                    ) {
+
+                        throw new Error(
+                            "Ticket does not exist."
+                        );
+
+                    }
+
+
+                    /*
+                     * Prevent double booking.
+                     */
+
+                    if (
+                        bookingSnapshot.exists()
+                    ) {
+
+                        throw new Error(
+                            "This ticket has already been booked."
+                        );
+
+                    }
+
+
+                    /*
+                     * Get current balance
+                     * directly from Firebase.
+                     */
+
+                    const userData =
+                        userSnapshot.data();
+
+
+                    const balance =
+                        Number(
+                            userData.tokenBalance || 0
+                        );
+
+
+                    /*
+                     * Check balance.
+                     */
+
+                    if (
+                        balance <
+                        TICKET_PRICE
+                    ) {
+
+                        throw new Error(
+                            "Insufficient token balance."
+                        );
+
+                    }
+
+
+                    /*
+                     * Deduct exactly
+                     * 10 tokens.
+                     */
+
+                    transaction.update(
+                        userRef,
+                        {
+                            tokenBalance:
+                                balance -
+                                TICKET_PRICE
+                        }
+                    );
+
+
+                    /*
+                     * Create booking.
+                     */
+
+                    transaction.set(
+                        bookingRef,
+                        {
+
+                            drawId:
+                                CURRENT_DRAW_ID,
+
+                            ticketId:
+                                ticketId,
+
+                            userId:
+                                currentUser.uid,
+
+                            email:
+                                currentUser.email || "",
+
+                            price:
+                                TICKET_PRICE,
+
+                            status:
+                                "booked",
+
+                            bookedAt:
+                                serverTimestamp()
+
+                        }
+                    );
+
+                }
+            );
+
+
+            /*
+             * Booking successful.
+             */
+
+            closePreviewModal();
+
+
+            showMessage(
+                "Ticket " +
+                ticketId +
+                " booked successfully!",
+                "success"
+            );
+
+
+            /*
+             * Reload user balance.
+             */
+
+            await loadUser();
+
+
+            /*
+             * Reload tickets so the
+             * booked ticket becomes
+             * BOOKED immediately.
+             */
+
+            await loadTickets();
+
+
+        } catch (error) {
+
+            console.error(
+                "Booking error:",
+                error
+            );
+
+
+            showMessage(
+                "Booking failed: " +
+                error.message,
+                "error"
+            );
+
+
+        } finally {
+
+            confirmBookBtn.disabled =
+                false;
+
+
+            confirmBookBtn.textContent =
+                "Book This Ticket - 10 Tokens";
+
+        }
+
+    }
+
+</script>
+
+
+</body>
+
+</html>            font-size: 22px;
         }
 
         .back-btn {
