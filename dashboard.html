@@ -3,457 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Dashboard - Tambola House</title>
-
+    <title>Dashboard - Tambola</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            color: #222;
-        }
-
-        header {
-            background: #222;
-            color: white;
-            padding: 18px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-
-        #logoutBtn {
-            background: #e53935;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 30px auto;
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
         }
 
-        .welcome {
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0d5c8;
+        }
+
+        .dashboard-header h1 {
+            color: #2d1f14;
+        }
+
+        .dashboard-header h1 i {
+            color: #b35e2e;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
             background: white;
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e0d5c8;
+            text-align: center;
         }
 
-        .welcome h2 {
-            margin-top: 0;
+        .stat-card h3 {
+            color: #7b6856;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
         }
 
-        .balance {
-            background: #ff6b00;
-            color: white;
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 25px;
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d1f14;
         }
 
-        .balance h3 {
-            margin: 0 0 10px;
+        .stat-card .number.tokens {
+            color: #b35e2e;
         }
 
-        .balanceAmount {
-            font-size: 36px;
-            font-weight: bold;
-        }
-
-        .actions {
+        .actions-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
         }
 
-        .card {
+        .action-card {
             background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        .card h3 {
-            margin-top: 0;
-        }
-
-        .card button {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            background: #ff6b00;
-            color: white;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .card button:hover {
-            opacity: 0.9;
-        }
-
-        #message {
+            padding: 30px 20px;
+            border-radius: 16px;
             text-align: center;
-            margin-top: 25px;
-            font-weight: bold;
+            text-decoration: none;
+            color: #2d1f14;
+            border: 1px solid #e0d5c8;
+            transition: all 0.3s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            border-color: #b35e2e;
+        }
+
+        .action-card i {
+            font-size: 2.5rem;
+            color: #b35e2e;
+            margin-bottom: 10px;
+        }
+
+        .action-card h3 {
+            font-size: 1.1rem;
+        }
+
+        .action-card p {
+            color: #7b6856;
+            font-size: 0.9rem;
+            margin-top: 5px;
         }
     </style>
 </head>
-
 <body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1><i class="fas fa-ticket-alt"></i> My Dashboard</h1>
+            <a href="book-ticket.html" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Book Ticket
+            </a>
+        </div>
 
-<header>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Token Balance</h3>
+                <div class="number tokens">50</div>
+            </div>
+            <div class="stat-card">
+                <h3>My Tickets</h3>
+                <div class="number">3</div>
+            </div>
+            <div class="stat-card">
+                <h3>Games Played</h3>
+                <div class="number">12</div>
+            </div>
+            <div class="stat-card">
+                <h3>Wins</h3>
+                <div class="number">2</div>
+            </div>
+        </div>
 
-    <h1>Tambola House</h1>
-
-    <button id="logoutBtn">
-        Logout
-    </button>
-
-</header>
-
-
-<div class="container">
-
-    <div class="welcome">
-
-        <h2>
-            Welcome, <span id="userName">User</span>
-        </h2>
-
-        <p>
-            Your Tambola House account dashboard
-        </p>
-
+        <div class="actions-grid">
+            <a href="book-ticket.html" class="action-card">
+                <i class="fas fa-ticket-alt"></i>
+                <h3>Book Ticket</h3>
+                <p>Buy new Tambola tickets</p>
+            </a>
+            <a href="deposit.html" class="action-card">
+                <i class="fas fa-coins"></i>
+                <h3>Deposit Tokens</h3>
+                <p>Add tokens to your account</p>
+            </a>
+            <a href="payment.html" class="action-card">
+                <i class="fas fa-credit-card"></i>
+                <h3>Payment History</h3>
+                <p>View your transactions</p>
+            </a>
+            <a href="admin.html" class="action-card">
+                <i class="fas fa-cog"></i>
+                <h3>Settings</h3>
+                <p>Account preferences</p>
+            </a>
+        </div>
     </div>
-
-
-    <div class="balance">
-
-        <h3>
-            Token Balance
-        </h3>
-
-        <div class="balanceAmount">
-            <span id="tokenBalance">0</span>
-            Tokens
-        </div>
-
-    </div>
-
-
-    <div class="actions">
-
-        <div class="card">
-
-            <h3>💰 Deposit Tokens</h3>
-
-            <p>
-                Request tokens by making a payment.
-            </p>
-
-            <button onclick="depositTokens()">
-                Deposit Tokens
-            </button>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>🎟️ Book Ticket</h3>
-
-            <p>
-                Choose a ticket for the next game.
-            </p>
-
-            <button onclick="bookTicket()">
-                Book Ticket
-            </button>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>⚡ Auto Ticket</h3>
-
-            <p>
-                Let the system select a ticket automatically.
-            </p>
-
-            <button onclick="autoTicket()">
-                Auto Ticket
-            </button>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>🎯 Manual Ticket</h3>
-
-            <p>
-                Choose your preferred ticket manually.
-            </p>
-
-            <button onclick="manualTicket()">
-                Manual Ticket
-            </button>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>🏆 Prizes</h3>
-
-            <p>
-                View the current prize structure.
-            </p>
-
-            <button onclick="viewPrizes()">
-                View Prizes
-            </button>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>📋 My Bookings</h3>
-
-            <p>
-                View your previous bookings.
-            </p>
-
-            <button onclick="myBookings()">
-                My Bookings
-            </button>
-
-        </div>
-
-    </div>
-
-
-    <div id="message"></div>
-
-</div>
-
-
-<script type="module">
-
-    import { initializeApp }
-        from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-
-    import {
-        getAuth,
-        onAuthStateChanged,
-        signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
-    import {
-        getFirestore,
-        doc,
-        getDoc
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-    import { firebaseConfig }
-        from "./firebase-config.js";
-
-
-    // Firebase
-
-    const app =
-        initializeApp(firebaseConfig);
-
-    const auth =
-        getAuth(app);
-
-    const db =
-        getFirestore(app);
-
-
-    // Page elements
-
-    const userName =
-        document.getElementById("userName");
-
-    const tokenBalance =
-        document.getElementById("tokenBalance");
-
-    const message =
-        document.getElementById("message");
-
-    const logoutBtn =
-        document.getElementById("logoutBtn");
-
-
-    // Check login
-
-    onAuthStateChanged(auth, async (user) => {
-
-        if (!user) {
-
-            window.location.href =
-                "login.html";
-
-            return;
-        }
-
-
-        try {
-
-            const userRef =
-                doc(db, "users", user.uid);
-
-            const userSnapshot =
-                await getDoc(userRef);
-
-
-            if (userSnapshot.exists()) {
-
-                const data =
-                    userSnapshot.data();
-
-
-                userName.textContent =
-                    data.name || "User";
-
-
-                tokenBalance.textContent =
-                    data.tokenBalance || 0;
-
-            } else {
-
-                userName.textContent =
-                    user.email;
-
-                tokenBalance.textContent =
-                    0;
-            }
-
-
-        } catch (error) {
-
-            console.error(error);
-
-            message.style.color = "red";
-
-            message.textContent =
-                "Unable to load account information.";
-
-        }
-
-    });
-
-
-    // Logout
-
-    logoutBtn.addEventListener("click", async () => {
-
-        try {
-
-            await signOut(auth);
-
-            window.location.href =
-                "login.html";
-
-        } catch (error) {
-
-            console.error(error);
-
-            message.style.color = "red";
-
-            message.textContent =
-                "Logout failed.";
-
-        }
-
-    });
-
-
-    // Dashboard buttons
-
-    window.depositTokens = function () {
-
-        window.location.href =
-            "deposit.html";
-
-    };
-
-
-    // Book Ticket
-
-    window.bookTicket = function () {
-
-        window.location.href =
-            "book-ticket.html";
-
-    };
-
-
-    // Auto Ticket
-
-    window.autoTicket = function () {
-
-        alert(
-            "Automatic ticket selection will be added next."
-        );
-
-    };
-
-
-    // Manual Ticket
-
-    window.manualTicket = function () {
-
-        window.location.href =
-            "book-ticket.html";
-
-    };
-
-
-    // Prizes
-
-    window.viewPrizes = function () {
-
-        alert(
-            "Prize system will be added next."
-        );
-
-    };
-
-
-    // My Bookings
-
-    window.myBookings = function () {
-
-        alert(
-            "Booking history will be added next."
-        );
-
-    };
-
-</script>
-
 </body>
 </html>
