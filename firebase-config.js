@@ -1,19 +1,8 @@
-// firebase-config.js
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBTGFdmmimUbpm1zrTqaSQBO0kr2LcWs8M",
-  authDomain: "mbolahouse.firebaseapp.com",
-  projectId: "mbolahouse",
-  storageBucket: "mbolahouse.firebasestorage.app",
-  messagingSenderId: "842446053948",
-  appId: "1:842446053948:web:b977bef8d84e85375f9939",
-  measurementId: "G-DP949M05J1"
+export const firebaseConfig = {
+  apiKey: "PASTE_YOUR_API_KEY_HERE",
+  authDomain: "tambola-house-3dc56.firebaseapp.com",
+  projectId: "tambola-house-3dc56",
+  storageBucket: "tambola-house-3dc56.firebasestorage.app",
+  messagingSenderId: "267918174188",
+  appId: "1:267918174188:web:ec27684544c286c044c2c9"
 };
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-
-// Initialize Firebase Authentication and Firestore
-const auth = firebase.auth();
-const db = firebase.firestore();
