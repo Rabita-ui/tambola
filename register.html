@@ -3,350 +3,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Register - Tambola House</title>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            color: #222;
-        }
-
-        header {
-            background: #222;
-            color: white;
-            padding: 18px 25px;
+            background: linear-gradient(145deg, #f5f0eb 0%, #e8e0d8 100%);
+            min-height: 100vh;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin-left: 15px;
-        }
-
-        .container {
-            max-width: 450px;
-            margin: 50px auto;
-            padding: 30px;
+        .auth-container {
+            max-width: 420px;
+            width: 100%;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+            border-radius: 40px;
+            padding: 40px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 215, 175, 0.2);
         }
 
-        h2 {
+        .auth-header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
-        label {
+        .auth-header .logo {
+            font-size: 3rem;
+            color: #b35e2e;
+        }
+
+        .auth-header h2 {
+            color: #2d1f14;
+            font-size: 1.8rem;
+            margin-top: 10px;
+        }
+
+        .auth-header p {
+            color: #7b6856;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
             display: block;
-            margin-top: 15px;
+            color: #2d1f14;
+            font-weight: 600;
             margin-bottom: 6px;
-            font-weight: bold;
         }
 
-        input {
+        .form-group input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 16px;
+            padding: 14px 16px;
+            border: 2px solid #e0d5c8;
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: 0.3s;
+            background: #faf8f6;
         }
 
-        button {
+        .form-group input:focus {
+            border-color: #b35e2e;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(179, 94, 46, 0.1);
+        }
+
+        .btn-submit {
             width: 100%;
-            padding: 13px;
-            margin-top: 25px;
-            border: none;
-            border-radius: 6px;
-            background: #ff6b00;
+            padding: 16px;
+            background: #b35e2e;
             color: white;
-            font-size: 17px;
-            font-weight: bold;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
             cursor: pointer;
+            transition: 0.3s;
         }
 
-        button:hover {
-            opacity: 0.9;
+        .btn-submit:hover {
+            background: #8f4a24;
+            transform: scale(0.98);
         }
 
-        #message {
-            margin-top: 18px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .login-link {
+        .auth-footer {
             text-align: center;
             margin-top: 20px;
+            color: #7b6856;
         }
 
-        .login-link a {
-            color: #ff6b00;
+        .auth-footer a {
+            color: #b35e2e;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 600;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .error-msg {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: none;
+            text-align: center;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 500;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: slideUp 0.3s ease;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.success {
+            background: #1f7a4b;
+            color: white;
+        }
+
+        .toast.error {
+            background: #b13e3e;
+            color: white;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-container {
+                padding: 25px;
+                border-radius: 30px;
+            }
         }
     </style>
 </head>
-
 <body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="logo">🎱</div>
+            <h2>Create Account</h2>
+            <p>Join the fun and start winning!</p>
+        </div>
 
-<header>
-    <h1>Tambola House</h1>
+        <div class="error-msg" id="errorMsg">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="errorText">Error message</span>
+        </div>
 
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="login.html">Login</a>
-    </nav>
-</header>
+        <form id="registerForm">
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> Full Name</label>
+                <input type="text" id="fullName" placeholder="Enter your full name" required>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-envelope"></i> Email</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> Password</label>
+                <input type="password" id="password" placeholder="Enter password (min 6 chars)" required>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="Confirm password" required>
+            </div>
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-user-plus"></i> Register
+            </button>
+        </form>
 
-<div class="container">
-
-    <h2>Create Account</h2>
-
-    <form id="registerForm">
-
-        <label for="name">Full Name</label>
-        <input
-            type="text"
-            id="name"
-            required
-            placeholder="Enter your name"
-        >
-
-        <label for="phone">Phone Number</label>
-        <input
-            type="tel"
-            id="phone"
-            required
-            placeholder="Enter your phone number"
-        >
-
-        <label for="email">Email</label>
-        <input
-            type="email"
-            id="email"
-            required
-            placeholder="Enter your email"
-        >
-
-        <label for="password">Password</label>
-        <input
-            type="password"
-            id="password"
-            required
-            minlength="6"
-            placeholder="Minimum 6 characters"
-        >
-
-        <label for="confirmPassword">Confirm Password</label>
-        <input
-            type="password"
-            id="confirmPassword"
-            required
-            minlength="6"
-            placeholder="Confirm your password"
-        >
-
-        <button type="submit">
-            Create Account
-        </button>
-
-    </form>
-
-    <div id="message"></div>
-
-    <div class="login-link">
-        Already have an account?
-        <a href="login.html">Login here</a>
+        <div class="auth-footer">
+            Already have an account? <a href="login.html">Login here</a>
+        </div>
     </div>
 
-</div>
-
-<script type="module">
-
-    import { initializeApp }
-        from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-
-    import {
-        getAuth,
-        createUserWithEmailAndPassword
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
-    import {
-        getFirestore,
-        doc,
-        setDoc,
-        serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-    import { firebaseConfig }
-        from "./firebase-config.js";
-
-
-    // Initialize Firebase
-
-    const app = initializeApp(firebaseConfig);
-
-    const auth = getAuth(app);
-
-    const db = getFirestore(app);
-
-
-    // Registration form
-
-    const registerForm =
-        document.getElementById("registerForm");
-
-    const message =
-        document.getElementById("message");
-
-
-    registerForm.addEventListener("submit", async (event) => {
-
-        event.preventDefault();
-
-        const name =
-            document.getElementById("name").value.trim();
-
-        const phone =
-            document.getElementById("phone").value.trim();
-
-        const email =
-            document.getElementById("email").value.trim();
-
-        const password =
-            document.getElementById("password").value;
-
-        const confirmPassword =
-            document.getElementById("confirmPassword").value;
-
-
-        // Check passwords
-
-        if (password !== confirmPassword) {
-
-            message.style.color = "red";
-
-            message.textContent =
-                "Passwords do not match.";
-
-            return;
-        }
-
-
-        if (password.length < 6) {
-
-            message.style.color = "red";
-
-            message.textContent =
-                "Password must contain at least 6 characters.";
-
-            return;
-        }
-
-
-        message.style.color = "#333";
-
-        message.textContent =
-            "Creating your account...";
-
-
-        try {
-
-            // Create Firebase Authentication account
-
-            const userCredential =
-                await createUserWithEmailAndPassword(
-                    auth,
-                    email,
-                    password
-                );
-
-
-            const user =
-                userCredential.user;
-
-
-            // Create user profile in Firestore
-
-            await setDoc(
-                doc(db, "users", user.uid),
-                {
-                    name: name,
-                    phone: phone,
-                    email: email,
-
-                    role: "user",
-
-                    tokenBalance: 0,
-
-                    createdAt: serverTimestamp()
-                }
-            );
-
-
-            message.style.color = "green";
-
-            message.textContent =
-                "Registration successful! Redirecting...";
-
-
-            setTimeout(() => {
-
-                window.location.href =
-                    "login.html";
-
-            }, 1500);
-
-
-        } catch (error) {
-
-            console.error(error);
-
-            message.style.color = "red";
-
-
-            if (error.code === "auth/email-already-in-use") {
-
-                message.textContent =
-                    "This email is already registered.";
-
-            } else if (error.code === "auth/invalid-email") {
-
-                message.textContent =
-                    "Please enter a valid email address.";
-
-            } else if (error.code === "auth/weak-password") {
-
-                message.textContent =
-                    "Password is too weak.";
-
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle" id="toastIcon"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyBTGFdmmimUbpm1zrTqaSQBO0kr2LcWs8M",
+            authDomain: "mbolahouse.firebaseapp.com",
+            projectId: "mbolahouse",
+            storageBucket: "mbolahouse.firebasestorage.app",
+            messagingSenderId: "842446053948",
+            appId: "1:842446053948:web:b977bef8d84e85375f9939",
+            measurementId: "G-DP949M05J1"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            
+            toastMessage.textContent = message;
+            
+            toast.className = 'toast';
+            if (type === 'success') {
+                toast.classList.add('success');
+                toastIcon.className = 'fas fa-check-circle';
             } else {
+                toast.classList.add('error');
+                toastIcon.className = 'fas fa-exclamation-circle';
+            }
+            
+            toast.classList.add('show');
+            
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
 
-                message.textContent =
-                    "Registration failed: " + error.message;
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorMsg = document.getElementById('errorMsg');
+            const errorText = document.getElementById('errorText');
+
+            // Validation
+            if (password !== confirmPassword) {
+                errorMsg.classList.add('show');
+                errorText.textContent = 'Passwords do not match';
+                setTimeout(() => errorMsg.classList.remove('show'), 3000);
+                return;
             }
 
-        }
+            if (password.length < 6) {
+                errorMsg.classList.add('show');
+                errorText.textContent = 'Password must be at least 6 characters';
+                setTimeout(() => errorMsg.classList.remove('show'), 3000);
+                return;
+            }
 
-    });
+            try {
+                // Create user
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
 
-</script>
+                // Update profile
+                await user.updateProfile({
+                    displayName: fullName
+                });
 
+                // Save user data in Firestore
+                await db.collection('users').doc(user.uid).set({
+                    uid: user.uid,
+                    fullName: fullName,
+                    email: email,
+                    tokens: 50, // Starting tokens
+                    role: 'user',
+                    status: 'active',
+                    depositRequests: [],
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showToast('✅ Registration successful! Redirecting...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+
+            } catch (error) {
+                errorMsg.classList.add('show');
+                if (error.code === 'auth/email-already-in-use') {
+                    errorText.textContent = 'Email is already registered';
+                } else {
+                    errorText.textContent = error.message;
+                }
+                setTimeout(() => errorMsg.classList.remove('show'), 3000);
+            }
+        });
+    </script>
 </body>
 </html>
