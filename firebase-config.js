@@ -1,24 +1,19 @@
-// ============================================================
-// FIREBASE CONFIGURATION
-// ============================================================
-// Replace these values with your own Firebase project settings
+// firebase-config.js
+
+// Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyDummyKeyReplaceMe", // <-- REPLACE with your API key
-    authDomain: "your-project.firebaseapp.com", // <-- REPLACE
-    projectId: "your-project-id", // <-- REPLACE
-    storageBucket: "your-project.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abcdef"
+  apiKey: "AIzaSyBTGFdmmimUbpm1zrTqaSQBO0kr2LcWs8M",
+  authDomain: "mbolahouse.firebaseapp.com",
+  projectId: "mbolahouse",
+  storageBucket: "mbolahouse.firebasestorage.app",
+  messagingSenderId: "842446053948",
+  appId: "1:842446053948:web:b977bef8d84e85375f9939",
+  measurementId: "G-DP949M05J1"
 };
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Initialize Firestore with persistence
-const db = firebase.firestore();
-db.enablePersistence().catch((err) => {
-    console.warn('Firestore persistence error:', err);
-});
-
-// Export for use in other scripts
+// Initialize Firebase Authentication and Firestore
 const auth = firebase.auth();
+const db = firebase.firestore();
