@@ -3,39 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Tambola</title>
+    <title>Dashboard - Tambola House</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
     <style>
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 0 auto;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f5f0eb 0%, #e8e0d8 100%);
+            min-height: 100vh;
             padding: 20px;
         }
 
-        .dashboard-header {
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #e0d5c8;
+            padding: 20px 30px;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
             flex-wrap: wrap;
             gap: 15px;
         }
 
-        .dashboard-header h1 {
-            color: #2d1f14;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        .dashboard-header h1 i {
+        .header-left h1 {
+            color: #2d1f14;
+            font-size: 1.8rem;
+        }
+
+        .header-left h1 i {
             color: #b35e2e;
         }
 
-        .user-actions {
+        .user-info {
             display: flex;
-            gap: 10px;
+            align-items: center;
+            gap: 15px;
             flex-wrap: wrap;
+        }
+
+        .user-badge {
+            background: #f0ebe6;
+            padding: 8px 20px;
+            border-radius: 60px;
+            font-weight: 600;
+            color: #2d1f14;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tokens-badge {
+            background: #1f7a4b;
+            color: white;
+            padding: 8px 24px;
+            border-radius: 60px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            background: #b13e3e;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #942f2f;
         }
 
         .stats-grid {
@@ -47,17 +109,17 @@
 
         .stat-card {
             background: white;
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border: 1px solid #e0d5c8;
+            padding: 25px;
+            border-radius: 20px;
             text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            border: 1px solid #e0d5c8;
         }
 
-        .stat-card h3 {
-            color: #7b6856;
-            font-size: 0.9rem;
-            margin-bottom: 8px;
+        .stat-card i {
+            font-size: 2rem;
+            color: #b35e2e;
+            margin-bottom: 10px;
         }
 
         .stat-card .number {
@@ -66,31 +128,34 @@
             color: #2d1f14;
         }
 
-        .stat-card .number.tokens {
-            color: #b35e2e;
+        .stat-card .label {
+            color: #7b6856;
+            font-size: 0.9rem;
         }
 
         .actions-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
+            margin-bottom: 30px;
         }
 
         .action-card {
             background: white;
             padding: 30px 20px;
-            border-radius: 16px;
+            border-radius: 20px;
             text-align: center;
             text-decoration: none;
             color: #2d1f14;
-            border: 1px solid #e0d5c8;
+            border: 2px solid transparent;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
         }
 
         .action-card:hover {
+            border-color: #b35e2e;
             transform: translateY(-4px);
             box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-            border-color: #b35e2e;
         }
 
         .action-card i {
@@ -101,165 +166,168 @@
 
         .action-card h3 {
             font-size: 1.1rem;
+            margin-bottom: 5px;
         }
 
         .action-card p {
             color: #7b6856;
             font-size: 0.9rem;
+        }
+
+        .action-card .badge {
+            display: inline-block;
+            background: #b13e3e;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
             margin-top: 5px;
         }
 
-        .logout-btn {
+        .section-title {
+            font-size: 1.3rem;
+            color: #2d1f14;
+            margin: 30px 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 6px solid #b35e2e;
+            padding-left: 15px;
+        }
+
+        .ticket-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .ticket-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .ticket-grid::-webkit-scrollbar-track {
+            background: #f0ebe6;
+            border-radius: 10px;
+        }
+
+        .ticket-grid::-webkit-scrollbar-thumb {
+            background: #b35e2e;
+            border-radius: 10px;
+        }
+
+        .ticket-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            border: 1px solid #e0d5c8;
+            transition: all 0.3s ease;
+        }
+
+        .ticket-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .ticket-card .ticket-id {
+            font-weight: 700;
+            color: #2d1f14;
+            font-size: 1.1rem;
+        }
+
+        .ticket-card .ticket-status {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .ticket-status.available {
+            background: #d4edc9;
+            color: #1f5a3b;
+        }
+
+        .ticket-status.booked {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .ticket-status.your {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 500;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: slideUp 0.3s ease;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.success {
+            background: #1f7a4b;
+            color: white;
+        }
+
+        .toast.error {
             background: #b13e3e;
             color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
         }
 
-        .logout-btn:hover {
-            background: #942f2f;
+        .toast.info {
+            background: #2d1f14;
+            color: white;
         }
 
-        .user-email {
-            background: #f0ebe6;
-            padding: 8px 16px;
-            border-radius: 25px;
-            color: #2d1f14;
-            font-weight: 500;
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7b6856;
+        }
+
+        .loading .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #b35e2e;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         @media (max-width: 768px) {
-            .dashboard-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="dashboard-container">
-        <div class="dashboard-header">
-            <h1><i class="fas fa-ticket-alt"></i> My Dashboard</h1>
-            <div class="user-actions">
-                <span class="user-email" id="userEmail">Loading...</span>
-                <button class="logout-btn" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
-                <a href="book-ticket.html" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Book Ticket
-                </a>
-            </div>
-        </div>
-
-        <div class="stats-grid" id="statsGrid">
-            <div class="stat-card">
-                <h3>Token Balance</h3>
-                <div class="number tokens" id="tokenBalance">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>My Tickets</h3>
-                <div class="number" id="myTickets">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Games Played</h3>
-                <div class="number" id="gamesPlayed">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Wins</h3>
-                <div class="number" id="wins">0</div>
-            </div>
-        </div>
-
-        <div class="actions-grid">
-            <a href="book-ticket.html" class="action-card">
-                <i class="fas fa-ticket-alt"></i>
-                <h3>Book Ticket</h3>
-                <p>Buy new Tambola tickets</p>
-            </a>
-            <a href="deposit.html" class="action-card">
-                <i class="fas fa-coins"></i>
-                <h3>Deposit Tokens</h3>
-                <p>Add tokens to your account</p>
-            </a>
-            <a href="payment.html" class="action-card">
-                <i class="fas fa-credit-card"></i>
-                <h3>Payment History</h3>
-                <p>View your transactions</p>
-            </a>
-            <a href="admin.html" class="action-card">
-                <i class="fas fa-cog"></i>
-                <h3>Settings</h3>
-                <p>Account preferences</p>
-            </a>
-        </div>
-    </div>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    
-    <!-- Firebase Config -->
-    <script src="firebase-config.js"></script>
-
-    <script>
-        let currentUser = null;
-
-        function logout() {
-            firebase.auth().signOut().then(() => {
-                window.location.href = 'login.html';
-            }).catch((error) => {
-                console.error('Logout error:', error);
-                alert('Error logging out: ' + error.message);
-            });
-        }
-
-        async function loadDashboard() {
-            const auth = firebase.auth();
-            auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    currentUser = user;
-                    document.getElementById('userEmail').textContent = user.email || 'User';
-                    
-                    try {
-                        const db = firebase.firestore();
-                        const userDoc = await db.collection('users').doc(user.uid).get();
-                        
-                        if (userDoc.exists) {
-                            const data = userDoc.data();
-                            document.getElementById('tokenBalance').textContent = data.tokens || 0;
-                        }
-                        
-                        // Count user's tickets
-                        const ticketsSnapshot = await db.collection('tickets')
-                            .where('ownerId', '==', user.uid)
-                            .get();
-                        
-                        document.getElementById('myTickets').textContent = ticketsSnapshot.size;
-                        
-                    } catch (error) {
-                        console.error('Error loading dashboard:', error);
-                    }
-                } else {
-                    window.location.href = 'login.html';
-                }
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof firebase !== 'undefined') {
-                loadDashboard();
-            } else {
-                alert('Firebase not loaded. Please check your connection.');
-            }
-        });
-    </script>
-</body>
-</html>
+            .header
