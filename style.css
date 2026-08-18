@@ -1,134 +1,327 @@
-/* ============================================
-   BASE STYLES
-   ============================================ */
+/* ============================================================
+   GLOBAL STYLES
+   ============================================================ */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
 body {
-    background: linear-gradient(145deg, #f5f0eb 0%, #e8e0d8 100%);
+    background: #f1f5f9;
+    display: flex;
+    justify-content: center;
+    padding: 16px;
     min-height: 100vh;
 }
 
-/* ============================================
-   BUTTON STYLES
-   ============================================ */
-.btn {
-    border: none;
-    padding: 10px 24px;
-    border-radius: 25px;
+.app {
+    max-width: 1100px;
+    width: 100%;
+    background: white;
+    border-radius: 36px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+    padding: 20px 24px 30px;
+}
+
+h1, h2, h3 {
     font-weight: 600;
-    font-size: 0.95rem;
+    color: #0f172a;
+}
+
+/* ============================================================
+   FLEX & LAYOUT
+   ============================================================ */
+.flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+}
+
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+    background: #eef2f6;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 40px;
+    font-weight: 500;
+    color: #1e293b;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: 0.2s;
+    font-size: 0.9rem;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .btn-primary {
-    background: #1f7a4b;
+    background: #3b82f6;
     color: white;
 }
-
 .btn-primary:hover {
-    background: #16633b;
-    transform: scale(0.98);
+    background: #2563eb;
 }
 
-.btn-secondary {
-    background: #d9cbbd;
-    color: #2d1f14;
+.btn-success {
+    background: #22c55e;
+    color: white;
 }
-
-.btn-secondary:hover {
-    background: #cbb9a8;
+.btn-success:hover {
+    background: #16a34a;
 }
 
 .btn-danger {
-    background: #b13e3e;
+    background: #ef4444;
+    color: white;
+}
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1.5px solid #d1d9e6;
+}
+.btn-outline:hover {
+    background: #f1f5f9;
+}
+
+/* ============================================================
+   CARDS & BADGES
+   ============================================================ */
+.card {
+    background: #f8fafc;
+    border-radius: 24px;
+    padding: 20px;
+    margin: 16px 0;
+    border: 1px solid #e9edf2;
+}
+
+.badge {
+    background: #dbeafe;
+    color: #1e4b8a;
+    padding: 4px 14px;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.badge-success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* ============================================================
+   INPUTS
+   ============================================================ */
+input, select {
+    padding: 8px 16px;
+    border-radius: 40px;
+    border: 1px solid #d1d9e6;
+    background: white;
+    font-size: 0.9rem;
+}
+
+input:focus, select:focus {
+    outline: 2px solid #3b82f6;
+    border-color: transparent;
+}
+
+/* ============================================================
+   PAGES & NAVIGATION
+   ============================================================ */
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+.nav-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 16px 0 8px;
+    border-bottom: 1px solid #e9edf2;
+    padding-bottom: 8px;
+}
+
+.nav-tab {
+    padding: 8px 18px;
+    border-radius: 40px;
+    background: transparent;
+    border: none;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.nav-tab.active {
+    background: #3b82f6;
     color: white;
 }
 
-.btn-danger:hover {
-    background: #942f2f;
+.nav-tab:hover:not(.active) {
+    background: #eef2f6;
 }
 
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none !important;
+/* ============================================================
+   BALANCE BOX
+   ============================================================ */
+.balance-box {
+    background: linear-gradient(145deg, #0f172a, #1e293b);
+    color: white;
+    border-radius: 28px;
+    padding: 20px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
-/* ============================================
-   TAMBOLLA GRID STYLES
-   ============================================ */
-.tambola-grid {
+.balance-box .amount {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.token-badge {
+    background: #334155;
+    padding: 6px 16px;
+    border-radius: 40px;
+    font-size: 0.9rem;
+}
+
+/* ============================================================
+   TICKETS
+   ============================================================ */
+.ticket-grid {
     display: grid;
     grid-template-columns: repeat(9, 1fr);
-    gap: 4px;
-    max-width: 650px;
-    margin: 0 auto;
-    background: #f8f4f0;
-    padding: 15px;
-    border-radius: 12px;
-    border: 2px solid #d4c5b5;
+    gap: 3px;
+    background: #e9edf2;
+    padding: 8px;
+    border-radius: 16px;
 }
 
-.tambola-cell {
-    aspect-ratio: 1;
+.ticket-cell {
+    background: white;
+    aspect-ratio: 1/1;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
-    border-radius: 4px;
-    font-weight: 700;
-    font-size: 14px;
-    border: 1px solid #e0d5c8;
-    min-height: 45px;
+    border-radius: 8px;
+    font-weight: 500;
+    color: #0f172a;
+    font-size: 0.85rem;
+    transition: 0.15s;
 }
 
-.tambola-cell.empty {
-    background: #f0ebe6;
-    border: 1px dashed #d4c5b5;
-    color: #b8a89a;
-}
-
-.tambola-cell.filled {
-    background: #fff;
-    color: #2d1f14;
-    border: 1px solid #b35e2e;
-}
-
-.tambola-cell.filled.highlight {
-    background: #b35e2e;
+.ticket-cell.marked {
+    background: #3b82f6;
     color: white;
-    transform: scale(1.05);
-    box-shadow: 0 2px 8px rgba(179, 94, 46, 0.3);
 }
 
-/* ============================================
+.ticket-cell.pointer {
+    cursor: pointer;
+}
+
+/* ============================================================
+   DRAW CARDS
+   ============================================================ */
+.draw-card {
+    background: white;
+    border-radius: 20px;
+    padding: 16px 20px;
+    border: 1px solid #e9edf2;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.draw-card .draw-id {
+    font-weight: 600;
+}
+
+/* ============================================================
+   ADMIN SECTION
+   ============================================================ */
+.admin-section {
+    background: #f1f5f9;
+    border-radius: 28px;
+    padding: 20px;
+}
+
+/* ============================================================
+   DEPOSIT
+   ============================================================ */
+.deposit-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.hidden {
+    display: none !important;
+}
+
+.mt-2 {
+    margin-top: 12px;
+}
+.mb-2 {
+    margin-bottom: 12px;
+}
+.w-full {
+    width: 100%;
+}
+
+/* ============================================================
    RESPONSIVE
-   ============================================ */
-@media (max-width: 768px) {
-    .tambola-grid {
-        grid-template-columns: repeat(9, 1fr);
-        gap: 3px;
-        padding: 10px;
+   ============================================================ */
+@media (max-width: 640px) {
+    .app {
+        padding: 16px;
     }
-
-    .tambola-cell {
-        font-size: 11px;
-        min-height: 35px;
+    .balance-box {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
     }
-}
-
-@media (max-width: 480px) {
-    .tambola-cell {
-        font-size: 9px;
-        min-height: 30px;
+    .ticket-grid {
+        gap: 2px;
+        padding: 4px;
+    }
+    .ticket-cell {
+        font-size: 0.7rem;
+    }
+    .nav-tabs {
+        gap: 4px;
+    }
+    .nav-tab {
+        padding: 6px 12px;
+        font-size: 0.8rem;
     }
 }
