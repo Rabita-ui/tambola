@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Tambola House</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f5f0eb 0%, #e8e0d8 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 30px;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            color: #2d1f14;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1 i {
+            color: #b35e2e;
+        }
+
+        .admin-badge {
+            background: #b35e2e;
+            color: white;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            background: #b13e3e;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #942f2f;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            border: 1px solid #e0d5c8;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d1f14;
+        }
+
+        .stat-card .label {
+            color: #7b6856;
+            font-size: 0.85rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 10px 24px;
+            background: white;
+            border: 2px solid #e0d5c8;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #7b6856;
+            transition: 0.3s;
+        }
+
+        .tab.active {
+            border-color: #b35e2e;
+            color: #b35e2e;
+            background: #fdf8f4;
+        }
+
+        .tab:hover {
+            border-color: #b35e2e;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            border: 1px solid #e0d5c8;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            background: #f0ebe6;
+            font-weight: 600;
+            color: #2d1f14;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0ebe6;
+        }
+
+        .status-badge {
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-badge.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.approved {
+            background: #d4edc9;
+            color: #1f5a3b;
+        }
+
+        .status-badge.rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-badge.active {
+            background: #d4edc9;
+            color: #1f5a3b;
+        }
+
+        .btn-action {
+            padding: 4px 12px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+
+        .btn-approve {
+            background: #1f7a4b;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #16633b;
+        }
+
+        .btn-reject {
+            background: #b13e3e;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #942f2f;
+        }
+
+        .btn-edit {
+            background: #b35e2e;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #8f4a24;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2d1f14;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0d5c8;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #faf8f6;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #b35e2e;
+            outline: none;
+        }
+
+        .btn-submit {
+            padding: 12px 30px;
+            background: #1f7a4b;
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #16633b;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 500;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: slideUp 0.3s ease;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.success {
+            background: #1f7a4b;
+            color: white;
+        }
+
+        .toast.error {
+            background: #b13e3e;
+            color: white;
+        }
+
+        .toast.info {
+            background: #2d1f14;
+            color: white;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .admin-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-user-shield"></i> Admin Panel
+                <span class="admin-badge">ADMIN</span>
+            </h1>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+
+        <div class="admin-stats">
+            <div class="stat-card">
+                <div class="number" id="totalUsers">0</div>
+                <div class="label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalTickets">0</div>
+                <div class="label">Total Tickets</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="pendingDeposits">0</div>
+                <div class="label">Pending Deposits</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalRevenue">0</div>
+                <div class="label">Total Revenue (Tokens)</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('deposits')">
+                <i class="fas fa-coins"></i> Deposit Requests
+            </div>
+            <div class="tab" onclick="switchTab('draws')">
+                <i class="fas fa-calendar-alt"></i> Draw Schedule
+            </div>
+            <div class="tab" onclick="switchTab('users')">
+                <i class="fas fa-users"></i> Users
+            </div>
+            <div class="tab" onclick="switchTab('winners')">
+                <i class="fas fa-trophy"></i> Winners
+            </div>
+        </div>
+
+        <!-- Deposits Tab -->
+        <div class="tab-content active" id="tab-deposits">
+            <h3 style="margin-bottom: 15px;">Deposit Requests</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Amount</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="depositsTable">
+                        <tr><td colspan="5" style="text-align: center; color: #7b6856;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Draws Tab -->
+        <div class="tab-content" id="tab-draws">
+            <h3 style="margin-bottom: 15px;">Draw Schedule Management</h3>
+            
+            <div style="background: #f0faf5; border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+                <h4 style="color: #1f7a4b; margin-bottom: 10px;">Create New Draw</h4>
+                <form id="drawForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Draw Name</label>
+                            <input type="text" id="drawName" placeholder="e.g., Weekly Draw #12" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Date & Time</label>
+                            <input type="datetime-local" id="drawTime" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Ticket Price (Tokens)</label>
+                        <input type="number" id="ticketPrice" placeholder="10" value="10" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Prize Distribution</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                            <div>
+                                <label style="font-size: 0.85rem;">1st Line</label>
+                                <input type="number" id="prize1st" placeholder="50%" value="50" min="0" max="100">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.85rem;">2nd Line</label>
+                                <input type="number" id="prize2nd" placeholder="30%" value="30" min="0" max="100">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.85rem;">3rd Line</label>
+                                <input type="number" id="prize3rd" placeholder="20%" value="20" min="0" max="100">
+                            </div>
+                        </div>
+                        <small style="color: #7b6856;">Prize pool = 50% of ticket sales. Distribute among 1st, 2nd, 3rd lines.</small>
+                    </div>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-plus"></i> Create Draw
+                    </button>
+                </form>
+            </div>
+
+            <h4 style="margin: 20px 0 10px;">Upcoming Draws</h4>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Draw Name</th>
+                            <th>Date</th>
+                            <th>Tickets Sold</th>
+                            <th>Prize Pool</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="drawsTable">
+                        <tr><td colspan="6" style="text-align: center; color: #7b6856;">No draws created yet</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Users Tab -->
+        <div class="tab-content" id="tab-users">
+            <h3 style="margin-bottom: 15px;">User Management</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Tokens</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTable">
+                        <tr><td colspan="5" style="text-align: center; color: #7b6856;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Winners Tab -->
+        <div class="tab-content" id="tab-winners">
+            <h3 style="margin-bottom: 15px;">Winner Management</h3>
+            <div style="background: #fdf8f4; border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+                <h4 style="color: #b35e2e; margin-bottom: 10px;">Declare Winners</h4>
+                <form id="winnerForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Draw</label>
+                            <select id="winnerDraw" required>
+                                <option value="">Select Draw</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Line</label>
+                            <select id="winnerLine" required>
+                                <option value="">Select Line</option>
+                                <option value="1st">1st Line</option>
+                                <option value="2nd">2nd Line</option>
+                                <option value="3rd">3rd Line</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Ticket Number</label>
+                            <input type="text" id="winnerTicket" placeholder="e.g., ticket042" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-trophy"></i> Declare Winner
+                    </button>
+                </form>
+            </div>
+
+            <h4 style="margin: 20px 0 10px;">Recent Winners</h4>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Draw</th>
+                            <th>Line</th>
+                            <th>Ticket</th>
+                            <th>Winner</th>
+                            <th>Prize</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="winnersTable">
+                        <tr><td colspan="6" style="text-align: center; color: #7b6856;">No winners declared yet</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle" id="toastIcon"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBTGFdmmimUbpm1zrTqaSQBO0kr2LcWs8M",
+            authDomain: "mbolahouse.firebaseapp.com",
+            projectId: "mbolahouse",
+            storageBucket: "mbolahouse.firebasestorage.app",
+            messagingSenderId: "842446053948",
+            appId: "1:842446053948:web:b977bef8d84e85375f9939",
+            measurementId: "G-DP949M05J1"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            
+            toastMessage.textContent = message;
+            
+            toast.className = 'toast';
+            if (type === 'success') {
+                toast.classList.add('success');
+                toastIcon.className = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                toast.classList.add('error');
+                toastIcon.className = 'fas fa-exclamation-circle';
+            } else {
+                toast.classList.add('info');
+                toastIcon.className = 'fas fa-info-circle';
+            }
+            
+            toast.classList.add('show');
+            
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.href = 'login.html';
+            });
+        }
+
+        // Check admin role
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const doc = await db.collection('users').doc(user.uid).get();
+                if (doc.exists && doc.data().role === 'admin') {
+                    loadAllData();
+                } else {
+                    showToast('Access denied. Admin only.', 'error');
+                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
+                }
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            document.querySelector(`.tab[onclick*="${tabName}"]`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        async function loadAllData() {
+            await loadDeposits();
+            await loadDraws();
+            await loadUsers();
+            await loadWinners();
+            await loadStats();
+            loadDrawSelect();
+        }
+
+        // Load Deposits
+        async function loadDeposits() {
+            try {
+                const snapshot = await db.collection('depositRequests')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+
+                const tbody = document.getElementById('depositsTable');
+                tbody.innerHTML = '';
+
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #7b6856;">No deposit requests</td></tr>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const tr = document.createElement('tr');
+                    const statusClass = data.status || 'pending';
+                    
+                    tr.innerHTML = `
+                        <td>${data.userEmail || 'Unknown'}</td>
+                        <td><strong>${data.amount}</strong> Tokens</td>
+                        <td>${data.paymentMethod || 'N/A'}</td>
+                        <td><span class="status-badge ${statusClass}">${statusClass.charAt(0).toUpperCase() + statusClass.slice(1)}</span></td>
+                        <td>
+                            ${data.status === 'pending' ? `
+                                <button class="btn-action btn-approve" onclick="approveDeposit('${doc.id}', ${data.amount}, '${data.userId}')">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn-action btn-reject" onclick="rejectDeposit('${doc.id}')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            ` : '—'}
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error('Error loading deposits:', error);
+            }
+        }
+
+        async function approveDeposit(docId, amount, userId) {
+            try {
+                const batch = db.batch();
+                
+                // Update deposit request
+                const depositRef = db.collection('depositRequests').doc(docId);
+                batch.update(depositRef, {
+                    status: 'approved',
+                    approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Add tokens to user
+                const userRef = db.collection('users').doc(userId);
+                batch.update(userRef, {
+                    tokens: firebase.firestore.FieldValue.increment(amount)
+                });
+
+                await batch.commit();
+                showToast(`✅ Approved ${amount} tokens for user`, 'success');
+                loadDeposits();
+                loadStats();
+
+            } catch (error) {
+                console.error('Error approving deposit:', error);
+                showToast('Error approving deposit: ' + error.message, 'error');
+            }
+        }
+
+        async function rejectDeposit(docId) {
+            try {
+                await db.collection('depositRequests').doc(docId).update({
+                    status: 'rejected',
+                    rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showToast('❌ Deposit request rejected', 'info');
+                loadDeposits();
+
+            } catch (error) {
+                console.error('Error rejecting deposit:', error);
+                showToast('Error rejecting deposit: ' + error.message, 'error');
+            }
+        }
+
+        // Load Draws
+        async function loadDraws() {
+            try {
+                const snapshot = await db.collection('draws')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+
+                const tbody = document.getElementById('drawsTable');
+                tbody.innerHTML = '';
+
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #7b6856;">No draws created</td></tr>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const tr = document.createElement('tr');
+                    
+                    tr.innerHTML = `
+                        <td><strong>${data.name || 'Unnamed Draw'}</strong></td>
+                        <td>${data.date ? new Date(data.date).toLocaleString() : 'N/A'}</td>
+                        <td>${data.ticketsSold || 0}</td>
+                        <td>${data.prizePool || 0} Tokens</td>
+                        <td><span class="status-badge ${data.status === 'active' ? 'active' : 'pending'}">${data.status || 'Pending'}</span></td>
+                        <td>
+                            <button class="btn-action btn-edit" onclick="editDraw('${doc.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            ${data.status === 'active' ? `
+                                <button class="btn-action btn-approve" onclick="closeDraw('${doc.id}')">
+                                    <i class="fas fa-check"></i> Close
+                                </button>
+                            ` : ''}
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error('Error loading draws:', error);
+            }
+        }
+
+        // Draw Form
+        document.getElementById('drawForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('drawName').value;
+            const date = document.getElementById('drawTime').value;
+            const ticketPrice = parseInt(document.getElementById('ticketPrice').value);
+            const prize1st = parseInt(document.getElementById('prize1st').value);
+            const prize2nd = parseInt(document.getElementById('prize2nd').value);
+            const prize3rd = parseInt(document.getElementById('prize3rd').value);
+
+            if (prize1st + prize2nd + prize3rd !== 100) {
+                showToast('Prize percentages must add up to 100%', 'error');
+                return;
+            }
+
+            try {
+                await db.collection('draws').add({
+                    name: name,
+                    date: date,
+                    ticketPrice: ticketPrice,
+                    prizeDistribution: {
+                        '1st': prize1st,
+                        '2nd': prize2nd,
+                        '3rd': prize3rd
+                    },
+                    status: 'active',
+                    ticketsSold: 0,
+                    prizePool: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showToast('✅ Draw created successfully!', 'success');
+                document.getElementById('drawForm').reset();
+                loadDraws();
+                loadDrawSelect();
+
+            } catch (error) {
+                console.error('Error creating draw:', error);
+                showToast('Error creating draw: ' + error.message, 'error');
+            }
+        });
+
+        function loadDrawSelect() {
+            db.collection('draws')
+                .where('status', '==', 'active')
+                .get()
+                .then(snapshot => {
+                    const select = document.getElementById('winnerDraw');
+                    select.innerHTML = '<option value="">Select Draw</option>';
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const option = document.createElement('option');
+                        option.value = doc.id;
+                        option.textContent = data.name || doc.id;
+                        select.appendChild(option);
+                    });
+                });
+        }
+
+        // Load Users
+        async function loadUsers() {
+            try {
+                const snapshot = await db.collection('users').get();
+                const tbody = document.getElementById('usersTable');
+                tbody.innerHTML = '';
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.role === 'admin') return;
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${data.fullName || 'Unknown'}</td>
+                        <td>${data.email}</td>
+                        <td><strong>${data.tokens || 0}</strong></td>
+                        <td><span class="status-badge ${data.status === 'active' ? 'active' : 'pending'}">${data.status || 'Active'}</span></td>
+                        <td>
+                            <button class="btn-action btn-approve" onclick="addTokens('${doc.id}')">
+                                <i class="fas fa-plus"></i> Add Tokens
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        async function addTokens(userId) {
+            const amount = prompt('Enter amount of tokens to add:');
+            if (!amount || isNaN(amount) || parseInt(amount) <= 0) return;
+
+            try {
+                await db.collection('users').doc(userId).update({
+                    tokens: firebase.firestore.FieldValue.increment(parseInt(amount))
+                });
+                showToast(`✅ Added ${amount} tokens to user`, 'success');
+                loadUsers();
+                loadStats();
+
+            } catch (error) {
+                console.error('Error adding tokens:', error);
+                showToast('Error adding tokens: ' + error.message, 'error');
+            }
+        }
+
+        // Load Winners
+        async function loadWinners() {
+            try {
+                const snapshot = await db.collection('winners')
+                    .orderBy('createdAt', 'desc')
+                    .limit(20)
+                    .get();
+
+                const tbody = document.getElementById('winnersTable');
+                tbody.innerHTML = '';
+
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #7b6856;">No winners declared yet</td></tr>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${data.drawName || 'Unknown Draw'}</td>
+                        <td><strong>${data.line || 'N/A'}</strong> Line</td>
+                        <td>${data.ticketId || 'N/A'}</td>
+                        <td>${data.winnerEmail || 'Unknown'}</td>
+                        <td><strong>${data.prizeAmount || 0}</strong> Tokens</td>
+                        <td>${data.createdAt?.toDate?.()?.toLocaleDateString() || 'N/A'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error('Error loading winners:', error);
+            }
+        }
+
+        // Winner Form
+        document.getElementById('winnerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const drawId = document.getElementById('winnerDraw').value;
+            const line = document.getElementById('winnerLine').value;
+            const ticketId = document.getElementById('winnerTicket').value;
+
+            if (!drawId || !line || !ticketId) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+
+            try {
+                // Get draw data
+                const drawDoc = await db.collection('draws').doc(drawId).get();
+                const drawData = drawDoc.data();
+
+                // Get ticket data
+                const ticketDoc = await db.collection('tickets').doc(ticketId).get();
+                if (!ticketDoc.exists) {
+                    showToast('Ticket not found', 'error');
+                    return;
+                }
+                const ticketData = ticketDoc.data();
+
+                if (!ticketData.ownerId) {
+                    showToast('Ticket is not booked', 'error');
+                    return;
+                }
+
+                // Calculate prize
+                const prizePool = drawData.prizePool || 0;
+                const distribution = drawData.prizeDistribution || { '1st': 50, '2nd': 30, '3rd': 20 };
+                const percentage = distribution[line] || 0;
+                const prizeAmount = Math.floor(prizePool * (percentage / 100));
+
+                // Save winner
+                await db.collection('winners').add({
+                    drawId: drawId,
+                    drawName: drawData.name,
+                    line: line,
+                    ticketId: ticketId,
+                    winnerId: ticketData.ownerId,
+                    winnerEmail: ticketData.ownerEmail,
+                    prizeAmount: prizeAmount,
+                    percentage: percentage,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Update user wins count
+                await db.collection('users').doc(ticketData.ownerId).update({
+                    wins: firebase.firestore.FieldValue.increment(1),
+                    tokens: firebase.firestore.FieldValue.increment(prizeAmount)
+                });
+
+                showToast(`✅ ${line} Line winner declared! Prize: ${prizeAmount} Tokens`, 'success');
+                document.getElementById('winnerForm').reset();
+                loadWinners();
+                loadStats();
+
+            } catch (error) {
+                console.error('Error declaring winner:', error);
+                showToast('Error declaring winner: ' + error.message, 'error');
+            }
+        });
+
+        // Load Stats
+        async function loadStats() {
+            try {
+                // Total users
+                const usersSnap = await db.collection('users').where('role', '==', 'user').get();
+                document.getElementById('totalUsers').textContent = usersSnap.size;
+
+                // Total tickets
+                const ticketsSnap = await db.collection('tickets').get();
+                document.getElementById('totalTickets').textContent = ticketsSnap.size;
+
+                // Pending deposits
+                const depositsSnap = await db.collection('depositRequests').where('status', '==', 'pending').get();
+                document.getElementById('pendingDeposits').textContent = depositsSnap.size;
+
+                // Total revenue (from bookings)
+                const bookedSnap = await db.collection('tickets').where('status', '==', 'booked').get();
+                let revenue = 0;
+                bookedSnap.forEach(doc => {
+                    revenue += doc.data().price || 0;
+                });
+                document.getElementById('totalRevenue').textContent = revenue;
+
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Edit draw (placeholder)
+        function editDraw(drawId) {
+            showToast('Edit functionality coming soon', 'info');
+        }
+
+        // Close draw
+        async function closeDraw(drawId) {
+            if (!confirm('Close this draw? This will end ticket sales.')) return;
+
+            try {
+                await db.collection('draws').doc(drawId).update({
+                    status: 'closed',
+                    closedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showToast('✅ Draw closed successfully', 'success');
+                loadDraws();
+
+            } catch (error) {
+                console.error('Error closing draw:', error);
+                showToast('Error closing draw: ' + error.message, 'error');
+            }
+        }
+
+        // Auto refresh every 30 seconds
+        setInterval(() => {
+            const activeTab = document.querySelector('.tab-content.active');
+            if (activeTab) {
+                const tabId = activeTab.id.replace('tab-', '');
+                if (tabId === 'deposits') loadDeposits();
+                else if (tabId === 'draws') loadDraws();
+                else if (tabId === 'users') loadUsers();
+                else if (tabId === 'winners') loadWinners();
+                loadStats();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
