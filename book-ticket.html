@@ -7,21 +7,208 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <style>
+        /* Additional styles specific to booking page */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0d5c8;
+        }
+
+        .page-header h1 {
+            color: #2d1f14;
+            font-size: 2rem;
+        }
+
+        .page-header h1 i {
+            color: #b35e2e;
+            margin-right: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .token-balance {
+            background: #1f7a4b;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+        }
+
+        .back-btn {
+            background: #d9cbbd;
+            color: #2d1f14;
+            padding: 8px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #cbb9a8;
+        }
+
+        .ticket-section {
+            margin: 30px 0;
+        }
+
+        .ticket-section h2 {
+            color: #2d1f14;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ticket-section h2 i {
+            color: #b35e2e;
+        }
+
+        .ticket-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .ticket-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e0d5c8;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .ticket-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .ticket-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0ebe6;
+        }
+
+        .ticket-id {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #2d1f14;
+        }
+
+        .ticket-price {
+            background: #f0ebe6;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #b35e2e;
+        }
+
+        .ticket-status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .ticket-status.available {
+            background: #d4edc9;
+            color: #1f5a3b;
+        }
+
+        .ticket-status.booked {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .ticket-status.purchased {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .ticket-card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .ticket-card-actions .btn {
+            flex: 1;
+            justify-content: center;
+            padding: 10px;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-preview {
+            background: #b35e2e;
+            color: white;
+        }
+
+        .btn-preview:hover {
+            background: #8f4a24;
+            transform: scale(0.98);
+        }
+
+        .btn-book {
+            background: #1f7a4b;
+            color: white;
+        }
+
+        .btn-book:hover {
+            background: #16633b;
+            transform: scale(0.98);
+        }
+
+        .btn-book:disabled {
+            background: #4a7b62;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Preview Container */
         .ticket-preview-container {
             display: none;
             background: white;
             border-radius: 16px;
-            padding: 20px;
-            margin: 20px 0;
+            padding: 25px;
+            margin: 30px 0;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             border: 2px solid #1f7a4b;
+            position: relative;
         }
-        
+
         .ticket-preview-container.active {
             display: block;
             animation: slideDown 0.3s ease;
         }
-        
+
         @keyframes slideDown {
             from {
                 opacity: 0;
@@ -32,19 +219,41 @@
                 transform: translateY(0);
             }
         }
-        
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0ebe6;
+        }
+
+        .preview-header h3 {
+            font-size: 1.3rem;
+            color: #2d1f14;
+        }
+
+        .preview-header .price-tag {
+            background: #1f7a4b;
+            color: white;
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
         .tambola-grid {
             display: grid;
             grid-template-columns: repeat(9, 1fr);
             gap: 4px;
-            max-width: 600px;
+            max-width: 650px;
             margin: 0 auto;
             background: #f8f4f0;
             padding: 15px;
             border-radius: 12px;
             border: 2px solid #d4c5b5;
         }
-        
+
         .tambola-cell {
             aspect-ratio: 1;
             display: flex;
@@ -52,111 +261,204 @@
             justify-content: center;
             background: white;
             border-radius: 4px;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 14px;
             border: 1px solid #e0d5c8;
-            min-height: 40px;
+            min-height: 45px;
         }
-        
+
         .tambola-cell.empty {
             background: #f0ebe6;
             border: 1px dashed #d4c5b5;
             color: #b8a89a;
         }
-        
+
         .tambola-cell.filled {
             background: #fff;
             color: #2d1f14;
             border: 1px solid #b35e2e;
         }
-        
+
         .tambola-cell.filled.highlight {
             background: #b35e2e;
             color: white;
             transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(179, 94, 46, 0.3);
         }
-        
-        .ticket-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 0 10px;
-        }
-        
-        .ticket-info h3 {
-            color: #2d1f14;
-            font-size: 1.2rem;
-        }
-        
-        .ticket-info .price-tag {
-            background: #1f7a4b;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-        
+
         .preview-actions {
             display: flex;
             gap: 10px;
             justify-content: center;
-            margin-top: 15px;
+            margin-top: 20px;
         }
-        
+
+        .preview-actions .btn {
+            padding: 10px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .btn-close-preview {
             background: #6c5a4a;
             color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
         }
-        
+
         .btn-close-preview:hover {
             background: #5a4a3a;
         }
-        
+
         .btn-book-from-preview {
             background: #1f7a4b;
             color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
         }
-        
+
         .btn-book-from-preview:hover {
             background: #16633b;
         }
-        
-        .preview-ticket-btn {
-            background: #b35e2e;
-            color: white;
+
+        .preview-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #999;
+            cursor: pointer;
+            transition: 0.3s;
         }
-        
-        .preview-ticket-btn:hover {
-            background: #8f4a24;
+
+        .preview-close-btn:hover {
+            color: #333;
+            transform: rotate(90deg);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2d1f14;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 500;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: slideUp 0.3s ease;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.success {
+            background: #1f7a4b;
+        }
+
+        .toast.error {
+            background: #b13e3e;
+        }
+
+        .toast.info {
+            background: #2d1f14;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .ticket-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tambola-grid {
+                grid-template-columns: repeat(9, 1fr);
+                gap: 3px;
+                padding: 10px;
+            }
+
+            .tambola-cell {
+                font-size: 11px;
+                min-height: 35px;
+            }
+
+            .preview-actions {
+                flex-direction: column;
+            }
+
+            .preview-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tambola-cell {
+                font-size: 9px;
+                min-height: 30px;
+            }
+
+            .ticket-card-actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1><i class="fas fa-ticket-alt"></i> Book Your Tambola Ticket</h1>
-        
-        <!-- Ticket Selection -->
-        <div class="ticket-selection">
-            <h2>Available Tickets</h2>
-            <div class="ticket-list" id="ticketList">
-                <!-- Tickets will be loaded here -->
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1><i class="fas fa-ticket-alt"></i> Book Tambola Ticket</h1>
+            <div class="user-info">
+                <span class="token-balance"><i class="fas fa-coins"></i> 50 Tokens</span>
+                <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
             </div>
         </div>
-        
+
+        <!-- Ticket Section -->
+        <div class="ticket-section">
+            <h2><i class="fas fa-list"></i> Available Tickets</h2>
+            <div class="ticket-grid" id="ticketGrid">
+                <!-- Tickets will be dynamically loaded here -->
+            </div>
+        </div>
+
         <!-- Ticket Preview Container -->
         <div class="ticket-preview-container" id="ticketPreviewContainer">
-            <div class="ticket-info">
+            <button class="preview-close-btn" onclick="closePreview()">✕</button>
+            <div class="preview-header">
                 <h3 id="previewTicketId">Ticket #002</h3>
                 <span class="price-tag" id="previewTicketPrice">10 Tokens</span>
             </div>
@@ -172,22 +474,47 @@
                 </button>
             </div>
         </div>
-        
-        <!-- Your existing ticket panels -->
-        <div class="ticket-panel">
-            <!-- Your existing ticket002 panel here -->
+
+        <!-- Toast Notification -->
+        <div class="toast" id="toast">
+            <i class="fas fa-check-circle" id="toastIcon"></i>
+            <span id="toastMessage">Success!</span>
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    
+    <!-- Firebase Config -->
     <script src="firebase-config.js"></script>
+
+    <!-- Main JavaScript -->
     <script>
+        // ============================================
+        // TICKET PREVIEW FUNCTIONALITY
+        // ============================================
+
         // Sample ticket data - replace with Firebase data
-        const tickets = {
-            'ticket001': { price: 5, numbers: generateTambolaNumbers() },
-            'ticket002': { price: 10, numbers: generateTambolaNumbers() },
-            'ticket003': { price: 8, numbers: generateTambolaNumbers() }
+        let tickets = {
+            'ticket001': { 
+                price: 5, 
+                numbers: null,
+                status: 'available'
+            },
+            'ticket002': { 
+                price: 10, 
+                numbers: null,
+                status: 'available'
+            },
+            'ticket003': { 
+                price: 8, 
+                numbers: null,
+                status: 'available'
+            }
         };
-        
+
         // Generate random Tambola numbers (3 rows x 9 columns)
         function generateTambolaNumbers() {
             const grid = [];
@@ -224,13 +551,27 @@
             }
             return grid;
         }
-        
+
+        // Generate numbers for all tickets
+        function generateAllTickets() {
+            Object.keys(tickets).forEach(ticketId => {
+                if (!tickets[ticketId].numbers) {
+                    tickets[ticketId].numbers = generateTambolaNumbers();
+                }
+            });
+        }
+
         // Display ticket in preview
         function showTicketPreview(ticketId, price) {
             const container = document.getElementById('ticketPreviewContainer');
             const grid = document.getElementById('tambolaGrid');
             const ticketIdEl = document.getElementById('previewTicketId');
             const priceEl = document.getElementById('previewTicketPrice');
+            
+            if (!container || !grid) {
+                console.error('Preview container not found');
+                return;
+            }
             
             // Update ticket info
             ticketIdEl.textContent = `Ticket #${ticketId}`;
@@ -240,12 +581,12 @@
             grid.innerHTML = '';
             
             // Get ticket numbers
-            const ticketData = tickets[ticketId] || { numbers: generateTambolaNumbers() };
-            const numbers = ticketData.numbers;
+            const ticketData = tickets[ticketId];
+            const numbers = ticketData ? ticketData.numbers : generateTambolaNumbers();
             
             // Generate grid
-            numbers.forEach((row, rowIndex) => {
-                row.forEach((number, colIndex) => {
+            numbers.forEach((row) => {
+                row.forEach((number) => {
                     const cell = document.createElement('div');
                     cell.className = 'tambola-cell';
                     
@@ -255,8 +596,8 @@
                     } else {
                         cell.classList.add('filled');
                         cell.textContent = number;
-                        // Highlight if number matches some condition (optional)
-                        if (number % 10 === 0) {
+                        // Highlight if number is special
+                        if (number % 10 === 0 || number === 1 || number === 90) {
                             cell.classList.add('highlight');
                         }
                     }
@@ -275,51 +616,132 @@
             // Scroll to preview
             container.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-        
+
         // Close preview
         function closePreview() {
             const container = document.getElementById('ticketPreviewContainer');
-            container.classList.remove('active');
+            if (container) {
+                container.classList.remove('active');
+            }
         }
-        
+
         // Book from preview
         function bookFromPreview() {
             const container = document.getElementById('ticketPreviewContainer');
+            if (!container) return;
+            
             const ticketId = container.dataset.currentTicket;
             const price = container.dataset.currentPrice;
             
             if (!ticketId) {
-                alert('No ticket selected!');
+                showToast('No ticket selected!', 'error');
+                return;
+            }
+            
+            // Check if ticket is already booked
+            if (tickets[ticketId] && tickets[ticketId].status === 'booked') {
+                showToast('This ticket is already booked!', 'error');
                 return;
             }
             
             // Here you would call your booking function
-            alert(`Booking ${ticketId} for ${price} tokens...`);
+            showToast(`Booking ${ticketId} for ${price} tokens...`, 'info');
             
-            // Close preview after booking
-            closePreview();
-            
-            // Update UI to show booked status
-            const bookBtn = document.querySelector(`[data-ticket="${ticketId}"] .btn-book`);
-            if (bookBtn) {
-                bookBtn.innerHTML = '<i class="fas fa-check"></i> Booked';
-                bookBtn.disabled = true;
-                bookBtn.style.background = '#4a7b62';
-            }
+            // Simulate booking
+            setTimeout(() => {
+                // Update ticket status
+                if (tickets[ticketId]) {
+                    tickets[ticketId].status = 'booked';
+                }
+                
+                // Close preview after booking
+                closePreview();
+                
+                // Update UI to show booked status
+                updateTicketUI(ticketId);
+                
+                showToast(`✅ ${ticketId} booked successfully!`, 'success');
+            }, 1000);
         }
-        
+
+        // Update ticket UI after booking
+        function updateTicketUI(ticketId) {
+            const ticketCards = document.querySelectorAll('.ticket-card');
+            ticketCards.forEach(card => {
+                if (card.dataset.ticket === ticketId) {
+                    const statusEl = card.querySelector('.ticket-status');
+                    const bookBtn = card.querySelector('.btn-book');
+                    
+                    if (statusEl) {
+                        statusEl.textContent = 'Booked';
+                        statusEl.className = 'ticket-status booked';
+                    }
+                    
+                    if (bookBtn) {
+                        bookBtn.innerHTML = '<i class="fas fa-check"></i> Booked';
+                        bookBtn.disabled = true;
+                        bookBtn.style.background = '#4a7b62';
+                    }
+                }
+            });
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            
+            if (!toast) return;
+            
+            // Set message
+            toastMessage.textContent = message;
+            
+            // Set icon based on type
+            toast.className = 'toast';
+            if (type === 'success') {
+                toast.classList.add('success');
+                toastIcon.className = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                toast.classList.add('error');
+                toastIcon.className = 'fas fa-exclamation-circle';
+            } else {
+                toast.classList.add('info');
+                toastIcon.className = 'fas fa-info-circle';
+            }
+            
+            // Show toast
+            toast.classList.add('show');
+            
+            // Hide after 3 seconds
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
         // Load tickets on page load
         document.addEventListener('DOMContentLoaded', function() {
-            const ticketList = document.getElementById('ticketList');
+            // Generate numbers for all tickets
+            generateAllTickets();
+            
+            const ticketGrid = document.getElementById('ticketGrid');
+            if (!ticketGrid) return;
             
             // Sample ticket display - replace with Firebase data
             const sampleTickets = [
                 { id: 'ticket001', price: 5 },
                 { id: 'ticket002', price: 10 },
-                { id: 'ticket003', price: 8 }
+                { id: 'ticket003', price: 8 },
+                { id: 'ticket004', price: 12 },
+                { id: 'ticket005', price: 15 },
+                { id: 'ticket006', price: 7 }
             ];
             
             sampleTickets.forEach(ticket => {
+                const ticketData = tickets[ticket.id] || { status: 'available' };
+                const isBooked = ticketData.status === 'booked';
+                
                 const ticketCard = document.createElement('div');
                 ticketCard.className = 'ticket-card';
                 ticketCard.dataset.ticket = ticket.id;
@@ -328,27 +750,101 @@
                         <span class="ticket-id">${ticket.id}</span>
                         <span class="ticket-price">${ticket.price} Tokens</span>
                     </div>
+                    <div>
+                        <span class="ticket-status ${isBooked ? 'booked' : 'available'}">
+                            ${isBooked ? 'Booked' : 'Available'}
+                        </span>
+                    </div>
                     <div class="ticket-card-actions">
-                        <button class="btn btn-primary btn-preview" onclick="showTicketPreview('${ticket.id}', ${ticket.price})">
+                        <button class="btn btn-preview" onclick="showTicketPreview('${ticket.id}', ${ticket.price})">
                             <i class="fas fa-eye"></i> Preview
                         </button>
-                        <button class="btn btn-primary btn-book" data-ticket="${ticket.id}">
-                            <i class="fas fa-shopping-cart"></i> Book
+                        <button class="btn btn-book" data-ticket="${ticket.id}" ${isBooked ? 'disabled' : ''}>
+                            <i class="fas fa-shopping-cart"></i> ${isBooked ? 'Booked' : 'Book'}
                         </button>
                     </div>
                 `;
-                ticketList.appendChild(ticketCard);
+                ticketGrid.appendChild(ticketCard);
                 
                 // Add book button functionality
                 const bookBtn = ticketCard.querySelector('.btn-book');
-                bookBtn.addEventListener('click', function() {
-                    const ticketId = this.dataset.ticket;
-                    const price = ticket.price;
-                    alert(`Booking ${ticketId} for ${price} tokens...`);
-                    // Implement actual booking logic here
-                });
+                if (bookBtn && !isBooked) {
+                    bookBtn.addEventListener('click', function() {
+                        const ticketId = this.dataset.ticket;
+                        const ticketData = tickets[ticketId];
+                        const price = ticketData ? ticketData.price : 0;
+                        
+                        if (ticketData && ticketData.status === 'booked') {
+                            showToast('This ticket is already booked!', 'error');
+                            return;
+                        }
+                        
+                        showToast(`Booking ${ticketId} for ${price} tokens...`, 'info');
+                        
+                        // Simulate booking
+                        setTimeout(() => {
+                            if (tickets[ticketId]) {
+                                tickets[ticketId].status = 'booked';
+                            }
+                            updateTicketUI(ticketId);
+                            showToast(`✅ ${ticketId} booked successfully!`, 'success');
+                        }, 1000);
+                    });
+                }
+            });
+
+            // Add click outside to close preview
+            document.addEventListener('click', function(event) {
+                const container = document.getElementById('ticketPreviewContainer');
+                const previewBtn = event.target.closest('.btn-preview');
+                
+                if (container && container.classList.contains('active')) {
+                    const isClickInside = container.contains(event.target);
+                    const isPreviewBtn = previewBtn !== null;
+                    
+                    if (!isClickInside && !isPreviewBtn) {
+                        closePreview();
+                    }
+                }
             });
         });
+
+        // ============================================
+        // FIREBASE INTEGRATION (Optional)
+        // ============================================
+
+        async function loadTicketsFromFirebase() {
+            try {
+                // Check if Firebase is initialized
+                if (typeof firebase === 'undefined') {
+                    console.log('Firebase not loaded, using sample data');
+                    return;
+                }
+
+                const db = firebase.firestore();
+                const ticketsCollection = db.collection('tickets');
+                const ticketSnapshot = await ticketsCollection.get();
+                
+                const loadedTickets = {};
+                ticketSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    loadedTickets[doc.id] = {
+                        price: data.price || 10,
+                        numbers: data.numbers || generateTambolaNumbers(),
+                        status: data.status || 'available'
+                    };
+                });
+                
+                // Merge with existing tickets
+                Object.assign(tickets, loadedTickets);
+                console.log('Tickets loaded from Firebase:', Object.keys(loadedTickets).length);
+            } catch (error) {
+                console.error('Error loading tickets from Firebase:', error);
+            }
+        }
+
+        // Uncomment this to load from Firebase
+        // loadTicketsFromFirebase();
     </script>
 </body>
 </html>
