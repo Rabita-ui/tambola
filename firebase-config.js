@@ -1,5 +1,7 @@
+// firebase-config.js
+
 export const firebaseConfig = {
-  apiKey: "PASTE_YOUR_API_KEY_HERE",
+  apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
   authDomain: "tambola-house-3dc56.firebaseapp.com",
   projectId: "tambola-house-3dc56",
   storageBucket: "tambola-house-3dc56.firebasestorage.app",
