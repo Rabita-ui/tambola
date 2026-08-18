@@ -21,6 +21,8 @@
             margin-bottom: 30px;
             padding-bottom: 20px;
             border-bottom: 2px solid #e0d5c8;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .page-header h1 {
@@ -37,6 +39,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            flex-wrap: wrap;
         }
 
         .token-balance {
@@ -45,6 +48,9 @@
             padding: 8px 20px;
             border-radius: 25px;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .back-btn {
@@ -143,6 +149,11 @@
         .ticket-status.purchased {
             background: #cce5ff;
             color: #004085;
+        }
+
+        .ticket-status.sold {
+            background: #f8d7da;
+            color: #721c24;
         }
 
         .ticket-card-actions {
@@ -291,6 +302,7 @@
             gap: 10px;
             justify-content: center;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
 
         .preview-actions .btn {
@@ -387,6 +399,32 @@
             }
         }
 
+        /* Loading spinner */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #b35e2e;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .container {
@@ -395,7 +433,6 @@
 
             .page-header {
                 flex-direction: column;
-                gap: 15px;
                 align-items: flex-start;
             }
 
@@ -442,9 +479,15 @@
         <div class="page-header">
             <h1><i class="fas fa-ticket-alt"></i> Book Tambola Ticket</h1>
             <div class="user-info">
-                <span class="token-balance"><i class="fas fa-coins"></i> 50 Tokens</span>
+                <span class="token-balance" id="userTokens"><i class="fas fa-coins"></i> Loading...</span>
                 <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
             </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner"></div>
+            <p>Loading tickets...</p>
         </div>
 
         <!-- Ticket Section -->
@@ -493,29 +536,18 @@
     <!-- Main JavaScript -->
     <script>
         // ============================================
-        // TICKET PREVIEW FUNCTIONALITY
+        // MAIN APPLICATION
         // ============================================
 
-        // Sample ticket data - replace with Firebase data
-        let tickets = {
-            'ticket001': { 
-                price: 5, 
-                numbers: null,
-                status: 'available'
-            },
-            'ticket002': { 
-                price: 10, 
-                numbers: null,
-                status: 'available'
-            },
-            'ticket003': { 
-                price: 8, 
-                numbers: null,
-                status: 'available'
-            }
-        };
+        let currentUser = null;
+        let userTokens = 0;
+        let tickets = {};
+        let currentTicketId = null;
 
-        // Generate random Tambola numbers (3 rows x 9 columns)
+        // ============================================
+        // GENERATE TAMBOLLA NUMBERS
+        // ============================================
+
         function generateTambolaNumbers() {
             const grid = [];
             const rows = 3;
@@ -523,10 +555,9 @@
             
             for (let row = 0; row < rows; row++) {
                 const rowData = [];
-                const numbersInRow = 5; // Each row has 5 numbers
+                const numbersInRow = 5;
                 const positions = [];
                 
-                // Choose 5 random positions for numbers
                 while (positions.length < numbersInRow) {
                     const pos = Math.floor(Math.random() * cols);
                     if (!positions.includes(pos)) {
@@ -535,16 +566,14 @@
                 }
                 positions.sort((a, b) => a - b);
                 
-                // Generate numbers for each column
                 for (let col = 0; col < cols; col++) {
                     if (positions.includes(col)) {
-                        // Generate number based on column range
                         const min = col * 10 + 1;
                         const max = col * 10 + 10;
                         const num = Math.floor(Math.random() * (max - min + 1)) + min;
                         rowData.push(num);
                     } else {
-                        rowData.push(null); // Empty cell
+                        rowData.push(null);
                     }
                 }
                 grid.push(rowData);
@@ -552,39 +581,57 @@
             return grid;
         }
 
-        // Generate numbers for all tickets
-        function generateAllTickets() {
-            Object.keys(tickets).forEach(ticketId => {
-                if (!tickets[ticketId].numbers) {
-                    tickets[ticketId].numbers = generateTambolaNumbers();
-                }
-            });
+        // ============================================
+        // TOAST NOTIFICATION
+        // ============================================
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            
+            toastMessage.textContent = message;
+            
+            toast.className = 'toast';
+            if (type === 'success') {
+                toast.classList.add('success');
+                toastIcon.className = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                toast.classList.add('error');
+                toastIcon.className = 'fas fa-exclamation-circle';
+            } else {
+                toast.classList.add('info');
+                toastIcon.className = 'fas fa-info-circle';
+            }
+            
+            toast.classList.add('show');
+            
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
         }
 
-        // Display ticket in preview
+        // ============================================
+        // PREVIEW FUNCTIONS
+        // ============================================
+
         function showTicketPreview(ticketId, price) {
             const container = document.getElementById('ticketPreviewContainer');
             const grid = document.getElementById('tambolaGrid');
             const ticketIdEl = document.getElementById('previewTicketId');
             const priceEl = document.getElementById('previewTicketPrice');
             
-            if (!container || !grid) {
-                console.error('Preview container not found');
-                return;
-            }
+            currentTicketId = ticketId;
             
-            // Update ticket info
             ticketIdEl.textContent = `Ticket #${ticketId}`;
             priceEl.textContent = `${price} Tokens`;
             
-            // Clear existing grid
             grid.innerHTML = '';
             
-            // Get ticket numbers
             const ticketData = tickets[ticketId];
             const numbers = ticketData ? ticketData.numbers : generateTambolaNumbers();
             
-            // Generate grid
             numbers.forEach((row) => {
                 row.forEach((number) => {
                     const cell = document.createElement('div');
@@ -596,7 +643,6 @@
                     } else {
                         cell.classList.add('filled');
                         cell.textContent = number;
-                        // Highlight if number is special
                         if (number % 10 === 0 || number === 1 || number === 90) {
                             cell.classList.add('highlight');
                         }
@@ -606,65 +652,121 @@
                 });
             });
             
-            // Show container with animation
             container.classList.add('active');
-            
-            // Store current ticket for booking
             container.dataset.currentTicket = ticketId;
             container.dataset.currentPrice = price;
             
-            // Scroll to preview
             container.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
-        // Close preview
         function closePreview() {
             const container = document.getElementById('ticketPreviewContainer');
             if (container) {
                 container.classList.remove('active');
             }
+            currentTicketId = null;
         }
 
-        // Book from preview
         function bookFromPreview() {
             const container = document.getElementById('ticketPreviewContainer');
-            if (!container) return;
-            
             const ticketId = container.dataset.currentTicket;
-            const price = container.dataset.currentPrice;
+            const price = parseInt(container.dataset.currentPrice);
             
             if (!ticketId) {
                 showToast('No ticket selected!', 'error');
                 return;
             }
             
-            // Check if ticket is already booked
-            if (tickets[ticketId] && tickets[ticketId].status === 'booked') {
-                showToast('This ticket is already booked!', 'error');
-                return;
-            }
-            
-            // Here you would call your booking function
-            showToast(`Booking ${ticketId} for ${price} tokens...`, 'info');
-            
-            // Simulate booking
-            setTimeout(() => {
-                // Update ticket status
-                if (tickets[ticketId]) {
-                    tickets[ticketId].status = 'booked';
-                }
-                
-                // Close preview after booking
-                closePreview();
-                
-                // Update UI to show booked status
-                updateTicketUI(ticketId);
-                
-                showToast(`✅ ${ticketId} booked successfully!`, 'success');
-            }, 1000);
+            bookTicket(ticketId, price);
         }
 
-        // Update ticket UI after booking
+        // ============================================
+        // BOOK TICKET
+        // ============================================
+
+        async function bookTicket(ticketId, price) {
+            try {
+                // Check if user is logged in
+                if (!currentUser) {
+                    showToast('Please login first!', 'error');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Check if user has enough tokens
+                if (userTokens < price) {
+                    showToast('Insufficient tokens! Please deposit more.', 'error');
+                    return;
+                }
+
+                // Check if ticket is already booked
+                const ticketData = tickets[ticketId];
+                if (ticketData && (ticketData.status === 'booked' || ticketData.status === 'sold')) {
+                    showToast('This ticket is already booked!', 'error');
+                    return;
+                }
+
+                showToast('Processing booking...', 'info');
+
+                // Firebase booking
+                const db = firebase.firestore();
+                const ticketRef = db.collection('tickets').doc(ticketId);
+                const userRef = db.collection('users').doc(currentUser.uid);
+
+                // Start a batch write
+                const batch = db.batch();
+
+                // Update ticket status
+                batch.update(ticketRef, {
+                    status: 'booked',
+                    ownerId: currentUser.uid,
+                    ownerEmail: currentUser.email,
+                    bookedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Update user tokens
+                batch.update(userRef, {
+                    tokens: firebase.firestore.FieldValue.increment(-price)
+                });
+
+                // Add transaction record
+                const transactionRef = db.collection('transactions').doc();
+                batch.set(transactionRef, {
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
+                    ticketId: ticketId,
+                    amount: -price,
+                    type: 'booking',
+                    status: 'completed',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                await batch.commit();
+
+                // Update local data
+                userTokens -= price;
+                if (tickets[ticketId]) {
+                    tickets[ticketId].status = 'booked';
+                    tickets[ticketId].ownerId = currentUser.uid;
+                }
+
+                // Update UI
+                updateTicketUI(ticketId);
+                updateTokenUI();
+                closePreview();
+                
+                showToast(`✅ ${ticketId} booked successfully!`, 'success');
+
+            } catch (error) {
+                console.error('Booking error:', error);
+                showToast('Error booking ticket: ' + error.message, 'error');
+            }
+        }
+
+        // ============================================
+        // UPDATE UI
+        // ============================================
+
         function updateTicketUI(ticketId) {
             const ticketCards = document.querySelectorAll('.ticket-card');
             ticketCards.forEach(card => {
@@ -686,68 +788,115 @@
             });
         }
 
-        // Show toast notification
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            const toastIcon = document.getElementById('toastIcon');
-            
-            if (!toast) return;
-            
-            // Set message
-            toastMessage.textContent = message;
-            
-            // Set icon based on type
-            toast.className = 'toast';
-            if (type === 'success') {
-                toast.classList.add('success');
-                toastIcon.className = 'fas fa-check-circle';
-            } else if (type === 'error') {
-                toast.classList.add('error');
-                toastIcon.className = 'fas fa-exclamation-circle';
-            } else {
-                toast.classList.add('info');
-                toastIcon.className = 'fas fa-info-circle';
+        function updateTokenUI() {
+            const tokenEl = document.getElementById('userTokens');
+            if (tokenEl) {
+                tokenEl.innerHTML = `<i class="fas fa-coins"></i> ${userTokens} Tokens`;
             }
-            
-            // Show toast
-            toast.classList.add('show');
-            
-            // Hide after 3 seconds
-            clearTimeout(toast._timeout);
-            toast._timeout = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
         }
 
-        // Load tickets on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Generate numbers for all tickets
-            generateAllTickets();
-            
+        // ============================================
+        // LOAD TICKETS FROM FIREBASE
+        // ============================================
+
+        async function loadTickets() {
+            const loadingSpinner = document.getElementById('loadingSpinner');
             const ticketGrid = document.getElementById('ticketGrid');
-            if (!ticketGrid) return;
             
-            // Sample ticket display - replace with Firebase data
-            const sampleTickets = [
-                { id: 'ticket001', price: 5 },
-                { id: 'ticket002', price: 10 },
-                { id: 'ticket003', price: 8 },
-                { id: 'ticket004', price: 12 },
-                { id: 'ticket005', price: 15 },
-                { id: 'ticket006', price: 7 }
-            ];
-            
-            sampleTickets.forEach(ticket => {
-                const ticketData = tickets[ticket.id] || { status: 'available' };
-                const isBooked = ticketData.status === 'booked';
+            try {
+                loadingSpinner.classList.add('show');
+                ticketGrid.innerHTML = '';
+
+                const db = firebase.firestore();
+                const ticketsCollection = db.collection('tickets');
+                const ticketSnapshot = await ticketsCollection.get();
+
+                if (ticketSnapshot.empty) {
+                    // Create sample tickets if none exist
+                    await createSampleTickets();
+                    await loadTickets();
+                    return;
+                }
+
+                tickets = {};
+                ticketSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    tickets[doc.id] = {
+                        price: data.price || 10,
+                        numbers: data.numbers || generateTambolaNumbers(),
+                        status: data.status || 'available',
+                        ownerId: data.ownerId || null,
+                        ownerEmail: data.ownerEmail || null
+                    };
+                });
+
+                // Display tickets
+                displayTickets();
+
+            } catch (error) {
+                console.error('Error loading tickets:', error);
+                showToast('Error loading tickets', 'error');
+            } finally {
+                loadingSpinner.classList.remove('show');
+            }
+        }
+
+        // ============================================
+        // CREATE SAMPLE TICKETS
+        // ============================================
+
+        async function createSampleTickets() {
+            try {
+                const db = firebase.firestore();
+                const batch = db.batch();
+
+                const sampleTickets = [
+                    { id: 'ticket001', price: 5 },
+                    { id: 'ticket002', price: 10 },
+                    { id: 'ticket003', price: 8 },
+                    { id: 'ticket004', price: 12 },
+                    { id: 'ticket005', price: 15 },
+                    { id: 'ticket006', price: 7 }
+                ];
+
+                sampleTickets.forEach(ticket => {
+                    const docRef = db.collection('tickets').doc(ticket.id);
+                    batch.set(docRef, {
+                        price: ticket.price,
+                        numbers: generateTambolaNumbers(),
+                        status: 'available',
+                        ownerId: null,
+                        ownerEmail: null,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+
+                await batch.commit();
+                console.log('Sample tickets created successfully');
+                
+            } catch (error) {
+                console.error('Error creating sample tickets:', error);
+            }
+        }
+
+        // ============================================
+        // DISPLAY TICKETS
+        // ============================================
+
+        function displayTickets() {
+            const ticketGrid = document.getElementById('ticketGrid');
+            ticketGrid.innerHTML = '';
+
+            Object.keys(tickets).forEach(ticketId => {
+                const ticket = tickets[ticketId];
+                const isBooked = ticket.status === 'booked' || ticket.status === 'sold';
                 
                 const ticketCard = document.createElement('div');
                 ticketCard.className = 'ticket-card';
-                ticketCard.dataset.ticket = ticket.id;
+                ticketCard.dataset.ticket = ticketId;
                 ticketCard.innerHTML = `
                     <div class="ticket-card-header">
-                        <span class="ticket-id">${ticket.id}</span>
+                        <span class="ticket-id">${ticketId}</span>
                         <span class="ticket-price">${ticket.price} Tokens</span>
                     </div>
                     <div>
@@ -756,95 +905,114 @@
                         </span>
                     </div>
                     <div class="ticket-card-actions">
-                        <button class="btn btn-preview" onclick="showTicketPreview('${ticket.id}', ${ticket.price})">
+                        <button class="btn btn-preview" onclick="showTicketPreview('${ticketId}', ${ticket.price})">
                             <i class="fas fa-eye"></i> Preview
                         </button>
-                        <button class="btn btn-book" data-ticket="${ticket.id}" ${isBooked ? 'disabled' : ''}>
+                        <button class="btn btn-book" data-ticket="${ticketId}" ${isBooked ? 'disabled' : ''}>
                             <i class="fas fa-shopping-cart"></i> ${isBooked ? 'Booked' : 'Book'}
                         </button>
                     </div>
                 `;
                 ticketGrid.appendChild(ticketCard);
                 
-                // Add book button functionality
                 const bookBtn = ticketCard.querySelector('.btn-book');
                 if (bookBtn && !isBooked) {
                     bookBtn.addEventListener('click', function() {
-                        const ticketId = this.dataset.ticket;
-                        const ticketData = tickets[ticketId];
-                        const price = ticketData ? ticketData.price : 0;
-                        
+                        const id = this.dataset.ticket;
+                        const ticketData = tickets[id];
                         if (ticketData && ticketData.status === 'booked') {
                             showToast('This ticket is already booked!', 'error');
                             return;
                         }
-                        
-                        showToast(`Booking ${ticketId} for ${price} tokens...`, 'info');
-                        
-                        // Simulate booking
-                        setTimeout(() => {
-                            if (tickets[ticketId]) {
-                                tickets[ticketId].status = 'booked';
-                            }
-                            updateTicketUI(ticketId);
-                            showToast(`✅ ${ticketId} booked successfully!`, 'success');
-                        }, 1000);
+                        bookTicket(id, ticketData.price);
                     });
                 }
             });
+        }
 
-            // Add click outside to close preview
+        // ============================================
+        // LOAD USER DATA
+        // ============================================
+
+        async function loadUserData() {
+            try {
+                const auth = firebase.auth();
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        currentUser = user;
+                        
+                        // Load user tokens
+                        const db = firebase.firestore();
+                        const userDoc = await db.collection('users').doc(user.uid).get();
+                        
+                        if (userDoc.exists) {
+                            userTokens = userDoc.data().tokens || 0;
+                        } else {
+                            // Create user document if doesn't exist
+                            await db.collection('users').doc(user.uid).set({
+                                email: user.email,
+                                displayName: user.displayName || user.email,
+                                tokens: 50,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                            userTokens = 50;
+                        }
+                        
+                        updateTokenUI();
+                        console.log('User loaded:', user.email, 'Tokens:', userTokens);
+                    } else {
+                        currentUser = null;
+                        userTokens = 0;
+                        updateTokenUI();
+                        console.log('No user logged in');
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading user:', error);
+            }
+        }
+
+        // ============================================
+        // INITIALIZE
+        // ============================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if Firebase is available
+            if (typeof firebase === 'undefined') {
+                showToast('Firebase not loaded. Using sample data.', 'error');
+                // Use sample data
+                tickets = {
+                    'ticket001': { price: 5, numbers: generateTambolaNumbers(), status: 'available' },
+                    'ticket002': { price: 10, numbers: generateTambolaNumbers(), status: 'available' },
+                    'ticket003': { price: 8, numbers: generateTambolaNumbers(), status: 'available' },
+                    'ticket004': { price: 12, numbers: generateTambolaNumbers(), status: 'available' },
+                    'ticket005': { price: 15, numbers: generateTambolaNumbers(), status: 'available' },
+                    'ticket006': { price: 7, numbers: generateTambolaNumbers(), status: 'available' }
+                };
+                displayTickets();
+                return;
+            }
+
+            // Load user data
+            loadUserData();
+            
+            // Load tickets
+            setTimeout(() => {
+                loadTickets();
+            }, 500);
+
+            // Click outside preview to close
             document.addEventListener('click', function(event) {
                 const container = document.getElementById('ticketPreviewContainer');
-                const previewBtn = event.target.closest('.btn-preview');
-                
                 if (container && container.classList.contains('active')) {
                     const isClickInside = container.contains(event.target);
-                    const isPreviewBtn = previewBtn !== null;
-                    
+                    const isPreviewBtn = event.target.closest('.btn-preview');
                     if (!isClickInside && !isPreviewBtn) {
                         closePreview();
                     }
                 }
             });
         });
-
-        // ============================================
-        // FIREBASE INTEGRATION (Optional)
-        // ============================================
-
-        async function loadTicketsFromFirebase() {
-            try {
-                // Check if Firebase is initialized
-                if (typeof firebase === 'undefined') {
-                    console.log('Firebase not loaded, using sample data');
-                    return;
-                }
-
-                const db = firebase.firestore();
-                const ticketsCollection = db.collection('tickets');
-                const ticketSnapshot = await ticketsCollection.get();
-                
-                const loadedTickets = {};
-                ticketSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    loadedTickets[doc.id] = {
-                        price: data.price || 10,
-                        numbers: data.numbers || generateTambolaNumbers(),
-                        status: data.status || 'available'
-                    };
-                });
-                
-                // Merge with existing tickets
-                Object.assign(tickets, loadedTickets);
-                console.log('Tickets loaded from Firebase:', Object.keys(loadedTickets).length);
-            } catch (error) {
-                console.error('Error loading tickets from Firebase:', error);
-            }
-        }
-
-        // Uncomment this to load from Firebase
-        // loadTicketsFromFirebase();
     </script>
 </body>
 </html>
