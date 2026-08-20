@@ -1,186 +1,797 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Tambola · Online House</title>
-    <!-- Font Awesome & Google Fonts -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    >
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap"
+        rel="stylesheet"
+    >
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="app" id="app">
 
-        <!-- ===== HEADER ===== -->
-        <div class="flex-between">
-            <h1><i class="fas fa-bingo" style="color: #3b82f6;"></i> Tambola · House</h1>
-            <div id="authSection" class="flex">
-                <span id="userDisplay" class="badge" style="background: #d1fae5;">Guest</span>
-                <button id="loginBtn" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
-                <button id="logoutBtn" class="btn btn-danger hidden"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            </div>
+<div class="app" id="app">
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <div class="flex-between">
+
+        <h1>
+            <i class="fas fa-bingo" style="color:#3b82f6;"></i>
+            Tambola · House
+        </h1>
+
+        <div id="authSection" class="flex">
+
+            <span
+                id="userDisplay"
+                class="badge"
+                style="background:#d1fae5;"
+            >
+                Guest
+            </span>
+
+            <button
+                id="loginBtn"
+                class="btn btn-primary"
+            >
+                <i class="fas fa-sign-in-alt"></i>
+                Login
+            </button>
+
+            <button
+                id="logoutBtn"
+                class="btn btn-danger hidden"
+            >
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+
         </div>
 
-        <!-- ===== LOGIN / REGISTER PAGE ===== -->
-        <div id="loginPage" class="page active">
-            <div class="card" style="max-width: 480px; margin: 20px auto;">
-                <h2><i class="fas fa-lock"></i> Welcome Back</h2>
-                <div class="flex" style="margin-top: 16px;">
-                    <input type="email" id="emailInput" placeholder="Email" value="demo@tambola.com" style="flex:1;">
-                    <input type="password" id="passInput" placeholder="Password" value="demodemo" style="flex:1;">
-                </div>
-                <div class="flex" style="margin-top: 12px;">
-                    <button id="signInBtn" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Sign in</button>
-                    <button id="signUpBtn" class="btn btn-success"><i class="fas fa-user-plus"></i> Register</button>
-                </div>
-                <div id="authMsg" class="mt-2" style="color: #64748b; font-size:0.9rem;"></div>
-                <div style="margin-top: 12px; font-size:0.85rem; color:#94a3b8;">
-                    <i class="fas fa-info-circle"></i> Use <strong>admin@tambola.com</strong> for admin panel
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== MAIN APP (after login) ===== -->
-        <div id="mainApp" class="hidden">
-
-            <!-- Navigation Tabs -->
-            <div class="nav-tabs">
-                <button class="nav-tab active" data-page="home"><i class="fas fa-home"></i> Home</button>
-                <button class="nav-tab" data-page="deposit"><i class="fas fa-coins"></i> Deposit</button>
-                <button class="nav-tab" data-page="booking"><i class="fas fa-ticket-alt"></i> Booking</button>
-                <button class="nav-tab" data-page="mybooked"><i class="fas fa-bookmark"></i> My Booked</button>
-                <button class="nav-tab" data-page="draws"><i class="fas fa-list-ul"></i> Draws</button>
-                <button class="nav-tab" data-page="tokens"><i class="fas fa-key"></i> Tokens</button>
-                <button class="nav-tab" data-page="admin" id="adminTabBtn" style="display:none;"><i class="fas fa-user-shield"></i> Admin</button>
-            </div>
-
-            <!-- ===== HOME PAGE ===== -->
-            <div id="page-home" class="page active">
-                <div class="balance-box">
-                    <div>
-                        <div style="opacity:0.7; font-size:0.9rem;">💰 Balance</div>
-                        <div class="amount" id="userBalance">₹ 0.00</div>
-                    </div>
-                    <div class="flex">
-                        <span class="token-badge"><i class="fas fa-ticket-alt"></i> Tokens: <span id="tokenBalance">0</span></span>
-                        <button id="quickDepositBtn" class="btn btn-success"><i class="fas fa-plus"></i> Add Funds</button>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3>📢 Ongoing Draws</h3>
-                    <div id="ongoingDrawsList"><p style="color:#94a3b8;">No active draws</p></div>
-                </div>
-
-                <div class="card">
-                    <div class="flex-between">
-                        <h3>🎫 My Tickets (300 permanent)</h3>
-                        <div>
-                            <button id="autoMarkBtn" class="btn btn-primary"><i class="fas fa-magic"></i> Auto</button>
-                            <button id="manualMarkBtn" class="btn btn-outline"><i class="fas fa-pen"></i> Manual</button>
-                            <span id="modeIndicator" class="badge">Manual</span>
-                        </div>
-                    </div>
-                    <div id="ticketContainer" style="max-height:420px; overflow-y:auto; margin-top:12px;">
-                        <p style="color:#94a3b8;">Loading tickets...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== DEPOSIT PAGE ===== -->
-            <div id="page-deposit" class="page">
-                <h2><i class="fas fa-coins"></i> Deposit Request</h2>
-                <div class="card">
-                    <p><strong>UPI:</strong> tambola@upi (simulated)</p>
-                    <div class="deposit-row">
-                        <input type="number" id="depositAmount" placeholder="Amount (₹)" value="500" style="width:160px;">
-                        <button id="requestDepositBtn" class="btn btn-success"><i class="fas fa-paper-plane"></i> Request Deposit</button>
-                    </div>
-                    <div id="depositMsg" class="mt-2" style="color:#64748b;"></div>
-                    <hr style="margin:16px 0; border-color:#e9edf2;">
-                    <h4>Recent Requests</h4>
-                    <div id="depositHistory"><p style="color:#94a3b8;">No requests yet</p></div>
-                </div>
-            </div>
-
-            <!-- ===== BOOKING PAGE ===== -->
-            <div id="page-booking" class="page">
-                <h2><i class="fas fa-ticket-alt"></i> Book Tickets</h2>
-                <div class="card">
-                    <p>Select a draw and number of tickets to book.</p>
-                    <div class="flex">
-                        <select id="bookingDrawSelect"><option value="">-- select draw --</option></select>
-                        <input type="number" id="bookingQty" value="1" min="1" max="10" style="width:80px;">
-                        <button id="bookTicketsBtn" class="btn btn-primary"><i class="fas fa-check"></i> Book</button>
-                    </div>
-                    <div id="bookingMsg" class="mt-2" style="color:#64748b;"></div>
-                </div>
-            </div>
-
-            <!-- ===== MY BOOKED PAGE ===== -->
-            <div id="page-mybooked" class="page">
-                <h2><i class="fas fa-bookmark"></i> My Booked Tickets</h2>
-                <div id="myBookedList" class="card"><p style="color:#94a3b8;">No bookings yet.</p></div>
-            </div>
-
-            <!-- ===== DRAWS PAGE ===== -->
-            <div id="page-draws" class="page">
-                <h2><i class="fas fa-list-ul"></i> All Draws</h2>
-                <div id="allDrawsList" class="card"><p style="color:#94a3b8;">Loading draws...</p></div>
-            </div>
-
-            <!-- ===== TOKENS PAGE ===== -->
-            <div id="page-tokens" class="page">
-                <h2><i class="fas fa-key"></i> Token Balance & Requests</h2>
-                <div class="card">
-                    <div class="flex-between">
-                        <span><strong>Your Tokens:</strong> <span id="tokenPageBalance">0</span></span>
-                        <button id="requestTokenBtn" class="btn btn-primary"><i class="fas fa-plus"></i> Request Token</button>
-                    </div>
-                    <div class="mt-2">
-                        <input type="text" id="tokenRequestInput" placeholder="Token code or request" style="width:200px;">
-                        <button id="submitTokenRequestBtn" class="btn btn-success">Submit</button>
-                    </div>
-                    <hr style="margin:16px 0; border-color:#e9edf2;">
-                    <h4>Token History</h4>
-                    <div id="tokenHistory"><p style="color:#94a3b8;">No token activity</p></div>
-                </div>
-            </div>
-
-            <!-- ===== ADMIN PAGE ===== -->
-            <div id="page-admin" class="page">
-                <div class="admin-section">
-                    <h2><i class="fas fa-user-shield"></i> Admin Panel</h2>
-                    <div class="flex">
-                        <button id="scheduleDrawBtn" class="btn btn-primary"><i class="fas fa-calendar-plus"></i> Schedule Draw</button>
-                        <button id="resetTicketsBtn" class="btn btn-danger"><i class="fas fa-sync-alt"></i> Reset 300 tickets</button>
-                        <span class="badge" id="drawStatus">No draw</span>
-                    </div>
-                    <div class="flex mt-2">
-                        <input type="text" id="adminTokenInput" placeholder="Approve token request">
-                        <button id="adminApproveTokenBtn" class="btn btn-success"><i class="fas fa-check"></i> Approve</button>
-                    </div>
-                    <div class="mt-2"><small>💰 UPI: tambola@upi (simulated)</small></div>
-                </div>
-            </div>
-
-        </div><!-- end mainApp -->
-
-        <div style="margin-top:20px; font-size:0.75rem; color:#94a3b8; text-align:center;">
-            ⚡ Auto-delete draw after 5 days · All data in Firestore
-        </div>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-    
-    <!-- Custom Scripts -->
-    <script src="firebase-config.js"></script>
-    <script src="auth.js"></script>
-    <script src="app.js"></script>
+
+    <!-- =====================================================
+         LOGIN / REGISTER PAGE
+    ====================================================== -->
+
+    <div id="loginPage" class="page active">
+
+        <div
+            class="card"
+            style="max-width:480px;margin:20px auto;"
+        >
+
+            <h2>
+                <i class="fas fa-lock"></i>
+                Welcome Back
+            </h2>
+
+            <div
+                class="flex"
+                style="margin-top:16px;"
+            >
+
+                <input
+                    type="email"
+                    id="emailInput"
+                    placeholder="Email"
+                    style="flex:1;"
+                >
+
+                <input
+                    type="password"
+                    id="passInput"
+                    placeholder="Password"
+                    style="flex:1;"
+                >
+
+            </div>
+
+            <div
+                class="flex"
+                style="margin-top:12px;"
+            >
+
+                <button
+                    id="signInBtn"
+                    class="btn btn-primary"
+                >
+                    <i class="fas fa-sign-in-alt"></i>
+                    Sign in
+                </button>
+
+                <button
+                    id="signUpBtn"
+                    class="btn btn-success"
+                >
+                    <i class="fas fa-user-plus"></i>
+                    Register
+                </button>
+
+            </div>
+
+            <div
+                id="authMsg"
+                class="mt-2"
+                style="color:#64748b;font-size:0.9rem;"
+            ></div>
+
+            <div
+                style="
+                    margin-top:12px;
+                    font-size:0.85rem;
+                    color:#94a3b8;
+                "
+            >
+                <i class="fas fa-info-circle"></i>
+
+                Use
+                <strong>admin@tambola.com</strong>
+                for admin panel
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         MAIN APPLICATION
+    ====================================================== -->
+
+    <div id="mainApp" class="hidden">
+
+
+        <!-- =================================================
+             NAVIGATION
+        ================================================== -->
+
+        <div class="nav-tabs">
+
+            <button
+                class="nav-tab active"
+                data-page="home"
+            >
+                <i class="fas fa-home"></i>
+                Home
+            </button>
+
+            <button
+                class="nav-tab"
+                data-page="deposit"
+            >
+                <i class="fas fa-coins"></i>
+                Deposit
+            </button>
+
+            <button
+                class="nav-tab"
+                data-page="booking"
+            >
+                <i class="fas fa-ticket-alt"></i>
+                Booking
+            </button>
+
+            <button
+                class="nav-tab"
+                data-page="mybooked"
+            >
+                <i class="fas fa-bookmark"></i>
+                My Booked
+            </button>
+
+            <button
+                class="nav-tab"
+                data-page="draws"
+            >
+                <i class="fas fa-list-ul"></i>
+                Draws
+            </button>
+
+            <button
+                class="nav-tab"
+                data-page="tokens"
+            >
+                <i class="fas fa-key"></i>
+                Tokens
+            </button>
+
+            <button
+                class="nav-tab"
+                data-page="admin"
+                id="adminTabBtn"
+                style="display:none;"
+            >
+                <i class="fas fa-user-shield"></i>
+                Admin
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             HOME
+        ================================================== -->
+
+        <div
+            id="page-home"
+            class="page active"
+        >
+
+            <div class="balance-box">
+
+                <div>
+
+                    <div
+                        style="
+                            opacity:0.7;
+                            font-size:0.9rem;
+                        "
+                    >
+                        💰 Balance
+                    </div>
+
+                    <div
+                        class="amount"
+                        id="userBalance"
+                    >
+                        ₹ 0.00
+                    </div>
+
+                </div>
+
+                <div class="flex">
+
+                    <span class="token-badge">
+
+                        <i class="fas fa-ticket-alt"></i>
+
+                        Tokens:
+
+                        <span id="tokenBalance">
+                            0
+                        </span>
+
+                    </span>
+
+                    <button
+                        id="quickDepositBtn"
+                        class="btn btn-success"
+                    >
+                        <i class="fas fa-plus"></i>
+                        Add Funds
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- Ongoing Draws -->
+
+            <div class="card">
+
+                <h3>
+                    📢 Ongoing Draws
+                </h3>
+
+                <div id="ongoingDrawsList">
+
+                    <p style="color:#94a3b8;">
+                        No active draws
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Tickets -->
+
+            <div class="card">
+
+                <div class="flex-between">
+
+                    <h3>
+                        🎫 My Tickets (300 permanent)
+                    </h3>
+
+                    <div>
+
+                        <button
+                            id="autoMarkBtn"
+                            class="btn btn-primary"
+                        >
+                            <i class="fas fa-magic"></i>
+                            Auto
+                        </button>
+
+                        <button
+                            id="manualMarkBtn"
+                            class="btn btn-outline"
+                        >
+                            <i class="fas fa-pen"></i>
+                            Manual
+                        </button>
+
+                        <span
+                            id="modeIndicator"
+                            class="badge"
+                        >
+                            Manual
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div
+                    id="ticketContainer"
+                    style="
+                        max-height:420px;
+                        overflow-y:auto;
+                        margin-top:12px;
+                    "
+                >
+
+                    <p style="color:#94a3b8;">
+                        Loading tickets...
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             DEPOSIT
+        ================================================== -->
+
+        <div
+            id="page-deposit"
+            class="page"
+        >
+
+            <h2>
+                <i class="fas fa-coins"></i>
+                Deposit Request
+            </h2>
+
+            <div class="card">
+
+                <p>
+                    <strong>UPI:</strong>
+                    tambola@upi
+                    (simulated)
+                </p>
+
+                <div class="deposit-row">
+
+                    <input
+                        type="number"
+                        id="depositAmount"
+                        placeholder="Amount (₹)"
+                        value="500"
+                        style="width:160px;"
+                    >
+
+                    <button
+                        id="requestDepositBtn"
+                        class="btn btn-success"
+                    >
+                        <i class="fas fa-paper-plane"></i>
+                        Request Deposit
+                    </button>
+
+                </div>
+
+                <div
+                    id="depositMsg"
+                    class="mt-2"
+                    style="color:#64748b;"
+                ></div>
+
+                <hr
+                    style="
+                        margin:16px 0;
+                        border-color:#e9edf2;
+                    "
+                >
+
+                <h4>
+                    Recent Requests
+                </h4>
+
+                <div id="depositHistory">
+
+                    <p style="color:#94a3b8;">
+                        No requests yet
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             BOOKING
+        ================================================== -->
+
+        <div
+            id="page-booking"
+            class="page"
+        >
+
+            <h2>
+                <i class="fas fa-ticket-alt"></i>
+                Book Tickets
+            </h2>
+
+            <div class="card">
+
+                <p>
+                    Select a draw and number of tickets to book.
+                </p>
+
+                <div class="flex">
+
+                    <select id="bookingDrawSelect">
+
+                        <option value="">
+                            -- select draw --
+                        </option>
+
+                    </select>
+
+                    <input
+                        type="number"
+                        id="bookingQty"
+                        value="1"
+                        min="1"
+                        max="10"
+                        style="width:80px;"
+                    >
+
+                    <button
+                        id="bookTicketsBtn"
+                        class="btn btn-primary"
+                    >
+                        <i class="fas fa-check"></i>
+                        Book
+                    </button>
+
+                </div>
+
+                <div
+                    id="bookingMsg"
+                    class="mt-2"
+                    style="color:#64748b;"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             MY BOOKED
+        ================================================== -->
+
+        <div
+            id="page-mybooked"
+            class="page"
+        >
+
+            <h2>
+                <i class="fas fa-bookmark"></i>
+                My Booked Tickets
+            </h2>
+
+            <div
+                id="myBookedList"
+                class="card"
+            >
+
+                <p style="color:#94a3b8;">
+                    No bookings yet.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             DRAWS
+        ================================================== -->
+
+        <div
+            id="page-draws"
+            class="page"
+        >
+
+            <h2>
+                <i class="fas fa-list-ul"></i>
+                All Draws
+            </h2>
+
+            <div
+                id="allDrawsList"
+                class="card"
+            >
+
+                <p style="color:#94a3b8;">
+                    Loading draws...
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             TOKENS
+        ================================================== -->
+
+        <div
+            id="page-tokens"
+            class="page"
+        >
+
+            <h2>
+                <i class="fas fa-key"></i>
+                Token Balance & Requests
+            </h2>
+
+            <div class="card">
+
+                <div class="flex-between">
+
+                    <span>
+
+                        <strong>
+                            Your Tokens:
+                        </strong>
+
+                        <span id="tokenPageBalance">
+                            0
+                        </span>
+
+                    </span>
+
+                    <button
+                        id="requestTokenBtn"
+                        class="btn btn-primary"
+                    >
+                        <i class="fas fa-plus"></i>
+                        Request Token
+                    </button>
+
+                </div>
+
+                <div class="mt-2">
+
+                    <input
+                        type="text"
+                        id="tokenRequestInput"
+                        placeholder="Token code or request"
+                        style="width:200px;"
+                    >
+
+                    <button
+                        id="submitTokenRequestBtn"
+                        class="btn btn-success"
+                    >
+                        Submit
+                    </button>
+
+                </div>
+
+                <hr
+                    style="
+                        margin:16px 0;
+                        border-color:#e9edf2;
+                    "
+                >
+
+                <h4>
+                    Token History
+                </h4>
+
+                <div id="tokenHistory">
+
+                    <p style="color:#94a3b8;">
+                        No token activity
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             ADMIN
+        ================================================== -->
+
+        <div
+            id="page-admin"
+            class="page"
+        >
+
+            <div class="admin-section">
+
+                <h2>
+                    <i class="fas fa-user-shield"></i>
+                    Admin Panel
+                </h2>
+
+                <div class="flex">
+
+                    <button
+                        id="scheduleDrawBtn"
+                        class="btn btn-primary"
+                    >
+                        <i class="fas fa-calendar-plus"></i>
+                        Schedule Draw
+                    </button>
+
+                    <button
+                        id="resetTicketsBtn"
+                        class="btn btn-danger"
+                    >
+                        <i class="fas fa-sync-alt"></i>
+                        Reset 300 tickets
+                    </button>
+
+                    <span
+                        class="badge"
+                        id="drawStatus"
+                    >
+                        No draw
+                    </span>
+
+                </div>
+
+                <div class="flex mt-2">
+
+                    <input
+                        type="text"
+                        id="adminTokenInput"
+                        placeholder="Approve token request"
+                    >
+
+                    <button
+                        id="adminApproveTokenBtn"
+                        class="btn btn-success"
+                    >
+                        <i class="fas fa-check"></i>
+                        Approve
+                    </button>
+
+                </div>
+
+                <div class="mt-2">
+
+                    <small>
+                        💰 UPI: tambola@upi (simulated)
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <div
+        style="
+            margin-top:20px;
+            font-size:0.75rem;
+            color:#94a3b8;
+            text-align:center;
+        "
+    >
+        ⚡ Auto-delete draw after 5 days · All data in Firestore
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     FIREBASE SDKs
+========================================================== -->
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+
+<!-- =========================================================
+     FIREBASE CONFIGURATION
+========================================================== -->
+
+<script>
+
+    const firebaseConfig = {
+
+        apiKey:
+            "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
+
+        authDomain:
+            "tambola-house-3dc56.firebaseapp.com",
+
+        projectId:
+            "tambola-house-3dc56",
+
+        storageBucket:
+            "tambola-house-3dc56.firebasestorage.app",
+
+        messagingSenderId:
+            "267918174188",
+
+        appId:
+            "1:267918174188:web:ec27684544c286c044c2c9"
+
+    };
+
+
+    // Initialize Firebase
+
+    firebase.initializeApp(firebaseConfig);
+
+
+    // Firebase Authentication
+
+    const auth = firebase.auth();
+
+
+    // Firestore Database
+
+    const db = firebase.firestore();
+
+</script>
+
+
+<!-- =========================================================
+     APPLICATION JAVASCRIPT
+========================================================== -->
+
+<script src="auth.js"></script>
+
+<script src="app.js"></script>
+
+
 </body>
 </html>
