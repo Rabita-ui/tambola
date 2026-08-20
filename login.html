@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Login - Tambola House</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
         * {
             margin: 0;
@@ -28,7 +32,7 @@
             background: white;
             border-radius: 40px;
             padding: 40px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 215, 175, 0.2);
         }
 
@@ -50,6 +54,7 @@
 
         .auth-header p {
             color: #7b6856;
+            margin-top: 5px;
         }
 
         .form-group {
@@ -97,6 +102,12 @@
             transform: scale(0.98);
         }
 
+        .btn-submit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .auth-footer {
             text-align: center;
             margin-top: 20px;
@@ -135,12 +146,11 @@
             padding: 12px 30px;
             border-radius: 50px;
             font-weight: 500;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             z-index: 2000;
             display: none;
             align-items: center;
             gap: 10px;
-            animation: slideUp 0.3s ease;
         }
 
         .toast.show {
@@ -157,17 +167,6 @@
             color: white;
         }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-
         @media (max-width: 480px) {
             .auth-container {
                 padding: 25px;
@@ -176,11 +175,16 @@
         }
     </style>
 </head>
+
 <body>
+
     <div class="auth-container">
+
         <div class="auth-header">
             <div class="logo">🎱</div>
+
             <h2>Welcome Back!</h2>
+
             <p>Login to continue playing</p>
         </div>
 
@@ -190,96 +194,414 @@
         </div>
 
         <form id="loginForm">
+
             <div class="form-group">
-                <label><i class="fas fa-envelope"></i> Email</label>
-                <input type="email" id="email" placeholder="Enter your email" required>
+
+                <label for="email">
+                    <i class="fas fa-envelope"></i>
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Enter your email"
+                    required
+                >
+
             </div>
+
             <div class="form-group">
-                <label><i class="fas fa-lock"></i> Password</label>
-                <input type="password" id="password" placeholder="Enter your password" required>
+
+                <label for="password">
+                    <i class="fas fa-lock"></i>
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter your password"
+                    required
+                >
+
             </div>
-            <button type="submit" class="btn-submit">
-                <i class="fas fa-sign-in-alt"></i> Login
+
+            <button
+                type="submit"
+                class="btn-submit"
+                id="loginButton"
+            >
+                <i class="fas fa-sign-in-alt"></i>
+                Login
             </button>
+
         </form>
 
         <div class="auth-footer">
-            Don't have an account? <a href="register.html">Register here</a>
+            Don't have an account?
+            <a href="register.html">Register here</a>
         </div>
+
     </div>
 
     <div class="toast" id="toast">
+
         <i class="fas fa-check-circle" id="toastIcon"></i>
-        <span id="toastMessage">Success!</span>
+
+        <span id="toastMessage">
+            Success!
+        </span>
+
     </div>
 
+
+    <!-- =========================================
+         FIREBASE SDK
+    ========================================== -->
+
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
+
+    <!-- =========================================
+         FIREBASE CONFIGURATION
+    ========================================== -->
+
     <script>
-        // Firebase Config
+
         const firebaseConfig = {
-            apiKey: "AIzaSyBTGFdmmimUbpm1zrTqaSQBO0kr2LcWs8M",
-            authDomain: "mbolahouse.firebaseapp.com",
-            projectId: "mbolahouse",
-            storageBucket: "mbolahouse.firebasestorage.app",
-            messagingSenderId: "842446053948",
-            appId: "1:842446053948:web:b977bef8d84e85375f9939",
-            measurementId: "G-DP949M05J1"
+
+            apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
+
+            authDomain: "tambola-house-3dc56.firebaseapp.com",
+
+            projectId: "tambola-house-3dc56",
+
+            storageBucket: "tambola-house-3dc56.firebasestorage.app",
+
+            messagingSenderId: "267918174188",
+
+            appId: "1:267918174188:web:ec27684544c286c044c2c9"
+
         };
 
+
+        // Initialize Firebase
+
         firebase.initializeApp(firebaseConfig);
+
+
+        // Firebase Authentication
+
         const auth = firebase.auth();
+
+
+        // Firestore Database
+
         const db = firebase.firestore();
 
-        // Check if already logged in
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                window.location.href = 'dashboard.html';
-            }
-        });
+    </script>
 
-        // Login Form
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errorMsg = document.getElementById('errorMsg');
-            const errorText = document.getElementById('errorText');
+
+    <!-- =========================================
+         LOGIN SYSTEM
+    ========================================== -->
+
+    <script>
+
+        const loginForm =
+            document.getElementById("loginForm");
+
+        const emailInput =
+            document.getElementById("email");
+
+        const passwordInput =
+            document.getElementById("password");
+
+        const loginButton =
+            document.getElementById("loginButton");
+
+        const errorMsg =
+            document.getElementById("errorMsg");
+
+        const errorText =
+            document.getElementById("errorText");
+
+        const toast =
+            document.getElementById("toast");
+
+        const toastMessage =
+            document.getElementById("toastMessage");
+
+
+        // =========================================
+        // SHOW ERROR
+        // =========================================
+
+        function showError(message) {
+
+            errorText.textContent = message;
+
+            errorMsg.classList.add("show");
+
+            setTimeout(() => {
+
+                errorMsg.classList.remove("show");
+
+            }, 4000);
+        }
+
+
+        // =========================================
+        // SHOW TOAST
+        // =========================================
+
+        function showToast(message) {
+
+            toastMessage.textContent = message;
+
+            toast.classList.add("show");
+
+            setTimeout(() => {
+
+                toast.classList.remove("show");
+
+            }, 2500);
+        }
+
+
+        // =========================================
+        // CHECK CURRENT LOGIN
+        // =========================================
+
+        auth.onAuthStateChanged(async (user) => {
+
+            if (!user) {
+                return;
+            }
 
             try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
 
-                // Check if user is admin
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                const userData = userDoc.data();
+                const userDoc = await db
+                    .collection("users")
+                    .doc(user.uid)
+                    .get();
 
-                if (userData && userData.role === 'admin') {
-                    window.location.href = 'admin-dashboard.html';
+                if (userDoc.exists) {
+
+                    const userData = userDoc.data();
+
+                    if (userData.role === "admin") {
+
+                        window.location.href =
+                            "admin-dashboard.html";
+
+                    } else {
+
+                        window.location.href =
+                            "dashboard.html";
+
+                    }
+
                 } else {
-                    window.location.href = 'dashboard.html';
+
+                    window.location.href =
+                        "dashboard.html";
+
                 }
 
             } catch (error) {
-                errorMsg.classList.add('show');
-                if (error.code === 'auth/user-not-found') {
-                    errorText.textContent = 'No account found with this email';
-                } else if (error.code === 'auth/wrong-password') {
-                    errorText.textContent = 'Incorrect password';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorText.textContent = 'Invalid email format';
-                } else {
-                    errorText.textContent = error.message;
+
+                console.error(
+                    "User check error:",
+                    error
+                );
+
+                window.location.href =
+                    "dashboard.html";
+            }
+
+        });
+
+
+        // =========================================
+        // LOGIN
+        // =========================================
+
+        loginForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+
+                const email =
+                    emailInput.value.trim();
+
+                const password =
+                    passwordInput.value;
+
+
+                if (!email || !password) {
+
+                    showError(
+                        "Please enter your email and password."
+                    );
+
+                    return;
                 }
 
-                setTimeout(() => {
-                    errorMsg.classList.remove('show');
-                }, 3000);
+
+                loginButton.disabled = true;
+
+                loginButton.innerHTML =
+                    '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+
+
+                try {
+
+                    const userCredential =
+                        await auth.signInWithEmailAndPassword(
+                            email,
+                            password
+                        );
+
+
+                    const user =
+                        userCredential.user;
+
+
+                    showToast(
+                        "Login successful!"
+                    );
+
+
+                    // Check Firestore user document
+
+                    const userDoc =
+                        await db
+                            .collection("users")
+                            .doc(user.uid)
+                            .get();
+
+
+                    if (userDoc.exists) {
+
+                        const userData =
+                            userDoc.data();
+
+
+                        if (
+                            userData.role === "admin"
+                        ) {
+
+                            window.location.href =
+                                "admin-dashboard.html";
+
+                        } else {
+
+                            window.location.href =
+                                "dashboard.html";
+
+                        }
+
+                    } else {
+
+                        window.location.href =
+                            "dashboard.html";
+
+                    }
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Login error:",
+                        error
+                    );
+
+
+                    switch (error.code) {
+
+                        case "auth/user-not-found":
+
+                            showError(
+                                "No account found with this email."
+                            );
+
+                            break;
+
+
+                        case "auth/wrong-password":
+
+                            showError(
+                                "Incorrect password."
+                            );
+
+                            break;
+
+
+                        case "auth/invalid-email":
+
+                            showError(
+                                "Please enter a valid email address."
+                            );
+
+                            break;
+
+
+                        case "auth/user-disabled":
+
+                            showError(
+                                "This account has been disabled."
+                            );
+
+                            break;
+
+
+                        case "auth/too-many-requests":
+
+                            showError(
+                                "Too many login attempts. Please try again later."
+                            );
+
+                            break;
+
+
+                        case "auth/invalid-credential":
+
+                            showError(
+                                "Invalid email or password."
+                            );
+
+                            break;
+
+
+                        default:
+
+                            showError(
+                                error.message ||
+                                "Login failed. Please try again."
+                            );
+
+                    }
+
+
+                    loginButton.disabled = false;
+
+                    loginButton.innerHTML =
+                        '<i class="fas fa-sign-in-alt"></i> Login';
+
+                }
+
             }
-        });
+        );
+
     </script>
+
 </body>
 </html>
