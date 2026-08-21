@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Tambola · Online House</title>
+    <title>Tambola House</title>
 
     <!-- Font Awesome -->
     <link
@@ -12,140 +12,300 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     >
 
-    <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap"
-        rel="stylesheet"
-    >
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        }
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css">
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #f5f0eb 0%, #e8e0d8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 35px;
+            padding: 50px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.10);
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 5rem;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: #2d1f14;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #7b6856;
+            font-size: 1.1rem;
+            margin-bottom: 35px;
+        }
+
+        .welcome-box {
+            background: #faf8f6;
+            border: 1px solid #e0d5c8;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .welcome-box h2 {
+            color: #2d1f14;
+            margin-bottom: 8px;
+        }
+
+        .welcome-box p {
+            color: #7b6856;
+            line-height: 1.6;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px 30px;
+            border-radius: 16px;
+            border: none;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            min-width: 180px;
+        }
+
+        .btn-primary {
+            background: #1f7a4b;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #16633b;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #b35e2e;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #8f4a24;
+            transform: translateY(-2px);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 35px;
+        }
+
+        .feature {
+            background: #faf8f6;
+            border: 1px solid #e0d5c8;
+            border-radius: 18px;
+            padding: 20px 10px;
+        }
+
+        .feature i {
+            font-size: 1.8rem;
+            color: #b35e2e;
+            margin-bottom: 10px;
+        }
+
+        .feature h3 {
+            color: #2d1f14;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .feature p {
+            color: #7b6856;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .loading {
+            display: none;
+            color: #7b6856;
+            margin-top: 25px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 4px solid #e5ddd5;
+            border-top-color: #b35e2e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #9a897a;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 650px) {
+
+            .card {
+                padding: 30px 20px;
+                border-radius: 25px;
+            }
+
+            .logo {
+                font-size: 4rem;
+            }
+
+            h1 {
+                font-size: 2.1rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="app" id="app">
+    <div class="container">
 
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
+        <div class="card">
 
-    <div class="flex-between">
+            <!-- LOGO -->
+            <div class="logo">🎱</div>
 
-        <h1>
-            <i class="fas fa-bingo" style="color:#3b82f6;"></i>
-            Tambola · House
-        </h1>
+            <h1>Tambola House</h1>
 
-        <div id="authSection" class="flex">
+            <p class="subtitle">
+                Your online Tambola ticket and draw platform
+            </p>
 
-            <span
-                id="userDisplay"
-                class="badge"
-                style="background:#d1fae5;"
-            >
-                Guest
-            </span>
+            <!-- WELCOME -->
+            <div class="welcome-box">
 
-            <button
-                id="loginBtn"
-                class="btn btn-primary"
-            >
-                <i class="fas fa-sign-in-alt"></i>
-                Login
-            </button>
+                <h2>Welcome!</h2>
 
-            <button
-                id="logoutBtn"
-                class="btn btn-danger hidden"
-            >
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-            </button>
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         LOGIN / REGISTER PAGE
-    ====================================================== -->
-
-    <div id="loginPage" class="page active">
-
-        <div
-            class="card"
-            style="max-width:480px;margin:20px auto;"
-        >
-
-            <h2>
-                <i class="fas fa-lock"></i>
-                Welcome Back
-            </h2>
-
-            <div
-                class="flex"
-                style="margin-top:16px;"
-            >
-
-                <input
-                    type="email"
-                    id="emailInput"
-                    placeholder="Email"
-                    style="flex:1;"
-                >
-
-                <input
-                    type="password"
-                    id="passInput"
-                    placeholder="Password"
-                    style="flex:1;"
-                >
+                <p>
+                    Login to access your dashboard, book tickets,
+                    check draws and manage your Tambola account.
+                </p>
 
             </div>
 
-            <div
-                class="flex"
-                style="margin-top:12px;"
-            >
+            <!-- LOGIN / REGISTER -->
+            <div class="buttons">
 
-                <button
-                    id="signInBtn"
-                    class="btn btn-primary"
-                >
+                <a href="login.html" class="btn btn-primary">
                     <i class="fas fa-sign-in-alt"></i>
-                    Sign in
-                </button>
+                    Login
+                </a>
 
-                <button
-                    id="signUpBtn"
-                    class="btn btn-success"
-                >
+                <a href="register.html" class="btn btn-secondary">
                     <i class="fas fa-user-plus"></i>
-                    Register
-                </button>
+                    Create Account
+                </a>
 
             </div>
 
-            <div
-                id="authMsg"
-                class="mt-2"
-                style="color:#64748b;font-size:0.9rem;"
-            ></div>
+            <!-- FEATURES -->
+            <div class="features">
 
-            <div
-                style="
-                    margin-top:12px;
-                    font-size:0.85rem;
-                    color:#94a3b8;
-                "
-            >
-                <i class="fas fa-info-circle"></i>
+                <div class="feature">
 
-                Use
-                <strong>admin@tambola.com</strong>
-                for admin panel
+                    <i class="fas fa-ticket-alt"></i>
+
+                    <h3>Book Tickets</h3>
+
+                    <p>
+                        Choose and book available Tambola tickets.
+                    </p>
+
+                </div>
+
+                <div class="feature">
+
+                    <i class="fas fa-coins"></i>
+
+                    <h3>Manage Tokens</h3>
+
+                    <p>
+                        Check your token balance and requests.
+                    </p>
+
+                </div>
+
+                <div class="feature">
+
+                    <i class="fas fa-trophy"></i>
+
+                    <h3>Play & Win</h3>
+
+                    <p>
+                        Follow draws and check your results.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- LOGIN CHECK -->
+            <div class="loading" id="loading">
+
+                <div class="spinner"></div>
+
+                <p>
+                    Checking your account...
+                </p>
+
+            </div>
+
+            <div class="footer">
+                © 2026 Tambola House
             </div>
 
         </div>
@@ -154,644 +314,130 @@
 
 
     <!-- =====================================================
-         MAIN APPLICATION
+         FIREBASE SDK
     ====================================================== -->
 
-    <div id="mainApp" class="hidden">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
-        <!-- =================================================
-             NAVIGATION
-        ================================================== -->
-
-        <div class="nav-tabs">
-
-            <button
-                class="nav-tab active"
-                data-page="home"
-            >
-                <i class="fas fa-home"></i>
-                Home
-            </button>
-
-            <button
-                class="nav-tab"
-                data-page="deposit"
-            >
-                <i class="fas fa-coins"></i>
-                Deposit
-            </button>
-
-            <button
-                class="nav-tab"
-                data-page="booking"
-            >
-                <i class="fas fa-ticket-alt"></i>
-                Booking
-            </button>
-
-            <button
-                class="nav-tab"
-                data-page="mybooked"
-            >
-                <i class="fas fa-bookmark"></i>
-                My Booked
-            </button>
-
-            <button
-                class="nav-tab"
-                data-page="draws"
-            >
-                <i class="fas fa-list-ul"></i>
-                Draws
-            </button>
-
-            <button
-                class="nav-tab"
-                data-page="tokens"
-            >
-                <i class="fas fa-key"></i>
-                Tokens
-            </button>
-
-            <button
-                class="nav-tab"
-                data-page="admin"
-                id="adminTabBtn"
-                style="display:none;"
-            >
-                <i class="fas fa-user-shield"></i>
-                Admin
-            </button>
-
-        </div>
-
-
-        <!-- =================================================
-             HOME
-        ================================================== -->
-
-        <div
-            id="page-home"
-            class="page active"
-        >
-
-            <div class="balance-box">
-
-                <div>
-
-                    <div
-                        style="
-                            opacity:0.7;
-                            font-size:0.9rem;
-                        "
-                    >
-                        💰 Balance
-                    </div>
-
-                    <div
-                        class="amount"
-                        id="userBalance"
-                    >
-                        ₹ 0.00
-                    </div>
-
-                </div>
-
-                <div class="flex">
-
-                    <span class="token-badge">
-
-                        <i class="fas fa-ticket-alt"></i>
-
-                        Tokens:
-
-                        <span id="tokenBalance">
-                            0
-                        </span>
-
-                    </span>
-
-                    <button
-                        id="quickDepositBtn"
-                        class="btn btn-success"
-                    >
-                        <i class="fas fa-plus"></i>
-                        Add Funds
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <!-- Ongoing Draws -->
-
-            <div class="card">
-
-                <h3>
-                    📢 Ongoing Draws
-                </h3>
-
-                <div id="ongoingDrawsList">
-
-                    <p style="color:#94a3b8;">
-                        No active draws
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <!-- Tickets -->
-
-            <div class="card">
-
-                <div class="flex-between">
-
-                    <h3>
-                        🎫 My Tickets (300 permanent)
-                    </h3>
-
-                    <div>
-
-                        <button
-                            id="autoMarkBtn"
-                            class="btn btn-primary"
-                        >
-                            <i class="fas fa-magic"></i>
-                            Auto
-                        </button>
-
-                        <button
-                            id="manualMarkBtn"
-                            class="btn btn-outline"
-                        >
-                            <i class="fas fa-pen"></i>
-                            Manual
-                        </button>
-
-                        <span
-                            id="modeIndicator"
-                            class="badge"
-                        >
-                            Manual
-                        </span>
-
-                    </div>
-
-                </div>
-
-                <div
-                    id="ticketContainer"
-                    style="
-                        max-height:420px;
-                        overflow-y:auto;
-                        margin-top:12px;
-                    "
-                >
-
-                    <p style="color:#94a3b8;">
-                        Loading tickets...
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             DEPOSIT
-        ================================================== -->
-
-        <div
-            id="page-deposit"
-            class="page"
-        >
-
-            <h2>
-                <i class="fas fa-coins"></i>
-                Deposit Request
-            </h2>
-
-            <div class="card">
-
-                <p>
-                    <strong>UPI:</strong>
-                    tambola@upi
-                    (simulated)
-                </p>
-
-                <div class="deposit-row">
-
-                    <input
-                        type="number"
-                        id="depositAmount"
-                        placeholder="Amount (₹)"
-                        value="500"
-                        style="width:160px;"
-                    >
-
-                    <button
-                        id="requestDepositBtn"
-                        class="btn btn-success"
-                    >
-                        <i class="fas fa-paper-plane"></i>
-                        Request Deposit
-                    </button>
-
-                </div>
-
-                <div
-                    id="depositMsg"
-                    class="mt-2"
-                    style="color:#64748b;"
-                ></div>
-
-                <hr
-                    style="
-                        margin:16px 0;
-                        border-color:#e9edf2;
-                    "
-                >
-
-                <h4>
-                    Recent Requests
-                </h4>
-
-                <div id="depositHistory">
-
-                    <p style="color:#94a3b8;">
-                        No requests yet
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             BOOKING
-        ================================================== -->
-
-        <div
-            id="page-booking"
-            class="page"
-        >
-
-            <h2>
-                <i class="fas fa-ticket-alt"></i>
-                Book Tickets
-            </h2>
-
-            <div class="card">
-
-                <p>
-                    Select a draw and number of tickets to book.
-                </p>
-
-                <div class="flex">
-
-                    <select id="bookingDrawSelect">
-
-                        <option value="">
-                            -- select draw --
-                        </option>
-
-                    </select>
-
-                    <input
-                        type="number"
-                        id="bookingQty"
-                        value="1"
-                        min="1"
-                        max="10"
-                        style="width:80px;"
-                    >
-
-                    <button
-                        id="bookTicketsBtn"
-                        class="btn btn-primary"
-                    >
-                        <i class="fas fa-check"></i>
-                        Book
-                    </button>
-
-                </div>
-
-                <div
-                    id="bookingMsg"
-                    class="mt-2"
-                    style="color:#64748b;"
-                ></div>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             MY BOOKED
-        ================================================== -->
-
-        <div
-            id="page-mybooked"
-            class="page"
-        >
-
-            <h2>
-                <i class="fas fa-bookmark"></i>
-                My Booked Tickets
-            </h2>
-
-            <div
-                id="myBookedList"
-                class="card"
-            >
-
-                <p style="color:#94a3b8;">
-                    No bookings yet.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             DRAWS
-        ================================================== -->
-
-        <div
-            id="page-draws"
-            class="page"
-        >
-
-            <h2>
-                <i class="fas fa-list-ul"></i>
-                All Draws
-            </h2>
-
-            <div
-                id="allDrawsList"
-                class="card"
-            >
-
-                <p style="color:#94a3b8;">
-                    Loading draws...
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             TOKENS
-        ================================================== -->
-
-        <div
-            id="page-tokens"
-            class="page"
-        >
-
-            <h2>
-                <i class="fas fa-key"></i>
-                Token Balance & Requests
-            </h2>
-
-            <div class="card">
-
-                <div class="flex-between">
-
-                    <span>
-
-                        <strong>
-                            Your Tokens:
-                        </strong>
-
-                        <span id="tokenPageBalance">
-                            0
-                        </span>
-
-                    </span>
-
-                    <button
-                        id="requestTokenBtn"
-                        class="btn btn-primary"
-                    >
-                        <i class="fas fa-plus"></i>
-                        Request Token
-                    </button>
-
-                </div>
-
-                <div class="mt-2">
-
-                    <input
-                        type="text"
-                        id="tokenRequestInput"
-                        placeholder="Token code or request"
-                        style="width:200px;"
-                    >
-
-                    <button
-                        id="submitTokenRequestBtn"
-                        class="btn btn-success"
-                    >
-                        Submit
-                    </button>
-
-                </div>
-
-                <hr
-                    style="
-                        margin:16px 0;
-                        border-color:#e9edf2;
-                    "
-                >
-
-                <h4>
-                    Token History
-                </h4>
-
-                <div id="tokenHistory">
-
-                    <p style="color:#94a3b8;">
-                        No token activity
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             ADMIN
-        ================================================== -->
-
-        <div
-            id="page-admin"
-            class="page"
-        >
-
-            <div class="admin-section">
-
-                <h2>
-                    <i class="fas fa-user-shield"></i>
-                    Admin Panel
-                </h2>
-
-                <div class="flex">
-
-                    <button
-                        id="scheduleDrawBtn"
-                        class="btn btn-primary"
-                    >
-                        <i class="fas fa-calendar-plus"></i>
-                        Schedule Draw
-                    </button>
-
-                    <button
-                        id="resetTicketsBtn"
-                        class="btn btn-danger"
-                    >
-                        <i class="fas fa-sync-alt"></i>
-                        Reset 300 tickets
-                    </button>
-
-                    <span
-                        class="badge"
-                        id="drawStatus"
-                    >
-                        No draw
-                    </span>
-
-                </div>
-
-                <div class="flex mt-2">
-
-                    <input
-                        type="text"
-                        id="adminTokenInput"
-                        placeholder="Approve token request"
-                    >
-
-                    <button
-                        id="adminApproveTokenBtn"
-                        class="btn btn-success"
-                    >
-                        <i class="fas fa-check"></i>
-                        Approve
-                    </button>
-
-                </div>
-
-                <div class="mt-2">
-
-                    <small>
-                        💰 UPI: tambola@upi (simulated)
-                    </small>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 
     <!-- =====================================================
-         FOOTER
+         FIREBASE CONFIGURATION
     ====================================================== -->
 
-    <div
-        style="
-            margin-top:20px;
-            font-size:0.75rem;
-            color:#94a3b8;
-            text-align:center;
-        "
-    >
-        ⚡ Auto-delete draw after 5 days · All data in Firestore
-    </div>
+    <script>
 
-</div>
+        const firebaseConfig = {
 
+            apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
 
-<!-- =========================================================
-     FIREBASE SDKs
-========================================================== -->
+            authDomain: "tambola-house-3dc56.firebaseapp.com",
 
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+            projectId: "tambola-house-3dc56",
 
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+            storageBucket: "tambola-house-3dc56.firebasestorage.app",
 
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+            messagingSenderId: "267918174188",
+
+            appId: "1:267918174188:web:ec27684544c286c044c2c9"
+
+        };
 
 
-<!-- =========================================================
-     FIREBASE CONFIGURATION
-========================================================== -->
-
-<script>
-
-    const firebaseConfig = {
-
-        apiKey:
-            "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-
-        authDomain:
-            "tambola-house-3dc56.firebaseapp.com",
-
-        projectId:
-            "tambola-house-3dc56",
-
-        storageBucket:
-            "tambola-house-3dc56.firebasestorage.app",
-
-        messagingSenderId:
-            "267918174188",
-
-        appId:
-            "1:267918174188:web:ec27684544c286c044c2c9"
-
-    };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
 
 
-    // Initialize Firebase
-
-    firebase.initializeApp(firebaseConfig);
-
-
-    // Firebase Authentication
-
-    const auth = firebase.auth();
+        // Firebase Authentication
+        const auth = firebase.auth();
 
 
-    // Firestore Database
-
-    const db = firebase.firestore();
-
-</script>
+        // Firestore Database
+        const db = firebase.firestore();
 
 
-<!-- =========================================================
-     APPLICATION JAVASCRIPT
-========================================================== -->
+        const loading =
+            document.getElementById("loading");
 
-<script src="auth.js"></script>
 
-<script src="app.js"></script>
+        // =====================================================
+        // CHECK CURRENT LOGIN
+        // =====================================================
 
+        auth.onAuthStateChanged(async (user) => {
+
+            if (!user) {
+
+                loading.classList.remove("show");
+
+                return;
+            }
+
+
+            // User is already logged in
+            loading.classList.add("show");
+
+
+            try {
+
+                const userDoc =
+                    await db
+                        .collection("users")
+                        .doc(user.uid)
+                        .get();
+
+
+                if (userDoc.exists) {
+
+                    const userData =
+                        userDoc.data();
+
+
+                    // ADMIN
+                    if (userData.role === "admin") {
+
+                        window.location.href =
+                            "admin-dashboard.html";
+
+                        return;
+                    }
+
+
+                    // NORMAL USER
+                    window.location.href =
+                        "dashboard.html";
+
+                } else {
+
+                    // User exists in Firebase Authentication
+                    // but Firestore profile is missing.
+
+                    window.location.href =
+                        "dashboard.html";
+                }
+
+
+            } catch (error) {
+
+                console.error(
+                    "Firebase user check error:",
+                    error
+                );
+
+                // If Firestore has an error,
+                // still send the logged-in user
+                // to the dashboard.
+
+                window.location.href =
+                    "dashboard.html";
+            }
+
+        });
+
+    </script>
 
 </body>
 </html>
