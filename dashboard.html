@@ -7,8 +7,10 @@
     <title>Dashboard - Tambola House</title>
 
     <!-- Font Awesome -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    >
 
     <style>
         * {
@@ -29,7 +31,7 @@
             margin: 0 auto;
         }
 
-        /* ================= HEADER ================= */
+        /* HEADER */
 
         .header {
             display: flex;
@@ -39,14 +41,8 @@
             padding: 20px 30px;
             background: white;
             border-radius: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
             flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
             gap: 15px;
         }
 
@@ -62,13 +58,13 @@
         .user-info {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
         }
 
         .user-badge {
             background: #f0ebe6;
-            padding: 8px 20px;
+            padding: 8px 18px;
             border-radius: 60px;
             font-weight: 600;
             color: #2d1f14;
@@ -80,7 +76,7 @@
         .tokens-badge {
             background: #1f7a4b;
             color: white;
-            padding: 8px 24px;
+            padding: 8px 20px;
             border-radius: 60px;
             font-weight: 600;
             display: flex;
@@ -96,21 +92,17 @@
             border-radius: 60px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .logout-btn:hover {
             background: #942f2f;
         }
 
-        /* ================= STATS ================= */
+        /* STATS */
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             margin-bottom: 30px;
         }
@@ -120,7 +112,7 @@
             padding: 25px;
             border-radius: 20px;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
             border: 1px solid #e0d5c8;
         }
 
@@ -141,11 +133,11 @@
             font-size: 0.9rem;
         }
 
-        /* ================= ACTIONS ================= */
+        /* ACTIONS */
 
         .actions-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             margin-bottom: 30px;
         }
@@ -158,14 +150,13 @@
             text-decoration: none;
             color: #2d1f14;
             border: 2px solid transparent;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            transition: 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         }
 
         .action-card:hover {
             border-color: #b35e2e;
             transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
         }
 
         .action-card i {
@@ -184,17 +175,17 @@
             font-size: 0.9rem;
         }
 
-        .action-card .badge {
+        .badge {
             display: inline-block;
             background: #b13e3e;
             color: white;
-            padding: 2px 10px;
+            padding: 3px 10px;
             border-radius: 20px;
             font-size: 0.7rem;
-            margin-top: 5px;
+            margin-top: 8px;
         }
 
-        /* ================= SECTION ================= */
+        /* SECTION */
 
         .section-title {
             font-size: 1.3rem;
@@ -207,43 +198,23 @@
             padding-left: 15px;
         }
 
-        /* ================= TICKETS ================= */
+        /* TICKETS */
 
         .ticket-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
-            max-height: 500px;
+            max-height: 550px;
             overflow-y: auto;
             padding: 5px;
-        }
-
-        .ticket-grid::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .ticket-grid::-webkit-scrollbar-track {
-            background: #f0ebe6;
-            border-radius: 10px;
-        }
-
-        .ticket-grid::-webkit-scrollbar-thumb {
-            background: #b35e2e;
-            border-radius: 10px;
         }
 
         .ticket-card {
             background: white;
             border-radius: 16px;
             padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
             border: 1px solid #e0d5c8;
-            transition: all 0.3s ease;
-        }
-
-        .ticket-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
 
         .ticket-id {
@@ -254,57 +225,84 @@
 
         .ticket-status {
             display: inline-block;
-            padding: 3px 12px;
+            padding: 4px 12px;
             border-radius: 12px;
             font-size: 0.75rem;
             font-weight: 600;
-            margin-top: 5px;
+            margin-top: 8px;
         }
 
-        .ticket-status.available {
+        .available {
             background: #d4edc9;
             color: #1f5a3b;
         }
 
-        .ticket-status.booked {
+        .booked {
             background: #f8d7da;
             color: #721c24;
         }
 
-        .ticket-status.your {
+        .your {
             background: #cce5ff;
             color: #004085;
         }
 
-        /* ================= LOADING ================= */
+        .ticket-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .preview-btn,
+        .book-btn {
+            flex: 1;
+            padding: 9px;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .preview-btn {
+            background: #b35e2e;
+        }
+
+        .book-btn {
+            background: #1f7a4b;
+        }
+
+        .book-btn:disabled {
+            background: #777;
+            cursor: not-allowed;
+        }
+
+        /* LOADING */
 
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 50px;
             color: #7b6856;
+            grid-column: 1 / -1;
         }
 
-        .loading .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #b35e2e;
-            border-radius: 50%;
+        .spinner {
             width: 40px;
             height: 40px;
+            border: 4px solid #eee;
+            border-top-color: #b35e2e;
+            border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 15px;
         }
 
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
+            to {
                 transform: rotate(360deg);
             }
         }
 
-        /* ================= TOAST ================= */
+        /* TOAST */
 
         .toast {
             position: fixed;
@@ -313,53 +311,56 @@
             transform: translateX(-50%);
             padding: 12px 30px;
             border-radius: 50px;
+            color: white;
             font-weight: 500;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            z-index: 2000;
             display: none;
-            align-items: center;
-            gap: 10px;
+            z-index: 9999;
         }
 
         .toast.show {
             display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .toast.success {
             background: #1f7a4b;
-            color: white;
         }
 
         .toast.error {
             background: #b13e3e;
-            color: white;
         }
 
         .toast.info {
             background: #2d1f14;
-            color: white;
         }
 
-        /* ================= MOBILE ================= */
+        /* MOBILE */
 
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .actions-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
 
             body {
                 padding: 10px;
             }
 
             .header {
+                padding: 20px;
                 flex-direction: column;
-                align-items: stretch;
-                padding: 15px 20px;
             }
 
             .header-left {
-                justify-content: center;
-            }
-
-            .header-left h1 {
-                font-size: 1.5rem;
+                text-align: center;
             }
 
             .user-info {
@@ -387,24 +388,6 @@
                 grid-template-columns: 1fr;
             }
         }
-
-        @media (max-width: 400px) {
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .user-info {
-                flex-direction: column;
-            }
-
-            .user-badge,
-            .tokens-badge,
-            .logout-btn {
-                width: 100%;
-                justify-content: center;
-            }
-        }
     </style>
 </head>
 
@@ -412,15 +395,17 @@
 
 <div class="container">
 
-    <!-- ================= HEADER ================= -->
+    <!-- HEADER -->
 
     <div class="header">
 
         <div class="header-left">
+
             <h1>
                 <i class="fas fa-ticket-alt"></i>
                 Tambola House
             </h1>
+
         </div>
 
         <div class="user-info">
@@ -431,14 +416,23 @@
             </span>
 
             <span class="tokens-badge">
+
                 <i class="fas fa-coins"></i>
-                <span id="tokenCount">0</span>
+
+                <span id="tokenCount">
+                    0
+                </span>
+
                 Tokens
+
             </span>
 
             <button class="logout-btn" onclick="logout()">
+
                 <i class="fas fa-sign-out-alt"></i>
+
                 Logout
+
             </button>
 
         </div>
@@ -446,83 +440,163 @@
     </div>
 
 
-    <!-- ================= STATS ================= -->
+    <!-- STATISTICS -->
 
     <div class="stats-grid">
 
         <div class="stat-card">
+
             <i class="fas fa-ticket-alt"></i>
-            <div class="number" id="totalTickets">0</div>
-            <div class="label">Total Tickets</div>
+
+            <div class="number" id="totalTickets">
+                0
+            </div>
+
+            <div class="label">
+                Total Tickets
+            </div>
+
         </div>
 
+
         <div class="stat-card">
+
             <i class="fas fa-check-circle"></i>
-            <div class="number" id="availableTickets">0</div>
-            <div class="label">Available</div>
+
+            <div class="number" id="availableTickets">
+                0
+            </div>
+
+            <div class="label">
+                Available
+            </div>
+
         </div>
 
+
         <div class="stat-card">
+
             <i class="fas fa-bookmark"></i>
-            <div class="number" id="myTickets">0</div>
-            <div class="label">My Tickets</div>
+
+            <div class="number" id="myTickets">
+                0
+            </div>
+
+            <div class="label">
+                My Tickets
+            </div>
+
         </div>
 
+
         <div class="stat-card">
+
             <i class="fas fa-trophy"></i>
-            <div class="number" id="winsCount">0</div>
-            <div class="label">Wins</div>
+
+            <div class="number" id="winsCount">
+                0
+            </div>
+
+            <div class="label">
+                Wins
+            </div>
+
         </div>
 
     </div>
 
 
-    <!-- ================= ACTIONS ================= -->
+    <!-- ACTIONS -->
 
     <div class="actions-grid">
 
         <a href="book-tickets.html" class="action-card">
+
             <i class="fas fa-ticket-alt"></i>
-            <h3>Book Tickets</h3>
-            <p>Buy tickets for current draw</p>
+
+            <h3>
+                Book Tickets
+            </h3>
+
+            <p>
+                Buy tickets for current draw
+            </p>
+
         </a>
 
+
         <a href="deposit-request.html" class="action-card">
+
             <i class="fas fa-coins"></i>
-            <h3>Request Deposit</h3>
-            <p>Request token deposit</p>
+
+            <h3>
+                Request Deposit
+            </h3>
+
+            <p>
+                Request token deposit
+            </p>
+
             <span class="badge" id="pendingDeposits">
                 0 Pending
             </span>
+
         </a>
+
 
         <a href="my-tickets.html" class="action-card">
+
             <i class="fas fa-list"></i>
-            <h3>My Tickets</h3>
-            <p>View all your purchased tickets</p>
+
+            <h3>
+                My Tickets
+            </h3>
+
+            <p>
+                View your tickets
+            </p>
+
         </a>
+
 
         <a href="draw-schedule.html" class="action-card">
+
             <i class="fas fa-calendar-alt"></i>
-            <h3>Draw Schedule</h3>
-            <p>View upcoming draws</p>
+
+            <h3>
+                Draw Schedule
+            </h3>
+
+            <p>
+                View upcoming draws
+            </p>
+
         </a>
 
     </div>
 
 
-    <!-- ================= CURRENT DRAW ================= -->
+    <!-- CURRENT DRAW -->
 
     <div class="section-title">
+
         <i class="fas fa-play-circle"></i>
+
         Current Draw Tickets
+
     </div>
+
 
     <div class="ticket-grid" id="ticketGrid">
 
         <div class="loading">
+
             <div class="spinner"></div>
-            <p>Loading tickets...</p>
+
+            <p>
+                Loading tickets...
+            </p>
+
         </div>
 
     </div>
@@ -530,20 +604,22 @@
 </div>
 
 
-<!-- ================= TOAST ================= -->
+<!-- TOAST -->
 
 <div class="toast" id="toast">
 
-    <i class="fas fa-check-circle" id="toastIcon"></i>
+    <i id="toastIcon" class="fas fa-info-circle"></i>
 
     <span id="toastMessage">
-        Success!
+        Message
     </span>
 
 </div>
 
 
-<!-- ================= FIREBASE ================= -->
+<!-- =====================================================
+     FIREBASE
+===================================================== -->
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 
@@ -554,12 +630,9 @@
 
 <script>
 
-    /*
-    =====================================================
-    FIREBASE CONFIGURATION
-    SAME PROJECT AS LOGIN.HTML AND REGISTER.HTML
-    =====================================================
-    */
+    /* =====================================================
+       FIREBASE CONFIGURATION
+    ===================================================== */
 
     const firebaseConfig = {
 
@@ -578,24 +651,13 @@
     };
 
 
-    /*
-    =====================================================
-    INITIALIZE FIREBASE
-    =====================================================
-    */
-
     firebase.initializeApp(firebaseConfig);
+
 
     const auth = firebase.auth();
 
     const db = firebase.firestore();
 
-
-    /*
-    =====================================================
-    GLOBAL VARIABLES
-    =====================================================
-    */
 
     let currentUser = null;
 
@@ -604,35 +666,33 @@
     let allTickets = [];
 
 
-    /*
-    =====================================================
-    TOAST
-    =====================================================
-    */
+    /* =====================================================
+       TOAST
+    ===================================================== */
 
     function showToast(message, type = "info") {
 
         const toast =
             document.getElementById("toast");
 
-        const toastMessage =
+        const messageElement =
             document.getElementById("toastMessage");
 
-        const toastIcon =
+        const icon =
             document.getElementById("toastIcon");
 
 
-        toastMessage.textContent = message;
+        messageElement.textContent = message;
 
 
-        toast.className = "toast";
+        toast.className = "toast show";
 
 
         if (type === "success") {
 
             toast.classList.add("success");
 
-            toastIcon.className =
+            icon.className =
                 "fas fa-check-circle";
 
         }
@@ -641,7 +701,7 @@
 
             toast.classList.add("error");
 
-            toastIcon.className =
+            icon.className =
                 "fas fa-exclamation-circle";
 
         }
@@ -650,50 +710,35 @@
 
             toast.classList.add("info");
 
-            toastIcon.className =
+            icon.className =
                 "fas fa-info-circle";
-
         }
 
 
-        toast.classList.add("show");
-
-
-        clearTimeout(toast._timeout);
-
-
-        toast._timeout = setTimeout(() => {
+        setTimeout(() => {
 
             toast.classList.remove("show");
 
         }, 3000);
-
     }
 
 
-    /*
-    =====================================================
-    LOGOUT
-    =====================================================
-    */
+    /* =====================================================
+       LOGOUT
+    ===================================================== */
 
     function logout() {
 
         auth.signOut()
-
             .then(() => {
 
                 window.location.href =
                     "login.html";
 
             })
-
             .catch((error) => {
 
-                console.error(
-                    "Logout error:",
-                    error
-                );
+                console.error(error);
 
                 showToast(
                     "Logout failed",
@@ -701,15 +746,12 @@
                 );
 
             });
-
     }
 
 
-    /*
-    =====================================================
-    AUTH STATE
-    =====================================================
-    */
+    /* =====================================================
+       AUTHENTICATION CHECK
+    ===================================================== */
 
     auth.onAuthStateChanged(async (user) => {
 
@@ -719,31 +761,23 @@
                 "login.html";
 
             return;
-
         }
 
 
         currentUser = user;
 
 
-        console.log(
-            "Logged in user:",
-            user.email
-        );
-
-
         await loadUserData();
+
 
         loadTickets();
 
     });
 
 
-    /*
-    =====================================================
-    LOAD USER DATA
-    =====================================================
-    */
+    /* =====================================================
+       LOAD USER DATA
+    ===================================================== */
 
     async function loadUserData() {
 
@@ -754,195 +788,113 @@
                   .doc(currentUser.uid);
 
 
-            const doc =
+            const userDoc =
                 await userRef.get();
 
 
-            if (doc.exists) {
+            if (!userDoc.exists) {
 
-                userData =
-                    doc.data();
+                showToast(
+                    "User profile not found",
+                    "error"
+                );
 
-
-                /*
-                USER NAME
-                */
-
-                const name =
-                    userData.fullName ||
-                    userData.email ||
-                    currentUser.email;
+                return;
+            }
 
 
-                document.getElementById(
-                    "userName"
-                ).innerHTML =
-
-                    `<i class="fas fa-user"></i> ${name}`;
+            userData =
+                userDoc.data();
 
 
-                /*
-                TOKENS
-                */
-
-                const tokens =
-                    Number(userData.tokens || 0);
+            const name =
+                userData.fullName ||
+                currentUser.displayName ||
+                currentUser.email;
 
 
-                document.getElementById(
-                    "tokenCount"
-                ).textContent = tokens;
+            document.getElementById("userName")
+                .innerHTML =
+                `<i class="fas fa-user"></i> ${name}`;
 
 
-                /*
-                PENDING DEPOSITS
-                */
+            const tokens =
+                Number(userData.tokens || 0);
 
-                const deposits =
-                    Array.isArray(
-                        userData.depositRequests
-                    )
+
+            document.getElementById("tokenCount")
+                .textContent = tokens;
+
+
+            /* Pending deposits */
+
+            const deposits =
+                Array.isArray(
+                    userData.depositRequests
+                )
                     ? userData.depositRequests
                     : [];
 
 
-                const pending =
-                    deposits.filter(
-                        deposit =>
-                            deposit &&
-                            deposit.status === "pending"
-                    ).length;
+            const pending =
+                deposits.filter(
+                    item =>
+                        item.status === "pending"
+                ).length;
 
 
-                document.getElementById(
-                    "pendingDeposits"
-                ).textContent =
-                    pending + " Pending";
+            document.getElementById(
+                "pendingDeposits"
+            ).textContent =
+                pending + " Pending";
 
 
-                /*
-                INITIAL WINS
-                */
+            /* Wins */
 
-                document.getElementById(
-                    "winsCount"
-                ).textContent =
-                    Number(userData.wins || 0);
-
-            }
-
-            else {
-
-                /*
-                If user document does not exist,
-                create a basic one.
-                */
-
-                userData = {
-
-                    uid: currentUser.uid,
-
-                    email: currentUser.email,
-
-                    fullName:
-                        currentUser.displayName ||
-                        currentUser.email,
-
-                    tokens: 0,
-
-                    wins: 0,
-
-                    role: "user",
-
-                    status: "active"
-
-                };
+            document.getElementById(
+                "winsCount"
+            ).textContent =
+                Number(userData.wins || 0);
 
 
-                await userRef.set({
-
-                    ...userData,
-
-                    createdAt:
-                        firebase.firestore.FieldValue
-                            .serverTimestamp()
-
-                });
-
-
-                document.getElementById(
-                    "userName"
-                ).innerHTML =
-
-                    `<i class="fas fa-user"></i> ${
-                        userData.fullName
-                    }`;
-
-            }
-
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
-                "Error loading user data:",
+                "Error loading user:",
                 error
             );
 
             showToast(
-                "Unable to load your account data",
+                "Could not load your account",
                 "error"
             );
-
         }
-
     }
 
 
-    /*
-    =====================================================
-    CURRENT DRAW ID
-    =====================================================
-    */
+    /* =====================================================
+       CURRENT DRAW ID
+    ===================================================== */
 
     function getCurrentDrawId() {
-
-        /*
-        This must match the drawId field
-        stored in your Firestore tickets.
-        */
 
         return "draw_001";
 
     }
 
 
-    /*
-    =====================================================
-    LOAD TICKETS
-    =====================================================
-    */
+    /* =====================================================
+       LOAD TICKETS
+    ===================================================== */
 
     function loadTickets() {
 
-        const drawId =
-            getCurrentDrawId();
-
-
-        console.log(
-            "Loading tickets for:",
-            drawId
-        );
-
-
         db.collection("tickets")
-
             .where(
                 "drawId",
                 "==",
-                drawId
+                getCurrentDrawId()
             )
-
             .onSnapshot(
 
                 (snapshot) => {
@@ -952,36 +904,15 @@
 
                     snapshot.forEach((doc) => {
 
-                        const data =
-                            doc.data();
-
-
                         allTickets.push({
 
                             id: doc.id,
 
-                            ...data
+                            ...doc.data()
 
                         });
 
                     });
-
-
-                    /*
-                    Sort tickets by ID
-                    */
-
-                    allTickets.sort(
-                        (a, b) =>
-                            String(a.id)
-                                .localeCompare(
-                                    String(b.id),
-                                    undefined,
-                                    {
-                                        numeric: true
-                                    }
-                                )
-                    );
 
 
                     updateStats();
@@ -993,29 +924,45 @@
                 (error) => {
 
                     console.error(
-                        "Error loading tickets:",
+                        "Ticket error:",
                         error
                     );
 
 
-                    showToast(
-                        "Error loading tickets: " +
-                        error.message,
-                        "error"
-                    );
+                    /*
+                       If tickets collection does not
+                       exist yet, show empty state.
+                    */
+
+                    document.getElementById(
+                        "ticketGrid"
+                    ).innerHTML = `
+
+                        <div class="loading">
+
+                            <p>
+                                🎫 No tickets available yet.
+                            </p>
+
+                            <p style="margin-top:8px;">
+                                Tickets will appear when the admin
+                                creates a draw.
+                            </p>
+
+                        </div>
+
+                    `;
+
+                    updateStats();
 
                 }
-
             );
-
     }
 
 
-    /*
-    =====================================================
-    UPDATE STATISTICS
-    =====================================================
-    */
+    /* =====================================================
+       UPDATE STATISTICS
+    ===================================================== */
 
     function updateStats() {
 
@@ -1026,11 +973,10 @@
             ).length;
 
 
-        const myTickets =
+        const mine =
             allTickets.filter(
                 ticket =>
-                    ticket.ownerId ===
-                    currentUser?.uid
+                    ticket.ownerId === currentUser.uid
             ).length;
 
 
@@ -1049,22 +995,19 @@
         document.getElementById(
             "myTickets"
         ).textContent =
-            myTickets;
+            mine;
 
 
         document.getElementById(
             "winsCount"
         ).textContent =
             Number(userData?.wins || 0);
-
     }
 
 
-    /*
-    =====================================================
-    RENDER TICKETS
-    =====================================================
-    */
+    /* =====================================================
+       RENDER TICKETS
+    ===================================================== */
 
     function renderTickets() {
 
@@ -1081,21 +1024,14 @@
 
             grid.innerHTML = `
 
-                <div
-                    class="loading"
-                    style="grid-column:1/-1;"
-                >
+                <div class="loading">
 
                     <p style="font-size:1.2rem;">
                         🎫 No tickets available
-                        for current draw
                     </p>
 
-                    <p style="
-                        color:#7b6856;
-                        margin-top:5px;
-                    ">
-                        Check back later or contact admin.
+                    <p style="margin-top:8px;">
+                        Check back when a draw is created.
                     </p>
 
                 </div>
@@ -1103,259 +1039,140 @@
             `;
 
             return;
-
         }
 
-
-        /*
-        Show first 20 tickets
-        */
 
         const displayTickets =
             allTickets.slice(0, 20);
 
 
-        displayTickets.forEach(
-            (ticket) => {
+        displayTickets.forEach((ticket) => {
 
-                const isBooked =
-                    ticket.status === "booked" ||
-                    ticket.status === "sold";
-
-
-                const isOwned =
-                    isBooked &&
-                    ticket.ownerId ===
-                    currentUser?.uid;
+            const isBooked =
+                ticket.status === "booked" ||
+                ticket.status === "sold";
 
 
-                let statusText =
-                    "Available";
+            const isOwned =
+                isBooked &&
+                ticket.ownerId === currentUser.uid;
 
 
-                let statusClass =
-                    "available";
+            let statusText =
+                "Available";
 
 
-                if (isBooked) {
-
-                    if (isOwned) {
-
-                        statusText =
-                            "Your Ticket ✓";
-
-                        statusClass =
-                            "your";
-
-                    }
-
-                    else {
-
-                        statusText =
-                            "Booked";
-
-                        statusClass =
-                            "booked";
-
-                    }
-
-                }
+            let statusClass =
+                "available";
 
 
-                const price =
-                    Number(ticket.price || 10);
+            if (isOwned) {
 
+                statusText =
+                    "Your Ticket ✓";
 
-                const card =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                card.className =
-                    "ticket-card";
-
-
-                card.innerHTML = `
-
-                    <div style="
-                        display:flex;
-                        justify-content:space-between;
-                        align-items:center;
-                    ">
-
-                        <span class="ticket-id">
-                            ${escapeHtml(ticket.id)}
-                        </span>
-
-                        <span style="
-                            background:#f0ebe6;
-                            padding:4px 12px;
-                            border-radius:20px;
-                            font-weight:600;
-                            font-size:0.9rem;
-                            color:#b35e2e;
-                        ">
-                            ${price} Tokens
-                        </span>
-
-                    </div>
-
-
-                    <span class="
-                        ticket-status
-                        ${statusClass}
-                    ">
-                        ${statusText}
-                    </span>
-
-
-                    <div style="
-                        margin-top:12px;
-                        display:flex;
-                        gap:8px;
-                    ">
-
-                        <button
-                            style="
-                                flex:1;
-                                padding:8px;
-                                background:#b35e2e;
-                                color:white;
-                                border:none;
-                                border-radius:12px;
-                                cursor:pointer;
-                                font-weight:600;
-                            "
-                            onclick="
-                                previewTicket('${escapeJs(ticket.id)}')
-                            "
-                        >
-                            <i class="fas fa-eye"></i>
-                            Preview
-                        </button>
-
-
-                        <button
-                            style="
-                                flex:1;
-                                padding:8px;
-                                background:${isBooked ? "#4a7b62" : "#1f7a4b"};
-                                color:white;
-                                border:none;
-                                border-radius:12px;
-                                cursor:${isBooked ? "not-allowed" : "pointer"};
-                                font-weight:600;
-                            "
-                            onclick="
-                                bookTicket('${escapeJs(ticket.id)}')
-                            "
-                            ${isBooked ? "disabled" : ""}
-                        >
-
-                            <i class="fas fa-shopping-cart"></i>
-
-                            ${
-                                isBooked
-                                ? "Booked"
-                                : "Book"
-                            }
-
-                        </button>
-
-                    </div>
-
-                `;
-
-
-                grid.appendChild(card);
+                statusClass =
+                    "your";
 
             }
-        );
+
+            else if (isBooked) {
+
+                statusText =
+                    "Booked";
+
+                statusClass =
+                    "booked";
+            }
 
 
-        if (allTickets.length > 20) {
+            const price =
+                Number(ticket.price || 10);
 
-            const more =
+
+            const card =
                 document.createElement("div");
 
 
-            more.style.cssText =
-                `
-                grid-column:1/-1;
-                text-align:center;
-                padding:20px;
-                color:#7b6856;
-                `;
+            card.className =
+                "ticket-card";
 
 
-            more.innerHTML = `
+            card.innerHTML = `
 
-                <i class="fas fa-ellipsis-h"></i>
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                ">
 
-                ${allTickets.length - 20}
-                more tickets available
+                    <span class="ticket-id">
+                        ${ticket.id}
+                    </span>
+
+                    <span style="
+                        background:#f0ebe6;
+                        padding:4px 12px;
+                        border-radius:20px;
+                        font-weight:600;
+                        font-size:0.9rem;
+                        color:#b35e2e;
+                    ">
+                        ${price} Tokens
+                    </span>
+
+                </div>
+
+
+                <span class="ticket-status ${statusClass}">
+                    ${statusText}
+                </span>
+
+
+                <div class="ticket-buttons">
+
+                    <button
+                        class="preview-btn"
+                        onclick="previewTicket('${ticket.id}')"
+                    >
+                        <i class="fas fa-eye"></i>
+                        Preview
+                    </button>
+
+
+                    <button
+                        class="book-btn"
+                        onclick="bookTicket('${ticket.id}')"
+                        ${isBooked ? "disabled" : ""}
+                    >
+                        <i class="fas fa-shopping-cart"></i>
+
+                        ${isBooked ? "Booked" : "Book"}
+
+                    </button>
+
+                </div>
 
             `;
 
 
-            grid.appendChild(more);
+            grid.appendChild(card);
 
-        }
-
-    }
-
-
-    /*
-    =====================================================
-    ESCAPE HTML
-    =====================================================
-    */
-
-    function escapeHtml(value) {
-
-        return String(value)
-
-            .replace(/&/g, "&amp;")
-
-            .replace(/</g, "&lt;")
-
-            .replace(/>/g, "&gt;")
-
-            .replace(/"/g, "&quot;")
-
-            .replace(/'/g, "&#039;");
+        });
 
     }
 
 
-    /*
-    =====================================================
-    ESCAPE JAVASCRIPT
-    =====================================================
-    */
-
-    function escapeJs(value) {
-
-        return String(value)
-            .replace(/\\/g, "\\\\")
-            .replace(/'/g, "\\'");
-
-    }
-
-
-    /*
-    =====================================================
-    PREVIEW TICKET
-    =====================================================
-    */
+    /* =====================================================
+       PREVIEW TICKET
+    ===================================================== */
 
     function previewTicket(ticketId) {
 
         const ticket =
             allTickets.find(
-                ticket =>
-                    ticket.id === ticketId
+                item =>
+                    item.id === ticketId
             );
 
 
@@ -1367,7 +1184,6 @@
             );
 
             return;
-
         }
 
 
@@ -1377,19 +1193,14 @@
 
 
         const modal =
-            document.createElement(
-                "div"
-            );
+            document.createElement("div");
 
 
         modal.style.cssText = `
 
             position:fixed;
-            top:0;
-            left:0;
-            right:0;
-            bottom:0;
-            background:rgba(0,0,0,0.6);
+            inset:0;
+            background:rgba(0,0,0,0.65);
             z-index:9999;
             display:flex;
             align-items:center;
@@ -1404,11 +1215,11 @@
             <div style="
                 background:white;
                 border-radius:24px;
-                padding:30px;
+                padding:25px;
                 max-width:650px;
                 width:100%;
                 max-height:90vh;
-                overflow-y:auto;
+                overflow:auto;
             ">
 
                 <div style="
@@ -1418,49 +1229,21 @@
                     margin-bottom:20px;
                 ">
 
-                    <h2 style="
-                        color:#2d1f14;
-                    ">
-                        ${escapeHtml(ticket.id)}
+                    <h2 style="color:#2d1f14;">
+                        ${ticket.id}
                     </h2>
 
-
                     <button
-                        id="closeTicketModal"
+                        onclick="this.closest('.ticket-modal').remove()"
                         style="
-                            background:none;
                             border:none;
-                            font-size:2rem;
+                            background:none;
+                            font-size:25px;
                             cursor:pointer;
-                            color:#999;
                         "
                     >
-                        ×
+                        ✕
                     </button>
-
-                </div>
-
-
-                <div style="
-                    display:flex;
-                    justify-content:space-between;
-                    margin-bottom:20px;
-                ">
-
-                    <strong>
-                        Tambola Ticket
-                    </strong>
-
-                    <span style="
-                        background:#1f7a4b;
-                        color:white;
-                        padding:5px 20px;
-                        border-radius:20px;
-                        font-weight:600;
-                    ">
-                        ${Number(ticket.price || 10)}
-                        Tokens
-                    </span>
 
                 </div>
 
@@ -1470,28 +1253,26 @@
                     grid-template-columns:repeat(9,1fr);
                     gap:4px;
                     background:#f8f4f0;
-                    padding:15px;
+                    padding:12px;
                     border-radius:12px;
-                    border:2px solid #d4c5b5;
                 ">
 
-                    ${numbers.flat().map(n => `
+                    ${numbers.flat().map(number => `
 
                         <div style="
                             aspect-ratio:1;
+                            min-height:40px;
                             display:flex;
                             align-items:center;
                             justify-content:center;
-                            background:${n ? "white" : "#f0ebe6"};
+                            background:${number ? "white" : "#f0ebe6"};
+                            border:1px solid #d4c5b5;
                             border-radius:4px;
                             font-weight:700;
-                            font-size:14px;
-                            border:1px solid ${n ? "#b35e2e" : "#d4c5b5"};
-                            min-height:45px;
-                            color:${n ? "#2d1f14" : "#b8a89a"};
+                            color:#2d1f14;
                         ">
 
-                            ${n || ""}
+                            ${number || ""}
 
                         </div>
 
@@ -1501,18 +1282,14 @@
 
 
                 <div style="
-                    display:flex;
-                    gap:10px;
-                    justify-content:center;
+                    text-align:center;
                     margin-top:20px;
                 ">
 
                     <button
-                        onclick="
-                            bookTicket('${escapeJs(ticket.id)}')
-                        "
+                        onclick="bookTicket('${ticket.id}')"
                         style="
-                            padding:10px 30px;
+                            padding:12px 30px;
                             background:#1f7a4b;
                             color:white;
                             border:none;
@@ -1528,22 +1305,6 @@
 
                     </button>
 
-
-                    <button
-                        id="closeTicketModal2"
-                        style="
-                            padding:10px 30px;
-                            background:#6c5a4a;
-                            color:white;
-                            border:none;
-                            border-radius:25px;
-                            cursor:pointer;
-                            font-weight:600;
-                        "
-                    >
-                        Close
-                    </button>
-
                 </div>
 
             </div>
@@ -1551,17 +1312,10 @@
         `;
 
 
+        modal.classList.add("ticket-modal");
+
+
         document.body.appendChild(modal);
-
-
-        document
-            .getElementById("closeTicketModal")
-            .onclick = () => modal.remove();
-
-
-        document
-            .getElementById("closeTicketModal2")
-            .onclick = () => modal.remove();
 
 
         modal.addEventListener(
@@ -1580,43 +1334,33 @@
     }
 
 
-    /*
-    =====================================================
-    GENERATE SAMPLE TAMBOLA NUMBERS
-    =====================================================
-    */
+    /* =====================================================
+       GENERATE TAMBOLA NUMBERS
+    ===================================================== */
 
     function generateTambolaNumbers() {
 
         const grid = [];
 
 
-        for (
-            let row = 0;
-            row < 3;
-            row++
-        ) {
+        for (let row = 0; row < 3; row++) {
 
             const rowData = [];
 
             const positions = [];
 
 
-            while (
-                positions.length < 5
-            ) {
+            while (positions.length < 5) {
 
-                const pos =
+                const position =
                     Math.floor(
                         Math.random() * 9
                     );
 
 
-                if (
-                    !positions.includes(pos)
-                ) {
+                if (!positions.includes(position)) {
 
-                    positions.push(pos);
+                    positions.push(position);
 
                 }
 
@@ -1628,40 +1372,41 @@
             );
 
 
-            for (
-                let col = 0;
-                col < 9;
-                col++
-            ) {
+            for (let col = 0; col < 9; col++) {
 
-                if (
-                    positions.includes(col)
-                ) {
+                if (positions.includes(col)) {
 
-                    const min =
-                        col === 0
-                        ? 1
-                        : col * 10;
+                    let min;
+
+                    let max;
 
 
-                    const max =
-                        col === 0
-                        ? 9
-                        : col * 10 + 9;
+                    if (col === 0) {
+
+                        min = 1;
+                        max = 9;
+
+                    } else if (col === 8) {
+
+                        min = 80;
+                        max = 90;
+
+                    } else {
+
+                        min = col * 10;
+                        max = col * 10 + 9;
+
+                    }
 
 
                     rowData.push(
-
                         Math.floor(
                             Math.random() *
                             (max - min + 1)
                         ) + min
-
                     );
 
-                }
-
-                else {
+                } else {
 
                     rowData.push(null);
 
@@ -1680,11 +1425,9 @@
     }
 
 
-    /*
-    =====================================================
-    BOOK TICKET
-    =====================================================
-    */
+    /* =====================================================
+       BOOK TICKET
+    ===================================================== */
 
     async function bookTicket(ticketId) {
 
@@ -1696,14 +1439,13 @@
             );
 
             return;
-
         }
 
 
         const ticket =
             allTickets.find(
-                ticket =>
-                    ticket.id === ticketId
+                item =>
+                    item.id === ticketId
             );
 
 
@@ -1715,7 +1457,6 @@
             );
 
             return;
-
         }
 
 
@@ -1730,7 +1471,6 @@
             );
 
             return;
-
         }
 
 
@@ -1738,158 +1478,76 @@
             Number(ticket.price || 10);
 
 
-        const availableTokens =
-            Number(userData?.tokens || 0);
+        const tokens =
+            Number(userData.tokens || 0);
 
 
-        if (
-            availableTokens < price
-        ) {
+        if (tokens < price) {
 
             showToast(
-
-                `Insufficient tokens! Need ${price}, have ${availableTokens}`,
-
+                `Insufficient tokens. Need ${price}, you have ${tokens}.`,
                 "error"
-
             );
 
             return;
-
         }
 
 
         try {
 
-            /*
-            Use a Firestore transaction
-            so two users cannot easily
-            book the same ticket.
-            */
-
-            await db.runTransaction(
-                async (transaction) => {
-
-                    const ticketRef =
-                        db.collection("tickets")
-                          .doc(ticketId);
+            const batch =
+                db.batch();
 
 
-                    const userRef =
-                        db.collection("users")
-                          .doc(currentUser.uid);
+            const ticketRef =
+                db
+                    .collection("tickets")
+                    .doc(ticketId);
 
 
-                    const ticketDoc =
-                        await transaction.get(
-                            ticketRef
-                        );
+            const userRef =
+                db
+                    .collection("users")
+                    .doc(currentUser.uid);
 
 
-                    const userDoc =
-                        await transaction.get(
-                            userRef
-                        );
+            batch.update(
+                ticketRef,
+                {
 
+                    status: "booked",
 
-                    if (!ticketDoc.exists) {
+                    ownerId: currentUser.uid,
 
-                        throw new Error(
-                            "Ticket does not exist."
-                        );
+                    ownerEmail: currentUser.email,
 
-                    }
-
-
-                    if (!userDoc.exists) {
-
-                        throw new Error(
-                            "User account not found."
-                        );
-
-                    }
-
-
-                    const latestTicket =
-                        ticketDoc.data();
-
-
-                    const latestUser =
-                        userDoc.data();
-
-
-                    if (
-                        latestTicket.status ===
-                            "booked" ||
-                        latestTicket.status ===
-                            "sold"
-                    ) {
-
-                        throw new Error(
-                            "This ticket was already booked."
-                        );
-
-                    }
-
-
-                    const latestTokens =
-                        Number(
-                            latestUser.tokens || 0
-                        );
-
-
-                    if (
-                        latestTokens < price
-                    ) {
-
-                        throw new Error(
-                            `Insufficient tokens. You have ${latestTokens}.`
-                        );
-
-                    }
-
-
-                    transaction.update(
-                        ticketRef,
-                        {
-
-                            status: "booked",
-
-                            ownerId:
-                                currentUser.uid,
-
-                            ownerEmail:
-                                currentUser.email,
-
-                            bookedAt:
-                                firebase.firestore
-                                    .FieldValue
-                                    .serverTimestamp()
-
-                        }
-                    );
-
-
-                    transaction.update(
-                        userRef,
-                        {
-
-                            tokens:
-                                latestTokens -
-                                price
-
-                        }
-                    );
+                    bookedAt:
+                        firebase.firestore
+                            .FieldValue
+                            .serverTimestamp()
 
                 }
             );
 
 
-            /*
-            Update local data
-            */
+            batch.update(
+                userRef,
+                {
 
-            userData.tokens -= price;
+                    tokens:
+                        firebase.firestore
+                            .FieldValue
+                            .increment(-price)
+
+                }
+            );
+
+
+            await batch.commit();
+
+
+            userData.tokens =
+                tokens - price;
 
 
             document.getElementById(
@@ -1904,35 +1562,7 @@
             );
 
 
-            /*
-            Close ticket modal
-            */
-
-            const modals =
-                document.querySelectorAll(
-                    'body > div'
-                );
-
-
-            modals.forEach(
-                modal => {
-
-                    if (
-                        modal.style &&
-                        modal.style.position ===
-                            "fixed"
-                    ) {
-
-                        modal.remove();
-
-                    }
-
-                }
-            );
-
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "Booking error:",
@@ -1941,8 +1571,8 @@
 
 
             showToast(
-                error.message ||
-                "Error booking ticket",
+                "Booking failed: " +
+                error.message,
                 "error"
             );
 
