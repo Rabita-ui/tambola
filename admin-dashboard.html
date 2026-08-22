@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Admin Dashboard - Tambola House</title>
 
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
         * {
@@ -21,1468 +20,353 @@
             background: linear-gradient(145deg, #f5f0eb 0%, #e8e0d8 100%);
             min-height: 100vh;
             padding: 20px;
-            color: #2d1f14;
         }
 
         .container {
-            max-width: 1200px;
-            margin: auto;
+            max-width: 1100px;
+            margin: 0 auto;
         }
 
+        /* HEADER */
         .header {
-            background: white;
-            border-radius: 28px;
-            padding: 20px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.07);
             margin-bottom: 25px;
+            padding: 20px 30px;
+            background: #2d1f14;
+            color: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
 
-        .header h1 {
-            font-size: 1.7rem;
-        }
-
-        .header h1 i {
-            color: #b35e2e;
-        }
-
-        .user-area {
+        .header h2 {
             display: flex;
             align-items: center;
             gap: 10px;
-            flex-wrap: wrap;
+            font-size: 1.5rem;
         }
 
-        .user-badge {
-            background: #f0ebe6;
-            padding: 9px 16px;
-            border-radius: 30px;
+        .back-btn {
+            color: #e8e0d8;
+            text-decoration: none;
             font-weight: 600;
+            font-size: 0.95rem;
         }
 
-        .logout-btn {
-            border: none;
-            background: #b13e3e;
-            color: white;
-            padding: 9px 18px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .logout-btn:hover {
-            background: #942f2f;
-        }
-
-        .card {
+        /* SECTIONS */
+        .panel {
             background: white;
-            border-radius: 24px;
+            border-radius: 20px;
             padding: 25px;
             margin-bottom: 25px;
-            box-shadow: 0 5px 18px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #e0d5c8;
         }
 
-        .card h2 {
-            margin-bottom: 20px;
+        .panel-title {
+            font-size: 1.2rem;
+            color: #2d1f14;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0ebe6;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .card h2 i {
-            color: #b35e2e;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 7px;
-            font-weight: 600;
-        }
-
-        .form-group input,
-        .form-group select {
+        /* TABLES */
+        table {
             width: 100%;
-            padding: 13px 15px;
-            border: 2px solid #e0d5c8;
-            border-radius: 14px;
-            background: #faf8f6;
-            font-size: 1rem;
+            border-collapse: collapse;
+            margin-top: 10px;
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #b35e2e;
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
         }
 
-        .btn {
-            border: none;
-            padding: 12px 20px;
-            border-radius: 14px;
-            cursor: pointer;
+        th {
+            background: #f8f4f0;
+            color: #7b6856;
             font-weight: 700;
-            font-size: 0.95rem;
-            transition: 0.2s;
         }
 
-        .btn:hover {
-            transform: translateY(-1px);
+        /* BUTTONS & INPUTS */
+        .btn-action {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: opacity 0.2s;
         }
 
-        .btn-primary {
-            background: #b35e2e;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #8f4a24;
-        }
-
-        .btn-success {
+        .btn-approve {
             background: #1f7a4b;
             color: white;
         }
 
-        .btn-success:hover {
-            background: #16633b;
+        .btn-approve:hover {
+            opacity: 0.9;
         }
 
-        .btn-danger {
-            background: #b13e3e;
-            color: white;
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
         }
 
-        .btn-secondary {
-            background: #6c5a4a;
-            color: white;
-        }
-
-        .status-box {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-        }
-
-        .status-item {
-            background: #faf8f6;
-            border: 1px solid #e0d5c8;
-            border-radius: 18px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .status-item i {
-            font-size: 1.7rem;
-            color: #b35e2e;
-            margin-bottom: 8px;
-        }
-
-        .status-number {
-            font-size: 1.7rem;
-            font-weight: 800;
-        }
-
-        .status-label {
-            color: #7b6856;
+        input[type="text"], input[type="number"] {
+            padding: 10px 14px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
             font-size: 0.9rem;
+            flex: 1;
+            min-width: 200px;
         }
 
-        .draw-info {
-            background: #f8f4f0;
-            border-left: 5px solid #b35e2e;
-            padding: 18px;
+        .btn-submit {
+            background: #b35e2e;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .badge-pending {
+            background: #fff3cd;
+            color: #856404;
+            padding: 4px 8px;
             border-radius: 12px;
-            margin-top: 20px;
-            display: none;
-        }
-
-        .draw-info.show {
-            display: block;
-        }
-
-        .draw-info p {
-            margin: 6px 0;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 700;
         }
 
-        .badge-active {
-            background: #d4edc9;
-            color: #1f5a3b;
-        }
-
-        .badge-inactive {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .message {
-            margin-top: 15px;
-            padding: 12px 15px;
+        .badge-completed {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
             border-radius: 12px;
-            display: none;
-        }
-
-        .message.show {
-            display: block;
-        }
-
-        .message.success {
-            background: #d4edc9;
-            color: #1f5a3b;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .message.info {
-            background: #e8eef7;
-            color: #274c77;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 30px;
-        }
-
-        .spinner {
-            border: 4px solid #eee;
-            border-top: 4px solid #b35e2e;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 12px;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .danger-zone {
-            border: 2px solid #f0caca;
-        }
-
-        .danger-zone h2 {
-            color: #b13e3e;
-        }
-
-        .small-note {
-            color: #7b6856;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            line-height: 1.5;
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-
-            .header {
-                padding: 18px;
-                border-radius: 20px;
-            }
-
-            .card {
-                padding: 18px;
-                border-radius: 20px;
-            }
-
-            .header h1 {
-                font-size: 1.4rem;
-            }
+            font-size: 0.75rem;
+            font-weight: 700;
         }
     </style>
 </head>
-
 <body>
 
 <div class="container">
-
     <!-- HEADER -->
     <div class="header">
-
-        <h1>
-            <i class="fas fa-user-shield"></i>
-            Tambola House Admin
-        </h1>
-
-        <div class="user-area">
-
-            <span class="user-badge" id="adminEmail">
-                <i class="fas fa-user"></i>
-                Checking...
-            </span>
-
-            <button class="logout-btn" id="logoutBtn">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-            </button>
-
-        </div>
-
+        <h2><i class="fas fa-user-shield"></i> Admin Control Panel</h2>
+        <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
     </div>
 
-
-    <!-- ADMIN CHECK -->
-    <div class="card" id="loadingCard">
-
-        <div class="loading">
-            <div class="spinner"></div>
-            <p>Checking administrator access...</p>
+    <!-- MANUAL TOKEN CREDIT PANEL -->
+    <div class="panel">
+        <div class="panel-title"><i class="fas fa-coins" style="color: #b35e2e;"></i> Direct Token Adjustment</div>
+        <p style="color: #7b6856; font-size: 0.9rem;">Manually add tokens to a specific user using their Firebase User ID (UID).</p>
+        <div class="input-group">
+            <input type="text" id="targetUid" placeholder="Enter User UID">
+            <input type="number" id="tokenAmount" placeholder="Amount (e.g. 100)">
+            <button class="btn-submit" onclick="addTokensToUser()">Add Tokens</button>
         </div>
-
     </div>
 
-
-    <!-- MAIN ADMIN CONTENT -->
-    <div id="adminContent" style="display:none;">
-
-        <!-- CREATE DRAW -->
-        <div class="card">
-
-            <h2>
-                <i class="fas fa-calendar-plus"></i>
-                Create New Draw
-            </h2>
-
-            <div class="form-grid">
-
-                <div class="form-group">
-
-                    <label for="drawId">
-                        Draw ID
-                    </label>
-
-                    <input
-                        type="text"
-                        id="drawId"
-                        value="draw_001"
-                        placeholder="Example: draw_001"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="drawName">
-                        Draw Name
-                    </label>
-
-                    <input
-                        type="text"
-                        id="drawName"
-                        value="Tambola Draw 001"
-                        placeholder="Enter draw name"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="ticketPrice">
-                        Ticket Price (Tokens)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="ticketPrice"
-                        value="10"
-                        min="1"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="ticketCount">
-                        Number of Tickets
-                    </label>
-
-                    <input
-                        type="number"
-                        id="ticketCount"
-                        value="300"
-                        min="1"
-                        max="300"
-                    >
-
-                </div>
-
-            </div>
-
-
-            <button class="btn btn-primary" id="createDrawBtn">
-
-                <i class="fas fa-plus-circle"></i>
-                Create Draw & Generate Tickets
-
-            </button>
-
-
-            <div class="message" id="drawMessage"></div>
-
-            <p class="small-note">
-                This will create the draw and automatically generate the selected
-                number of tickets in the Firestore <strong>tickets</strong> collection.
-            </p>
-
+    <!-- DEPOSIT REQUESTS PANEL -->
+    <div class="panel">
+        <div class="panel-title"><i class="fas fa-file-invoice-dollar" style="color: #1f7a4b;"></i> Deposit Requests</div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Amount</th>
+                        <th>TXN ID</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="depositsTable">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #7b6856;">Loading deposit requests...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-
-
-        <!-- CURRENT DRAW -->
-        <div class="card">
-
-            <h2>
-                <i class="fas fa-play-circle"></i>
-                Current Draw
-            </h2>
-
-            <div class="status-box">
-
-                <div class="status-item">
-
-                    <i class="fas fa-calendar"></i>
-
-                    <div class="status-number" id="currentDrawId">
-                        —
-                    </div>
-
-                    <div class="status-label">
-                        Draw ID
-                    </div>
-
-                </div>
-
-
-                <div class="status-item">
-
-                    <i class="fas fa-ticket-alt"></i>
-
-                    <div class="status-number" id="totalTickets">
-                        0
-                    </div>
-
-                    <div class="status-label">
-                        Total Tickets
-                    </div>
-
-                </div>
-
-
-                <div class="status-item">
-
-                    <i class="fas fa-check-circle"></i>
-
-                    <div class="status-number" id="availableTickets">
-                        0
-                    </div>
-
-                    <div class="status-label">
-                        Available
-                    </div>
-
-                </div>
-
-
-                <div class="status-item">
-
-                    <i class="fas fa-bookmark"></i>
-
-                    <div class="status-number" id="bookedTickets">
-                        0
-                    </div>
-
-                    <div class="status-label">
-                        Booked
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="draw-info" id="drawInfo">
-
-                <p>
-                    <strong>Name:</strong>
-                    <span id="infoName">—</span>
-                </p>
-
-                <p>
-                    <strong>Ticket Price:</strong>
-                    <span id="infoPrice">—</span> Tokens
-                </p>
-
-                <p>
-                    <strong>Status:</strong>
-                    <span id="infoStatus">—</span>
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <!-- REFRESH -->
-        <div class="card">
-
-            <h2>
-                <i class="fas fa-sync-alt"></i>
-                Manage Draw
-            </h2>
-
-            <button class="btn btn-secondary" id="refreshBtn">
-
-                <i class="fas fa-refresh"></i>
-                Refresh Draw Information
-
-            </button>
-
-            <button class="btn btn-success" id="activateBtn">
-
-                <i class="fas fa-play"></i>
-                Set Draw Active
-
-            </button>
-
-            <button class="btn btn-danger" id="deactivateBtn">
-
-                <i class="fas fa-stop"></i>
-                Set Draw Inactive
-
-            </button>
-
-            <div class="message" id="manageMessage"></div>
-
-        </div>
-
-
-        <!-- DANGER ZONE -->
-        <div class="card danger-zone">
-
-            <h2>
-                <i class="fas fa-exclamation-triangle"></i>
-                Danger Zone
-            </h2>
-
-            <p class="small-note">
-                Deleting a draw can remove its associated tickets.
-                Use this only when you are sure.
-            </p>
-
-            <br>
-
-            <button class="btn btn-danger" id="deleteDrawBtn">
-
-                <i class="fas fa-trash"></i>
-                Delete Current Draw
-
-            </button>
-
-            <div class="message" id="deleteMessage"></div>
-
-        </div>
-
     </div>
 
+    <!-- TICKET POOL SEEDER -->
+    <div class="panel">
+        <div class="panel-title"><i class="fas fa-ticket-alt" style="color: #b35e2e;"></i> Ticket Pool Management</div>
+        <p style="color: #7b6856; font-size: 0.9rem; margin-bottom: 15px;">Generate 5 new random unbooked tickets for the market.</p>
+        <button class="btn-submit" onclick="generateNewTickets()">Generate 5 New Tickets</button>
+    </div>
 </div>
 
-
-<!-- FIREBASE -->
-
+<!-- FIREBASE SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-
 <script>
-
-    // =========================================================
-    // FIREBASE CONFIG
-    // SAME PROJECT AS LOGIN + REGISTER + DASHBOARD
-    // =========================================================
-
+    /* FIREBASE CONFIGURATION */
     const firebaseConfig = {
-
         apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-
         authDomain: "tambola-house-3dc56.firebaseapp.com",
-
         projectId: "tambola-house-3dc56",
-
         storageBucket: "tambola-house-3dc56.firebasestorage.app",
-
         messagingSenderId: "267918174188",
-
         appId: "1:267918174188:web:ec27684544c286c044c2c9"
-
     };
 
-
     firebase.initializeApp(firebaseConfig);
-
-
     const auth = firebase.auth();
-
     const db = firebase.firestore();
 
+    /* AUTH CHECK */
+    auth.onAuthStateChanged((user) => {
+        if (!user) {
+            window.location.href = "login.html";
+            return;
+        }
+        loadDepositRequests();
+    });
 
-    let currentUser = null;
+    /* LOAD PENDING DEPOSIT REQUESTS */
+    function loadDepositRequests() {
+        db.collection("deposits").onSnapshot((snapshot) => {
+            const table = document.getElementById("depositsTable");
+            table.innerHTML = "";
 
-    let currentDraw = null;
+            if (snapshot.empty) {
+                table.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #7b6856;">No deposit requests found.</td></tr>`;
+                return;
+            }
 
+            snapshot.forEach((doc) => {
+                const dep = doc.data();
+                const depId = doc.id;
+                const isPending = dep.status === "pending";
 
-    // =========================================================
-    // ELEMENTS
-    // =========================================================
-
-    const loadingCard =
-        document.getElementById("loadingCard");
-
-    const adminContent =
-        document.getElementById("adminContent");
-
-    const adminEmail =
-        document.getElementById("adminEmail");
-
-
-    // =========================================================
-    // MESSAGE FUNCTION
-    // =========================================================
-
-    function showMessage(elementId, message, type) {
-
-        const element =
-            document.getElementById(elementId);
-
-        element.textContent = message;
-
-        element.className = "message " + type + " show";
-
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${dep.userId || 'N/A'}</td>
+                    <td><strong>${dep.amount} Tokens</strong></td>
+                    <td>${dep.txnId || 'N/A'}</td>
+                    <td><span class="${isPending ? 'badge-pending' : 'badge-completed'}">${dep.status.toUpperCase()}</span></td>
+                    <td>
+                        ${isPending ? `<button class="btn-action btn-approve" onclick="approveDeposit('${depId}', '${dep.userId}', ${dep.amount})">Approve</button>` : 'Approved'}
+                    </td>
+                `;
+                table.appendChild(row);
+            });
+        });
     }
 
+    /* APPROVE DEPOSIT REQUEST */
+    async function approveDeposit(depId, userId, amount) {
+        if (!confirm(`Approve deposit of ${amount} tokens for user ${userId}?`)) return;
 
-    // =========================================================
-    // AUTH CHECK
-    // =========================================================
+        try {
+            const userRef = db.collection("users").doc(userId);
+            const depRef = db.collection("deposits").doc(depId);
 
-    auth.onAuthStateChanged(async (user) => {
+            await db.runTransaction(async (transaction) => {
+                const userDoc = await transaction.get(userRef);
+                const currentTokens = userDoc.exists ? (userDoc.data().tokens || 0) : 0;
 
-        if (!user) {
+                transaction.update(userRef, { tokens: currentTokens + Number(amount) });
+                transaction.update(depRef, { status: "approved" });
+            });
 
-            window.location.href = "login.html";
+            alert("Deposit approved and tokens credited successfully!");
+        } catch (err) {
+            console.error("Approval error:", err);
+            alert("Failed to approve deposit: " + err.message);
+        }
+    }
 
+    /* ADD TOKENS DIRECTLY */
+    async function addTokensToUser() {
+        const uid = document.getElementById("targetUid").value.trim();
+        const amount = Number(document.getElementById("tokenAmount").value);
+
+        if (!uid || !amount || amount <= 0) {
+            alert("Please provide a valid UID and Token Amount.");
             return;
         }
 
-
-        currentUser = user;
-
-
-        adminEmail.innerHTML =
-            `<i class="fas fa-user-shield"></i> ${
-                user.email || "Admin"
-            }`;
-
-
         try {
-
-            const userDoc = await db
-                .collection("users")
-                .doc(user.uid)
-                .get();
-
+            const userRef = db.collection("users").doc(uid);
+            const userDoc = await userRef.get();
 
             if (!userDoc.exists) {
-
-                alert("Your user account was not found.");
-
-                await auth.signOut();
-
-                window.location.href = "login.html";
-
+                alert("User UID not found in Firestore.");
                 return;
             }
 
+            const currentTokens = userDoc.data().tokens || 0;
+            await userRef.update({ tokens: currentTokens + amount });
 
-            const userData = userDoc.data();
-
-
-            if (userData.role !== "admin") {
-
-                alert("Access denied. Administrator account required.");
-
-                window.location.href = "dashboard.html";
-
-                return;
-            }
-
-
-            // Admin verified
-
-            loadingCard.style.display = "none";
-
-            adminContent.style.display = "block";
-
-
-            await loadCurrentDraw();
-
-
-        } catch (error) {
-
-            console.error("Admin check error:", error);
-
-            alert(
-                "Unable to verify administrator access: " +
-                error.message
-            );
-
-            window.location.href = "login.html";
-
+            alert(`Successfully added ${amount} tokens. New balance: ${currentTokens + amount}`);
+            document.getElementById("targetUid").value = "";
+            document.getElementById("tokenAmount").value = "";
+        } catch (err) {
+            console.error("Token add error:", err);
+            alert("Error updating tokens: " + err.message);
         }
+    }
 
-    });
-
-
-    // =========================================================
-    // CREATE DRAW
-    // =========================================================
-
-    document
-        .getElementById("createDrawBtn")
-        .addEventListener("click", async () => {
-
-            const drawId =
-                document.getElementById("drawId")
-                    .value
-                    .trim();
-
-            const drawName =
-                document.getElementById("drawName")
-                    .value
-                    .trim();
-
-            const ticketPrice =
-                Number(
-                    document.getElementById("ticketPrice")
-                        .value
-                );
-
-            const ticketCount =
-                Number(
-                    document.getElementById("ticketCount")
-                        .value
-                );
-
-
-            if (!drawId) {
-
-                showMessage(
-                    "drawMessage",
-                    "Please enter a Draw ID.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            if (!drawName) {
-
-                showMessage(
-                    "drawMessage",
-                    "Please enter a Draw Name.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            if (ticketPrice < 1) {
-
-                showMessage(
-                    "drawMessage",
-                    "Ticket price must be at least 1 token.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            if (ticketCount < 1 || ticketCount > 300) {
-
-                showMessage(
-                    "drawMessage",
-                    "Ticket count must be between 1 and 300.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            const button =
-                document.getElementById("createDrawBtn");
-
-
-            button.disabled = true;
-
-            button.innerHTML =
-                `<i class="fas fa-spinner fa-spin"></i>
-                 Creating...`;
-
-
-            try {
-
-                // Check whether draw already exists
-
-                const drawRef =
-                    db.collection("draws")
-                        .doc(drawId);
-
-                const existingDraw =
-                    await drawRef.get();
-
-
-                if (existingDraw.exists) {
-
-                    throw new Error(
-                        "This Draw ID already exists. Use a different Draw ID."
-                    );
-
-                }
-
-
-                // Create draw document
-
-                await drawRef.set({
-
-                    id: drawId,
-
-                    name: drawName,
-
-                    ticketPrice: ticketPrice,
-
-                    ticketCount: ticketCount,
-
-                    status: "active",
-
-                    createdAt:
-                        firebase.firestore.FieldValue
-                            .serverTimestamp(),
-
-                    createdBy:
-                        currentUser.uid,
-
-                    createdByEmail:
-                        currentUser.email
-
+    /* GENERATE BATCH TICKETS */
+    async function generateNewTickets() {
+        try {
+            const batch = db.batch();
+            for (let i = 0; i < 5; i++) {
+                const id = `TICKET-${Math.floor(1000 + Math.random() * 9000)}`;
+                const ref = db.collection("tickets").doc(id);
+                batch.set(ref, {
+                    ownerId: null,
+                    price: 10,
+                    drawId: "draw_001",
+                    numbers: generateTambolaNumbers()
                 });
-
-
-                // =================================================
-                // CREATE TICKETS
-                // Firestore batch limit = 500
-                // 300 tickets fit in one batch.
-                // =================================================
-
-                const batch =
-                    db.batch();
-
-
-                for (
-                    let i = 1;
-                    i <= ticketCount;
-                    i++
-                ) {
-
-                    const ticketNumber =
-                        String(i).padStart(3, "0");
-
-
-                    const ticketId =
-                        `${drawId}_ticket_${ticketNumber}`;
-
-
-                    const ticketRef =
-                        db.collection("tickets")
-                            .doc(ticketId);
-
-
-                    batch.set(ticketRef, {
-
-                        id: ticketId,
-
-                        ticketNumber: i,
-
-                        drawId: drawId,
-
-                        status: "available",
-
-                        price: ticketPrice,
-
-                        ownerId: null,
-
-                        ownerEmail: null,
-
-                        bookedAt: null,
-
-                        createdAt:
-                            firebase.firestore.FieldValue
-                                .serverTimestamp()
-
-                    });
-
-                }
-
-
-                await batch.commit();
-
-
-                showMessage(
-                    "drawMessage",
-                    `Success! ${ticketCount} tickets were created for ${drawName}.`,
-                    "success"
-                );
-
-
-                currentDraw = {
-
-                    id: drawId,
-
-                    name: drawName,
-
-                    ticketPrice: ticketPrice,
-
-                    ticketCount: ticketCount,
-
-                    status: "active"
-
-                };
-
-
-                await loadCurrentDraw();
-
-
-            } catch (error) {
-
-                console.error(
-                    "Create draw error:",
-                    error
-                );
-
-
-                showMessage(
-                    "drawMessage",
-                    error.message ||
-                    "Unable to create draw.",
-                    "error"
-                );
-
-            } finally {
-
-                button.disabled = false;
-
-                button.innerHTML =
-                    `<i class="fas fa-plus-circle"></i>
-                     Create Draw & Generate Tickets`;
-
             }
-
-        });
-
-
-    // =========================================================
-    // LOAD CURRENT DRAW
-    // =========================================================
-
-    async function loadCurrentDraw() {
-
-        try {
-
-            const snapshot =
-                await db
-                    .collection("draws")
-                    .where("status", "==", "active")
-                    .limit(1)
-                    .get();
-
-
-            if (snapshot.empty) {
-
-                currentDraw = null;
-
-                document.getElementById(
-                    "currentDrawId"
-                ).textContent = "—";
-
-                document.getElementById(
-                    "totalTickets"
-                ).textContent = "0";
-
-                document.getElementById(
-                    "availableTickets"
-                ).textContent = "0";
-
-                document.getElementById(
-                    "bookedTickets"
-                ).textContent = "0";
-
-                document.getElementById(
-                    "drawInfo"
-                ).classList.remove("show");
-
-                return;
-            }
-
-
-            const doc =
-                snapshot.docs[0];
-
-
-            currentDraw = {
-
-                id: doc.id,
-
-                ...doc.data()
-
-            };
-
-
-            document.getElementById(
-                "currentDrawId"
-            ).textContent =
-                currentDraw.id;
-
-
-            document.getElementById(
-                "infoName"
-            ).textContent =
-                currentDraw.name || "—";
-
-
-            document.getElementById(
-                "infoPrice"
-            ).textContent =
-                currentDraw.ticketPrice || 0;
-
-
-            document.getElementById(
-                "infoStatus"
-            ).innerHTML =
-                `<span class="badge badge-active">
-                    ${currentDraw.status || "active"}
-                 </span>`;
-
-
-            document.getElementById(
-                "drawInfo"
-            ).classList.add("show");
-
-
-            await loadTicketStats();
-
-
-        } catch (error) {
-
-            console.error(
-                "Load draw error:",
-                error
-            );
-
-            showMessage(
-                "manageMessage",
-                "Error loading draw: " +
-                error.message,
-                "error"
-            );
-
+            await batch.commit();
+            alert("5 new tickets added to the booking pool!");
+        } catch (err) {
+            console.error("Ticket generation error:", err);
+            alert("Error generating tickets: " + err.message);
         }
-
     }
 
-
-    // =========================================================
-    // LOAD TICKET STATISTICS
-    // =========================================================
-
-    async function loadTicketStats() {
-
-        if (!currentDraw) return;
-
-
-        try {
-
-            const snapshot =
-                await db
-                    .collection("tickets")
-                    .where(
-                        "drawId",
-                        "==",
-                        currentDraw.id
-                    )
-                    .get();
-
-
-            let available = 0;
-
-            let booked = 0;
-
-
-            snapshot.forEach(doc => {
-
-                const ticket =
-                    doc.data();
-
-
-                if (
-                    ticket.status ===
-                    "available"
-                ) {
-
-                    available++;
-
-                } else {
-
-                    booked++;
-
-                }
-
+    /* GENERATE TAMBOLA GRID */
+    function generateTambolaNumbers() {
+        const grid = [];
+        for (let row = 0; row < 3; row++) {
+            const rowData = Array(9).fill(null);
+            const positions = [];
+            while (positions.length < 5) {
+                const pos = Math.floor(Math.random() * 9);
+                if (!positions.includes(pos)) positions.push(pos);
+            }
+            positions.forEach(col => {
+                let min = col === 0 ? 1 : col * 10;
+                let max = col === 8 ? 90 : col * 10 + 9;
+                rowData[col] = Math.floor(Math.random() * (max - min + 1)) + min;
             });
-
-
-            document.getElementById(
-                "totalTickets"
-            ).textContent =
-                snapshot.size;
-
-
-            document.getElementById(
-                "availableTickets"
-            ).textContent =
-                available;
-
-
-            document.getElementById(
-                "bookedTickets"
-            ).textContent =
-                booked;
-
-
-        } catch (error) {
-
-            console.error(
-                "Ticket stats error:",
-                error
-            );
-
+            grid.push(rowData);
         }
-
+        return grid;
     }
-
-
-    // =========================================================
-    // REFRESH
-    // =========================================================
-
-    document
-        .getElementById("refreshBtn")
-        .addEventListener(
-            "click",
-            async () => {
-
-                await loadCurrentDraw();
-
-                showMessage(
-                    "manageMessage",
-                    "Draw information refreshed.",
-                    "success"
-                );
-
-            }
-        );
-
-
-    // =========================================================
-    // ACTIVATE DRAW
-    // =========================================================
-
-    document
-        .getElementById("activateBtn")
-        .addEventListener(
-            "click",
-            async () => {
-
-                if (!currentDraw) {
-
-                    showMessage(
-                        "manageMessage",
-                        "There is no draw to activate.",
-                        "error"
-                    );
-
-                    return;
-                }
-
-
-                try {
-
-                    await db
-                        .collection("draws")
-                        .doc(currentDraw.id)
-                        .update({
-
-                            status: "active"
-
-                        });
-
-
-                    showMessage(
-                        "manageMessage",
-                        "Draw is now active.",
-                        "success"
-                    );
-
-
-                    await loadCurrentDraw();
-
-
-                } catch (error) {
-
-                    showMessage(
-                        "manageMessage",
-                        error.message,
-                        "error"
-                    );
-
-                }
-
-            }
-        );
-
-
-    // =========================================================
-    // DEACTIVATE DRAW
-    // =========================================================
-
-    document
-        .getElementById("deactivateBtn")
-        .addEventListener(
-            "click",
-            async () => {
-
-                if (!currentDraw) {
-
-                    showMessage(
-                        "manageMessage",
-                        "There is no active draw.",
-                        "error"
-                    );
-
-                    return;
-                }
-
-
-                try {
-
-                    await db
-                        .collection("draws")
-                        .doc(currentDraw.id)
-                        .update({
-
-                            status: "inactive"
-
-                        });
-
-
-                    showMessage(
-                        "manageMessage",
-                        "Draw has been deactivated.",
-                        "success"
-                    );
-
-
-                    await loadCurrentDraw();
-
-
-                } catch (error) {
-
-                    showMessage(
-                        "manageMessage",
-                        error.message,
-                        "error"
-                    );
-
-                }
-
-            }
-        );
-
-
-    // =========================================================
-    // DELETE DRAW
-    // =========================================================
-
-    document
-        .getElementById("deleteDrawBtn")
-        .addEventListener(
-            "click",
-            async () => {
-
-                if (!currentDraw) {
-
-                    showMessage(
-                        "deleteMessage",
-                        "There is no current draw.",
-                        "error"
-                    );
-
-                    return;
-                }
-
-
-                const confirmed =
-                    confirm(
-                        `Delete draw "${currentDraw.name}" and all its tickets? This cannot be undone.`
-                    );
-
-
-                if (!confirmed) return;
-
-
-                const drawId =
-                    currentDraw.id;
-
-
-                try {
-
-                    // Get tickets
-
-                    const snapshot =
-                        await db
-                            .collection("tickets")
-                            .where(
-                                "drawId",
-                                "==",
-                                drawId
-                            )
-                            .get();
-
-
-                    // Firestore batch max 500.
-                    // Our maximum is 300 tickets.
-
-                    const batch =
-                        db.batch();
-
-
-                    snapshot.forEach(doc => {
-
-                        batch.delete(doc.ref);
-
-                    });
-
-
-                    batch.delete(
-                        db.collection("draws")
-                            .doc(drawId)
-                    );
-
-
-                    await batch.commit();
-
-
-                    currentDraw = null;
-
-
-                    showMessage(
-                        "deleteMessage",
-                        "Draw and its tickets were deleted.",
-                        "success"
-                    );
-
-
-                    await loadCurrentDraw();
-
-
-                } catch (error) {
-
-                    console.error(
-                        "Delete draw error:",
-                        error
-                    );
-
-
-                    showMessage(
-                        "deleteMessage",
-                        error.message ||
-                        "Unable to delete draw.",
-                        "error"
-                    );
-
-                }
-
-            }
-        );
-
-
-    // =========================================================
-    // LOGOUT
-    // =========================================================
-
-    document
-        .getElementById("logoutBtn")
-        .addEventListener(
-            "click",
-            async () => {
-
-                try {
-
-                    await auth.signOut();
-
-                    window.location.href =
-                        "login.html";
-
-                } catch (error) {
-
-                    console.error(
-                        "Logout error:",
-                        error
-                    );
-
-                }
-
-            }
-        );
-
 </script>
-
 </body>
 </html>
