@@ -185,7 +185,6 @@
         }
 
         @media (max-width: 650px) {
-
             .card {
                 padding: 30px 20px;
                 border-radius: 25px;
@@ -213,9 +212,7 @@
 <body>
 
     <div class="container">
-
         <div class="card">
-
             <!-- LOGO -->
             <div class="logo">🎱</div>
 
@@ -227,19 +224,15 @@
 
             <!-- WELCOME -->
             <div class="welcome-box">
-
                 <h2>Welcome!</h2>
-
                 <p>
                     Login to access your dashboard, book tickets,
                     check draws and manage your Tambola account.
                 </p>
-
             </div>
 
             <!-- LOGIN / REGISTER -->
             <div class="buttons">
-
                 <a href="login.html" class="btn btn-primary">
                     <i class="fas fa-sign-in-alt"></i>
                     Login
@@ -249,195 +242,87 @@
                     <i class="fas fa-user-plus"></i>
                     Create Account
                 </a>
-
             </div>
 
             <!-- FEATURES -->
             <div class="features">
-
                 <div class="feature">
-
                     <i class="fas fa-ticket-alt"></i>
-
                     <h3>Book Tickets</h3>
-
-                    <p>
-                        Choose and book available Tambola tickets.
-                    </p>
-
+                    <p>Choose and book available Tambola tickets.</p>
                 </div>
 
                 <div class="feature">
-
                     <i class="fas fa-coins"></i>
-
                     <h3>Manage Tokens</h3>
-
-                    <p>
-                        Check your token balance and requests.
-                    </p>
-
+                    <p>Check your token balance and requests.</p>
                 </div>
 
                 <div class="feature">
-
                     <i class="fas fa-trophy"></i>
-
                     <h3>Play & Win</h3>
-
-                    <p>
-                        Follow draws and check your results.
-                    </p>
-
+                    <p>Follow draws and check your results.</p>
                 </div>
-
             </div>
 
             <!-- LOGIN CHECK -->
             <div class="loading" id="loading">
-
                 <div class="spinner"></div>
-
-                <p>
-                    Checking your account...
-                </p>
-
+                <p>Checking your account...</p>
             </div>
 
             <div class="footer">
                 © 2026 Tambola House
             </div>
-
         </div>
-
     </div>
 
-
     <!-- =====================================================
-         FIREBASE SDK
+         FIREBASE SDK (Modular v10 ES Import)
     ====================================================== -->
-
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-
-    <!-- =====================================================
-         FIREBASE CONFIGURATION
-    ====================================================== -->
-
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
-
             apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-
             authDomain: "tambola-house-3dc56.firebaseapp.com",
-
             projectId: "tambola-house-3dc56",
-
             storageBucket: "tambola-house-3dc56.firebasestorage.app",
-
             messagingSenderId: "267918174188",
-
             appId: "1:267918174188:web:ec27684544c286c044c2c9"
-
         };
 
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+        const loading = document.getElementById("loading");
 
-
-        // Firebase Authentication
-        const auth = firebase.auth();
-
-
-        // Firestore Database
-        const db = firebase.firestore();
-
-
-        const loading =
-            document.getElementById("loading");
-
-
-        // =====================================================
         // CHECK CURRENT LOGIN
-        // =====================================================
-
-        auth.onAuthStateChanged(async (user) => {
-
+        onAuthStateChanged(auth, async (user) => {
             if (!user) {
-
                 loading.classList.remove("show");
-
                 return;
             }
 
-
-            // User is already logged in
+            // User is logged in
             loading.classList.add("show");
 
-
             try {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
 
-                const userDoc =
-                    await db
-                        .collection("users")
-                        .doc(user.uid)
-                        .get();
-
-
-                if (userDoc.exists) {
-
-                    const userData =
-                        userDoc.data();
-
-
-                    // ADMIN
-                    if (userData.role === "admin") {
-
-                        window.location.href =
-                            "admin-dashboard.html";
-
-                        return;
-                    }
-
-
-                    // NORMAL USER
-                    window.location.href =
-                        "dashboard.html";
-
+                if (userDoc.exists() && userDoc.data().role === "admin") {
+                    window.location.href = "admin-dashboard.html";
                 } else {
-
-                    // User exists in Firebase Authentication
-                    // but Firestore profile is missing.
-
-                    window.location.href =
-                        "dashboard.html";
+                    window.location.href = "dashboard.html";
                 }
-
-
             } catch (error) {
-
-                console.error(
-                    "Firebase user check error:",
-                    error
-                );
-
-                // If Firestore has an error,
-                // still send the logged-in user
-                // to the dashboard.
-
-                window.location.href =
-                    "dashboard.html";
+                console.error("Firebase user check error:", error);
+                loading.classList.remove("show");
             }
-
         });
-
     </script>
-
 </body>
 </html>
