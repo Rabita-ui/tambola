@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Deposit Tokens - Tambola House</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .header .back-btn {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        .card h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        .btn-deposit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-deposit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102,126,234,0.4);
+        }
+        .btn-deposit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .message-error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+        .message-success {
+            background: #efe;
+            color: #2c7a2c;
+            border: 1px solid #afa;
+        }
+        .token-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .token-info .rate {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .loader {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .loader i {
+            font-size: 20px;
+            color: #667eea;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .deposit-history {
+            margin-top: 30px;
+        }
+        .deposit-history h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        .history-item .status-pending {
+            color: #f39c12;
+        }
+        .history-item .status-approved {
+            color: #27ae60;
+        }
+        .history-item .status-rejected {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <a href="dashboard.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <div>
+                <i class="fas fa-coins"></i> Deposit Tokens
+            </div>
+            <div></div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="card">
+            <h2><i class="fas fa-plus-circle"></i> Request Tokens</h2>
+
+            <div class="token-info">
+                <div style="color: #888;">Exchange Rate</div>
+                <div class="rate">₹1 = 1 Token</div>
+                <div style="font-size: 13px; color: #888; margin-top: 5px;">
+                    Minimum deposit: ₹10 (10 Tokens)
+                </div>
+            </div>
+
+            <div id="message" class="message"></div>
+
+            <form id="depositForm">
+                <div class="form-group">
+                    <label>Amount (₹)</label>
+                    <input type="number" id="amount" placeholder="Enter amount in ₹" min="10" required />
+                </div>
+                <div class="form-group">
+                    <label>Transaction Reference</label>
+                    <input type="text" id="reference" placeholder="Enter UPI/Transaction ID" required />
+                </div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="paymentMethod" required>
+                        <option value="">Select payment method...</option>
+                        <option value="UPI">UPI</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="PhonePe">PhonePe</option>
+                        <option value="Google Pay">Google Pay</option>
+                        <option value="Paytm">Paytm</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-deposit" id="depositBtn">
+                    <i class="fas fa-paper-plane"></i> Submit Request
+                </button>
+            </form>
+
+            <div class="loader" id="loader">
+                <i class="fas fa-spinner"></i> Submitting request...
+            </div>
+        </div>
+
+        <!-- Deposit History -->
+        <div class="card deposit-history">
+            <h3><i class="fas fa-history"></i> Deposit History</h3>
+            <div id="historyList">
+                <p style="color: #888; text-align: center; padding: 20px;">
+                    No deposit history yet
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { 
+            auth, 
+            db,
+            onAuthStateChanged,
+            addDoc,
+            collection,
+            serverTimestamp,
+            query,
+            where,
+            orderBy,
+            getDocs,
+            doc,
+            getDoc
+        } from './firebase-config.js';
+
+        let currentUser = null;
+
+        // Check auth
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = user;
+            loadDepositHistory(user.uid);
+        });
+
+        // Handle deposit form
+        const form = document.getElementById('depositForm');
+        const messageDiv = document.getElementById('message');
+        const depositBtn = document.getElementById('depositBtn');
+        const loader = document.getElementById('loader');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const amount = parseInt(document.getElementById('amount').value);
+            const reference = document.getElementById('reference').value.trim();
+            const paymentMethod = document.getElementById('paymentMethod').value;
+
+            if (!amount || amount < 10) {
+                showMessage('Please enter an amount of at least ₹10', 'error');
+                return;
+            }
+
+            if (!reference) {
+                showMessage('Please enter a transaction reference', 'error');
+                return;
+            }
+
+            if (!paymentMethod) {
+                showMessage('Please select a payment method', 'error');
+                return;
+            }
+
+            depositBtn.disabled = true;
+            loader.style.display = 'block';
+            hideMessage();
+
+            try {
+                // Get user data
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                const userData = userDoc.data();
+
+                // Create deposit request
+                await addDoc(collection(db, 'depositRequests'), {
+                    userId: currentUser.uid,
+                    email: currentUser.email,
+                    name: userData.name || 'User',
+                    amount: amount,
+                    tokens: amount, // 1:1 conversion
+                    reference: reference,
+                    paymentMethod: paymentMethod,
+                    status: 'pending',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                });
+
+                showMessage('✅ Deposit request submitted successfully! Admin will approve it soon.', 'success');
+                
+                // Clear form
+                form.reset();
+                
+                // Reload history
+                loadDepositHistory(currentUser.uid);
+
+            } catch (error) {
+                console.error('Deposit error:', error);
+                showMessage('❌ Error submitting request. Please try again.', 'error');
+            } finally {
+                depositBtn.disabled = false;
+                loader.style.display = 'none';
+            }
+        });
+
+        // Load deposit history
+        async function loadDepositHistory(userId) {
+            try {
+                const depositsRef = collection(db, 'depositRequests');
+                const q = query(
+                    depositsRef,
+                    where('userId', '==', userId),
+                    orderBy('createdAt', 'desc')
+                );
+                
+                const querySnapshot = await getDocs(q);
+                const historyList = document.getElementById('historyList');
+                
+                if (querySnapshot.empty) {
+                    historyList.innerHTML = `
+                        <p style="color: #888; text-align: center; padding: 20px;">
+                            No deposit history yet
+                        </p>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const date = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : 'Recent';
+                    const statusClass = 'status-' + data.status;
+                    
+                    html += `
+                        <div class="history-item">
+                            <div>
+                                <strong>₹${data.amount}</strong>
+                                <span style="color: #888; font-size: 12px; margin-left: 10px;">
+                                    ${data.reference}
+                                </span>
+                            </div>
+                            <div>
+                                <span class="${statusClass}">
+                                    ${data.status.charAt(0).toUpperCase() + data.status.slice(1)}
+                                </span>
+                                <span style="color: #888; font-size: 12px; margin-left: 10px;">
+                                    ${date}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                historyList.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
+        }
+
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = 'message message-' + type;
+            messageDiv.style.display = 'block';
+        }
+
+        function hideMessage() {
+            messageDiv.style.display = 'none';
+        }
+
+        // Auto-refresh history every 30 seconds
+        setInterval(() => {
+            if (currentUser) {
+                loadDepositHistory(currentUser.uid);
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
