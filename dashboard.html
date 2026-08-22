@@ -1556,31 +1556,31 @@
                 userData.tokens;
 
 
+            // Close active modal if ticket was booked from preview
+            const activeModal = document.querySelector(".ticket-modal");
+            if (activeModal) {
+                activeModal.remove();
+            }
+
             showToast(
-                `${ticketId} booked successfully!`,
+                "Ticket booked successfully!",
                 "success"
             );
-
 
         } catch (error) {
 
             console.error(
-                "Booking error:",
+                "Error booking ticket:",
                 error
             );
 
-
             showToast(
-                "Booking failed: " +
-                error.message,
+                "Failed to book ticket. Please try again.",
                 "error"
             );
-
         }
-
     }
 
 </script>
-
 </body>
 </html>
