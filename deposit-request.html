@@ -6,38 +6,138 @@
     <title>Deposit Request - Tambola House</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: #121417; color: #e1e3e6; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .card { background: #1c1f24; border: 1px solid #2d3239; border-radius: 12px; padding: 30px; width: 100%; max-width: 450px; }
-        .card h2 { margin-bottom: 8px; color: #fff; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
-        .card p { color: #8b949e; font-size: 0.9rem; margin-bottom: 20px; }
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-size: 0.85rem; color: #a0a6b0; margin-bottom: 6px; font-weight: 600; }
-        input { width: 100%; background: #121417; border: 1px solid #2d3239; color: #fff; padding: 12px; border-radius: 6px; outline: none; font-size: 0.95rem; }
-        input:focus { border-color: #388bfd; }
-        .btn-submit { width: 100%; background: #238636; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1rem; margin-top: 10px; }
-        .btn-submit:hover { background: #2ea043; }
-        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-        .back-link { display: inline-block; margin-top: 15px; color: #388bfd; text-decoration: none; font-size: 0.9rem; }
-        .back-link:hover { text-decoration: underline; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; 
+        }
+
+        body { 
+            background: #121417; 
+            color: #e1e3e6; 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px; 
+        }
+
+        .card { 
+            background: #1c1f24; 
+            border: 1px solid #2d3239; 
+            border-radius: 12px; 
+            padding: 30px; 
+            width: 100%; 
+            max-width: 450px; 
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 { 
+            margin-bottom: 8px; 
+            color: #ffffff; 
+            font-size: 1.4rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+
+        .card p { 
+            color: #8b949e; 
+            font-size: 0.9rem; 
+            margin-bottom: 20px; 
+            line-height: 1.4;
+        }
+
+        .form-group { 
+            margin-bottom: 18px; 
+        }
+
+        label { 
+            display: block; 
+            font-size: 0.85rem; 
+            color: #a0a6b0; 
+            margin-bottom: 6px; 
+            font-weight: 600; 
+        }
+
+        input { 
+            width: 100%; 
+            background: #121417; 
+            border: 1px solid #2d3239; 
+            color: #ffffff; 
+            padding: 12px 14px; 
+            border-radius: 6px; 
+            outline: none; 
+            font-size: 0.95rem; 
+            transition: border-color 0.2s;
+        }
+
+        input:focus { 
+            border-color: #388bfd; 
+        }
+
+        .btn-submit { 
+            width: 100%; 
+            background: #238636; 
+            color: white; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 6px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            font-size: 1rem; 
+            margin-top: 10px; 
+            transition: background 0.2s, opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-submit:hover { 
+            background: #2ea043; 
+        }
+
+        .btn-submit:disabled { 
+            opacity: 0.6; 
+            cursor: not-allowed; 
+        }
+
+        .back-link { 
+            display: inline-flex; 
+            align-items: center;
+            gap: 6px;
+            margin-top: 20px; 
+            color: #388bfd; 
+            text-decoration: none; 
+            font-size: 0.9rem; 
+            font-weight: 600;
+        }
+
+        .back-link:hover { 
+            text-decoration: underline; 
+        }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h2><i class="fas fa-coins" style="color: #238636;"></i> Request Token Deposit</h2>
-    <p>Enter your payment details below to request tokens from the Admin.</p>
+    <p>Provide your payment details to submit a token deposit request for admin approval.</p>
 
-    <form id="depositForm" onsubmit="submitDepositRequest(event)">
+    <form id="depositForm">
         <div class="form-group">
-            <label>Amount of Tokens</label>
+            <label for="depositAmount">Amount of Tokens</label>
             <input type="number" id="depositAmount" placeholder="e.g. 50" min="1" required>
         </div>
         <div class="form-group">
-            <label>Transaction ID / UTR / Reference No.</label>
+            <label for="txnId">Transaction ID / UTR / Ref No.</label>
             <input type="text" id="txnId" placeholder="Enter Transaction ID" required>
         </div>
-        <button type="submit" class="btn-submit" id="submitBtn">Submit Deposit Request</button>
+        <button type="submit" class="btn-submit" id="submitBtn">
+            <i class="fas fa-paper-plane"></i> Submit Deposit Request
+        </button>
     </form>
 
     <a href="dashboard.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
@@ -49,6 +149,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
+    /* FIREBASE INITIALIZATION */
     const firebaseConfig = {
         apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
         authDomain: "tambola-house-3dc56.firebaseapp.com",
@@ -62,57 +163,61 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    let currentUser = null;
-
+    /* AUTHENTICATION GUARD */
     auth.onAuthStateChanged((user) => {
         if (!user) {
             window.location.href = "login.html";
-            return;
         }
-        currentUser = user;
     });
 
-    async function submitDepositRequest(e) {
-        e.preventDefault();
+    /* FORM SUBMISSION EVENT LISTENER */
+    document.getElementById("depositForm").addEventListener("submit", async (e) => {
+        e.preventDefault(); // Prevents page reload
 
-        if (!currentUser) {
-            alert("Please log in to submit a request.");
+        const user = auth.currentUser;
+        if (!user) {
+            alert("Session expired. Please log in again.");
+            window.location.href = "login.html";
             return;
         }
 
-        const amount = Number(document.getElementById("depositAmount").value);
-        const txnId = document.getElementById("txnId").value.trim();
+        const amountInput = document.getElementById("depositAmount");
+        const txnInput = document.getElementById("txnId");
+        const submitBtn = document.getElementById("submitBtn");
+
+        const amount = Number(amountInput.value);
+        const txnId = txnInput.value.trim();
 
         if (!amount || amount <= 0 || !txnId) {
             alert("Please provide a valid token amount and transaction ID.");
             return;
         }
 
-        const btn = document.getElementById("submitBtn");
-        btn.disabled = true;
-        btn.textContent = "Submitting...";
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Submitting...`;
 
         try {
-            // Write directly into the 'deposits' collection
+            /* WRITE TO FIRESTORE DEPOSITS COLLECTION */
             await db.collection("deposits").add({
-                userId: currentUser.uid,
-                userEmail: currentUser.email || "N/A",
+                userId: user.uid,
+                userEmail: user.email || "N/A",
                 amount: amount,
                 txnId: txnId,
                 status: "pending",
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            alert("Deposit request submitted successfully! It is now pending admin approval.");
+            alert("Deposit request submitted successfully! It will now appear in admin.html for approval.");
             document.getElementById("depositForm").reset();
+
         } catch (err) {
             console.error("Submission Error:", err);
             alert("Failed to submit request: " + err.message);
         } finally {
-            btn.disabled = false;
-            btn.textContent = "Submit Deposit Request";
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<i class="fas fa-paper-plane"></i> Submit Deposit Request`;
         }
-    }
+    });
 </script>
 </body>
 </html>
