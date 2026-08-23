@@ -1,28 +1,108 @@
-/* AUTOMATICALLY HEAL OR CREATE MISSING FIRESTORE USER DOC ON LOGIN */
-async function loginUser(email, password) {
-    try {
-        const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        const user = userCredential.user;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Tambola House</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }
+        body { background: #121417; color: #e1e3e6; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .card { background: #1c1f24; border: 1px solid #2d3239; border-radius: 12px; padding: 30px; width: 100%; max-width: 400px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+        .card h2 { color: #fff; margin-bottom: 20px; font-size: 1.4rem; text-align: center; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 0.85rem; color: #a0a6b0; margin-bottom: 6px; font-weight: 600; }
+        input { width: 100%; background: #121417; border: 1px solid #2d3239; color: #fff; padding: 12px; border-radius: 6px; outline: none; font-size: 0.95rem; }
+        input:focus { border-color: #388bfd; }
+        .btn-submit { width: 100%; background: #238636; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1rem; margin-top: 10px; }
+        .btn-submit:hover { background: #2ea043; }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+        .link-footer { text-align: center; margin-top: 15px; font-size: 0.85rem; color: #8b949e; }
+        .link-footer a { color: #388bfd; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
 
-        const userRef = db.collection("users").doc(user.uid);
-        const userDoc = await userRef.get();
+<div class="card">
+    <h2><i class="fas fa-sign-in-alt" style="color: #388bfd;"></i> Login to Tambola</h2>
 
-        // If user doc doesn't exist in Firestore, create it now!
-        if (!userDoc.exists) {
-            await userRef.set({
-                uid: user.uid,
-                email: user.email,
-                displayName: user.email ? user.email.split("@")[0] : "Player",
-                tokens: 0,
-                role: "player",
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+    <form id="loginForm">
+        <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="loginEmail" placeholder="name@example.com" required>
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-submit" id="loginBtn">Log In</button>
+    </form>
+
+    <div class="link-footer">
+        Don't have an account? <a href="register.html">Register here</a>
+    </div>
+</div>
+
+<!-- FIREBASE SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+<script>
+    /* FIREBASE INITIALIZATION */
+    const firebaseConfig = {
+        apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
+        authDomain: "tambola-house-3dc56.firebaseapp.com",
+        projectId: "tambola-house-3dc56",
+        storageBucket: "tambola-house-3dc56.firebasestorage.app",
+        messagingSenderId: "267918174188",
+        appId: "1:267918174188:web:ec27684544c286c044c2c9"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    /* FORM SUBMIT EVENT LISTENER */
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value;
+        const btn = document.getElementById("loginBtn");
+
+        btn.disabled = true;
+        btn.textContent = "Logging in...";
+
+        try {
+            const userCredential = await auth.signInWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+
+            /* AUTOMATICALLY HEAL / CREATE MISSING FIRESTORE DOC */
+            const userRef = db.collection("users").doc(user.uid);
+            const userDoc = await userRef.get();
+
+            if (!userDoc.exists) {
+                await userRef.set({
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.email ? user.email.split("@")[0] : "Player",
+                    tokens: 0,
+                    role: "player",
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+
+            // Redirect to Dashboard
+            window.location.href = "dashboard.html";
+
+        } catch (error) {
+            console.error("Login Error:", error);
+            alert("Login failed: " + error.message);
+            btn.disabled = false;
+            btn.textContent = "Log In";
         }
-
-        window.location.href = "dashboard.html";
-
-    } catch (error) {
-        console.error("Login Error:", error);
-        alert("Login failed: " + error.message);
-    }
-}
+    });
+</script>
+</body>
+</html>
