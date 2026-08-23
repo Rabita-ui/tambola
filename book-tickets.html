@@ -7,22 +7,23 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: #121417; color: #e1e3e6; min-height: 100vh; padding: 20px; }
+        body { background: #ffffff; color: #1a1d20; min-height: 100vh; padding: 20px; }
         
         .container { max-width: 1200px; margin: 0 auto; }
 
         /* HEADER & USER BAR */
         .header { 
             display: flex; justify-content: space-between; align-items: center; 
-            background: #1c1f24; border: 1px solid #2d3239; padding: 16px 24px; 
+            background: #f8f9fa; border: 1px solid #e9ecef; padding: 16px 24px; 
             border-radius: 12px; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
-        .header h2 { font-size: 1.3rem; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .header h2 { font-size: 1.3rem; color: #1a1d20; display: flex; align-items: center; gap: 10px; }
         .token-badge { 
-            background: rgba(35, 134, 54, 0.2); border: 1px solid #238636; color: #3fb950; 
+            background: #e6f4ea; border: 1px solid #ceead6; color: #137333; 
             padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.95rem; 
         }
-        .nav-link { color: #388bfd; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        .nav-link { color: #1a73e8; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
         .nav-link:hover { text-decoration: underline; }
 
         /* TICKET GRID */
@@ -33,44 +34,45 @@
 
         /* TICKET CARD */
         .ticket-card { 
-            background: #1c1f24; border: 1px solid #2d3239; border-radius: 12px; 
-            padding: 16px; position: relative; transition: transform 0.2s; 
+            background: #ffffff; border: 1px solid #dadce0; border-radius: 12px; 
+            padding: 16px; position: relative; transition: transform 0.2s, box-shadow 0.2s; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-        .ticket-card:hover { transform: translateY(-2px); }
+        .ticket-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         
-        .ticket-card.owned { border-color: #238636; background: #162218; }
-        .ticket-card.sold { border-color: #383d47; opacity: 0.6; }
+        .ticket-card.owned { border-color: #34a853; background: #f6fbf7; }
+        .ticket-card.sold { border-color: #e0e0e0; background: #f8f9fa; opacity: 0.7; }
 
         .ticket-header { 
             display: flex; justify-content: space-between; align-items: center; 
             margin-bottom: 12px; font-weight: 700; font-size: 0.95rem; 
         }
-        .ticket-id { color: #ffffff; }
-        .ticket-price { color: #238636; }
+        .ticket-id { color: #202124; }
+        .ticket-price { color: #137333; }
 
         /* TAMBOLA BOARD (3x9 GRID) */
         .tambola-board { 
             display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; 
-            background: #2d3239; border: 1px solid #2d3239; border-radius: 6px; 
+            background: #bdc1c6; border: 1px solid #bdc1c6; border-radius: 6px; 
             overflow: hidden; margin-bottom: 14px; 
         }
         .cell { 
-            background: #121417; aspect-ratio: 1; display: flex; align-items: center; 
-            justify-content: center; font-size: 0.75rem; font-weight: 700; color: #e1e3e6; 
+            background: #ffffff; aspect-ratio: 1; display: flex; align-items: center; 
+            justify-content: center; font-size: 0.8rem; font-weight: 700; color: #202124; 
         }
-        .cell.empty { background: #1c1f24; color: transparent; }
+        .cell.empty { background: #f1f3f4; color: transparent; }
 
         /* ACTION BUTTONS */
         .btn-buy { 
-            width: 100%; background: #238636; color: white; border: none; 
+            width: 100%; background: #1a73e8; color: white; border: none; 
             padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; 
             transition: background 0.2s; font-size: 0.9rem; 
         }
-        .btn-buy:hover { background: #2ea043; }
-        .btn-buy:disabled { background: #2d3239; color: #8b949e; cursor: not-allowed; }
+        .btn-buy:hover { background: #1557b0; }
+        .btn-buy:disabled { background: #dadce0; color: #70757a; cursor: not-allowed; }
 
-        .badge-owned { color: #3fb950; font-size: 0.85rem; font-weight: 700; text-align: center; display: block; }
-        .badge-sold { color: #8b949e; font-size: 0.85rem; font-weight: 700; text-align: center; display: block; }
+        .badge-owned { color: #137333; font-size: 0.85rem; font-weight: 700; text-align: center; display: block; }
+        .badge-sold { color: #70757a; font-size: 0.85rem; font-weight: 700; text-align: center; display: block; }
     </style>
 </head>
 <body>
@@ -78,7 +80,7 @@
 <div class="container">
     <!-- HEADER BAR -->
     <div class="header">
-        <h2><i class="fas fa-ticket-alt" style="color: #388bfd;"></i> Permanent Ticket Market</h2>
+        <h2><i class="fas fa-ticket-alt" style="color: #1a73e8;"></i> Permanent Ticket Market</h2>
         <div style="display: flex; align-items: center; gap: 15px;">
             <div class="token-badge"><i class="fas fa-coins"></i> <span id="userTokens">0</span> Tokens</div>
             <a href="dashboard.html" class="nav-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
@@ -87,7 +89,7 @@
 
     <!-- TICKETS DISPLAY CONTAINER -->
     <div id="ticketContainer" class="ticket-grid">
-        <p style="color: #8b949e; grid-column: 1/-1; text-align: center;">Loading permanent tickets...</p>
+        <p style="color: #70757a; grid-column: 1/-1; text-align: center;">Loading permanent tickets...</p>
     </div>
 </div>
 
@@ -141,7 +143,7 @@
             container.innerHTML = "";
 
             if (snapshot.empty) {
-                container.innerHTML = `<p style="color: #8b949e; grid-column: 1/-1; text-align: center;">No tickets found. Initialize tickets in admin panel.</p>`;
+                container.innerHTML = `<p style="color: #70757a; grid-column: 1/-1; text-align: center;">No tickets found. Initialize tickets in admin panel.</p>`;
                 return;
             }
 
