@@ -1,258 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register - Tambola House</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <link rel="stylesheet" href="css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Game Room - Tambola House</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: #ffffff; color: #1a1d20; min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* HEADER */
+        .header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: #f8f9fa; border: 1px solid #e9ecef; padding: 16px 24px; 
+            border-radius: 12px; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
-        .register-container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 450px;
+        .header h2 { font-size: 1.3rem; color: #1a1d20; display: flex; align-items: center; gap: 10px; }
+        .nav-link { color: #1a73e8; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        .nav-link:hover { text-decoration: underline; }
+
+        /* LAYOUT */
+        .game-layout { display: grid; grid-template-columns: 320px 1fr; gap: 24px; }
+        @media (max-width: 850px) { .game-layout { grid-template-columns: 1fr; } }
+
+        /* CURRENT NUMBER DISPLAY */
+        .display-card { 
+            background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 12px; 
+            padding: 24px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-        .register-container .logo {
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 10px;
+        .number-circle { 
+            width: 100px; height: 100px; border-radius: 50%; background: #34a853; 
+            color: #fff; font-size: 2.8rem; font-weight: 800; display: flex; 
+            align-items: center; justify-content: center; margin: 16px auto; 
+            box-shadow: 0 4px 12px rgba(52, 168, 83, 0.3);
         }
-        .register-container .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 25px;
+
+        /* CLAIM PRIZES PANEL */
+        .claims-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn-claim { 
+            background: #ffffff; border: 1px solid #1a73e8; color: #1a73e8; 
+            padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; 
+            font-size: 0.85rem; transition: all 0.2s; 
         }
-        .form-group {
-            margin-bottom: 18px;
+        .btn-claim:hover { background: #1a73e8; color: #ffffff; }
+
+        /* DRAWN NUMBERS BOARD (1-90) */
+        .board-card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .board-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
+        .board-cell { 
+            background: #ffffff; border: 1px solid #dadce0; aspect-ratio: 1; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 0.8rem; font-weight: 600; color: #70757a; border-radius: 4px; 
         }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 15px;
-            transition: all 0.3s;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
-        }
-        .btn-register {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 17px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-register:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102,126,234,0.4);
-        }
-        .btn-register:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .login-link {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-        }
-        .login-link a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .message {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: none;
-        }
-        .message-error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
-        }
-        .message-success {
-            background: #efe;
-            color: #2c7a2c;
-            border: 1px solid #afa;
-        }
-        .loader {
-            display: none;
-            text-align: center;
-            margin-top: 10px;
-        }
-        .loader i {
-            font-size: 20px;
-            color: #667eea;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .password-hint {
-            font-size: 12px;
-            color: #888;
-            margin-top: 5px;
-        }
+        .board-cell.drawn { background: #ceead6; color: #137333; border-color: #34a853; font-weight: 800; }
+        .board-cell.last { background: #34a853; color: #ffffff; border-color: #137333; }
+
+        /* MY TICKETS SECTION */
+        .tickets-section { margin-top: 24px; }
+        .my-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-top: 12px; }
+        .ticket-card { background: #ffffff; border: 1px solid #dadce0; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .tambola-board { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; background: #bdc1c6; border-radius: 6px; overflow: hidden; }
+        .cell { background: #ffffff; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: #202124; }
+        .cell.empty { background: #f1f3f4; color: transparent; }
+        .cell.matched { background: #ceead6; color: #137333; font-weight: 800; }
     </style>
 </head>
 <body>
-    <div class="register-container">
-        <div class="logo">
-            <i class="fas fa-ticket-alt"></i>
-            Tambola House
-        </div>
-        <div class="subtitle">Create your account</div>
 
-        <div id="message" class="message"></div>
+<div class="container">
+    <div class="header">
+        <h2><i class="fas fa-gamepad" style="color: #1a73e8;"></i> Live Game Room</h2>
+        <a href="dashboard.html" class="nav-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    </div>
 
-        <form id="registerForm">
-            <div class="form-group">
-                <label><i class="fas fa-user"></i> Full Name</label>
-                <input type="text" id="fullName" placeholder="Enter your full name" required />
+    <div class="game-layout">
+        <!-- LEFT PANEL: CALLOUT & CLAIMS -->
+        <div>
+            <div class="display-card">
+                <span style="color: #70757a; font-size: 0.85rem; font-weight: 600;">LAST NUMBER DRAWN</span>
+                <div class="number-circle" id="currentNum">--</div>
+                <span id="gameStatus" style="color: #137333; font-weight: 600; font-size: 0.9rem;">Waiting for host...</span>
             </div>
-            <div class="form-group">
-                <label><i class="fas fa-envelope"></i> Email Address</label>
-                <input type="email" id="email" placeholder="Enter your email" required />
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-phone"></i> Phone Number</label>
-                <input type="tel" id="phone" placeholder="Enter your phone number" required />
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-lock"></i> Password</label>
-                <input type="password" id="password" placeholder="Create a password" minlength="6" required />
-                <div class="password-hint">Must be at least 6 characters</div>
-            </div>
-            <button type="submit" class="btn-register" id="registerBtn">
-                <i class="fas fa-user-plus"></i> Create Account
-            </button>
-        </form>
 
-        <div class="loader" id="loader">
-            <i class="fas fa-spinner"></i> Creating account...
+            <div class="display-card" style="margin-top: 16px;">
+                <span style="color: #70757a; font-size: 0.85rem; font-weight: 600;">CLAIM PRIZES</span>
+                <div class="claims-grid">
+                    <button class="btn-claim" onclick="claimPrize('Early 5')">Early 5</button>
+                    <button class="btn-claim" onclick="claimPrize('Top Line')">Top Line</button>
+                    <button class="btn-claim" onclick="claimPrize('Middle Line')">Middle Line</button>
+                    <button class="btn-claim" onclick="claimPrize('Bottom Line')">Bottom Line</button>
+                    <button class="btn-claim" onclick="claimPrize('Full House')" style="grid-column: 1/-1;">Full House</button>
+                </div>
+            </div>
         </div>
 
-        <div class="login-link">
-            Already have an account? <a href="login.html">Login here</a>
+        <!-- RIGHT PANEL: 1-90 BOARD -->
+        <div class="board-card">
+            <div style="margin-bottom: 12px; font-weight: 700; color: #202124;">Drawn Numbers (1-90)</div>
+            <div class="board-grid" id="boardGrid"></div>
         </div>
     </div>
 
-    <script type="module">
-        import { 
-            auth, 
-            db,
-            createUserWithEmailAndPassword,
-            setDoc,
-            doc,
-            serverTimestamp
-        } from './firebase-config.js';
+    <!-- PLAYER'S OWNED TICKETS -->
+    <div class="tickets-section">
+        <h3 style="color: #202124; font-size: 1.1rem;"><i class="fas fa-ticket-alt" style="color: #1a73e8;"></i> My Active Tickets</h3>
+        <div class="my-grid" id="myTicketsContainer">
+            <p style="color: #70757a;">Loading your tickets...</p>
+        </div>
+    </div>
+</div>
 
-        const form = document.getElementById('registerForm');
-        const messageDiv = document.getElementById('message');
-        const registerBtn = document.getElementById('registerBtn');
-        const loader = document.getElementById('loader');
+<!-- FIREBASE SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
+        authDomain: "tambola-house-3dc56.firebaseapp.com",
+        projectId: "tambola-house-3dc56",
+        storageBucket: "tambola-house-3dc56.firebasestorage.app",
+        messagingSenderId: "267918174188",
+        appId: "1:267918174188:web:ec27684544c286c044c2c9"
+    };
 
-            const name = document.getElementById('fullName').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const password = document.getElementById('password').value;
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-            if (!name || !email || !phone || !password) {
-                showMessage('Please fill in all fields', 'error');
-                return;
+    let currentUser = null;
+    let drawnNumbers = [];
+
+    // Build 1-90 Grid Outline
+    const boardGrid = document.getElementById("boardGrid");
+    for (let i = 1; i <= 90; i++) {
+        const cell = document.createElement("div");
+        cell.className = "board-cell";
+        cell.id = `cell-${i}`;
+        cell.textContent = i;
+        boardGrid.appendChild(cell);
+    }
+
+    auth.onAuthStateChanged((user) => {
+        if (!user) {
+            window.location.href = "login.html";
+            return;
+        }
+        currentUser = user;
+        listenToActiveGame();
+        listenToMyTickets();
+    });
+
+    /* LISTEN TO REALTIME GAME DRAW */
+    function listenToActiveGame() {
+        db.collection("games").doc("active_game").onSnapshot((doc) => {
+            if (!doc.exists) return;
+
+            const game = doc.data();
+            drawnNumbers = game.drawnNumbers || [];
+            const lastNum = drawnNumbers[drawnNumbers.length - 1] || "--";
+
+            document.getElementById("currentNum").textContent = lastNum;
+            document.getElementById("gameStatus").textContent = game.status === "running" ? "Game in progress" : "Game Paused";
+
+            // Highlight Board Cells
+            for (let i = 1; i <= 90; i++) {
+                const cell = document.getElementById(`cell-${i}`);
+                cell.className = "board-cell";
+                if (drawnNumbers.includes(i)) cell.classList.add("drawn");
+            }
+            if (lastNum !== "--") {
+                const lastCell = document.getElementById(`cell-${lastNum}`);
+                if (lastCell) lastCell.classList.add("last");
             }
 
-            if (password.length < 6) {
-                showMessage('Password must be at least 6 characters', 'error');
-                return;
-            }
-
-            registerBtn.disabled = true;
-            loader.style.display = 'block';
-            hideMessage();
-
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                await setDoc(doc(db, 'users', user.uid), {
-                    name: name,
-                    email: email,
-                    phone: phone,
-                    role: 'user',
-                    tokenBalance: 0,
-                    createdAt: serverTimestamp(),
-                    updatedAt: serverTimestamp()
-                });
-
-                showMessage('✅ Account created successfully! Redirecting...', 'success');
-                
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2000);
-
-            } catch (error) {
-                console.error('Registration error:', error);
-                
-                let message = 'Registration failed. Please try again.';
-                if (error.code === 'auth/email-already-in-use') {
-                    message = 'This email is already registered. Please login instead.';
-                } else if (error.code === 'auth/weak-password') {
-                    message = 'Password is too weak. Please use a stronger password.';
-                } else if (error.code === 'auth/invalid-email') {
-                    message = 'Invalid email address. Please check and try again.';
-                }
-                
-                showMessage('❌ ' + message, 'error');
-            } finally {
-                registerBtn.disabled = false;
-                loader.style.display = 'none';
-            }
+            renderMyTickets();
         });
+    }
 
-        function showMessage(text, type) {
-            messageDiv.textContent = text;
-            messageDiv.className = 'message message-' + type;
-            messageDiv.style.display = 'block';
+    /* LISTEN TO PLAYER'S PURCHASED TICKETS */
+    let myTicketsData = [];
+    function listenToMyTickets() {
+        db.collection("tickets").where("ownerId", "==", currentUser.uid).onSnapshot((snapshot) => {
+            myTicketsData = [];
+            snapshot.forEach(doc => myTicketsData.push({ id: doc.id, ...doc.data() }));
+            renderMyTickets();
+        });
+    }
+
+    function renderMyTickets() {
+        const container = document.getElementById("myTicketsContainer");
+        container.innerHTML = "";
+
+        if (myTicketsData.length === 0) {
+            container.innerHTML = `<p style="color: #70757a;">You have not purchased any tickets yet. <a href="book-tickets.html" style="color: #1a73e8;">Book tickets here</a>.</p>`;
+            return;
         }
 
-        function hideMessage() {
-            messageDiv.style.display = 'none';
+        myTicketsData.forEach((ticket) => {
+            const card = document.createElement("div");
+            card.className = "ticket-card";
+
+            let cellsHtml = "";
+            const flatNumbers = ticket.numbers || Array(27).fill(null);
+            flatNumbers.forEach(num => {
+                const isMatched = num && drawnNumbers.includes(num);
+                cellsHtml += `<div class="cell ${num ? (isMatched ? 'matched' : '') : 'empty'}">${num || ''}</div>`;
+            });
+
+            card.innerHTML = `
+                <div style="font-weight: 700; color: #202124; margin-bottom: 8px;">${ticket.id}</div>
+                <div class="tambola-board">${cellsHtml}</div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    /* SUBMIT PRIZE CLAIM */
+    async function claimPrize(claimType) {
+        if (myTicketsData.length === 0) {
+            alert("You must own at least one ticket to submit a claim!");
+            return;
         }
-    </script>
+
+        try {
+            await db.collection("claims").add({
+                userId: currentUser.uid,
+                userEmail: currentUser.email,
+                claimType: claimType,
+                status: "pending",
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            alert(`Your claim for "${claimType}" has been submitted to the admin!`);
+        } catch (err) {
+            alert("Failed to submit claim: " + err.message);
+        }
+    }
+</script>
 </body>
 </html>
