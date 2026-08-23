@@ -3,268 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Deposit - Tambola House</title>
-
-    <!-- Font Awesome -->
+    <title>Deposit Request - Tambola House</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(145deg, #f5f0eb 0%, #e8e0d8 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        /* HEADER */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 20px 30px;
-            background: white;
-            border-radius: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #b35e2e;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: transform 0.2s;
-        }
-
-        .back-btn:hover {
-            transform: translateX(-4px);
-        }
-
-        .tokens-badge {
-            background: #1f7a4b;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 60px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* MAIN LAYOUT GRID */
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-        }
-
-        @media (max-width: 768px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* CARDS */
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e0d5c8;
-        }
-
-        .card-title {
-            font-size: 1.3rem;
-            color: #2d1f14;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* FORM ELEMENTS */
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            color: #524233;
-            font-size: 0.9rem;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #d4c5b5;
-            border-radius: 12px;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .form-control:focus {
-            border-color: #b35e2e;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 14px;
-            background: #b35e2e;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .submit-btn:hover {
-            background: #964d23;
-        }
-
-        /* HISTORY LIST */
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .history-item {
-            padding: 14px;
-            background: #fdfbf7;
-            border: 1px solid #eae1d6;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .history-info h4 {
-            font-size: 1rem;
-            color: #2d1f14;
-        }
-
-        .history-info p {
-            font-size: 0.8rem;
-            color: #7b6856;
-            margin-top: 2px;
-        }
-
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-approved { background: #d4edc9; color: #1f5a3b; }
-        .status-rejected { background: #f8d7da; color: #721c24; }
-
-        /* TOAST */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 30px;
-            border-radius: 50px;
-            color: white;
-            font-weight: 500;
-            display: none;
-            z-index: 9999;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .toast.show { display: flex; align-items: center; gap: 10px; }
-        .toast.success { background: #1f7a4b; }
-        .toast.error { background: #b13e3e; }
-        .toast.info { background: #2d1f14; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: #121417; color: #e1e3e6; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .card { background: #1c1f24; border: 1px solid #2d3239; border-radius: 12px; padding: 30px; width: 100%; max-width: 450px; }
+        .card h2 { margin-bottom: 8px; color: #fff; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
+        .card p { color: #8b949e; font-size: 0.9rem; margin-bottom: 20px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 0.85rem; color: #a0a6b0; margin-bottom: 6px; font-weight: 600; }
+        input { width: 100%; background: #121417; border: 1px solid #2d3239; color: #fff; padding: 12px; border-radius: 6px; outline: none; font-size: 0.95rem; }
+        input:focus { border-color: #388bfd; }
+        .btn-submit { width: 100%; background: #238636; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1rem; margin-top: 10px; }
+        .btn-submit:hover { background: #2ea043; }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+        .back-link { display: inline-block; margin-top: 15px; color: #388bfd; text-decoration: none; font-size: 0.9rem; }
+        .back-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- HEADER -->
-    <div class="header">
-        <a href="dashboard.html" class="back-btn">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a>
-        <div class="tokens-badge">
-            <i class="fas fa-coins"></i>
-            <span id="tokenCount">0</span> Tokens
-        </div>
-    </div>
+<div class="card">
+    <h2><i class="fas fa-coins" style="color: #238636;"></i> Request Token Deposit</h2>
+    <p>Enter your payment details below to request tokens from the Admin.</p>
 
-    <!-- MAIN GRID -->
-    <div class="content-grid">
-        <!-- FORM CARD -->
-        <div class="card">
-            <h3 class="card-title">
-                <i class="fas fa-hand-holding-usd" style="color: #b35e2e;"></i> Request Tokens
-            </h3>
-            <form id="depositForm">
-                <div class="form-group">
-                    <label for="amount">Tokens Needed</label>
-                    <input type="number" id="amount" class="form-control" placeholder="e.g. 50" min="1" required>
-                </div>
-                <div class="form-group">
-                    <label for="paymentRef">Payment Reference / Transaction ID</label>
-                    <input type="text" id="paymentRef" class="form-control" placeholder="e.g. UPI Ref Number" required>
-                </div>
-                <div class="form-group">
-                    <label for="note">Note (Optional)</label>
-                    <input type="text" id="note" class="form-control" placeholder="e.g. Sent via GPay">
-                </div>
-                <button type="submit" class="submit-btn" id="submitBtn">
-                    <i class="fas fa-paper-plane"></i> Submit Request
-                </button>
-            </form>
+    <form id="depositForm" onsubmit="submitDepositRequest(event)">
+        <div class="form-group">
+            <label>Amount of Tokens</label>
+            <input type="number" id="depositAmount" placeholder="e.g. 50" min="1" required>
         </div>
-
-        <!-- REQUEST HISTORY CARD -->
-        <div class="card">
-            <h3 class="card-title">
-                <i class="fas fa-history" style="color: #b35e2e;"></i> Request History
-            </h3>
-            <div class="history-list" id="historyList">
-                <p style="text-align: center; color: #7b6856; padding: 20px;">Loading history...</p>
-            </div>
+        <div class="form-group">
+            <label>Transaction ID / UTR / Reference No.</label>
+            <input type="text" id="txnId" placeholder="Enter Transaction ID" required>
         </div>
-    </div>
-</div>
+        <button type="submit" class="btn-submit" id="submitBtn">Submit Deposit Request</button>
+    </form>
 
-<!-- TOAST NOTIFICATION -->
-<div class="toast" id="toast">
-    <i id="toastIcon" class="fas fa-info-circle"></i>
-    <span id="toastMessage">Message</span>
+    <a href="dashboard.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
 </div>
 
 <!-- FIREBASE SDKs -->
@@ -273,7 +49,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
-    /* FIREBASE CONFIG */
     const firebaseConfig = {
         apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
         authDomain: "tambola-house-3dc56.firebaseapp.com",
@@ -289,120 +64,55 @@
 
     let currentUser = null;
 
-    /* TOAST HELPER */
-    function showToast(message, type = "info") {
-        const toast = document.getElementById("toast");
-        const messageElement = document.getElementById("toastMessage");
-        const icon = document.getElementById("toastIcon");
-
-        messageElement.textContent = message;
-        toast.className = "toast show " + type;
-
-        if (type === "success") icon.className = "fas fa-check-circle";
-        else if (type === "error") icon.className = "fas fa-exclamation-circle";
-        else icon.className = "fas fa-info-circle";
-
-        setTimeout(() => toast.classList.remove("show"), 3000);
-    }
-
-    /* AUTH CHECK */
-    auth.onAuthStateChanged(async (user) => {
+    auth.onAuthStateChanged((user) => {
         if (!user) {
             window.location.href = "login.html";
             return;
         }
         currentUser = user;
-        loadUserDataAndHistory();
     });
 
-    /* REALTIME USER & REQUEST HISTORY LISTENER */
-    function loadUserDataAndHistory() {
-        db.collection("users").doc(currentUser.uid)
-            .onSnapshot((doc) => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    document.getElementById("tokenCount").textContent = Number(data.tokens || 0);
+    async function submitDepositRequest(e) {
+        e.preventDefault();
 
-                    const requests = data.depositRequests || [];
-                    renderHistory(requests);
-                }
-            }, (error) => {
-                console.error("Error loading user data:", error);
-                showToast("Failed to load user records", "error");
-            });
-    }
-
-    /* RENDER HISTORY ITEMS */
-    function renderHistory(requests) {
-        const historyList = document.getElementById("historyList");
-        historyList.innerHTML = "";
-
-        if (requests.length === 0) {
-            historyList.innerHTML = `
-                <p style="text-align: center; color: #7b6856; padding: 20px;">No deposit requests submitted yet.</p>
-            `;
+        if (!currentUser) {
+            alert("Please log in to submit a request.");
             return;
         }
 
-        // Show newest requests on top
-        requests.slice().reverse().forEach((req) => {
-            const item = document.createElement("div");
-            item.className = "history-item";
+        const amount = Number(document.getElementById("depositAmount").value);
+        const txnId = document.getElementById("txnId").value.trim();
 
-            const status = req.status || "pending";
-            const statusClass = `status-${status.toLowerCase()}`;
+        if (!amount || amount <= 0 || !txnId) {
+            alert("Please provide a valid token amount and transaction ID.");
+            return;
+        }
 
-            item.innerHTML = `
-                <div class="history-info">
-                    <h4>+${req.amount} Tokens</h4>
-                    <p>Ref: ${req.paymentRef || "N/A"}</p>
-                </div>
-                <span class="status-badge ${statusClass}">${status}</span>
-            `;
-
-            historyList.appendChild(item);
-        });
-    }
-
-    /* HANDLE DEPOSIT FORM SUBMISSION */
-    document.getElementById("depositForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const amount = parseInt(document.getElementById("amount").value);
-        const paymentRef = document.getElementById("paymentRef").value.trim();
-        const note = document.getElementById("note").value.trim();
-
-        if (!amount || amount <= 0) return showToast("Please enter a valid token amount", "error");
-        if (!paymentRef) return showToast("Please enter payment reference ID", "error");
-
-        const submitBtn = document.getElementById("submitBtn");
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Submitting...`;
+        const btn = document.getElementById("submitBtn");
+        btn.disabled = true;
+        btn.textContent = "Submitting...";
 
         try {
-            const newRequest = {
-                id: "REQ-" + Date.now(),
+            // Write directly into the 'deposits' collection
+            await db.collection("deposits").add({
+                userId: currentUser.uid,
+                userEmail: currentUser.email || "N/A",
                 amount: amount,
-                paymentRef: paymentRef,
-                note: note,
+                txnId: txnId,
                 status: "pending",
-                createdAt: new Date().toISOString()
-            };
-
-            await db.collection("users").doc(currentUser.uid).update({
-                depositRequests: firebase.firestore.FieldValue.arrayUnion(newRequest)
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            showToast("Deposit request submitted!", "success");
+            alert("Deposit request submitted successfully! It is now pending admin approval.");
             document.getElementById("depositForm").reset();
-        } catch (error) {
-            console.error("Submission error:", error);
-            showToast("Failed to submit request. Try again.", "error");
+        } catch (err) {
+            console.error("Submission Error:", err);
+            alert("Failed to submit request: " + err.message);
         } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = `<i class="fas fa-paper-plane"></i> Submit Request`;
+            btn.disabled = false;
+            btn.textContent = "Submit Deposit Request";
         }
-    });
+    }
 </script>
 </body>
 </html>
