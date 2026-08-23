@@ -4,240 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Tickets - Tambola House</title>
-
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: #121417; color: #e1e3e6; min-height: 100vh; padding: 20px; }
+        
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* HEADER & USER BAR */
+        .header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: #1c1f24; border: 1px solid #2d3239; padding: 16px 24px; 
+            border-radius: 12px; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; 
+        }
+        .header h2 { font-size: 1.3rem; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .token-badge { 
+            background: rgba(35, 134, 54, 0.2); border: 1px solid #238636; color: #3fb950; 
+            padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.95rem; 
+        }
+        .nav-link { color: #388bfd; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+        .nav-link:hover { text-decoration: underline; }
+
+        /* TICKET GRID */
+        .ticket-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 20px; margin-top: 20px; 
         }
 
-        body {
-            background: linear-gradient(145deg, #f5f0eb 0%, #e8e0d8 100%);
-            min-height: 100vh;
-            padding: 20px;
+        /* TICKET CARD */
+        .ticket-card { 
+            background: #1c1f24; border: 1px solid #2d3239; border-radius: 12px; 
+            padding: 16px; position: relative; transition: transform 0.2s; 
         }
+        .ticket-card:hover { transform: translateY(-2px); }
+        
+        .ticket-card.owned { border-color: #238636; background: #162218; }
+        .ticket-card.sold { border-color: #383d47; opacity: 0.6; }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .ticket-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 12px; font-weight: 700; font-size: 0.95rem; 
         }
+        .ticket-id { color: #ffffff; }
+        .ticket-price { color: #238636; }
 
-        /* HEADER */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 20px 30px;
-            background: white;
-            border-radius: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-            flex-wrap: wrap;
-            gap: 15px;
+        /* TAMBOLA BOARD (3x9 GRID) */
+        .tambola-board { 
+            display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; 
+            background: #2d3239; border: 1px solid #2d3239; border-radius: 6px; 
+            overflow: hidden; margin-bottom: 14px; 
         }
-
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #b35e2e;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: transform 0.2s;
+        .cell { 
+            background: #121417; aspect-ratio: 1; display: flex; align-items: center; 
+            justify-content: center; font-size: 0.75rem; font-weight: 700; color: #e1e3e6; 
         }
-
-        .back-btn:hover {
-            transform: translateX(-4px);
-        }
-
-        .tokens-badge {
-            background: #1f7a4b;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 60px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* TITLE SECTION */
-        .page-title {
-            margin-bottom: 25px;
-        }
-
-        .page-title h2 {
-            color: #2d1f14;
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-        }
-
-        .page-title p {
-            color: #7b6856;
-        }
-
-        /* TICKETS GRID */
-        .tickets-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 25px;
-        }
-
-        .ticket-card {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e0d5c8;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .ticket-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px dashed #d4c5b5;
-            padding-bottom: 10px;
-        }
-
-        .ticket-id {
-            font-weight: 700;
-            color: #2d1f14;
-            font-size: 1.1rem;
-        }
-
-        .price-tag {
-            background: #f0ebe6;
-            color: #b35e2e;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
-        }
-
-        /* TAMBOLA GRID */
-        .tambola-grid {
-            display: grid;
-            grid-template-columns: repeat(9, 1fr);
-            gap: 4px;
-            background: #f8f4f0;
-            padding: 10px;
-            border-radius: 12px;
-            border: 1px solid #d4c5b5;
-            margin-bottom: 15px;
-        }
-
-        .cell {
-            aspect-ratio: 1;
-            min-height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-            border: 1px solid #e0d5c8;
-            border-radius: 4px;
-            font-weight: 700;
-            color: #2d1f14;
-            font-size: 0.85rem;
-        }
-
-        .cell.empty {
-            background: #f0ebe6;
-            border-color: #f0ebe6;
-        }
+        .cell.empty { background: #1c1f24; color: transparent; }
 
         /* ACTION BUTTONS */
-        .buy-btn {
-            width: 100%;
-            padding: 12px;
-            background: #1f7a4b;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+        .btn-buy { 
+            width: 100%; background: #238636; color: white; border: none; 
+            padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; 
+            transition: background 0.2s; font-size: 0.9rem; 
         }
+        .btn-buy:hover { background: #2ea043; }
+        .btn-buy:disabled { background: #2d3239; color: #8b949e; cursor: not-allowed; }
 
-        .buy-btn:hover {
-            background: #165836;
-        }
-
-        .buy-btn:active {
-            transform: scale(0.98);
-        }
-
-        .buy-btn:disabled {
-            background: #c2b8ad;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* STATE MESSAGES */
-        .state-container {
-            text-align: center;
-            padding: 60px 20px;
-            background: white;
-            border-radius: 20px;
-            grid-column: 1 / -1;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #eee;
-            border-top-color: #b35e2e;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        .badge-owned { color: #3fb950; font-size: 0.85rem; font-weight: 700; text-align: center; display: block; }
+        .badge-sold { color: #8b949e; font-size: 0.85rem; font-weight: 700; text-align: center; display: block; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- HEADER -->
+    <!-- HEADER BAR -->
     <div class="header">
-        <a href="dashboard.html" class="back-btn">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a>
-        <div class="tokens-badge">
-            <i class="fas fa-coins"></i>
-            <span id="tokenCount">0</span> Tokens
+        <h2><i class="fas fa-ticket-alt" style="color: #388bfd;"></i> Permanent Ticket Market</h2>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="token-badge"><i class="fas fa-coins"></i> <span id="userTokens">0</span> Tokens</div>
+            <a href="dashboard.html" class="nav-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
         </div>
     </div>
 
-    <!-- TITLE -->
-    <div class="page-title">
-        <h2><i class="fas fa-ticket-alt" style="color: #b35e2e;"></i> Available Permanent Tickets</h2>
-        <p>Claim permanent tickets for all current and future draws.</p>
-    </div>
-
-    <!-- TICKETS GRID -->
-    <div class="tickets-grid" id="ticketsGrid">
-        <div class="state-container">
-            <div class="spinner"></div>
-            <p style="color: #7b6856;">Loading available tickets...</p>
-        </div>
+    <!-- TICKETS DISPLAY CONTAINER -->
+    <div id="ticketContainer" class="ticket-grid">
+        <p style="color: #8b949e; grid-column: 1/-1; text-align: center;">Loading permanent tickets...</p>
     </div>
 </div>
 
@@ -247,7 +97,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
-    /* FIREBASE CONFIGURATION */
     const firebaseConfig = {
         apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
         authDomain: "tambola-house-3dc56.firebaseapp.com",
@@ -262,139 +111,111 @@
     const db = firebase.firestore();
 
     let currentUser = null;
-    let userTokens = 0;
+    let currentUserTokens = 0;
 
-    /* AUTH LISTENER */
-    auth.onAuthStateChanged(async (user) => {
+    /* AUTH MONITOR & DATA INITIALIZATION */
+    auth.onAuthStateChanged((user) => {
         if (!user) {
             window.location.href = "login.html";
             return;
         }
         currentUser = user;
-        await loadTokens();
-        loadAvailableTickets();
+        listenToUserData(user.uid);
+        listenToTickets();
     });
 
-    /* LOAD TOKENS */
-    async function loadTokens() {
-        try {
-            const doc = await db.collection("users").doc(currentUser.uid).get();
+    /* LISTEN TO CURRENT USER TOKEN BALANCE */
+    function listenToUserData(uid) {
+        db.collection("users").doc(uid).onSnapshot((doc) => {
             if (doc.exists) {
-                userTokens = Number(doc.data().tokens || 0);
-                document.getElementById("tokenCount").textContent = userTokens;
+                currentUserTokens = doc.data().tokens || 0;
+                document.getElementById("userTokens").textContent = currentUserTokens;
             }
-        } catch (err) {
-            console.error("Token load error:", err);
-        }
+        });
     }
 
-    /* FETCH ONLY UNCLAIMED PERMANENT TICKETS */
-    function loadAvailableTickets() {
-        db.collection("tickets")
-            .where("status", "==", "available")
-            .onSnapshot((snapshot) => {
-                const grid = document.getElementById("ticketsGrid");
-                grid.innerHTML = "";
+    /* REALTIME LISTENER FOR ALL 300 TICKETS */
+    function listenToTickets() {
+        db.collection("tickets").orderBy(firebase.firestore.FieldPath.documentId()).onSnapshot((snapshot) => {
+            const container = document.getElementById("ticketContainer");
+            container.innerHTML = "";
 
-                if (snapshot.empty) {
-                    grid.innerHTML = `
-                        <div class="state-container">
-                            <i class="fas fa-ticket-alt" style="font-size:2.5rem; color:#b35e2e; margin-bottom:10px;"></i>
-                            <h3>All 300 Tickets Claimed</h3>
-                            <p style="color: #7b6856;">All permanent tickets are currently owned by players.</p>
-                        </div>
-                    `;
-                    return;
-                }
+            if (snapshot.empty) {
+                container.innerHTML = `<p style="color: #8b949e; grid-column: 1/-1; text-align: center;">No tickets found. Initialize tickets in admin panel.</p>`;
+                return;
+            }
 
-                snapshot.forEach((doc) => {
-                    const ticket = doc.data();
-                    const ticketId = doc.id;
-                    const price = ticket.price || 10;
-                    const numbers = ticket.numbers;
+            snapshot.forEach((doc) => {
+                const ticket = doc.data();
+                const ticketId = doc.id;
+                const isOwned = ticket.ownerId === currentUser.uid;
+                const isAvailable = !ticket.ownerId && ticket.status === "available";
 
-                    const card = document.createElement("div");
-                    card.className = "ticket-card";
+                const card = document.createElement("div");
+                card.className = `ticket-card ${isOwned ? 'owned' : (!isAvailable ? 'sold' : '')}`;
 
-                    card.innerHTML = `
-                        <div>
-                            <div class="ticket-card-header">
-                                <span class="ticket-id">${ticketId}</span>
-                                <span class="price-tag"><i class="fas fa-coins"></i> ${price} Tokens</span>
-                            </div>
-                            <div class="tambola-grid">
-                                ${numbers ? numbers.flat().map(num => `
-                                    <div class="cell ${num ? '' : 'empty'}">
-                                        ${num || ''}
-                                    </div>
-                                `).join('') : ''}
-                            </div>
-                        </div>
-                        <button class="buy-btn" id="btn-${ticketId}" onclick="buyPermanentTicket('${ticketId}', ${price}, this)">
-                            <i class="fas fa-shopping-cart"></i> Claim Permanent Ticket
-                        </button>
-                    `;
-
-                    grid.appendChild(card);
+                // Build 3x9 Tambola Grid UI
+                let cellsHtml = "";
+                const flatNumbers = ticket.numbers || Array(27).fill(null);
+                flatNumbers.forEach(num => {
+                    cellsHtml += `<div class="cell ${num ? '' : 'empty'}">${num || ''}</div>`;
                 });
-            }, (error) => {
-                console.error("Error fetching tickets:", error);
-                document.getElementById("ticketsGrid").innerHTML = `
-                    <div class="state-container">
-                        <i class="fas fa-exclamation-triangle" style="font-size:2rem; color:#b35e2e; margin-bottom:10px;"></i>
-                        <p style="color:#7b6856;">Failed to load tickets. Please initialize the pool in admin panel.</p>
+
+                card.innerHTML = `
+                    <div class="ticket-header">
+                        <span class="ticket-id">${ticketId}</span>
+                        <span class="ticket-price">${ticket.price || 10} Tokens</span>
                     </div>
+                    <div class="tambola-board">
+                        ${cellsHtml}
+                    </div>
+                    ${isOwned ? `<span class="badge-owned"><i class="fas fa-check-circle"></i> Purchased</span>` : ''}
+                    ${!isOwned && !isAvailable ? `<span class="badge-sold"><i class="fas fa-lock"></i> Claimed</span>` : ''}
+                    ${isAvailable ? `<button class="btn-buy" onclick="buyTicket('${ticketId}', ${ticket.price || 10})">Buy Ticket</button>` : ''}
                 `;
+
+                container.appendChild(card);
             });
+        });
     }
 
-    /* PERMANENT TICKET CLAIM TRANSACTION */
-    async function buyPermanentTicket(ticketId, price, btnElement) {
-        if (userTokens < price) {
-            alert("Insufficient tokens! Request a deposit to acquire more tokens.");
+    /* ATOMIC TICKET PURCHASE TRANSACTION */
+    async function buyTicket(ticketId, price) {
+        if (currentUserTokens < price) {
+            alert(`Insufficient tokens! You need ${price} tokens to buy this ticket.`);
             return;
         }
 
-        btnElement.disabled = true;
-        btnElement.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
+        if (!confirm(`Are you sure you want to purchase ${ticketId} for ${price} tokens?`)) return;
 
-        const ticketRef = db.collection("tickets").doc(ticketId);
         const userRef = db.collection("users").doc(currentUser.uid);
+        const ticketRef = db.collection("tickets").doc(ticketId);
 
         try {
             await db.runTransaction(async (transaction) => {
                 const ticketDoc = await transaction.get(ticketRef);
                 const userDoc = await transaction.get(userRef);
 
-                if (!ticketDoc.exists) throw "Ticket no longer exists!";
+                if (!ticketDoc.exists) throw "Ticket does not exist!";
+                if (ticketDoc.data().ownerId) throw "Ticket was already purchased by another user!";
 
-                if (ticketDoc.data().status === "assigned" || ticketDoc.data().ownerId != null) {
-                    throw "This ticket was just claimed by another player!";
-                }
+                const currentTokens = userDoc.exists ? (userDoc.data().tokens || 0) : 0;
+                if (currentTokens < price) throw "Insufficient token balance!";
 
-                const currentTokens = userDoc.data().tokens || 0;
-                if (currentTokens < price) throw "Insufficient tokens!";
+                // 1. Deduct tokens from user balance
+                transaction.update(userRef, { tokens: currentTokens - price });
 
-                // Permanently assign ticket to user
-                transaction.update(ticketRef, {
-                    ownerId: currentUser.uid,
-                    status: "assigned",
-                    purchasedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                transaction.update(userRef, {
-                    tokens: currentTokens - price
+                // 2. Assign ticket ownership to current user
+                transaction.update(ticketRef, { 
+                    ownerId: currentUser.uid, 
+                    status: "sold" 
                 });
             });
 
-            alert(`Successfully acquired permanent ticket ${ticketId}!`);
-            await loadTokens();
-
+            alert(`Congratulations! You now permanently own ${ticketId}.`);
         } catch (err) {
-            console.error("Purchase error:", err);
-            alert("Transaction failed: " + err);
-            btnElement.disabled = false;
-            btnElement.innerHTML = `<i class="fas fa-shopping-cart"></i> Claim Permanent Ticket`;
+            console.error("Purchase Error:", err);
+            alert("Purchase failed: " + err);
         }
     }
 </script>
