@@ -154,7 +154,7 @@
             font-weight: 600;
         }
 
-        /* MANUAL ADD FORM */
+        /* FORMS & ACTION PANELS */
         .manual-form {
             display: flex;
             gap: 12px;
@@ -190,6 +190,42 @@
         .btn-submit:hover {
             background: #2ea043;
         }
+
+        .btn-game {
+            background: #388bfd;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-game:hover {
+            background: #2c75d8;
+        }
+
+        .btn-danger {
+            background: #da3633;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-danger:hover {
+            background: #b82d2a;
+        }
     </style>
 </head>
 <body>
@@ -199,8 +235,27 @@
     <div class="header">
         <h2><i class="fas fa-shield-alt" style="color: #388bfd;"></i> System Administrator</h2>
         <div class="header-links">
+            <a href="game.html"><i class="fas fa-gamepad"></i> Game Room</a>
             <a href="book-tickets.html"><i class="fas fa-ticket-alt"></i> Tickets</a>
             <a href="dashboard.html"><i class="fas fa-desktop"></i> Main Dashboard</a>
+        </div>
+    </div>
+
+    <!-- LIVE GAME CONTROL PANEL -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-dice" style="color: #388bfd;"></i> Live Game Host Controls</div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 10px;">
+            <button class="btn-game" onclick="drawNextNumber()">
+                <i class="fas fa-bullhorn"></i> Draw Next Number
+            </button>
+
+            <button class="btn-danger" onclick="resetGame()">
+                <i class="fas fa-undo"></i> Reset Game Board
+            </button>
+
+            <span style="color: #a0a6b0; font-size: 0.95rem; font-weight: 600; margin-left: 10px;">
+                Last Drawn Number: <strong id="adminLastDrawn" style="color: #3fb950; font-size: 1.3rem;">--</strong>
+            </span>
         </div>
     </div>
 
@@ -263,7 +318,75 @@
             return;
         }
         loadDepositRequests();
+        listenToActiveGame();
     });
+
+    /* --- LIVE GAME CONTROLS --- */
+
+    /* LISTEN TO ACTIVE GAME STATUS */
+    function listenToActiveGame() {
+        db.collection("games").doc("active_game").onSnapshot((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                document.getElementById("adminLastDrawn").textContent = data.lastDrawn || "--";
+            }
+        });
+    }
+
+    /* DRAW NEXT RANDOM NUMBER (1-90) ATOMICALLY */
+    async function drawNextNumber() {
+        const gameRef = db.collection("games").doc("active_game");
+
+        try {
+            await db.runTransaction(async (transaction) => {
+                const doc = await transaction.get(gameRef);
+                let drawnNumbers = doc.exists ? (doc.data().drawnNumbers || []) : [];
+
+                if (drawnNumbers.length >= 90) {
+                    alert("All 90 numbers have already been drawn!");
+                    return;
+                }
+
+                // Generate non-repeating number between 1 and 90
+                let nextNum;
+                do {
+                    nextNum = Math.floor(Math.random() * 90) + 1;
+                } while (drawnNumbers.includes(nextNum));
+
+                drawnNumbers.push(nextNum);
+
+                transaction.set(gameRef, {
+                    status: "running",
+                    drawnNumbers: drawnNumbers,
+                    lastDrawn: nextNum,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+            });
+        } catch (err) {
+            console.error("Error drawing number:", err);
+            alert("Failed to draw number: " + err.message);
+        }
+    }
+
+    /* RESET GAME BOARD FOR A NEW MATCH */
+    async function resetGame() {
+        if (!confirm("Are you sure you want to reset the active game? All drawn numbers will be cleared.")) return;
+
+        try {
+            await db.collection("games").doc("active_game").set({
+                status: "running",
+                drawnNumbers: [],
+                lastDrawn: null,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            alert("Game board has been reset!");
+        } catch (err) {
+            console.error("Error resetting game:", err);
+            alert("Failed to reset game: " + err.message);
+        }
+    }
+
+    /* --- DEPOSIT MANAGEMENT --- */
 
     /* REALTIME DEPOSIT REQUEST STREAM */
     function loadDepositRequests() {
