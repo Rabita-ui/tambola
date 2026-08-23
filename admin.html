@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Tambola House</title>
+    <title>Admin Portal - Tambola House</title>
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -17,13 +17,14 @@
         }
 
         body {
-            background: linear-gradient(145deg, #f5f0eb 0%, #e8e0d8 100%);
+            background: #121417;
+            color: #e1e3e6;
             min-height: 100vh;
-            padding: 20px;
+            padding: 24px;
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
@@ -32,151 +33,162 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            padding: 20px 30px;
-            background: #2d1f14;
-            color: white;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            flex-wrap: wrap;
-            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #1c1f24;
+            border-radius: 12px;
+            border: 1px solid #2d3239;
         }
 
         .header h2 {
+            font-size: 1.3rem;
+            color: #ffffff;
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 1.5rem;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 15px;
-        }
-
-        .back-btn {
-            color: #e8e0d8;
+        .header-links a {
+            color: #a0a6b0;
             text-decoration: none;
+            font-size: 0.9rem;
             font-weight: 600;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            margin-left: 15px;
         }
 
-        .back-btn:hover {
+        .header-links a:hover {
             color: #ffffff;
         }
 
-        /* PANELS */
-        .panel {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border: 1px solid #e0d5c8;
+        /* CARDS */
+        .card {
+            background: #1c1f24;
+            border: 1px solid #2d3239;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
         }
 
-        .panel-title {
-            font-size: 1.2rem;
-            color: #2d1f14;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f0ebe6;
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         /* TABLES */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
         }
 
         th, td {
-            padding: 12px 15px;
+            padding: 12px 16px;
             text-align: left;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #2d3239;
             font-size: 0.9rem;
         }
 
         th {
-            background: #f8f4f0;
-            color: #7b6856;
-            font-weight: 700;
+            background: #23272e;
+            color: #8b949e;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
         }
 
-        /* BUTTONS & INPUTS */
-        .btn-action {
-            padding: 6px 14px;
+        /* BUTTONS & BADGES */
+        .btn-btn {
+            padding: 6px 12px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-weight: 600;
+            font-size: 0.8rem;
             cursor: pointer;
-            font-size: 0.85rem;
             transition: opacity 0.2s;
         }
 
         .btn-approve {
-            background: #1f7a4b;
-            color: white;
+            background: #238636;
+            color: #ffffff;
+            margin-right: 6px;
         }
 
-        .btn-approve:hover {
-            opacity: 0.9;
+        .btn-reject {
+            background: #da3633;
+            color: #ffffff;
         }
 
-        .input-group {
+        .btn-approve:hover, .btn-reject:hover {
+            opacity: 0.85;
+        }
+
+        .badge-pending {
+            background: rgba(210, 153, 34, 0.15);
+            color: #d29922;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-approved {
+            background: rgba(46, 160, 67, 0.15);
+            color: #3fb950;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-rejected {
+            background: rgba(248, 81, 73, 0.15);
+            color: #f85149;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* MANUAL ADD FORM */
+        .manual-form {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 12px;
             flex-wrap: wrap;
         }
 
-        input[type="text"], input[type="number"] {
+        input {
+            background: #121417;
+            border: 1px solid #2d3239;
+            color: #ffffff;
             padding: 10px 14px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            outline: none;
+            border-radius: 6px;
             font-size: 0.9rem;
+            outline: none;
             flex: 1;
             min-width: 200px;
         }
 
+        input:focus {
+            border-color: #388bfd;
+        }
+
         .btn-submit {
-            background: #b35e2e;
+            background: #238636;
             color: white;
-            padding: 12px 20px;
+            padding: 10px 18px;
             border: none;
-            border-radius: 8px;
-            font-weight: 700;
+            border-radius: 6px;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
         }
 
         .btn-submit:hover {
-            background: #964b22;
-        }
-
-        .badge-pending {
-            background: #fff3cd;
-            color: #856404;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-
-        .badge-completed {
-            background: #d4edda;
-            color: #155724;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 700;
+            background: #2ea043;
         }
     </style>
 </head>
@@ -185,52 +197,44 @@
 <div class="container">
     <!-- HEADER -->
     <div class="header">
-        <h2><i class="fas fa-user-shield"></i> Admin Control Center</h2>
-        <div class="nav-links">
-            <a href="book-tickets.html" class="back-btn"><i class="fas fa-ticket-alt"></i> Book Tickets</a>
-            <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        <h2><i class="fas fa-shield-alt" style="color: #388bfd;"></i> System Administrator</h2>
+        <div class="header-links">
+            <a href="book-tickets.html"><i class="fas fa-ticket-alt"></i> Tickets</a>
+            <a href="dashboard.html"><i class="fas fa-desktop"></i> Main Dashboard</a>
         </div>
     </div>
 
-    <!-- DIRECT TOKEN ADJUSTMENT -->
-    <div class="panel">
-        <div class="panel-title"><i class="fas fa-coins" style="color: #b35e2e;"></i> Direct Token Adjustment</div>
-        <p style="color: #7b6856; font-size: 0.9rem;">Manually add tokens to a user using their Firebase User ID (UID).</p>
-        <div class="input-group">
-            <input type="text" id="targetUid" placeholder="Enter User UID">
-            <input type="number" id="tokenAmount" placeholder="Amount (e.g. 100)">
-            <button class="btn-submit" onclick="addTokensToUser()">Add Tokens</button>
-        </div>
-    </div>
-
-    <!-- DEPOSIT REQUESTS PANEL -->
-    <div class="panel">
-        <div class="panel-title"><i class="fas fa-file-invoice-dollar" style="color: #1f7a4b;"></i> Pending Deposit Requests</div>
+    <!-- PENDING DEPOSIT APPROVALS -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-clock" style="color: #d29922;"></i> Deposit Requests</div>
         <div style="overflow-x: auto;">
             <table>
                 <thead>
                     <tr>
-                        <th>User ID</th>
+                        <th>User UID</th>
                         <th>Amount</th>
-                        <th>TXN ID</th>
+                        <th>Transaction ID</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="depositsTable">
                     <tr>
-                        <td colspan="5" style="text-align: center; color: #7b6856;">Loading deposit requests...</td>
+                        <td colspan="5" style="text-align: center; color: #8b949e;">Loading requests...</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- FIXED 300 PERMANENT TICKET POOL SEEDER -->
-    <div class="panel">
-        <div class="panel-title"><i class="fas fa-ticket-alt" style="color: #b35e2e;"></i> Fixed Permanent Ticket Pool Setup</div>
-        <p style="color: #7b6856; font-size: 0.9rem; margin-bottom: 15px;">Initialize or seed the permanent pool of exactly 300 tickets (TICKET-001 to TICKET-300).</p>
-        <button class="btn-submit" id="seedBtn" onclick="seedFixed300Tickets()">Initialize 300 Permanent Tickets</button>
+    <!-- DIRECT TOKEN OVERRIDE -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-coins" style="color: #238636;"></i> Direct Token Assignment</div>
+        <div class="manual-form">
+            <input type="text" id="targetUid" placeholder="User UID">
+            <input type="number" id="tokenAmount" placeholder="Token Amount">
+            <button class="btn-submit" onclick="addTokensDirectly()">Add Tokens</button>
+        </div>
     </div>
 </div>
 
@@ -240,7 +244,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
-    /* FIREBASE CONFIGURATION */
     const firebaseConfig = {
         apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
         authDomain: "tambola-house-3dc56.firebaseapp.com",
@@ -254,7 +257,6 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    /* AUTH CHECK */
     auth.onAuthStateChanged((user) => {
         if (!user) {
             window.location.href = "login.html";
@@ -263,14 +265,14 @@
         loadDepositRequests();
     });
 
-    /* LOAD PENDING DEPOSIT REQUESTS */
+    /* REALTIME DEPOSIT REQUEST STREAM */
     function loadDepositRequests() {
         db.collection("deposits").onSnapshot((snapshot) => {
             const table = document.getElementById("depositsTable");
             table.innerHTML = "";
 
             if (snapshot.empty) {
-                table.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #7b6856;">No deposit requests found.</td></tr>`;
+                table.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #8b949e;">No deposit requests pending.</td></tr>`;
                 return;
             }
 
@@ -279,14 +281,21 @@
                 const depId = doc.id;
                 const isPending = dep.status === "pending";
 
+                let badgeClass = "badge-pending";
+                if (dep.status === "approved") badgeClass = "badge-approved";
+                if (dep.status === "rejected") badgeClass = "badge-rejected";
+
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td>${dep.userId || 'N/A'}</td>
+                    <td style="font-family: monospace;">${dep.userId || 'N/A'}</td>
                     <td><strong>${dep.amount} Tokens</strong></td>
                     <td>${dep.txnId || 'N/A'}</td>
-                    <td><span class="${isPending ? 'badge-pending' : 'badge-completed'}">${dep.status ? dep.status.toUpperCase() : 'PENDING'}</span></td>
+                    <td><span class="${badgeClass}">${(dep.status || 'pending').toUpperCase()}</span></td>
                     <td>
-                        ${isPending ? `<button class="btn-action btn-approve" onclick="approveDeposit('${depId}', '${dep.userId}', ${dep.amount})">Approve</button>` : 'Approved'}
+                        ${isPending ? `
+                            <button class="btn-btn btn-approve" onclick="processDeposit('${depId}', '${dep.userId}', ${dep.amount}, 'approved')">Approve</button>
+                            <button class="btn-btn btn-reject" onclick="processDeposit('${depId}', '${dep.userId}', 0, 'rejected')">Reject</button>
+                        ` : '--'}
                     </td>
                 `;
                 table.appendChild(row);
@@ -294,9 +303,9 @@
         });
     }
 
-    /* APPROVE DEPOSIT REQUEST */
-    async function approveDeposit(depId, userId, amount) {
-        if (!confirm(`Approve deposit of ${amount} tokens for user ${userId}?`)) return;
+    /* ATOMIC APPROVE / REJECT TRANSACTION */
+    async function processDeposit(depId, userId, amount, newStatus) {
+        if (!confirm(`Are you sure you want to mark this request as ${newStatus.toUpperCase()}?`)) return;
 
         try {
             const userRef = db.collection("users").doc(userId);
@@ -304,21 +313,24 @@
 
             await db.runTransaction(async (transaction) => {
                 const userDoc = await transaction.get(userRef);
-                const currentTokens = userDoc.exists ? (userDoc.data().tokens || 0) : 0;
 
-                transaction.update(userRef, { tokens: currentTokens + Number(amount) });
-                transaction.update(depRef, { status: "approved" });
+                if (newStatus === "approved") {
+                    const currentTokens = userDoc.exists ? (userDoc.data().tokens || 0) : 0;
+                    transaction.update(userRef, { tokens: currentTokens + Number(amount) });
+                }
+
+                transaction.update(depRef, { status: newStatus });
             });
 
-            alert("Deposit approved and tokens credited successfully!");
+            alert(`Deposit ${newStatus} successfully!`);
         } catch (err) {
-            console.error("Approval error:", err);
-            alert("Failed to approve deposit: " + err.message);
+            console.error("Processing error:", err);
+            alert("Action failed: " + err.message);
         }
     }
 
-    /* ADD TOKENS DIRECTLY */
-    async function addTokensToUser() {
+    /* DIRECT TOKEN OVERRIDE */
+    async function addTokensDirectly() {
         const uid = document.getElementById("targetUid").value.trim();
         const amount = Number(document.getElementById("tokenAmount").value);
 
@@ -332,77 +344,20 @@
             const userDoc = await userRef.get();
 
             if (!userDoc.exists) {
-                alert("User UID not found in Firestore.");
+                alert("Target UID does not exist in database.");
                 return;
             }
 
             const currentTokens = userDoc.data().tokens || 0;
             await userRef.update({ tokens: currentTokens + amount });
 
-            alert(`Successfully added ${amount} tokens. New balance: ${currentTokens + amount}`);
+            alert(`Added ${amount} tokens to UID. New total: ${currentTokens + amount}`);
             document.getElementById("targetUid").value = "";
             document.getElementById("tokenAmount").value = "";
         } catch (err) {
-            console.error("Token add error:", err);
-            alert("Error updating tokens: " + err.message);
+            console.error("Direct add error:", err);
+            alert("Error adding tokens: " + err.message);
         }
-    }
-
-    /* INITIALIZE EXACTLY 300 PERMANENT TICKETS */
-    async function seedFixed300Tickets() {
-        if (!confirm("This will initialize or reset all 300 permanent tickets in Firestore. Continue?")) return;
-
-        const btn = document.getElementById("seedBtn");
-        btn.disabled = true;
-        btn.textContent = "Seeding 300 Tickets...";
-
-        try {
-            // Process in batches of 100 to stay safely under Firestore transaction limits
-            for (let batchIndex = 0; batchIndex < 3; batchIndex++) {
-                const batch = db.batch();
-                for (let i = 1; i <= 100; i++) {
-                    const ticketNum = batchIndex * 100 + i;
-                    const ticketId = `TICKET-${ticketNum.toString().padStart(3, '0')}`;
-                    const ref = db.collection("tickets").doc(ticketId);
-
-                    batch.set(ref, {
-                        ownerId: null,
-                        status: "available",
-                        price: 10,
-                        numbers: generateTambolaNumbers() // Fixed 1D array of 27 elements
-                    }, { merge: true });
-                }
-                await batch.commit();
-            }
-
-            alert("Success! 300 Permanent Tickets initialized (TICKET-001 to TICKET-300).");
-        } catch (err) {
-            console.error("Seeding error:", err);
-            alert("Failed to initialize tickets: " + err.message);
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "Initialize 300 Permanent Tickets";
-        }
-    }
-
-    /* GENERATE FLAT TAMBOLA GRID (1D ARRAY OF 27 ITEMS) */
-    function generateTambolaNumbers() {
-        const grid = Array(3).fill(null).map(() => Array(9).fill(null));
-
-        for (let row = 0; row < 3; row++) {
-            const positions = [];
-            while (positions.length < 5) {
-                const pos = Math.floor(Math.random() * 9);
-                if (!positions.includes(pos)) positions.push(pos);
-            }
-            positions.forEach(col => {
-                let min = col === 0 ? 1 : col * 10;
-                let max = col === 8 ? 90 : col * 10 + 9;
-                grid[row][col] = Math.floor(Math.random() * (max - min + 1)) + min;
-            });
-        }
-
-        return grid.flat();
     }
 </script>
 </body>
