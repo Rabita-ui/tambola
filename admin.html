@@ -229,7 +229,7 @@
     <!-- FIXED 300 PERMANENT TICKET POOL SEEDER -->
     <div class="panel">
         <div class="panel-title"><i class="fas fa-ticket-alt" style="color: #b35e2e;"></i> Fixed Permanent Ticket Pool Setup</div>
-        <p style="color: #7b6856; font-size: 0.9rem; margin-bottom: 15px;">Initialize or seed the permanent pool of exactly 300 tickets (TICKET-001 to TICKET-300). Once created, users buy them permanently.</p>
+        <p style="color: #7b6856; font-size: 0.9rem; margin-bottom: 15px;">Initialize or seed the permanent pool of exactly 300 tickets (TICKET-001 to TICKET-300).</p>
         <button class="btn-submit" id="seedBtn" onclick="seedFixed300Tickets()">Initialize 300 Permanent Tickets</button>
     </div>
 </div>
@@ -369,7 +369,7 @@
                         ownerId: null,
                         status: "available",
                         price: 10,
-                        numbers: generateTambolaNumbers()
+                        numbers: generateTambolaNumbers() // Fixed 1D array of 27 elements
                     }, { merge: true });
                 }
                 await batch.commit();
@@ -385,11 +385,11 @@
         }
     }
 
-    /* GENERATE TAMBOLA GRID */
+    /* GENERATE FLAT TAMBOLA GRID (1D ARRAY OF 27 ITEMS) */
     function generateTambolaNumbers() {
-        const grid = [];
+        const grid = Array(3).fill(null).map(() => Array(9).fill(null));
+
         for (let row = 0; row < 3; row++) {
-            const rowData = Array(9).fill(null);
             const positions = [];
             while (positions.length < 5) {
                 const pos = Math.floor(Math.random() * 9);
@@ -398,11 +398,11 @@
             positions.forEach(col => {
                 let min = col === 0 ? 1 : col * 10;
                 let max = col === 8 ? 90 : col * 10 + 9;
-                rowData[col] = Math.floor(Math.random() * (max - min + 1)) + min;
+                grid[row][col] = Math.floor(Math.random() * (max - min + 1)) + min;
             });
-            grid.push(rowData);
         }
-        return grid;
+
+        return grid.flat();
     }
 </script>
 </body>
