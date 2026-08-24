@@ -178,97 +178,6 @@
             margin-top: 8px;
         }
 
-        /* SECTION */
-        .section-title {
-            font-size: 1.3rem;
-            color: #2d1f14;
-            margin: 30px 0 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-left: 6px solid #b35e2e;
-            padding-left: 15px;
-        }
-
-        /* TICKETS */
-        .ticket-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            max-height: 550px;
-            overflow-y: auto;
-            padding: 5px;
-        }
-
-        .ticket-card {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-            border: 1px solid #e0d5c8;
-        }
-
-        .ticket-id {
-            font-weight: 700;
-            color: #2d1f14;
-            font-size: 1.1rem;
-        }
-
-        .ticket-status {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-top: 8px;
-        }
-
-        .available { background: #d4edc9; color: #1f5a3b; }
-        .booked { background: #f8d7da; color: #721c24; }
-        .your { background: #cce5ff; color: #004085; }
-
-        .ticket-buttons {
-            display: flex;
-            gap: 8px;
-            margin-top: 15px;
-        }
-
-        .preview-btn, .book-btn {
-            flex: 1;
-            padding: 9px;
-            border: none;
-            border-radius: 12px;
-            color: white;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .preview-btn { background: #b35e2e; }
-        .book-btn { background: #1f7a4b; }
-        .book-btn:disabled { background: #777; cursor: not-allowed; }
-
-        /* LOADING */
-        .loading {
-            text-align: center;
-            padding: 50px;
-            color: #7b6856;
-            grid-column: 1 / -1;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #eee;
-            border-top-color: #b35e2e;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         /* TOAST */
         .toast {
             position: fixed;
@@ -301,7 +210,7 @@
             .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
             .stat-card { padding: 18px 10px; }
             .stat-card .number { font-size: 1.5rem; }
-            .actions-grid, .ticket-grid { grid-template-columns: 1fr; }
+            .actions-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -374,18 +283,6 @@
             <p>View upcoming draws</p>
         </a>
     </div>
-
-    <!-- CURRENT DRAW -->
-    <div class="section-title">
-        <i class="fas fa-play-circle"></i> Current Draw Tickets
-    </div>
-
-    <div class="ticket-grid" id="ticketGrid">
-        <div class="loading">
-            <div class="spinner"></div>
-            <p>Loading tickets...</p>
-        </div>
-    </div>
 </div>
 
 <!-- TOAST -->
@@ -416,7 +313,6 @@
 
     let currentUser = null;
     let userData = null;
-    let allTickets = [];
 
     /* TOAST */
     function showToast(message, type = "info") {
@@ -459,7 +355,7 @@
         }
         currentUser = user;
         await loadUserData();
-        loadTickets();
+        loadTicketStats();
     });
 
     /* LOAD USER DATA */
@@ -491,214 +387,30 @@
         }
     }
 
-    function getCurrentDrawId() {
-        return "draw_001";
-    }
-
-    /* LOAD TICKETS */
-    function loadTickets() {
+    /* FETCH TICKET STATS FOR COUNTERS ONLY */
+    function loadTicketStats() {
         db.collection("tickets")
-            .where("drawId", "==", getCurrentDrawId())
+            .where("drawId", "==", "draw_001")
             .onSnapshot((snapshot) => {
-                allTickets = [];
+                let total = 0;
+                let available = 0;
+                let mine = 0;
+
                 snapshot.forEach((doc) => {
-                    allTickets.push({ id: doc.id, ...doc.data() });
+                    total++;
+                    const data = doc.data();
+                    if (data.status === "available") available++;
+                    if ((data.status === "booked" || data.status === "sold") && data.ownerId === currentUser.uid) {
+                        mine++;
+                    }
                 });
-                updateStats();
-                renderTickets();
+
+                document.getElementById("totalTickets").textContent = total;
+                document.getElementById("availableTickets").textContent = available;
+                document.getElementById("myTickets").textContent = mine;
             }, (error) => {
-                console.error("Ticket error:", error);
-                document.getElementById("ticketGrid").innerHTML = `
-                    <div class="loading">
-                        <p>🎫 No tickets available yet.</p>
-                        <p style="margin-top:8px;">Tickets will appear when the admin creates a draw.</p>
-                    </div>`;
-                updateStats();
+                console.error("Ticket stats error:", error);
             });
-    }
-
-    /* UPDATE STATS */
-    function updateStats() {
-        const available = allTickets.filter(ticket => ticket.status === "available").length;
-        const mine = allTickets.filter(ticket => ticket.ownerId === currentUser.uid).length;
-
-        document.getElementById("totalTickets").textContent = allTickets.length;
-        document.getElementById("availableTickets").textContent = available;
-        document.getElementById("myTickets").textContent = mine;
-        document.getElementById("winsCount").textContent = Number(userData?.wins || 0);
-    }
-
-    /* RENDER TICKETS */
-    function renderTickets() {
-        const grid = document.getElementById("ticketGrid");
-        grid.innerHTML = "";
-
-        if (allTickets.length === 0) {
-            grid.innerHTML = `
-                <div class="loading">
-                    <p style="font-size:1.2rem;">🎫 No tickets available</p>
-                    <p style="margin-top:8px;">Check back when a draw is created.</p>
-                </div>`;
-            return;
-        }
-
-        const displayTickets = allTickets.slice(0, 20);
-
-        displayTickets.forEach((ticket) => {
-            const isBooked = ticket.status === "booked" || ticket.status === "sold";
-            const isOwned = isBooked && ticket.ownerId === currentUser.uid;
-
-            let statusText = "Available";
-            let statusClass = "available";
-
-            if (isOwned) {
-                statusText = "Your Ticket ✓";
-                statusClass = "your";
-            } else if (isBooked) {
-                statusText = "Booked";
-                statusClass = "booked";
-            }
-
-            const price = Number(ticket.price || 10);
-            const card = document.createElement("div");
-            card.className = "ticket-card";
-
-            card.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="ticket-id">${ticket.id}</span>
-                    <span style="background:#f0ebe6; padding:4px 12px; border-radius:20px; font-weight:600; font-size:0.9rem; color:#b35e2e;">${price} Tokens</span>
-                </div>
-                <span class="ticket-status ${statusClass}">${statusText}</span>
-                <div class="ticket-buttons">
-                    <button class="preview-btn" onclick="previewTicket('${ticket.id}')">
-                        <i class="fas fa-eye"></i> Preview
-                    </button>
-                    <button class="book-btn" onclick="bookTicket('${ticket.id}')" ${isBooked ? "disabled" : ""}>
-                        <i class="fas fa-shopping-cart"></i> ${isBooked ? "Booked" : "Book"}
-                    </button>
-                </div>`;
-
-            grid.appendChild(card);
-        });
-    }
-
-    /* PREVIEW TICKET */
-    function previewTicket(ticketId) {
-        const ticket = allTickets.find(item => item.id === ticketId);
-        if (!ticket) {
-            showToast("Ticket not found", "error");
-            return;
-        }
-
-        const numbers = ticket.numbers || generateTambolaNumbers();
-        const modal = document.createElement("div");
-        modal.className = "ticket-modal";
-        modal.style.cssText = `position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px;`;
-
-        modal.innerHTML = `
-            <div style="background:white; border-radius:24px; padding:25px; max-width:650px; width:100%; max-height:90vh; overflow:auto;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h2 style="color:#2d1f14;">${ticket.id}</h2>
-                    <button onclick="this.closest('.ticket-modal').remove()" style="border:none; background:none; font-size:25px; cursor:pointer;">✕</button>
-                </div>
-                <div style="display:grid; grid-template-columns:repeat(9,1fr); gap:4px; background:#f8f4f0; padding:12px; border-radius:12px;">
-                    ${numbers.flat().map(number => `
-                        <div style="aspect-ratio:1; min-height:40px; display:flex; align-items:center; justify-content:center; background:${number ? "white" : "#f0ebe6"}; border:1px solid #d4c5b5; border-radius:4px; font-weight:700; color:#2d1f14;">
-                            ${number || ""}
-                        </div>
-                    `).join("")}
-                </div>
-                <div style="text-align:center; margin-top:20px;">
-                    <button onclick="bookTicket('${ticket.id}'); this.closest('.ticket-modal').remove();" style="padding:12px 30px; background:#1f7a4b; color:white; border:none; border-radius:25px; cursor:pointer; font-weight:600;">
-                        <i class="fas fa-check"></i> Book This Ticket
-                    </button>
-                </div>
-            </div>`;
-
-        document.body.appendChild(modal);
-        modal.addEventListener("click", (event) => {
-            if (event.target === modal) modal.remove();
-        });
-    }
-
-    /* GENERATE TAMBOLA NUMBERS */
-    function generateTambolaNumbers() {
-        const grid = [];
-        for (let row = 0; row < 3; row++) {
-            const rowData = [];
-            const positions = [];
-            while (positions.length < 5) {
-                const position = Math.floor(Math.random() * 9);
-                if (!positions.includes(position)) positions.push(position);
-            }
-            positions.sort((a, b) => a - b);
-
-            for (let col = 0; col < 9; col++) {
-                if (positions.includes(col)) {
-                    let min = col === 0 ? 1 : col * 10;
-                    let max = col === 8 ? 90 : col * 10 + 9;
-                    rowData.push(Math.floor(Math.random() * (max - min + 1)) + min);
-                } else {
-                    rowData.push(null);
-                }
-            }
-            grid.push(rowData);
-        }
-        return grid;
-    }
-
-    /* BOOK TICKET */
-    async function bookTicket(ticketId) {
-        if (!currentUser) {
-            showToast("Please login first", "error");
-            return;
-        }
-
-        const ticket = allTickets.find(item => item.id === ticketId);
-        if (!ticket) {
-            showToast("Ticket not found", "error");
-            return;
-        }
-
-        if (ticket.status === "booked" || ticket.status === "sold") {
-            showToast("This ticket is already booked", "error");
-            return;
-        }
-
-        const price = Number(ticket.price || 10);
-        const tokens = Number(userData.tokens || 0);
-
-        if (tokens < price) {
-            showToast(`Insufficient tokens. Need ${price}, you have ${tokens}.`, "error");
-            return;
-        }
-
-        try {
-            const batch = db.batch();
-            const ticketRef = db.collection("tickets").doc(ticketId);
-            const userRef = db.collection("users").doc(currentUser.uid);
-
-            batch.update(ticketRef, {
-                status: "booked",
-                ownerId: currentUser.uid,
-                ownerEmail: currentUser.email,
-                bookedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            batch.update(userRef, {
-                tokens: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            await batch.commit();
-
-            userData.tokens = tokens - price;
-            document.getElementById("tokenCount").textContent = userData.tokens;
-            showToast("Ticket booked successfully!", "success");
-
-        } catch (error) {
-            console.error("Booking failed:", error);
-            showToast("Could not complete booking", "error");
-        }
     }
 </script>
 </body>
