@@ -209,6 +209,42 @@
             background: #2c75d8;
         }
 
+        .btn-secondary {
+            background: #238636;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: #2ea043;
+        }
+
+        .btn-warning {
+            background: #d29922;
+            color: #121417;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-warning:hover {
+            background: #e3a82d;
+        }
+
         .btn-danger {
             background: #da3633;
             color: white;
@@ -225,6 +261,12 @@
 
         .btn-danger:hover {
             background: #b82d2a;
+        }
+
+        .step-container {
+            border-top: 1px solid #2d3239;
+            padding-top: 16px;
+            margin-top: 16px;
         }
     </style>
 </head>
@@ -244,18 +286,42 @@
     <!-- LIVE GAME CONTROL PANEL -->
     <div class="card">
         <div class="card-title"><i class="fas fa-dice" style="color: #388bfd;"></i> Live Game Host Controls</div>
-        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 10px;">
-            <button class="btn-game" onclick="drawNextNumber()">
-                <i class="fas fa-bullhorn"></i> Draw Next Number
+        
+        <!-- STEP 1: SET FIRST NUMBER -->
+        <div id="step-first-pick" class="manual-form" style="margin-top: 10px;">
+            <input type="number" id="firstNumberInput" min="1" max="90" placeholder="Enter 1st Number to Draw (1-90)">
+            <button class="btn-game" onclick="setFirstNumber()">
+                <i class="fas fa-play"></i> Confirm 1st Pick & Start Sequence
             </button>
+        </div>
+
+        <!-- STEP 2: SEQUENTIAL DRAW CONTROLS (Initially Hidden) -->
+        <div id="step-sequential-draw" class="step-container" style="display: none;">
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                <button class="btn-game" onclick="drawNextInSequence()">
+                    <i class="fas fa-bullhorn"></i> Draw Next Number
+                </button>
+
+                <button class="btn-secondary" id="btnAutoDraw" onclick="startAutoDraw()">
+                    <i class="fas fa-forward"></i> Start Auto Draw (4s)
+                </button>
+
+                <button class="btn-warning" id="btnStopAuto" onclick="stopAutoDraw()" style="display: none;">
+                    <i class="fas fa-pause"></i> Stop Auto Draw
+                </button>
+            </div>
+        </div>
+
+        <!-- GAME STATUS DISPLAY & RESET -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap; gap: 12px;">
+            <span style="color: #a0a6b0; font-size: 0.95rem; font-weight: 600;">
+                Last Drawn Number: <strong id="adminLastDrawn" style="color: #3fb950; font-size: 1.3rem;">--</strong>
+                <span style="margin-left: 15px;">Drawn Count: <strong id="adminDrawnCount" style="color: #388bfd;">0</strong>/90</span>
+            </span>
 
             <button class="btn-danger" onclick="resetGame()">
                 <i class="fas fa-undo"></i> Reset Game Board
             </button>
-
-            <span style="color: #a0a6b0; font-size: 0.95rem; font-weight: 600; margin-left: 10px;">
-                Last Drawn Number: <strong id="adminLastDrawn" style="color: #3fb950; font-size: 1.3rem;">--</strong>
-            </span>
         </div>
     </div>
 
@@ -312,6 +378,8 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
+    let autoDrawTimer = null;
+
     auth.onAuthStateChanged((user) => {
         if (!user) {
             window.location.href = "login.html";
@@ -321,74 +389,165 @@
         listenToActiveGame();
     });
 
-    /* --- LIVE GAME CONTROLS --- */
+    /* --- SHUFFLE HELPER (Fisher-Yates) --- */
+    function generateShuffledArray() {
+        const numbers = Array.from({ length: 90 }, (_, i) => i + 1);
+        for (let i = numbers.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+        }
+        return numbers;
+    }
 
-    /* LISTEN TO ACTIVE GAME STATUS */
+    /* --- LISTEN TO ACTIVE GAME STATUS --- */
     function listenToActiveGame() {
         db.collection("games").doc("active_game").onSnapshot((doc) => {
             if (doc.exists) {
                 const data = doc.data();
+                const drawnNumbers = data.drawnNumbers || [];
                 document.getElementById("adminLastDrawn").textContent = data.lastDrawn || "--";
+                document.getElementById("adminDrawnCount").textContent = drawnNumbers.length;
+
+                // Adjust UI steps based on whether first draw is done
+                if (data.isFirstDrawDone) {
+                    document.getElementById("step-first-pick").style.display = "none";
+                    document.getElementById("step-sequential-draw").style.display = "block";
+                } else {
+                    document.getElementById("step-first-pick").style.display = "flex";
+                    document.getElementById("step-sequential-draw").style.display = "none";
+                }
+            } else {
+                // Initialize default game doc if it doesn't exist
+                resetGameData();
             }
         });
     }
 
-    /* DRAW NEXT RANDOM NUMBER (1-90) ATOMICALLY */
-    async function drawNextNumber() {
+    /* --- STEP 1: ADMIN MANUAL FIRST PICK --- */
+    async function setFirstNumber() {
+        const inputVal = Number(document.getElementById("firstNumberInput").value);
+        if (!inputVal || inputVal < 1 || inputVal > 90) {
+            alert("Please enter a valid number between 1 and 90.");
+            return;
+        }
+
         const gameRef = db.collection("games").doc("active_game");
 
         try {
             await db.runTransaction(async (transaction) => {
                 const doc = await transaction.get(gameRef);
-                let drawnNumbers = doc.exists ? (doc.data().drawnNumbers || []) : [];
+                let sequence = doc.exists && doc.data().drawSequence ? [...doc.data().drawSequence] : generateShuffledArray();
 
-                if (drawnNumbers.length >= 90) {
+                // Swap Admin's chosen number to index 0
+                const chosenIndex = sequence.indexOf(inputVal);
+                if (chosenIndex !== -1) {
+                    [sequence[0], sequence[chosenIndex]] = [sequence[chosenIndex], sequence[0]];
+                }
+
+                const firstNumber = sequence[0];
+
+                transaction.set(gameRef, {
+                    status: "running",
+                    drawSequence: sequence,
+                    drawnNumbers: [firstNumber],
+                    lastDrawn: firstNumber,
+                    currentIndex: 1, // Advance index for subsequent draws
+                    isFirstDrawDone: true,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+            });
+
+            document.getElementById("firstNumberInput").value = "";
+            console.log("First number set and sequence initialized!");
+        } catch (err) {
+            console.error("Error setting first number:", err);
+            alert("Failed to set first number: " + err.message);
+        }
+    }
+
+    /* --- STEP 2: DRAW NEXT IN SEQUENCE --- */
+    async function drawNextInSequence() {
+        const gameRef = db.collection("games").doc("active_game");
+
+        try {
+            await db.runTransaction(async (transaction) => {
+                const doc = await transaction.get(gameRef);
+                if (!doc.exists || !doc.data().isFirstDrawDone) {
+                    throw new Error("Please set the first number before starting sequence draws.");
+                }
+
+                const data = doc.data();
+                const sequence = data.drawSequence || [];
+                let currentIndex = data.currentIndex || 0;
+                let drawnNumbers = data.drawnNumbers || [];
+
+                if (currentIndex >= sequence.length || drawnNumbers.length >= 90) {
+                    stopAutoDraw();
                     alert("All 90 numbers have already been drawn!");
                     return;
                 }
 
-                // Generate non-repeating number between 1 and 90
-                let nextNum;
-                do {
-                    nextNum = Math.floor(Math.random() * 90) + 1;
-                } while (drawnNumbers.includes(nextNum));
-
+                // Pick next sequential number from fixed array
+                const nextNum = sequence[currentIndex];
                 drawnNumbers.push(nextNum);
 
-                transaction.set(gameRef, {
-                    status: "running",
+                transaction.update(gameRef, {
                     drawnNumbers: drawnNumbers,
                     lastDrawn: nextNum,
+                    currentIndex: currentIndex + 1,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
+                });
             });
         } catch (err) {
-            console.error("Error drawing number:", err);
+            console.error("Error drawing next number:", err);
             alert("Failed to draw number: " + err.message);
+            stopAutoDraw();
         }
     }
 
-    /* RESET GAME BOARD FOR A NEW MATCH */
-    async function resetGame() {
-        if (!confirm("Are you sure you want to reset the active game? All drawn numbers will be cleared.")) return;
+    /* --- AUTO-DRAW CONTROLS --- */
+    function startAutoDraw() {
+        if (autoDrawTimer) return;
+        document.getElementById("btnAutoDraw").style.display = "none";
+        document.getElementById("btnStopAuto").style.display = "inline-flex";
 
-        try {
-            await db.collection("games").doc("active_game").set({
-                status: "running",
-                drawnNumbers: [],
-                lastDrawn: null,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            alert("Game board has been reset!");
-        } catch (err) {
-            console.error("Error resetting game:", err);
-            alert("Failed to reset game: " + err.message);
+        drawNextInSequence(); // Draw immediately once
+        autoDrawTimer = setInterval(() => {
+            drawNextInSequence();
+        }, 4000); // 4 seconds interval
+    }
+
+    function stopAutoDraw() {
+        if (autoDrawTimer) {
+            clearInterval(autoDrawTimer);
+            autoDrawTimer = null;
         }
+        document.getElementById("btnAutoDraw").style.display = "inline-flex";
+        document.getElementById("btnStopAuto").style.display = "none";
+    }
+
+    /* --- RESET GAME BOARD --- */
+    async function resetGame() {
+        if (!confirm("Are you sure you want to reset the active game? All drawn numbers and sequence will be cleared.")) return;
+        stopAutoDraw();
+        await resetGameData();
+        alert("Game board has been reset!");
+    }
+
+    async function resetGameData() {
+        const initialSequence = generateShuffledArray();
+        await db.collection("games").doc("active_game").set({
+            status: "ready",
+            drawSequence: initialSequence,
+            drawnNumbers: [],
+            lastDrawn: null,
+            currentIndex: 0,
+            isFirstDrawDone: false,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
     }
 
     /* --- DEPOSIT MANAGEMENT --- */
-
-    /* REALTIME DEPOSIT REQUEST STREAM */
     function loadDepositRequests() {
         db.collection("deposits").onSnapshot((snapshot) => {
             const table = document.getElementById("depositsTable");
@@ -426,7 +585,6 @@
         });
     }
 
-    /* ATOMIC APPROVE / REJECT TRANSACTION */
     async function processDeposit(depId, userId, amount, newStatus) {
         if (!confirm(`Are you sure you want to mark this request as ${newStatus.toUpperCase()}?`)) return;
 
@@ -452,7 +610,7 @@
         }
     }
 
-    /* DIRECT TOKEN OVERRIDE */
+    /* --- DIRECT TOKEN OVERRIDE --- */
     async function addTokensDirectly() {
         const uid = document.getElementById("targetUid").value.trim();
         const amount = Number(document.getElementById("tokenAmount").value);
