@@ -17,8 +17,8 @@
         }
 
         body {
-            background: #121417;
-            color: #e1e3e6;
+            background: linear-gradient(145deg, #f5f0eb 0%, #e8e0d8 100%);
+            color: #2d1f14;
             min-height: 100vh;
             padding: 20px;
         }
@@ -33,38 +33,40 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 24px;
-            padding: 16px 20px;
-            background: #1c1f24;
-            border-radius: 12px;
-            border: 1px solid #2d3239;
+            padding: 16px 24px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e0d5c8;
         }
 
         .header h2 {
-            font-size: 1.2rem;
-            color: #ffffff;
+            font-size: 1.3rem;
+            color: #2d1f14;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
         .header-links a {
-            color: #a0a6b0;
+            color: #7b6856;
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 600;
             margin-left: 15px;
+            transition: color 0.2s;
         }
 
         .header-links a:hover {
-            color: #ffffff;
+            color: #b35e2e;
         }
 
         /* DISPLAY BANNER */
         .status-banner {
-            background: #1c1f24;
-            border: 1px solid #2d3239;
-            border-radius: 12px;
-            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #e0d5c8;
+            border-radius: 16px;
+            padding: 24px;
             margin-bottom: 24px;
             text-align: center;
             display: flex;
@@ -72,48 +74,53 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .last-number-box {
-            background: #23272e;
-            border: 2px solid #388bfd;
+            background: #fdfbf7;
+            border: 3px solid #b35e2e;
             border-radius: 50%;
-            width: 80px;
-            height: 80px;
+            width: 85px;
+            height: 85px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.2rem;
+            font-size: 2.4rem;
             font-weight: 800;
-            color: #3fb950;
+            color: #1f7a4b;
+            box-shadow: 0 4px 10px rgba(179, 94, 46, 0.15);
         }
 
         .status-info h3 {
-            font-size: 1rem;
-            color: #8b949e;
+            font-size: 0.9rem;
+            color: #7b6856;
             margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .status-info p {
             font-size: 1.4rem;
             font-weight: 700;
-            color: #ffffff;
+            color: #2d1f14;
         }
 
         /* BOARD GRID (1 to 90) */
         .board-card {
-            background: #1c1f24;
-            border: 1px solid #2d3239;
-            border-radius: 12px;
-            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #e0d5c8;
+            border-radius: 16px;
+            padding: 24px;
             margin-bottom: 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .board-title {
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 16px;
+            color: #2d1f14;
+            margin-bottom: 18px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -132,37 +139,37 @@
         }
 
         .grid-cell {
-            background: #121417;
-            border: 1px solid #2d3239;
-            border-radius: 6px;
+            background: #f8f4f0;
+            border: 1px solid #d4c5b5;
+            border-radius: 8px;
             padding: 12px 0;
             text-align: center;
             font-size: 0.95rem;
             font-weight: 700;
-            color: #57606a;
+            color: #a09080;
             transition: all 0.3s ease;
         }
 
         /* HIGHLIGHT FOR DRAWN NUMBERS */
         .grid-cell.drawn {
-            background: #238636;
+            background: #1f7a4b;
             color: #ffffff;
-            border-color: #2ea043;
+            border-color: #165b37;
             transform: scale(1.02);
-            box-shadow: 0 0 8px rgba(46, 160, 67, 0.4);
+            box-shadow: 0 2px 6px rgba(31, 122, 75, 0.25);
         }
 
         /* HIGHLIGHT FOR LATEST DRAWN NUMBER */
         .grid-cell.latest {
-            background: #388bfd !important;
+            background: #b35e2e !important;
             color: #ffffff !important;
-            border-color: #58a6ff !important;
+            border-color: #8c4620 !important;
             animation: pulse 1.2s infinite alternate;
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 4px #388bfd; }
-            100% { transform: scale(1.1); box-shadow: 0 0 14px #58a6ff; }
+            0% { transform: scale(1); box-shadow: 0 0 4px rgba(179, 94, 46, 0.4); }
+            100% { transform: scale(1.1); box-shadow: 0 0 12px rgba(179, 94, 46, 0.8); }
         }
     </style>
 </head>
@@ -171,7 +178,7 @@
 <div class="container">
     <!-- HEADER -->
     <div class="header">
-        <h2><i class="fas fa-gamepad" style="color: #3fb950;"></i> Tambola Game Room</h2>
+        <h2><i class="fas fa-gamepad" style="color: #b35e2e;"></i> Tambola Game Room</h2>
         <div class="header-links">
             <a href="book-tickets.html"><i class="fas fa-ticket-alt"></i> My Tickets</a>
             <a href="dashboard.html"><i class="fas fa-desktop"></i> Dashboard</a>
@@ -191,14 +198,14 @@
 
         <div class="status-info">
             <h3>TOTAL DRAWN</h3>
-            <p><span id="drawnCount" style="color: #388bfd;">0</span> / 90</p>
+            <p><span id="drawnCount" style="color: #b35e2e;">0</span> / 90</p>
         </div>
     </div>
 
     <!-- 1-90 LIVE BOARD -->
     <div class="board-card">
         <div class="board-title">
-            <i class="fas fa-th" style="color: #388bfd;"></i> Live Number Board
+            <i class="fas fa-th" style="color: #b35e2e;"></i> Live Number Board
         </div>
         <div class="grid-board" id="boardGrid">
             <!-- Dynamically populated 1-90 cells -->
