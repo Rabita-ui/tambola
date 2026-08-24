@@ -4,110 +4,204 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Game Room - Tambola House</title>
+
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: #ffffff; color: #1a1d20; min-height: 100vh; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-
-        /* HEADER */
-        .header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            background: #f8f9fa; border: 1px solid #e9ecef; padding: 16px 24px; 
-            border-radius: 12px; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-        .header h2 { font-size: 1.3rem; color: #1a1d20; display: flex; align-items: center; gap: 10px; }
-        .nav-link { color: #1a73e8; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
-        .nav-link:hover { text-decoration: underline; }
-
-        /* LAYOUT */
-        .game-layout { display: grid; grid-template-columns: 320px 1fr; gap: 24px; }
-        @media (max-width: 850px) { .game-layout { grid-template-columns: 1fr; } }
-
-        /* CURRENT NUMBER DISPLAY */
-        .display-card { 
-            background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 12px; 
-            padding: 24px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .number-circle { 
-            width: 100px; height: 100px; border-radius: 50%; background: #34a853; 
-            color: #fff; font-size: 2.8rem; font-weight: 800; display: flex; 
-            align-items: center; justify-content: center; margin: 16px auto; 
-            box-shadow: 0 4px 12px rgba(52, 168, 83, 0.3);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
         }
 
-        /* CLAIM PRIZES PANEL */
-        .claims-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn-claim { 
-            background: #ffffff; border: 1px solid #1a73e8; color: #1a73e8; 
-            padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; 
-            font-size: 0.85rem; transition: all 0.2s; 
+        body {
+            background: #121417;
+            color: #e1e3e6;
+            min-height: 100vh;
+            padding: 20px;
         }
-        .btn-claim:hover { background: #1a73e8; color: #ffffff; }
 
-        /* DRAWN NUMBERS BOARD (1-90) */
-        .board-card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .board-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
-        .board-cell { 
-            background: #ffffff; border: 1px solid #dadce0; aspect-ratio: 1; 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 0.8rem; font-weight: 600; color: #70757a; border-radius: 4px; 
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
         }
-        .board-cell.drawn { background: #ceead6; color: #137333; border-color: #34a853; font-weight: 800; }
-        .board-cell.last { background: #34a853; color: #ffffff; border-color: #137333; }
 
-        /* MY TICKETS SECTION */
-        .tickets-section { margin-top: 24px; }
-        .my-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-top: 12px; }
-        .ticket-card { background: #ffffff; border: 1px solid #dadce0; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .tambola-board { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; background: #bdc1c6; border-radius: 6px; overflow: hidden; }
-        .cell { background: #ffffff; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: #202124; }
-        .cell.empty { background: #f1f3f4; color: transparent; }
-        .cell.matched { background: #ceead6; color: #137333; font-weight: 800; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 16px 20px;
+            background: #1c1f24;
+            border-radius: 12px;
+            border: 1px solid #2d3239;
+        }
+
+        .header h2 {
+            font-size: 1.2rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-links a {
+            color: #a0a6b0;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+
+        .header-links a:hover {
+            color: #ffffff;
+        }
+
+        /* DISPLAY BANNER */
+        .status-banner {
+            background: #1c1f24;
+            border: 1px solid #2d3239;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .last-number-box {
+            background: #23272e;
+            border: 2px solid #388bfd;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #3fb950;
+        }
+
+        .status-info h3 {
+            font-size: 1rem;
+            color: #8b949e;
+            margin-bottom: 4px;
+        }
+
+        .status-info p {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        /* BOARD GRID (1 to 90) */
+        .board-card {
+            background: #1c1f24;
+            border: 1px solid #2d3239;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .board-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .grid-board {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .grid-board {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        .grid-cell {
+            background: #121417;
+            border: 1px solid #2d3239;
+            border-radius: 6px;
+            padding: 12px 0;
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #57606a;
+            transition: all 0.3s ease;
+        }
+
+        /* HIGHLIGHT FOR DRAWN NUMBERS */
+        .grid-cell.drawn {
+            background: #238636;
+            color: #ffffff;
+            border-color: #2ea043;
+            transform: scale(1.02);
+            box-shadow: 0 0 8px rgba(46, 160, 67, 0.4);
+        }
+
+        /* HIGHLIGHT FOR LATEST DRAWN NUMBER */
+        .grid-cell.latest {
+            background: #388bfd !important;
+            color: #ffffff !important;
+            border-color: #58a6ff !important;
+            animation: pulse 1.2s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 4px #388bfd; }
+            100% { transform: scale(1.1); box-shadow: 0 0 14px #58a6ff; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <!-- HEADER -->
     <div class="header">
-        <h2><i class="fas fa-gamepad" style="color: #1a73e8;"></i> Live Game Room</h2>
-        <a href="dashboard.html" class="nav-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        <h2><i class="fas fa-gamepad" style="color: #3fb950;"></i> Tambola Game Room</h2>
+        <div class="header-links">
+            <a href="book-tickets.html"><i class="fas fa-ticket-alt"></i> My Tickets</a>
+            <a href="dashboard.html"><i class="fas fa-desktop"></i> Dashboard</a>
+        </div>
     </div>
 
-    <div class="game-layout">
-        <!-- LEFT PANEL: CALLOUT & CLAIMS -->
+    <!-- LIVE STATUS DISPLAY -->
+    <div class="status-banner">
+        <div class="status-info">
+            <h3>CURRENT CALL</h3>
+            <p id="currentStatus">Waiting for host...</p>
+        </div>
+
         <div>
-            <div class="display-card">
-                <span style="color: #70757a; font-size: 0.85rem; font-weight: 600;">LAST NUMBER DRAWN</span>
-                <div class="number-circle" id="currentNum">--</div>
-                <span id="gameStatus" style="color: #137333; font-weight: 600; font-size: 0.9rem;">Waiting for host...</span>
-            </div>
-
-            <div class="display-card" style="margin-top: 16px;">
-                <span style="color: #70757a; font-size: 0.85rem; font-weight: 600;">CLAIM PRIZES</span>
-                <div class="claims-grid">
-                    <button class="btn-claim" onclick="claimPrize('Early 5')">Early 5</button>
-                    <button class="btn-claim" onclick="claimPrize('Top Line')">Top Line</button>
-                    <button class="btn-claim" onclick="claimPrize('Middle Line')">Middle Line</button>
-                    <button class="btn-claim" onclick="claimPrize('Bottom Line')">Bottom Line</button>
-                    <button class="btn-claim" onclick="claimPrize('Full House')" style="grid-column: 1/-1;">Full House</button>
-                </div>
-            </div>
+            <div class="last-number-box" id="lastDrawnNum">--</div>
         </div>
 
-        <!-- RIGHT PANEL: 1-90 BOARD -->
-        <div class="board-card">
-            <div style="margin-bottom: 12px; font-weight: 700; color: #202124;">Drawn Numbers (1-90)</div>
-            <div class="board-grid" id="boardGrid"></div>
+        <div class="status-info">
+            <h3>TOTAL DRAWN</h3>
+            <p><span id="drawnCount" style="color: #388bfd;">0</span> / 90</p>
         </div>
     </div>
 
-    <!-- PLAYER'S OWNED TICKETS -->
-    <div class="tickets-section">
-        <h3 style="color: #202124; font-size: 1.1rem;"><i class="fas fa-ticket-alt" style="color: #1a73e8;"></i> My Active Tickets</h3>
-        <div class="my-grid" id="myTicketsContainer">
-            <p style="color: #70757a;">Loading your tickets...</p>
+    <!-- 1-90 LIVE BOARD -->
+    <div class="board-card">
+        <div class="board-title">
+            <i class="fas fa-th" style="color: #388bfd;"></i> Live Number Board
+        </div>
+        <div class="grid-board" id="boardGrid">
+            <!-- Dynamically populated 1-90 cells -->
         </div>
     </div>
 </div>
@@ -131,114 +225,68 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    let currentUser = null;
-    let drawnNumbers = [];
-
-    // Build 1-90 Grid Outline
-    const boardGrid = document.getElementById("boardGrid");
-    for (let i = 1; i <= 90; i++) {
-        const cell = document.createElement("div");
-        cell.className = "board-cell";
-        cell.id = `cell-${i}`;
-        cell.textContent = i;
-        boardGrid.appendChild(cell);
+    // Render initial grid elements (1 to 90)
+    function buildBoardGrid() {
+        const board = document.getElementById("boardGrid");
+        board.innerHTML = "";
+        for (let i = 1; i <= 90; i++) {
+            const cell = document.createElement("div");
+            cell.className = "grid-cell";
+            cell.id = `cell-${i}`;
+            cell.textContent = i;
+            board.appendChild(cell);
+        }
     }
 
+    // Auth state check
     auth.onAuthStateChanged((user) => {
         if (!user) {
             window.location.href = "login.html";
             return;
         }
-        currentUser = user;
-        listenToActiveGame();
-        listenToMyTickets();
+        buildBoardGrid();
+        listenToLiveGame();
     });
 
-    /* LISTEN TO REALTIME GAME DRAW */
-    function listenToActiveGame() {
+    // Real-time listener for the active game state
+    function listenToLiveGame() {
         db.collection("games").doc("active_game").onSnapshot((doc) => {
             if (!doc.exists) return;
 
-            const game = doc.data();
-            drawnNumbers = game.drawnNumbers || [];
-            const lastNum = drawnNumbers[drawnNumbers.length - 1] || "--";
+            const data = doc.data();
+            const drawnNumbers = data.drawnNumbers || [];
+            const lastDrawn = data.lastDrawn;
 
-            document.getElementById("currentNum").textContent = lastNum;
-            document.getElementById("gameStatus").textContent = game.status === "running" ? "Game in progress" : "Game Paused";
+            // Update UI Counters
+            document.getElementById("lastDrawnNum").textContent = lastDrawn || "--";
+            document.getElementById("drawnCount").textContent = drawnNumbers.length;
+            
+            if (data.status === "running") {
+                document.getElementById("currentStatus").textContent = "Game in Progress";
+            } else {
+                document.getElementById("currentStatus").textContent = "Waiting for Next Round";
+            }
 
-            // Highlight Board Cells
+            // Reset all cell highlights
             for (let i = 1; i <= 90; i++) {
                 const cell = document.getElementById(`cell-${i}`);
-                cell.className = "board-cell";
-                if (drawnNumbers.includes(i)) cell.classList.add("drawn");
-            }
-            if (lastNum !== "--") {
-                const lastCell = document.getElementById(`cell-${lastNum}`);
-                if (lastCell) lastCell.classList.add("last");
+                if (cell) {
+                    cell.className = "grid-cell";
+                }
             }
 
-            renderMyTickets();
-        });
-    }
-
-    /* LISTEN TO PLAYER'S PURCHASED TICKETS */
-    let myTicketsData = [];
-    function listenToMyTickets() {
-        db.collection("tickets").where("ownerId", "==", currentUser.uid).onSnapshot((snapshot) => {
-            myTicketsData = [];
-            snapshot.forEach(doc => myTicketsData.push({ id: doc.id, ...doc.data() }));
-            renderMyTickets();
-        });
-    }
-
-    function renderMyTickets() {
-        const container = document.getElementById("myTicketsContainer");
-        container.innerHTML = "";
-
-        if (myTicketsData.length === 0) {
-            container.innerHTML = `<p style="color: #70757a;">You have not purchased any tickets yet. <a href="book-tickets.html" style="color: #1a73e8;">Book tickets here</a>.</p>`;
-            return;
-        }
-
-        myTicketsData.forEach((ticket) => {
-            const card = document.createElement("div");
-            card.className = "ticket-card";
-
-            let cellsHtml = "";
-            const flatNumbers = ticket.numbers || Array(27).fill(null);
-            flatNumbers.forEach(num => {
-                const isMatched = num && drawnNumbers.includes(num);
-                cellsHtml += `<div class="cell ${num ? (isMatched ? 'matched' : '') : 'empty'}">${num || ''}</div>`;
+            // Apply highlights to drawn numbers
+            drawnNumbers.forEach((num) => {
+                const cell = document.getElementById(`cell-${num}`);
+                if (cell) {
+                    if (num === lastDrawn) {
+                        cell.className = "grid-cell latest";
+                    } else {
+                        cell.className = "grid-cell drawn";
+                    }
+                }
             });
-
-            card.innerHTML = `
-                <div style="font-weight: 700; color: #202124; margin-bottom: 8px;">${ticket.id}</div>
-                <div class="tambola-board">${cellsHtml}</div>
-            `;
-            container.appendChild(card);
         });
-    }
-
-    /* SUBMIT PRIZE CLAIM */
-    async function claimPrize(claimType) {
-        if (myTicketsData.length === 0) {
-            alert("You must own at least one ticket to submit a claim!");
-            return;
-        }
-
-        try {
-            await db.collection("claims").add({
-                userId: currentUser.uid,
-                userEmail: currentUser.email,
-                claimType: claimType,
-                status: "pending",
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            alert(`Your claim for "${claimType}" has been submitted to the admin!`);
-        } catch (err) {
-            alert("Failed to submit claim: " + err.message);
-        }
     }
 </script>
 </body>
