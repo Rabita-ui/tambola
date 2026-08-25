@@ -1,119 +1,79 @@
-import { db } from './firebase-config.js';
-import { ref, onValue, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+// app.js - Real-time Tambola Game Sync Module
 
-let pickupTimer = null;
-
-/**
- * 1. Admin/Host starts or stops the continuous auto-pickup.
- */
-export async function startGlobalPickup(gameId, intervalSeconds = 5) {
-  const gameRef = ref(db, `games/${gameId}`);
-
-  // Fetch current state to check if game is already active
-  const snapshot = await get(gameRef);
-  const data = snapshot.val() || {};
-
-  // Initialize start timestamp and state if starting fresh
-  const now = Date.now();
-  await update(gameRef, {
-    status: 'ACTIVE',
-    interval: intervalSeconds,
-    startedAt: data.startedAt || now,
-    lastDrawnAt: now,
-    drawnNumbers: data.drawnNumbers || [],
-    currentNumber: data.currentNumber || null
-  });
-
-  // Start internal loop to check and trigger draws
-  runGameLoop(gameId, intervalSeconds);
-}
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js";
 
 /**
- * Internal loop runner that manages intervals safely across page reloads.
+ * Automatically marks drawn numbers on user tickets displayed on the page.
+ * @param {number} drawnNumber - The number that was just picked/drawn.
  */
-function runGameLoop(gameId, intervalSeconds) {
-  if (pickupTimer) clearInterval(pickupTimer);
+function autoTickTicketNumber(drawnNumber) {
+    if (!drawnNumber) return;
 
-  pickupTimer = setInterval(() => {
-    checkAndDrawNextNumber(gameId);
-  }, intervalSeconds * 1000);
-}
+    // Search for any ticket grid cells or ticket numbers on the current page matching the drawn number
+    const ticketCells = document.querySelectorAll('.ticket-cell, .ticket-number, [data-ticket-number]');
 
-/**
- * 2. Checks elapsed time and draws next random number to Firebase.
- */
-async function checkAndDrawNextNumber(gameId) {
-  const gameRef = ref(db, `games/${gameId}`);
-  const snapshot = await get(gameRef);
-  const data = snapshot.val();
-
-  if (!data || data.status !== 'ACTIVE') {
-    if (pickupTimer) clearInterval(pickupTimer);
-    return;
-  }
-
-  let drawn = data.drawnNumbers || [];
-
-  // Stop if all 90 numbers have been drawn
-  if (drawn.length >= 90) {
-    if (pickupTimer) clearInterval(pickupTimer);
-    await update(gameRef, { status: 'COMPLETED' });
-    return;
-  }
-
-  // Get list of remaining numbers (1 to 90)
-  const remaining = Array.from({ length: 90 }, (_, i) => i + 1).filter(n => !drawn.includes(n));
-  const nextNumber = remaining[Math.floor(Math.random() * remaining.length)];
-
-  drawn.push(nextNumber);
-
-  // Update game state in Firebase
-  await update(gameRef, {
-    currentNumber: nextNumber,
-    drawnNumbers: drawn,
-    lastDrawnAt: Date.now()
-  });
-}
-
-/**
- * 3. Syncs the UI on both dashboard.html and game.html automatically on load.
- */
-export function listenToGameUpdates(gameId) {
-  const gameRef = ref(db, `games/${gameId}`);
-
-  onValue(gameRef, (snapshot) => {
-    const data = snapshot.val();
-    if (!data) return;
-
-    // 1. Update current drawn number display
-    const currentNumDisplay = document.getElementById('currentNum');
-    if (currentNumDisplay) {
-      currentNumDisplay.textContent = data.currentNumber || '--';
-    }
-
-    // 2. Highlight drawn numbers on the grid board
-    if (data.drawnNumbers) {
-      data.drawnNumbers.forEach((num, index) => {
-        const cell = document.getElementById(`num-${num}`);
-        if (cell) {
-          cell.classList.add('drawn');
-          
-          // Optional: Highlight the latest drawn number distinctly
-          if (num === data.currentNumber) {
-            cell.classList.add('last-drawn');
-          } else {
-            cell.classList.remove('last-drawn');
-          }
+    ticketCells.forEach((cell) => {
+        const cellValue = parseInt(cell.dataset.ticketNumber || cell.textContent.trim(), 10);
+        if (cellValue === Number(drawnNumber)) {
+            cell.classList.add('marked', 'ticked', 'selected');
+            // If the cell contains an input or checkbox, check it automatically
+            const checkbox = cell.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.checked = true;
+            }
         }
-      });
-    }
+    });
+}
 
-    // 3. Keep timer alive on current tab if status is ACTIVE
-    if (data.status === 'ACTIVE' && !pickupTimer) {
-      runGameLoop(gameId, data.interval || 5);
-    } else if (data.status !== 'ACTIVE' && pickupTimer) {
-      clearInterval(pickupTimer);
-      pickupTimer = null;
-    }
-  });
+/**
+ * Listens to real-time game draws from Firestore for a specific room.
+ * Updates the current number display, highlights the 1-90 board, and auto-ticks user tickets.
+ * @param {string} roomId - The ID of the room to listen to (e.g., 'ROOM_001')
+ */
+export function listenToGameUpdates(roomId = "ROOM_001") {
+    // Ensure Firebase Firestore is initialized
+    const db = firebase.firestore();
+
+    db.collection("rooms").doc(roomId).onSnapshot((docSnapshot) => {
+        if (!docSnapshot.exists) {
+            console.warn(`Room ${roomId} does not exist.`);
+            return;
+        }
+
+        const data = docSnapshot.data();
+        const drawnNumbers = data.drawnNumbers || [];
+        const currentNum = data.currentNum || "--";
+
+        // 1. Update Current Number UI Display
+        const currentDisplay = document.getElementById("currentNum");
+        if (currentDisplay) {
+            currentDisplay.textContent = currentNum;
+        }
+
+        // 2. Clear previous active highlights on the 1-90 board
+        document.querySelectorAll(".number-cell").forEach((cell) => {
+            cell.classList.remove("last-drawn");
+        });
+
+        // 3. Highlight all drawn numbers on the 1-90 board & auto-tick on tickets
+        drawnNumbers.forEach((num) => {
+            const boardCell = document.getElementById(`num-${num}`);
+            if (boardCell) {
+                boardCell.classList.add("drawn");
+            }
+            // Auto-tick this number on all user tickets on the page
+            autoTickTicketNumber(num);
+        });
+
+        // 4. Highlight the most recently drawn number on the 1-90 board
+        if (currentNum && currentNum !== "--") {
+            const lastCell = document.getElementById(`num-${currentNum}`);
+            if (lastCell) {
+                lastCell.classList.add("drawn", "last-drawn");
+            }
+        }
+    }, (error) => {
+        console.error("Error listening to real-time game updates:", error);
+    });
 }
