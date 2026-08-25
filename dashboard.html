@@ -413,5 +413,16 @@
             });
     }
 </script>
+    <script type="module">
+  import { listenToGameUpdates } from './app.js';
+
+  const roomID = "ROOM_001";
+
+  // Automatically sync UI whenever user returns to dashboard
+  window.addEventListener('DOMContentLoaded', () => {
+    listenToGameUpdates(roomID);
+  });
+</script>
+</body>
 </body>
 </html>
