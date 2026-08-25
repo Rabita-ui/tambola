@@ -832,6 +832,23 @@ function showWaiting() {
 createBoard();
 
 </script>
+<script type="module">
+  import { listenToGameUpdates, startGlobalPickup } from './app.js';
 
+  const roomID = "ROOM_001"; // Use your active game room ID
+
+  window.addEventListener('DOMContentLoaded', () => {
+    listenToGameUpdates(roomID);
+  });
+
+  // Attach to your "Start Pickup" button if present in game.html
+  const startBtn = document.getElementById('startPickupBtn');
+  if (startBtn) {
+    startBtn.addEventListener('click', () => {
+      startGlobalPickup(roomID, 5); // 5-second interval
+    });
+  }
+</script>
+</body>
 </body>
 </html>
