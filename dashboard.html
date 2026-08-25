@@ -446,6 +446,31 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
+<!-- IMMEDIATE BOARD RENDERER -->
+<script>
+    // Build 1-90 number grid immediately as standard script
+    function renderBoardGrid() {
+        const board = document.getElementById('board');
+        if (!board) return;
+        board.innerHTML = '';
+
+        for (let i = 1; i <= 90; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'number-cell';
+            cell.id = `num-${i}`;
+            cell.textContent = i;
+            board.appendChild(cell);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderBoardGrid);
+    } else {
+        renderBoardGrid();
+    }
+</script>
+
+<!-- DASHBOARD MAIN SCRIPT -->
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
@@ -537,7 +562,7 @@
         }
     }
 
-    /* FETCH TICKET STATS FOR COUNTERS ONLY */
+    /* FETCH TICKET STATS */
     function loadTicketStats() {
         db.collection("tickets")
             .where("drawId", "==", "draw_001")
@@ -564,32 +589,12 @@
     }
 </script>
 
-<!-- LIVE REALTIME SYNC MODULE -->
+<!-- REALTIME GAME SYNC MODULE -->
 <script type="module">
     import { listenToGameUpdates } from './app.js';
 
     const roomID = "ROOM_001";
-
-    // Helper function to build 1-90 number cells dynamically
-    function renderBoardGrid() {
-        const board = document.getElementById('board');
-        if (!board) return;
-        board.innerHTML = '';
-
-        for (let i = 1; i <= 90; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'number-cell';
-            cell.id = `num-${i}`;
-            cell.textContent = i;
-            board.appendChild(cell);
-        }
-    }
-
-    // Initialize board grid and start listening to real-time game draws
-    window.addEventListener('DOMContentLoaded', () => {
-        renderBoardGrid();
-        listenToGameUpdates(roomID);
-    });
+    listenToGameUpdates(roomID);
 </script>
 
 </body>
