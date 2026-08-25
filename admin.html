@@ -80,6 +80,26 @@
             flex-wrap: wrap;
         }
 
+        /* FORM STYLES FOR DRAW SETUP */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #7b6856;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
         input {
             padding: 13px 15px;
             border: 2px solid #ded4c9;
@@ -100,6 +120,15 @@
             font-weight: 700;
             cursor: pointer;
             font-size: .95rem;
+        }
+
+        .btn-save {
+            background: #2b7a78;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #205e5c;
         }
 
         .btn-start {
@@ -252,6 +281,59 @@
                 <i class="fas fa-home"></i> Dashboard
             </a>
         </div>
+    </div>
+
+
+    <!-- SETUP & CONFIGURATION -->
+
+    <div class="card">
+        <h2>
+            <i class="fas fa-cog"></i>
+            Draw Setup & Ticket Rules
+        </h2>
+
+        <form id="drawSetupForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="ticketPrice">Ticket Price (Tokens):</label>
+                    <input type="number" id="ticketPrice" min="1" value="10" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="totalTickets">Total Available Tickets:</label>
+                    <input type="number" id="totalTickets" min="1" max="600" value="100" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="prizeFullHouse">Full House Prize:</label>
+                    <input type="number" id="prizeFullHouse" min="0" value="500" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="prizeTopLine">Top Line Prize:</label>
+                    <input type="number" id="prizeTopLine" min="0" value="100" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="prizeMiddleLine">Middle Line Prize:</label>
+                    <input type="number" id="prizeMiddleLine" min="0" value="100" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="prizeBottomLine">Bottom Line Prize:</label>
+                    <input type="number" id="prizeBottomLine" min="0" value="100" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="prizeEarlyFive">Early 5 Prize:</label>
+                    <input type="number" id="prizeEarlyFive" min="0" value="50" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-save">
+                <i class="fas fa-save"></i> Save Configuration
+            </button>
+        </form>
     </div>
 
 
@@ -493,6 +575,38 @@ auth.onAuthStateChanged(async (user) => {
 });
 
 
+/* SAVE DRAW & TICKET SETUP */
+
+document.getElementById('drawSetupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const price = Number(document.getElementById('ticketPrice').value);
+    const total = Number(document.getElementById('totalTickets').value);
+
+    const prizes = {
+        fullHouse: Number(document.getElementById('prizeFullHouse').value),
+        topLine: Number(document.getElementById('prizeTopLine').value),
+        middleLine: Number(document.getElementById('prizeMiddleLine').value),
+        bottomLine: Number(document.getElementById('prizeBottomLine').value),
+        earlyFive: Number(document.getElementById('prizeEarlyFive').value)
+    };
+
+    try {
+        await gameRef.set({
+            ticketPrice: price,
+            totalTicketsAvailable: total,
+            prizes: prizes,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        showMessage("Draw configuration saved successfully!", "success");
+    } catch (error) {
+        console.error("Error saving setup:", error);
+        showMessage("Failed to save configuration: " + error.message, "error");
+    }
+});
+
+
 /* GAME LISTENER */
 
 function listenToGame() {
@@ -511,6 +625,17 @@ function listenToGame() {
         }
 
         const data = doc.data();
+
+        // Populate Setup Inputs if values exist in Firestore
+        if (data.ticketPrice) document.getElementById("ticketPrice").value = data.ticketPrice;
+        if (data.totalTicketsAvailable) document.getElementById("totalTickets").value = data.totalTicketsAvailable;
+        if (data.prizes) {
+            if (data.prizes.fullHouse !== undefined) document.getElementById("prizeFullHouse").value = data.prizes.fullHouse;
+            if (data.prizes.topLine !== undefined) document.getElementById("prizeTopLine").value = data.prizes.topLine;
+            if (data.prizes.middleLine !== undefined) document.getElementById("prizeMiddleLine").value = data.prizes.middleLine;
+            if (data.prizes.bottomLine !== undefined) document.getElementById("prizeBottomLine").value = data.prizes.bottomLine;
+            if (data.prizes.earlyFive !== undefined) document.getElementById("prizeEarlyFive").value = data.prizes.earlyFive;
+        }
 
         updateAdminScreen(data);
 
@@ -685,7 +810,7 @@ async function startGame() {
                 firebase.firestore.FieldValue
                     .serverTimestamp()
 
-        });
+        }, { merge: true });
 
 
         document.getElementById(
@@ -927,7 +1052,7 @@ async function resetGame() {
                 firebase.firestore.FieldValue
                     .serverTimestamp()
 
-        });
+        }, { merge: true });
 
 
         showMessage(
