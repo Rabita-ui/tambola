@@ -6,10 +6,8 @@
 
     <title>Admin Portal - Tambola House</title>
 
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    >
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
         * {
@@ -20,71 +18,266 @@
         }
 
         body {
-            background: #121417;
-            color: #e1e3e6;
+            background: linear-gradient(145deg, #f8f3ed 0%, #e9dfd3 100%);
+            color: #2d1f14;
             min-height: 100vh;
             padding: 24px;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
         }
 
         /* HEADER */
-
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
-            padding: 20px;
-            background: #1c1f24;
-            border-radius: 12px;
-            border: 1px solid #2d3239;
+            padding: 20px 24px;
+            background: #ffffff;
+            border-radius: 18px;
+            border: 1px solid #e0d5c8;
+            box-shadow: 0 6px 20px rgba(80, 55, 35, 0.08);
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .header h2 {
             font-size: 1.3rem;
-            color: #ffffff;
+            color: #2d1f14;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
+        .header-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
         .header-links a {
-            color: #a0a6b0;
+            color: #6f5b49;
             text-decoration: none;
             font-size: 0.9rem;
             font-weight: 600;
-            margin-left: 15px;
+            padding: 8px 12px;
+            border-radius: 8px;
         }
 
         .header-links a:hover {
-            color: #ffffff;
+            background: #f3ece5;
+            color: #b35e2e;
         }
 
         /* CARDS */
-
         .card {
-            background: #1c1f24;
-            border: 1px solid #2d3239;
-            border-radius: 12px;
+            background: #ffffff;
+            border: 1px solid #e0d5c8;
+            border-radius: 18px;
             padding: 24px;
             margin-bottom: 24px;
+            box-shadow: 0 6px 20px rgba(80, 55, 35, 0.07);
         }
 
         .card-title {
             font-size: 1.05rem;
             font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 16px;
+            color: #2d1f14;
+            margin-bottom: 18px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
+        /* GAME STATUS */
+        .game-status {
+            background: #f8f3ed;
+            border: 1px solid #e0d5c8;
+            border-radius: 14px;
+            padding: 18px;
+            margin-top: 20px;
+        }
+
+        .last-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1f7a4b;
+        }
+
+        .draw-count {
+            color: #b35e2e;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        /* FORMS */
+        .manual-form {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        input {
+            background: #fffaf6;
+            border: 2px solid #e0d5c8;
+            color: #2d1f14;
+            padding: 11px 14px;
+            border-radius: 9px;
+            font-size: 0.95rem;
+            outline: none;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        input:focus {
+            border-color: #b35e2e;
+            box-shadow: 0 0 0 3px rgba(179, 94, 46, 0.1);
+        }
+
+        /* BUTTONS */
+        .btn-btn {
+            padding: 7px 12px;
+            border: none;
+            border-radius: 7px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .btn-approve {
+            background: #238636;
+            color: white;
+            margin-right: 6px;
+        }
+
+        .btn-reject {
+            background: #da3633;
+            color: white;
+        }
+
+        .btn-approve:hover,
+        .btn-reject:hover {
+            opacity: 0.85;
+        }
+
+        .btn-game {
+            background: #b35e2e;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 9px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-game:hover {
+            background: #94491f;
+        }
+
+        .btn-secondary {
+            background: #1f7a4b;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 9px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: #16633b;
+        }
+
+        .btn-warning {
+            background: #d29922;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 9px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-warning:hover {
+            background: #b77e19;
+        }
+
+        .btn-danger {
+            background: #b13e3e;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 9px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-danger:hover {
+            background: #942f2f;
+        }
+
+        .btn-audio {
+            background: #6c4ab6;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 9px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-audio:hover {
+            background: #573999;
+        }
+
+        .step-container {
+            border-top: 1px solid #e0d5c8;
+            padding-top: 18px;
+            margin-top: 18px;
+        }
+
+        /* AUDIO STATUS */
+        .audio-status {
+            margin-top: 15px;
+            padding: 10px 14px;
+            background: #f1ebfa;
+            color: #573999;
+            border-radius: 9px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .audio-status.show {
+            display: block;
+        }
+
         /* TABLE */
+        .table-wrapper {
+            overflow-x: auto;
+        }
 
         table {
             width: 100%;
@@ -95,52 +288,27 @@
         td {
             padding: 12px 16px;
             text-align: left;
-            border-bottom: 1px solid #2d3239;
+            border-bottom: 1px solid #e0d5c8;
             font-size: 0.9rem;
         }
 
         th {
-            background: #23272e;
-            color: #8b949e;
-            font-weight: 600;
+            background: #f5eee7;
+            color: #6f5b49;
+            font-weight: 700;
             text-transform: uppercase;
             font-size: 0.75rem;
             letter-spacing: 0.5px;
         }
 
-        /* BUTTONS */
-
-        .btn-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .btn-approve {
-            background: #238636;
-            color: #ffffff;
-            margin-right: 6px;
-        }
-
-        .btn-reject {
-            background: #da3633;
-            color: #ffffff;
-        }
-
-        .btn-approve:hover,
-        .btn-reject:hover {
-            opacity: 0.85;
+        td {
+            color: #3c2d20;
         }
 
         /* BADGES */
-
         .badge-pending {
-            background: rgba(210, 153, 34, 0.15);
-            color: #d29922;
+            background: #fff3cd;
+            color: #856404;
             padding: 4px 8px;
             border-radius: 6px;
             font-size: 0.75rem;
@@ -148,8 +316,8 @@
         }
 
         .badge-approved {
-            background: rgba(46, 160, 67, 0.15);
-            color: #3fb950;
+            background: #d4edda;
+            color: #155724;
             padding: 4px 8px;
             border-radius: 6px;
             font-size: 0.75rem;
@@ -157,198 +325,48 @@
         }
 
         .badge-rejected {
-            background: rgba(248, 81, 73, 0.15);
-            color: #f85149;
+            background: #f8d7da;
+            color: #721c24;
             padding: 4px 8px;
             border-radius: 6px;
             font-size: 0.75rem;
             font-weight: 600;
         }
 
-        /* FORMS */
+        /* MOBILE */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
 
-        .manual-form {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        input {
-            background: #121417;
-            border: 1px solid #2d3239;
-            color: #ffffff;
-            padding: 10px 14px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            outline: none;
-            flex: 1;
-            min-width: 200px;
-        }
-
-        input:focus {
-            border-color: #388bfd;
-        }
-
-        .btn-submit {
-            background: #238636;
-            color: white;
-            padding: 10px 18px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn-submit:hover {
-            background: #2ea043;
-        }
-
-        /* GAME BUTTONS */
-
-        .btn-game {
-            background: #388bfd;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 0.95rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-game:hover {
-            background: #2c75d8;
-        }
-
-        .btn-secondary {
-            background: #238636;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 0.95rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-secondary:hover {
-            background: #2ea043;
-        }
-
-        .btn-warning {
-            background: #d29922;
-            color: #121417;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 0.95rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-warning:hover {
-            background: #e3a82d;
-        }
-
-        .btn-danger {
-            background: #da3633;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 0.95rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-danger:hover {
-            background: #b82d2a;
-        }
-
-        .btn-audio {
-            background: #8957e5;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 0.95rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-audio:hover {
-            background: #7444c7;
-        }
-
-        .step-container {
-            border-top: 1px solid #2d3239;
-            padding-top: 16px;
-            margin-top: 16px;
-        }
-
-        /* NUMBER DISPLAY */
-
-        .number-display {
-            margin-top: 24px;
-            padding: 25px;
-            text-align: center;
-            background: #121417;
-            border: 1px solid #2d3239;
-            border-radius: 12px;
-        }
-
-        .number-display-label {
-            color: #8b949e;
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-        }
-
-        .big-number {
-            font-size: 4rem;
-            font-weight: 800;
-            color: #3fb950;
-            line-height: 1;
-        }
-
-        .audio-status {
-            margin-top: 10px;
-            color: #a0a6b0;
-            font-size: 0.85rem;
-        }
-
-        @media (max-width: 700px) {
             .header {
                 flex-direction: column;
                 align-items: stretch;
             }
 
             .header-links {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
+                justify-content: center;
             }
 
-            .header-links a {
-                margin-left: 0;
+            .manual-form {
+                flex-direction: column;
             }
 
-            .big-number {
-                font-size: 3rem;
+            input {
+                width: 100%;
+            }
+
+            .btn-game,
+            .btn-secondary,
+            .btn-warning,
+            .btn-danger,
+            .btn-audio {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .game-status {
+                text-align: center;
             }
         }
     </style>
@@ -359,11 +377,10 @@
 <div class="container">
 
     <!-- HEADER -->
-
     <div class="header">
 
         <h2>
-            <i class="fas fa-shield-alt" style="color: #388bfd;"></i>
+            <i class="fas fa-shield-alt" style="color:#b35e2e;"></i>
             System Administrator
         </h2>
 
@@ -390,22 +407,16 @@
 
 
     <!-- LIVE GAME CONTROL PANEL -->
-
     <div class="card">
 
         <div class="card-title">
-            <i class="fas fa-dice" style="color: #388bfd;"></i>
+            <i class="fas fa-dice" style="color:#b35e2e;"></i>
             Live Game Host Controls
         </div>
 
 
         <!-- FIRST NUMBER -->
-
-        <div
-            id="step-first-pick"
-            class="manual-form"
-            style="margin-top: 10px;"
-        >
+        <div id="step-first-pick" class="manual-form">
 
             <input
                 type="number"
@@ -415,10 +426,7 @@
                 placeholder="Enter 1st Number to Draw (1-90)"
             >
 
-            <button
-                class="btn-game"
-                onclick="setFirstNumber()"
-            >
+            <button class="btn-game" onclick="setFirstNumber()">
                 <i class="fas fa-play"></i>
                 Confirm 1st Pick & Start Sequence
             </button>
@@ -427,168 +435,150 @@
 
 
         <!-- SEQUENTIAL DRAW -->
+        <div id="step-sequential-draw"
+             class="step-container"
+             style="display:none;">
 
-        <div
-            id="step-sequential-draw"
-            class="step-container"
-            style="display: none;"
-        >
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
 
-            <div
-                style="
-                    display: flex;
-                    gap: 12px;
-                    flex-wrap: wrap;
-                    align-items: center;
-                "
-            >
+                <button class="btn-game"
+                        onclick="drawNextInSequence()">
 
-                <button
-                    class="btn-game"
-                    onclick="drawNextInSequence()"
-                >
                     <i class="fas fa-bullhorn"></i>
                     Draw Next Number
+
                 </button>
 
 
-                <button
-                    class="btn-secondary"
-                    id="btnAutoDraw"
-                    onclick="startAutoDraw()"
-                >
+                <button class="btn-secondary"
+                        id="btnAutoDraw"
+                        onclick="startAutoDraw()">
+
                     <i class="fas fa-forward"></i>
                     Start Auto Draw (4s)
+
                 </button>
 
 
-                <button
-                    class="btn-warning"
-                    id="btnStopAuto"
-                    onclick="stopAutoDraw()"
-                    style="display: none;"
-                >
+                <button class="btn-warning"
+                        id="btnStopAuto"
+                        onclick="stopAutoDraw()"
+                        style="display:none;">
+
                     <i class="fas fa-pause"></i>
                     Stop Auto Draw
+
                 </button>
 
 
-                <!-- TEST VOICE -->
+                <!-- TEST AUDIO -->
+                <button class="btn-audio"
+                        onclick="testAudio()">
 
-                <button
-                    class="btn-audio"
-                    onclick="testVoice()"
-                >
                     <i class="fas fa-volume-up"></i>
                     Test Voice
+
                 </button>
 
             </div>
 
-        </div>
 
-
-        <!-- NUMBER DISPLAY -->
-
-        <div class="number-display">
-
-            <div class="number-display-label">
-                LAST DRAWN NUMBER
-            </div>
-
-            <div
-                class="big-number"
-                id="adminLastDrawn"
-            >
-                --
-            </div>
-
-            <div class="audio-status" id="audioStatus">
+            <div id="audioStatus" class="audio-status">
+                <i class="fas fa-volume-up"></i>
                 Voice announcement ready
             </div>
 
         </div>
 
 
-        <!-- STATUS + RESET -->
+        <!-- GAME STATUS -->
+        <div class="game-status">
 
-        <div
-            style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-top: 20px;
-                flex-wrap: wrap;
-                gap: 12px;
-            "
-        >
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                flex-wrap:wrap;
+                gap:20px;
+            ">
 
-            <span
-                style="
-                    color: #a0a6b0;
-                    font-size: 0.95rem;
-                    font-weight: 600;
-                "
-            >
+                <div>
 
-                Drawn Count:
+                    <div style="
+                        color:#7b6856;
+                        font-size:0.9rem;
+                        margin-bottom:5px;
+                    ">
+                        Last Drawn Number
+                    </div>
 
-                <strong
-                    id="adminDrawnCount"
-                    style="
-                        color: #388bfd;
-                        font-size: 1.3rem;
-                    "
-                >
-                    0
-                </strong>
+                    <div id="adminLastDrawn"
+                         class="last-number">
+                        --
+                    </div>
 
-                /90
-
-            </span>
+                </div>
 
 
-            <button
-                class="btn-danger"
-                onclick="resetGame()"
-            >
-                <i class="fas fa-undo"></i>
-                Reset Game Board
-            </button>
+                <div>
+
+                    <div style="
+                        color:#7b6856;
+                        font-size:0.9rem;
+                        margin-bottom:5px;
+                    ">
+                        Drawn Count
+                    </div>
+
+                    <div class="draw-count">
+                        <span id="adminDrawnCount">0</span> / 90
+                    </div>
+
+                </div>
+
+
+                <button class="btn-danger"
+                        onclick="resetGame()">
+
+                    <i class="fas fa-undo"></i>
+                    Reset Game Board
+
+                </button>
+
+            </div>
 
         </div>
 
     </div>
 
 
-    <!-- PENDING DEPOSIT APPROVALS -->
-
+    <!-- DEPOSIT REQUESTS -->
     <div class="card">
 
         <div class="card-title">
 
-            <i
-                class="fas fa-clock"
-                style="color: #d29922;"
-            ></i>
+            <i class="fas fa-clock"
+               style="color:#d29922;"></i>
 
             Deposit Requests
 
         </div>
 
 
-        <div style="overflow-x: auto;">
+        <div class="table-wrapper">
 
             <table>
 
                 <thead>
 
                     <tr>
+
                         <th>User UID</th>
                         <th>Amount</th>
                         <th>Transaction ID</th>
                         <th>Status</th>
                         <th>Action</th>
+
                     </tr>
 
                 </thead>
@@ -598,14 +588,11 @@
 
                     <tr>
 
-                        <td
-                            colspan="5"
-                            style="
-                                text-align: center;
-                                color: #8b949e;
-                            "
-                        >
+                        <td colspan="5"
+                            style="text-align:center;color:#8b735f;">
+
                             Loading requests...
+
                         </td>
 
                     </tr>
@@ -620,15 +607,12 @@
 
 
     <!-- DIRECT TOKEN ASSIGNMENT -->
-
     <div class="card">
 
         <div class="card-title">
 
-            <i
-                class="fas fa-coins"
-                style="color: #238636;"
-            ></i>
+            <i class="fas fa-coins"
+               style="color:#1f7a4b;"></i>
 
             Direct Token Assignment
 
@@ -647,13 +631,15 @@
                 type="number"
                 id="tokenAmount"
                 placeholder="Token Amount"
+                min="1"
             >
 
-            <button
-                class="btn-submit"
-                onclick="addTokensDirectly()"
-            >
+            <button class="btn-secondary"
+                    onclick="addTokensDirectly()">
+
+                <i class="fas fa-plus-circle"></i>
                 Add Tokens
+
             </button>
 
         </div>
@@ -663,8 +649,7 @@
 </div>
 
 
-<!-- FIREBASE -->
-
+<!-- FIREBASE SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
@@ -674,23 +659,28 @@
 
 <script>
 
-    /* =====================================================
+    /* =========================================
        FIREBASE CONFIGURATION
-       ===================================================== */
+    ========================================= */
 
     const firebaseConfig = {
 
         apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
 
-        authDomain: "tambola-house-3dc56.firebaseapp.com",
+        authDomain:
+            "tambola-house-3dc56.firebaseapp.com",
 
-        projectId: "tambola-house-3dc56",
+        projectId:
+            "tambola-house-3dc56",
 
-        storageBucket: "tambola-house-3dc56.firebasestorage.app",
+        storageBucket:
+            "tambola-house-3dc56.firebasestorage.app",
 
-        messagingSenderId: "267918174188",
+        messagingSenderId:
+            "267918174188",
 
-        appId: "1:267918174188:web:ec27684544c286c044c2c9"
+        appId:
+            "1:267918174188:web:ec27684544c286c044c2c9"
 
     };
 
@@ -705,19 +695,59 @@
 
     let autoDrawTimer = null;
 
-    let lastAnnouncedNumber = null;
+
+    /* =========================================
+       AUDIO
+    ========================================= */
+
+    let selectedVoice = null;
 
 
-    /* =====================================================
-       TEXT TO SPEECH
-       ===================================================== */
+    function loadVoices() {
 
-    function speakNumber(number, isFirst = false) {
+        if (!("speechSynthesis" in window)) {
+            return;
+        }
+
+        const voices =
+            window.speechSynthesis.getVoices();
+
+        if (!voices.length) {
+            return;
+        }
+
+
+        /*
+         Prefer an English voice.
+        */
+
+        selectedVoice =
+            voices.find(
+                voice =>
+                    voice.lang &&
+                    voice.lang.toLowerCase().startsWith("en")
+            ) || voices[0];
+
+    }
+
+
+    if ("speechSynthesis" in window) {
+
+        loadVoices();
+
+        window.speechSynthesis.onvoiceschanged =
+            loadVoices;
+
+    }
+
+
+    function announceNumber(number) {
 
         if (!("speechSynthesis" in window)) {
 
-            document.getElementById("audioStatus").textContent =
-                "Voice is not supported by this browser.";
+            console.warn(
+                "Speech synthesis is not supported."
+            );
 
             return;
 
@@ -725,101 +755,86 @@
 
 
         /*
-         * Stop any previous speech.
-         */
+         Stop previous announcement.
+        */
 
         window.speechSynthesis.cancel();
 
 
-        let message;
+        const text =
+            "Number " + number;
 
 
-        if (isFirst) {
-
-            message = "First number is " + number;
-
-        } else {
-
-            message = "Number " + number;
-
-        }
+        const utterance =
+            new SpeechSynthesisUtterance(text);
 
 
-        const speech =
-            new SpeechSynthesisUtterance(message);
+        utterance.rate = 0.85;
+
+        utterance.pitch = 1;
+
+        utterance.volume = 1;
 
 
-        /*
-         * Voice settings.
-         */
+        if (selectedVoice) {
 
-        speech.rate = 0.85;
-
-        speech.pitch = 1;
-
-        speech.volume = 1;
-
-
-        /*
-         * Try to select an English voice.
-         */
-
-        const voices =
-            window.speechSynthesis.getVoices();
-
-
-        const preferredVoice =
-            voices.find(
-                voice =>
-                    voice.lang &&
-                    voice.lang.toLowerCase().startsWith("en")
-            );
-
-
-        if (preferredVoice) {
-
-            speech.voice = preferredVoice;
+            utterance.voice =
+                selectedVoice;
 
         }
 
 
-        document.getElementById("audioStatus").textContent =
-            "🔊 Announcing: " + message;
+        const audioStatus =
+            document.getElementById("audioStatus");
 
 
-        speech.onend = function () {
+        if (audioStatus) {
 
-            document.getElementById("audioStatus").textContent =
-                "Voice announcement ready";
+            audioStatus.innerHTML =
+                '<i class="fas fa-volume-up"></i> Announcing Number ' +
+                number;
+
+            audioStatus.classList.add("show");
+
+        }
+
+
+        utterance.onend = function () {
+
+            if (audioStatus) {
+
+                audioStatus.innerHTML =
+                    '<i class="fas fa-volume-up"></i> Voice announcement ready';
+
+            }
 
         };
 
 
-        window.speechSynthesis.speak(speech);
+        window.speechSynthesis.speak(
+            utterance
+        );
 
     }
 
 
-    /* =====================================================
-       TEST VOICE
-       ===================================================== */
+    function testAudio() {
 
-    function testVoice() {
-
-        speakNumber(25);
+        announceNumber(25);
 
     }
 
 
-    /* =====================================================
+    /* =========================================
        AUTHENTICATION
-       ===================================================== */
+    ========================================= */
 
     auth.onAuthStateChanged((user) => {
 
         if (!user) {
 
-            window.location.href = "login.html";
+            window.location.href =
+                "login.html";
 
             return;
 
@@ -833,9 +848,9 @@
     });
 
 
-    /* =====================================================
-       SHUFFLE 1-90
-       ===================================================== */
+    /* =========================================
+       CREATE SHUFFLED 1-90 ARRAY
+    ========================================= */
 
     function generateShuffledArray() {
 
@@ -875,75 +890,98 @@
     }
 
 
-    /* =====================================================
+    /* =========================================
        LISTEN TO ACTIVE GAME
-       ===================================================== */
+    ========================================= */
 
     function listenToActiveGame() {
 
         db.collection("games")
             .doc("active_game")
-            .onSnapshot((doc) => {
+            .onSnapshot(
+                (doc) => {
 
-                if (doc.exists) {
+                    if (doc.exists) {
 
-                    const data = doc.data();
-
-
-                    const drawnNumbers =
-                        data.drawnNumbers || [];
+                        const data =
+                            doc.data();
 
 
-                    document.getElementById(
-                        "adminLastDrawn"
-                    ).textContent =
-                        data.lastDrawn || "--";
-
-
-                    document.getElementById(
-                        "adminDrawnCount"
-                    ).textContent =
-                        drawnNumbers.length;
-
-
-                    if (data.isFirstDrawDone) {
-
-                        document.getElementById(
-                            "step-first-pick"
-                        ).style.display = "none";
+                        const drawnNumbers =
+                            data.drawnNumbers || [];
 
 
                         document.getElementById(
-                            "step-sequential-draw"
-                        ).style.display = "block";
+                            "adminLastDrawn"
+                        ).textContent =
+                            data.lastDrawn || "--";
+
+
+                        document.getElementById(
+                            "adminDrawnCount"
+                        ).textContent =
+                            drawnNumbers.length;
+
+
+                        if (
+                            data.isFirstDrawDone
+                        ) {
+
+                            document.getElementById(
+                                "step-first-pick"
+                            ).style.display =
+                                "none";
+
+
+                            document.getElementById(
+                                "step-sequential-draw"
+                            ).style.display =
+                                "block";
+
+                        } else {
+
+                            document.getElementById(
+                                "step-first-pick"
+                            ).style.display =
+                                "flex";
+
+
+                            document.getElementById(
+                                "step-sequential-draw"
+                            ).style.display =
+                                "none";
+
+                        }
 
                     } else {
 
-                        document.getElementById(
-                            "step-first-pick"
-                        ).style.display = "flex";
-
-
-                        document.getElementById(
-                            "step-sequential-draw"
-                        ).style.display = "none";
+                        resetGameData();
 
                     }
 
-                } else {
+                },
 
-                    resetGameData();
+                (error) => {
+
+                    console.error(
+                        "Game listener error:",
+                        error
+                    );
+
+                    alert(
+                        "Unable to read game data: " +
+                        error.message
+                    );
 
                 }
-
-            });
+            );
 
     }
 
 
-    /* =====================================================
+    /* =========================================
        FIRST NUMBER
-       ===================================================== */
+    ========================================= */
 
     async function setFirstNumber() {
 
@@ -981,26 +1019,30 @@
                 async (transaction) => {
 
                     const doc =
-                        await transaction.get(gameRef);
+                        await transaction.get(
+                            gameRef
+                        );
 
 
                     let sequence =
                         doc.exists &&
                         doc.data().drawSequence
-                            ? [...doc.data().drawSequence]
+                            ? [
+                                ...doc.data()
+                                    .drawSequence
+                              ]
                             : generateShuffledArray();
 
 
-                    /*
-                     * Put admin-selected number
-                     * at the beginning.
-                     */
-
                     const chosenIndex =
-                        sequence.indexOf(inputVal);
+                        sequence.indexOf(
+                            inputVal
+                        );
 
 
-                    if (chosenIndex !== -1) {
+                    if (
+                        chosenIndex !== -1
+                    ) {
 
                         [
                             sequence[0],
@@ -1024,25 +1066,30 @@
 
                             status: "running",
 
-                            drawSequence: sequence,
+                            drawSequence:
+                                sequence,
 
-                            drawnNumbers: [
-                                firstNumber
-                            ],
+                            drawnNumbers:
+                                [firstNumber],
 
                             lastDrawn:
                                 firstNumber,
 
-                            currentIndex: 1,
+                            currentIndex:
+                                1,
 
-                            isFirstDrawDone: true,
+                            isFirstDrawDone:
+                                true,
 
                             updatedAt:
-                                firebase.firestore.FieldValue
+                                firebase.firestore
+                                    .FieldValue
                                     .serverTimestamp()
 
                         },
-                        { merge: true }
+                        {
+                            merge: true
+                        }
                     );
 
                 }
@@ -1055,12 +1102,11 @@
 
 
             /*
-             * Announce first number.
-             */
+             Announce first number.
+            */
 
-            speakNumber(
-                inputVal,
-                true
+            announceNumber(
+                inputVal
             );
 
 
@@ -1088,9 +1134,9 @@
     }
 
 
-    /* =====================================================
+    /* =========================================
        DRAW NEXT NUMBER
-       ===================================================== */
+    ========================================= */
 
     async function drawNextInSequence() {
 
@@ -1108,7 +1154,9 @@
                 async (transaction) => {
 
                     const doc =
-                        await transaction.get(gameRef);
+                        await transaction.get(
+                            gameRef
+                        );
 
 
                     if (
@@ -1131,16 +1179,17 @@
                         data.drawSequence || [];
 
 
-                    let currentIndex =
+                    const currentIndex =
                         data.currentIndex || 0;
 
 
-                    let drawnNumbers =
+                    const drawnNumbers =
                         data.drawnNumbers || [];
 
 
                     if (
-                        currentIndex >= sequence.length ||
+                        currentIndex >=
+                            sequence.length ||
                         drawnNumbers.length >= 90
                     ) {
 
@@ -1157,11 +1206,15 @@
                         sequence[currentIndex];
 
 
-                    drawnNumbers.push(nextNum);
-
-
                     numberToAnnounce =
                         nextNum;
+
+
+                    const updatedDrawnNumbers =
+                        [
+                            ...drawnNumbers,
+                            nextNum
+                        ];
 
 
                     transaction.update(
@@ -1169,7 +1222,7 @@
                         {
 
                             drawnNumbers:
-                                drawnNumbers,
+                                updatedDrawnNumbers,
 
                             lastDrawn:
                                 nextNum,
@@ -1178,7 +1231,8 @@
                                 currentIndex + 1,
 
                             updatedAt:
-                                firebase.firestore.FieldValue
+                                firebase.firestore
+                                    .FieldValue
                                     .serverTimestamp()
 
                         }
@@ -1189,15 +1243,15 @@
 
 
             /*
-             * Speak only after Firebase
-             * successfully saves the number.
-             */
+             Announce only after Firestore
+             successfully records the number.
+            */
 
             if (
                 numberToAnnounce !== null
             ) {
 
-                speakNumber(
+                announceNumber(
                     numberToAnnounce
                 );
 
@@ -1212,34 +1266,22 @@
             );
 
 
-            /*
-             * Don't show an alert every 4 seconds
-             * if the auto draw has finished.
-             */
-
             stopAutoDraw();
 
 
-            if (
-                err.message !==
-                "All 90 numbers have already been drawn!"
-            ) {
-
-                alert(
-                    "Failed to draw number: " +
-                    err.message
-                );
-
-            }
+            alert(
+                "Failed to draw number: " +
+                err.message
+            );
 
         }
 
     }
 
 
-    /* =====================================================
+    /* =========================================
        AUTO DRAW
-       ===================================================== */
+    ========================================= */
 
     function startAutoDraw() {
 
@@ -1250,32 +1292,28 @@
         }
 
 
-        /*
-         * Browser audio permission is normally
-         * activated because this function is called
-         * by a button click.
-         */
-
         document.getElementById(
             "btnAutoDraw"
-        ).style.display = "none";
+        ).style.display =
+            "none";
 
 
         document.getElementById(
             "btnStopAuto"
-        ).style.display = "inline-flex";
+        ).style.display =
+            "inline-flex";
 
 
         /*
-         * Draw immediately.
-         */
+         Draw immediately.
+        */
 
         drawNextInSequence();
 
 
         /*
-         * Then every 4 seconds.
-         */
+         Then every 4 seconds.
+        */
 
         autoDrawTimer =
             setInterval(
@@ -1290,9 +1328,9 @@
     }
 
 
-    /* =====================================================
+    /* =========================================
        STOP AUTO DRAW
-       ===================================================== */
+    ========================================= */
 
     function stopAutoDraw() {
 
@@ -1309,27 +1347,44 @@
 
         document.getElementById(
             "btnAutoDraw"
-        ).style.display = "inline-flex";
+        ).style.display =
+            "inline-flex";
 
 
         document.getElementById(
             "btnStopAuto"
-        ).style.display = "none";
+        ).style.display =
+            "none";
+
+
+        /*
+         Stop any current voice.
+        */
+
+        if (
+            "speechSynthesis" in window
+        ) {
+
+            window.speechSynthesis.cancel();
+
+        }
 
     }
 
 
-    /* =====================================================
+    /* =========================================
        RESET GAME
-       ===================================================== */
+    ========================================= */
 
     async function resetGame() {
 
-        if (
-            !confirm(
-                "Are you sure you want to reset the active game? All drawn numbers and sequence will be cleared."
-            )
-        ) {
+        const confirmed =
+            confirm(
+                "Are you sure you want to reset the active game? All drawn numbers and the sequence will be cleared."
+            );
+
+
+        if (!confirmed) {
 
             return;
 
@@ -1339,36 +1394,37 @@
         stopAutoDraw();
 
 
-        /*
-         * Stop voice immediately.
-         */
+        try {
 
-        if ("speechSynthesis" in window) {
+            await resetGameData();
 
-            window.speechSynthesis.cancel();
+
+            alert(
+                "Game board has been reset!"
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Reset error:",
+                error
+            );
+
+
+            alert(
+                "Could not reset game: " +
+                error.message
+            );
 
         }
-
-
-        await resetGameData();
-
-
-        document.getElementById(
-            "audioStatus"
-        ).textContent =
-            "Voice announcement ready";
-
-
-        alert(
-            "Game board has been reset!"
-        );
 
     }
 
 
-    /* =====================================================
+    /* =========================================
        RESET GAME DATA
-       ===================================================== */
+    ========================================= */
 
     async function resetGameData() {
 
@@ -1394,7 +1450,8 @@
                 isFirstDrawDone: false,
 
                 updatedAt:
-                    firebase.firestore.FieldValue
+                    firebase.firestore
+                        .FieldValue
                         .serverTimestamp()
 
             });
@@ -1402,179 +1459,175 @@
     }
 
 
-    /* =====================================================
+    /* =========================================
        DEPOSIT MANAGEMENT
-       ===================================================== */
+    ========================================= */
 
     function loadDepositRequests() {
 
         db.collection("deposits")
-            .onSnapshot((snapshot) => {
+            .onSnapshot(
+                (snapshot) => {
 
-                const table =
-                    document.getElementById(
-                        "depositsTable"
-                    );
-
-
-                table.innerHTML = "";
+                    const table =
+                        document.getElementById(
+                            "depositsTable"
+                        );
 
 
-                if (snapshot.empty) {
-
-                    table.innerHTML = `
-                        <tr>
-                            <td
-                                colspan="5"
-                                style="
-                                    text-align: center;
-                                    color: #8b949e;
-                                "
-                            >
-                                No deposit requests pending.
-                            </td>
-                        </tr>
-                    `;
-
-                    return;
-
-                }
-
-
-                snapshot.forEach((doc) => {
-
-                    const dep =
-                        doc.data();
-
-
-                    const depId =
-                        doc.id;
-
-
-                    const isPending =
-                        dep.status === "pending";
-
-
-                    let badgeClass =
-                        "badge-pending";
+                    table.innerHTML = "";
 
 
                     if (
-                        dep.status ===
-                        "approved"
+                        snapshot.empty
                     ) {
 
-                        badgeClass =
-                            "badge-approved";
+                        table.innerHTML = `
+                            <tr>
+                                <td colspan="5"
+                                    style="text-align:center;color:#8b735f;">
+                                    No deposit requests pending.
+                                </td>
+                            </tr>
+                        `;
+
+                        return;
 
                     }
 
 
-                    if (
-                        dep.status ===
-                        "rejected"
-                    ) {
+                    snapshot.forEach(
+                        (doc) => {
 
-                        badgeClass =
-                            "badge-rejected";
-
-                    }
+                            const dep =
+                                doc.data();
 
 
-                    const row =
-                        document.createElement("tr");
+                            const depId =
+                                doc.id;
 
 
-                    row.innerHTML = `
-
-                        <td
-                            style="
-                                font-family: monospace;
-                            "
-                        >
-                            ${dep.userId || "N/A"}
-                        </td>
+                            const isPending =
+                                dep.status ===
+                                "pending";
 
 
-                        <td>
-                            <strong>
-                                ${dep.amount || 0} Tokens
-                            </strong>
-                        </td>
+                            let badgeClass =
+                                "badge-pending";
 
 
-                        <td>
-                            ${dep.txnId || "N/A"}
-                        </td>
+                            if (
+                                dep.status ===
+                                "approved"
+                            ) {
 
+                                badgeClass =
+                                    "badge-approved";
 
-                        <td>
-
-                            <span
-                                class="${badgeClass}"
-                            >
-                                ${(dep.status || "pending").toUpperCase()}
-                            </span>
-
-                        </td>
-
-
-                        <td>
-
-                            ${
-                                isPending
-                                    ? `
-
-                                <button
-                                    class="btn-btn btn-approve"
-                                    onclick="
-                                        processDeposit(
-                                            '${depId}',
-                                            '${dep.userId}',
-                                            ${dep.amount},
-                                            'approved'
-                                        )
-                                    "
-                                >
-                                    Approve
-                                </button>
-
-
-                                <button
-                                    class="btn-btn btn-reject"
-                                    onclick="
-                                        processDeposit(
-                                            '${depId}',
-                                            '${dep.userId}',
-                                            0,
-                                            'rejected'
-                                        )
-                                    "
-                                >
-                                    Reject
-                                </button>
-
-                                    `
-                                    : "--"
                             }
 
-                        </td>
 
-                    `;
+                            if (
+                                dep.status ===
+                                "rejected"
+                            ) {
+
+                                badgeClass =
+                                    "badge-rejected";
+
+                            }
 
 
-                    table.appendChild(row);
+                            const row =
+                                document.createElement(
+                                    "tr"
+                                );
 
-                });
 
-            });
+                            row.innerHTML = `
+
+                                <td style="font-family:monospace;">
+                                    ${dep.userId || "N/A"}
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        ${dep.amount || 0} Tokens
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    ${dep.txnId || "N/A"}
+                                </td>
+
+                                <td>
+                                    <span class="${badgeClass}">
+                                        ${(dep.status || "pending").toUpperCase()}
+                                    </span>
+                                </td>
+
+                                <td>
+
+                                    ${
+                                        isPending
+                                        ? `
+
+                                            <button
+                                                class="btn-btn btn-approve"
+                                                onclick="processDeposit(
+                                                    '${depId}',
+                                                    '${dep.userId}',
+                                                    ${Number(dep.amount || 0)},
+                                                    'approved'
+                                                )">
+                                                Approve
+                                            </button>
+
+                                            <button
+                                                class="btn-btn btn-reject"
+                                                onclick="processDeposit(
+                                                    '${depId}',
+                                                    '${dep.userId}',
+                                                    0,
+                                                    'rejected'
+                                                )">
+                                                Reject
+                                            </button>
+
+                                        `
+                                        : "--"
+                                    }
+
+                                </td>
+
+                            `;
+
+
+                            table.appendChild(
+                                row
+                            );
+
+                        }
+                    );
+
+                },
+
+                (error) => {
+
+                    console.error(
+                        "Deposit listener error:",
+                        error
+                    );
+
+                }
+            );
 
     }
 
 
-    /* =====================================================
+    /* =========================================
        PROCESS DEPOSIT
-       ===================================================== */
+    ========================================= */
 
     async function processDeposit(
         depId,
@@ -1583,13 +1636,15 @@
         newStatus
     ) {
 
-        if (
-            !confirm(
+        const confirmed =
+            confirm(
                 "Are you sure you want to mark this request as " +
                 newStatus.toUpperCase() +
                 "?"
-            )
-        ) {
+            );
+
+
+        if (!confirmed) {
 
             return;
 
@@ -1622,21 +1677,28 @@
                         "approved"
                     ) {
 
-                        const currentTokens =
-                            userDoc.exists
-                                ? (
-                                    userDoc.data()
-                                        .tokens || 0
-                                )
-                                : 0;
+                        if (
+                            !userDoc.exists
+                        ) {
+
+                            throw new Error(
+                                "User document does not exist."
+                            );
+
+                        }
 
 
                         transaction.update(
                             userRef,
                             {
+
                                 tokens:
-                                    currentTokens +
-                                    Number(amount)
+                                    firebase.firestore
+                                        .FieldValue
+                                        .increment(
+                                            Number(amount)
+                                        )
+
                             }
                         );
 
@@ -1646,8 +1708,15 @@
                     transaction.update(
                         depRef,
                         {
+
                             status:
-                                newStatus
+                                newStatus,
+
+                            processedAt:
+                                firebase.firestore
+                                    .FieldValue
+                                    .serverTimestamp()
+
                         }
                     );
 
@@ -1680,9 +1749,9 @@
     }
 
 
-    /* =====================================================
+    /* =========================================
        DIRECT TOKEN ASSIGNMENT
-       ===================================================== */
+    ========================================= */
 
     async function addTokensDirectly() {
 
@@ -1726,7 +1795,9 @@
                 await userRef.get();
 
 
-            if (!userDoc.exists) {
+            if (
+                !userDoc.exists
+            ) {
 
                 alert(
                     "Target UID does not exist in database."
@@ -1737,26 +1808,28 @@
             }
 
 
-            const currentTokens =
-                userDoc.data().tokens || 0;
-
-
-            const newTotal =
-                currentTokens + amount;
-
-
             await userRef.update({
 
                 tokens:
-                    newTotal
+                    firebase.firestore
+                        .FieldValue
+                        .increment(
+                            amount
+                        )
 
             });
+
+
+            const newTotal =
+                Number(
+                    userDoc.data().tokens || 0
+                ) + amount;
 
 
             alert(
                 "Added " +
                 amount +
-                " tokens to UID. New total: " +
+                " tokens. New total: " +
                 newTotal
             );
 
@@ -1774,7 +1847,7 @@
         } catch (err) {
 
             console.error(
-                "Direct add error:",
+                "Direct token error:",
                 err
             );
 
@@ -1785,22 +1858,6 @@
             );
 
         }
-
-    }
-
-
-    /* =====================================================
-       LOAD AVAILABLE SPEECH VOICES
-       ===================================================== */
-
-    if ("speechSynthesis" in window) {
-
-        window.speechSynthesis.onvoiceschanged =
-            function () {
-
-                window.speechSynthesis.getVoices();
-
-            };
 
     }
 
