@@ -1,301 +1,837 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Game Room - Tambola House</title>
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Tambola Game Room</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    >
 
     <style>
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            font-family:
+                system-ui,
+                -apple-system,
+                "Segoe UI",
+                Roboto,
+                sans-serif;
         }
 
         body {
-            background-color: #f3efe6 !important;
-            background-image: none !important;
-            color: #2d1f14;
+
             min-height: 100vh;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #f7f3ee,
+                    #e8dfd5
+                );
+
+            color: #2d1f14;
+
             padding: 20px;
+
         }
+
 
         .container {
-            max-width: 1000px;
-            margin: 0 auto;
+
+            max-width: 1200px;
+
+            margin: auto;
+
         }
+
 
         .header {
+
+            background: white;
+
+            border-radius: 22px;
+
+            padding: 20px 25px;
+
+            margin-bottom: 20px;
+
+            box-shadow:
+                0 5px 20px
+                rgba(0,0,0,.08);
+
             display: flex;
+
             justify-content: space-between;
+
             align-items: center;
-            margin-bottom: 24px;
-            padding: 16px 24px;
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e0d5c8;
-        }
 
-        .header h2 {
-            font-size: 1.3rem;
-            color: #2d1f14;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+            gap: 15px;
 
-        .header-links a {
-            color: #7b6856;
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-left: 15px;
-            transition: color 0.2s;
-        }
-
-        .header-links a:hover {
-            color: #b35e2e;
-        }
-
-        /* DISPLAY BANNER */
-        .status-banner {
-            background: #ffffff;
-            border: 1px solid #e0d5c8;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-            text-align: center;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
             flex-wrap: wrap;
-            gap: 16px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+
         }
 
-        .last-number-box {
-            background: #fdfbf7;
-            border: 3px solid #b35e2e;
-            border-radius: 50%;
-            width: 85px;
-            height: 85px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.4rem;
-            font-weight: 800;
-            color: #1f7a4b;
-            box-shadow: 0 4px 10px rgba(179, 94, 46, 0.15);
+
+        .header h1 {
+
+            font-size: 1.5rem;
+
         }
 
-        .status-info h3 {
-            font-size: 0.9rem;
+
+        .header h1 i {
+
+            color: #b35e2e;
+
+        }
+
+
+        .header a {
+
             color: #7b6856;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
 
-        .status-info p {
-            font-size: 1.4rem;
+            text-decoration: none;
+
             font-weight: 700;
-            color: #2d1f14;
+
+            margin-left: 15px;
+
         }
 
-        /* BOARD GRID (1 to 90) */
-        .board-card {
-            background: #ffffff;
-            border: 1px solid #e0d5c8;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+
+        .header a:hover {
+
+            color: #b35e2e;
+
         }
 
-        .board-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #2d1f14;
-            margin-bottom: 18px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+
+        .card {
+
+            background: white;
+
+            border-radius: 22px;
+
+            padding: 25px;
+
+            margin-bottom: 20px;
+
+            box-shadow:
+                0 5px 20px
+                rgba(0,0,0,.07);
+
         }
 
-        .grid-board {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 8px;
-        }
 
-        @media (max-width: 600px) {
-            .grid-board {
-                grid-template-columns: repeat(5, 1fr);
-            }
-        }
+        .main-display {
 
-        .grid-cell {
-            background: #f8f4f0;
-            border: 1px solid #d4c5b5;
-            border-radius: 8px;
-            padding: 12px 0;
             text-align: center;
-            font-size: 0.95rem;
+
+            padding: 30px;
+
+        }
+
+
+        .label {
+
+            color: #7b6856;
+
+            font-size: 1rem;
+
+            font-weight: 600;
+
+        }
+
+
+        .number-display {
+
+            width: 190px;
+
+            height: 190px;
+
+            margin: 20px auto;
+
+            border-radius: 50%;
+
+            background: #b35e2e;
+
+            color: white;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 5rem;
+
+            font-weight: 900;
+
+            box-shadow:
+                0 15px 35px
+                rgba(179,94,46,.3);
+
+        }
+
+
+        .status {
+
+            font-size: 1rem;
+
             font-weight: 700;
-            color: #a09080;
-            transition: all 0.3s ease;
+
         }
 
-        /* HIGHLIGHT FOR DRAWN NUMBERS */
-        .grid-cell.drawn {
+
+        .status.running {
+
+            color: #1f7a4b;
+
+        }
+
+
+        .status.ready {
+
+            color: #b35e2e;
+
+        }
+
+
+        .status.completed {
+
+            color: #3878c7;
+
+        }
+
+
+        .count {
+
+            margin-top: 8px;
+
+            color: #7b6856;
+
+        }
+
+
+        .numbers-title {
+
+            font-size: 1.2rem;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        .numbers-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(10, 1fr);
+
+            gap: 8px;
+
+        }
+
+
+        .ball {
+
+            aspect-ratio: 1;
+
+            min-height: 48px;
+
+            border-radius: 50%;
+
+            background: #eee7df;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-weight: 800;
+
+            color: #8a7765;
+
+            transition: .2s;
+
+        }
+
+
+        .ball.drawn {
+
+            background: #b35e2e;
+
+            color: white;
+
+        }
+
+
+        .ball.latest {
+
             background: #1f7a4b;
-            color: #ffffff;
-            border-color: #165b37;
-            transform: scale(1.02);
-            box-shadow: 0 2px 6px rgba(31, 122, 75, 0.25);
+
+            color: white;
+
+            transform: scale(1.12);
+
+            box-shadow:
+                0 5px 15px
+                rgba(31,122,75,.3);
+
         }
 
-        /* HIGHLIGHT FOR LATEST DRAWN NUMBER */
-        .grid-cell.latest {
-            background: #b35e2e !important;
-            color: #ffffff !important;
-            border-color: #8c4620 !important;
-            animation: pulse 1.2s infinite alternate;
+
+        .history {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 8px;
+
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 4px rgba(179, 94, 46, 0.4); }
-            100% { transform: scale(1.1); box-shadow: 0 0 12px rgba(179, 94, 46, 0.8); }
+
+        .history-ball {
+
+            width: 42px;
+
+            height: 42px;
+
+            border-radius: 50%;
+
+            background: #b35e2e;
+
+            color: white;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-weight: 800;
+
         }
+
+
+        .empty {
+
+            text-align: center;
+
+            color: #7b6856;
+
+            padding: 25px;
+
+        }
+
+
+        @media (max-width: 700px) {
+
+            .number-display {
+
+                width: 150px;
+
+                height: 150px;
+
+                font-size: 4rem;
+
+            }
+
+            .numbers-grid {
+
+                grid-template-columns:
+                    repeat(9, 1fr);
+
+                gap: 5px;
+
+            }
+
+            .ball {
+
+                min-height: 38px;
+
+                font-size: .85rem;
+
+            }
+
+        }
+
     </style>
+
 </head>
+
+
 <body>
 
 <div class="container">
-    <!-- HEADER -->
-    <div class="header">
-        <h2><i class="fas fa-gamepad" style="color: #b35e2e;"></i> Tambola Game Room</h2>
-        <div class="header-links">
-            <a href="book-tickets.html"><i class="fas fa-ticket-alt"></i> My Tickets</a>
-            <a href="dashboard.html"><i class="fas fa-desktop"></i> Dashboard</a>
-        </div>
-    </div>
 
-    <!-- LIVE STATUS DISPLAY -->
-    <div class="status-banner">
-        <div class="status-info">
-            <h3>CURRENT CALL</h3>
-            <p id="currentStatus">Waiting for host...</p>
-        </div>
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <h1>
+
+            <i class="fas fa-gamepad"></i>
+
+            Tambola Game Room
+
+        </h1>
+
 
         <div>
-            <div class="last-number-box" id="lastDrawnNum">--</div>
+
+            <a href="admin.html">
+
+                <i class="fas fa-shield-alt"></i>
+
+                Admin
+
+            </a>
+
+            <a href="dashboard.html">
+
+                <i class="fas fa-home"></i>
+
+                Dashboard
+
+            </a>
+
         </div>
 
-        <div class="status-info">
-            <h3>TOTAL DRAWN</h3>
-            <p><span id="drawnCount" style="color: #b35e2e;">0</span> / 90</p>
-        </div>
     </div>
 
-    <!-- 1-90 LIVE BOARD -->
-    <div class="board-card">
-        <div class="board-title">
-            <i class="fas fa-th" style="color: #b35e2e;"></i> Live Number Board
+
+    <!-- CURRENT NUMBER -->
+
+    <div class="card main-display">
+
+        <div class="label">
+
+            CURRENT NUMBER
+
         </div>
-        <div class="grid-board" id="boardGrid">
-            <!-- Dynamically populated 1-90 cells -->
+
+
+        <div
+            id="numberDisplay"
+            class="number-display"
+        >
+            --
         </div>
+
+
+        <div
+            id="gameStatus"
+            class="status ready"
+        >
+            WAITING FOR GAME
+        </div>
+
+
+        <div
+            id="drawCount"
+            class="count"
+        >
+            0 / 90 numbers drawn
+        </div>
+
     </div>
+
+
+    <!-- 1-90 BOARD -->
+
+    <div class="card">
+
+        <div class="numbers-title">
+
+            <i class="fas fa-th"></i>
+
+            Number Board
+
+        </div>
+
+
+        <div
+            id="numberBoard"
+            class="numbers-grid"
+        ></div>
+
+    </div>
+
+
+    <!-- HISTORY -->
+
+    <div class="card">
+
+        <div class="numbers-title">
+
+            <i class="fas fa-history"></i>
+
+            Draw History
+
+        </div>
+
+
+        <div
+            id="history"
+            class="history"
+        >
+
+            <div class="empty">
+                No numbers have been drawn yet.
+            </div>
+
+        </div>
+
+    </div>
+
+
 </div>
 
-<!-- FIREBASE SDKs -->
+
+<!-- FIREBASE -->
+
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
+
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-        authDomain: "tambola-house-3dc56.firebaseapp.com",
-        projectId: "tambola-house-3dc56",
-        storageBucket: "tambola-house-3dc56.firebasestorage.app",
-        messagingSenderId: "267918174188",
-        appId: "1:267918174188:web:ec27684544c286c044c2c9"
-    };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+const firebaseConfig = {
 
-    // Render initial grid elements (1 to 90)
-    function buildBoardGrid() {
-        const board = document.getElementById("boardGrid");
-        board.innerHTML = "";
-        for (let i = 1; i <= 90; i++) {
-            const cell = document.createElement("div");
-            cell.className = "grid-cell";
-            cell.id = `cell-${i}`;
-            cell.textContent = i;
-            board.appendChild(cell);
-        }
+    apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
+
+    authDomain:
+        "tambola-house-3dc56.firebaseapp.com",
+
+    projectId:
+        "tambola-house-3dc56",
+
+    storageBucket:
+        "tambola-house-3dc56.firebasestorage.app",
+
+    messagingSenderId:
+        "267918174188",
+
+    appId:
+        "1:267918174188:web:ec27684544c286c044c2c9"
+
+};
+
+
+firebase.initializeApp(firebaseConfig);
+
+
+const auth =
+    firebase.auth();
+
+const db =
+    firebase.firestore();
+
+
+const gameRef =
+    db.collection("games")
+      .doc("active_game");
+
+
+/* CREATE 1-90 BOARD */
+
+function createBoard() {
+
+    const board =
+        document.getElementById(
+            "numberBoard"
+        );
+
+
+    let html = "";
+
+
+    for (
+        let number = 1;
+        number <= 90;
+        number++
+    ) {
+
+        html += `
+            <div
+                id="ball-${number}"
+                class="ball"
+            >
+                ${number}
+            </div>
+        `;
+
     }
 
-    // Auth state check
-    auth.onAuthStateChanged((user) => {
-        if (!user) {
-            window.location.href = "login.html";
-            return;
-        }
-        buildBoardGrid();
-        listenToLiveGame();
-    });
 
-    // Real-time listener for the active game state
-    function listenToLiveGame() {
-        db.collection("games").doc("active_game").onSnapshot((doc) => {
-            if (!doc.exists) return;
+    board.innerHTML = html;
 
-            const data = doc.data();
-            const drawnNumbers = data.drawnNumbers || [];
-            const lastDrawn = data.lastDrawn;
+}
 
-            // Update UI Counters
-            document.getElementById("lastDrawnNum").textContent = lastDrawn || "--";
-            document.getElementById("drawnCount").textContent = drawnNumbers.length;
-            
-            if (data.status === "running") {
-                document.getElementById("currentStatus").textContent = "Game in Progress";
-            } else {
-                document.getElementById("currentStatus").textContent = "Waiting for Next Round";
-            }
 
-            // Reset all cell highlights
-            for (let i = 1; i <= 90; i++) {
-                const cell = document.getElementById(`cell-${i}`);
-                if (cell) {
-                    cell.className = "grid-cell";
-                }
-            }
+/* AUTH */
 
-            // Apply highlights to drawn numbers
-            drawnNumbers.forEach((num) => {
-                const cell = document.getElementById(`cell-${num}`);
-                if (cell) {
-                    if (num === lastDrawn) {
-                        cell.className = "grid-cell latest";
-                    } else {
-                        cell.className = "grid-cell drawn";
-                    }
-                }
-            });
-        });
+auth.onAuthStateChanged((user) => {
+
+    if (!user) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+
     }
+
+    listenToGame();
+
+});
+
+
+/* LISTEN TO FIREBASE */
+
+function listenToGame() {
+
+    gameRef.onSnapshot(
+
+        (doc) => {
+
+            if (!doc.exists) {
+
+                showWaiting();
+
+                return;
+
+            }
+
+
+            const data =
+                doc.data();
+
+
+            updateGame(data);
+
+        },
+
+        (error) => {
+
+            console.error(
+                "Game listener error:",
+                error
+            );
+
+        }
+
+    );
+
+}
+
+
+/* UPDATE GAME */
+
+function updateGame(data) {
+
+    const drawn =
+        data.drawnNumbers || [];
+
+
+    const last =
+        data.lastDrawn;
+
+
+    /* CURRENT NUMBER */
+
+    document.getElementById(
+        "numberDisplay"
+    ).textContent =
+        last || "--";
+
+
+    /* STATUS */
+
+    const status =
+        data.status || "ready";
+
+
+    const statusElement =
+        document.getElementById(
+            "gameStatus"
+        );
+
+
+    statusElement.textContent =
+        status.toUpperCase();
+
+
+    statusElement.className =
+        "status " + status;
+
+
+    /* COUNT */
+
+    document.getElementById(
+        "drawCount"
+    ).textContent =
+        `${drawn.length} / 90 numbers drawn`;
+
+
+    /* BOARD */
+
+    updateBoard(drawn);
+
+
+    /* HISTORY */
+
+    updateHistory(drawn);
+
+}
+
+
+/* BOARD */
+
+function updateBoard(drawn) {
+
+    for (
+        let number = 1;
+        number <= 90;
+        number++
+    ) {
+
+        const ball =
+            document.getElementById(
+                "ball-" + number
+            );
+
+
+        ball.className =
+            "ball";
+
+
+        if (drawn.includes(number)) {
+
+            ball.classList.add(
+                "drawn"
+            );
+
+        }
+
+    }
+
+
+    if (drawn.length) {
+
+        const latest =
+            drawn[drawn.length - 1];
+
+
+        const latestBall =
+            document.getElementById(
+                "ball-" + latest
+            );
+
+
+        if (latestBall) {
+
+            latestBall.classList.add(
+                "latest"
+            );
+
+        }
+
+    }
+
+}
+
+
+/* HISTORY */
+
+function updateHistory(drawn) {
+
+    const history =
+        document.getElementById(
+            "history"
+        );
+
+
+    if (!drawn.length) {
+
+        history.innerHTML = `
+            <div class="empty">
+                No numbers have been drawn yet.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    history.innerHTML =
+        drawn
+            .map(
+                number => `
+                    <div class="history-ball">
+                        ${number}
+                    </div>
+                `
+            )
+            .join("");
+
+}
+
+
+/* WAITING */
+
+function showWaiting() {
+
+    document.getElementById(
+        "numberDisplay"
+    ).textContent = "--";
+
+
+    document.getElementById(
+        "gameStatus"
+    ).textContent =
+        "WAITING FOR GAME";
+
+
+    document.getElementById(
+        "drawCount"
+    ).textContent =
+        "0 / 90 numbers drawn";
+
+
+    updateBoard([]);
+
+    updateHistory([]);
+
+}
+
+
+/* INITIALIZE */
+
+createBoard();
+
 </script>
+
 </body>
 </html>
