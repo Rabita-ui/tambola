@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Admin Portal - Tambola House</title>
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    >
 
     <style>
         * {
@@ -29,6 +32,7 @@
         }
 
         /* HEADER */
+
         .header {
             display: flex;
             justify-content: space-between;
@@ -61,6 +65,7 @@
         }
 
         /* CARDS */
+
         .card {
             background: #1c1f24;
             border: 1px solid #2d3239;
@@ -79,13 +84,15 @@
             gap: 8px;
         }
 
-        /* TABLES */
+        /* TABLE */
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        th, td {
+        th,
+        td {
             padding: 12px 16px;
             text-align: left;
             border-bottom: 1px solid #2d3239;
@@ -101,7 +108,8 @@
             letter-spacing: 0.5px;
         }
 
-        /* BUTTONS & BADGES */
+        /* BUTTONS */
+
         .btn-btn {
             padding: 6px 12px;
             border: none;
@@ -123,9 +131,12 @@
             color: #ffffff;
         }
 
-        .btn-approve:hover, .btn-reject:hover {
+        .btn-approve:hover,
+        .btn-reject:hover {
             opacity: 0.85;
         }
+
+        /* BADGES */
 
         .badge-pending {
             background: rgba(210, 153, 34, 0.15);
@@ -154,7 +165,8 @@
             font-weight: 600;
         }
 
-        /* FORMS & ACTION PANELS */
+        /* FORMS */
+
         .manual-form {
             display: flex;
             gap: 12px;
@@ -190,6 +202,8 @@
         .btn-submit:hover {
             background: #2ea043;
         }
+
+        /* GAME BUTTONS */
 
         .btn-game {
             background: #388bfd;
@@ -263,74 +277,312 @@
             background: #b82d2a;
         }
 
+        .btn-audio {
+            background: #8957e5;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-audio:hover {
+            background: #7444c7;
+        }
+
         .step-container {
             border-top: 1px solid #2d3239;
             padding-top: 16px;
             margin-top: 16px;
         }
+
+        /* NUMBER DISPLAY */
+
+        .number-display {
+            margin-top: 24px;
+            padding: 25px;
+            text-align: center;
+            background: #121417;
+            border: 1px solid #2d3239;
+            border-radius: 12px;
+        }
+
+        .number-display-label {
+            color: #8b949e;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .big-number {
+            font-size: 4rem;
+            font-weight: 800;
+            color: #3fb950;
+            line-height: 1;
+        }
+
+        .audio-status {
+            margin-top: 10px;
+            color: #a0a6b0;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 700px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-links {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .header-links a {
+                margin-left: 0;
+            }
+
+            .big-number {
+                font-size: 3rem;
+            }
+        }
     </style>
 </head>
+
 <body>
 
 <div class="container">
+
     <!-- HEADER -->
+
     <div class="header">
-        <h2><i class="fas fa-shield-alt" style="color: #388bfd;"></i> System Administrator</h2>
+
+        <h2>
+            <i class="fas fa-shield-alt" style="color: #388bfd;"></i>
+            System Administrator
+        </h2>
+
         <div class="header-links">
-            <a href="game.html"><i class="fas fa-gamepad"></i> Game Room</a>
-            <a href="book-tickets.html"><i class="fas fa-ticket-alt"></i> Tickets</a>
-            <a href="dashboard.html"><i class="fas fa-desktop"></i> Main Dashboard</a>
+
+            <a href="game.html">
+                <i class="fas fa-gamepad"></i>
+                Game Room
+            </a>
+
+            <a href="book-tickets.html">
+                <i class="fas fa-ticket-alt"></i>
+                Tickets
+            </a>
+
+            <a href="dashboard.html">
+                <i class="fas fa-desktop"></i>
+                Main Dashboard
+            </a>
+
         </div>
+
     </div>
+
 
     <!-- LIVE GAME CONTROL PANEL -->
+
     <div class="card">
-        <div class="card-title"><i class="fas fa-dice" style="color: #388bfd;"></i> Live Game Host Controls</div>
-        
-        <!-- STEP 1: SET FIRST NUMBER -->
-        <div id="step-first-pick" class="manual-form" style="margin-top: 10px;">
-            <input type="number" id="firstNumberInput" min="1" max="90" placeholder="Enter 1st Number to Draw (1-90)">
-            <button class="btn-game" onclick="setFirstNumber()">
-                <i class="fas fa-play"></i> Confirm 1st Pick & Start Sequence
+
+        <div class="card-title">
+            <i class="fas fa-dice" style="color: #388bfd;"></i>
+            Live Game Host Controls
+        </div>
+
+
+        <!-- FIRST NUMBER -->
+
+        <div
+            id="step-first-pick"
+            class="manual-form"
+            style="margin-top: 10px;"
+        >
+
+            <input
+                type="number"
+                id="firstNumberInput"
+                min="1"
+                max="90"
+                placeholder="Enter 1st Number to Draw (1-90)"
+            >
+
+            <button
+                class="btn-game"
+                onclick="setFirstNumber()"
+            >
+                <i class="fas fa-play"></i>
+                Confirm 1st Pick & Start Sequence
             </button>
+
         </div>
 
-        <!-- STEP 2: SEQUENTIAL DRAW CONTROLS (Initially Hidden) -->
-        <div id="step-sequential-draw" class="step-container" style="display: none;">
-            <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
-                <button class="btn-game" onclick="drawNextInSequence()">
-                    <i class="fas fa-bullhorn"></i> Draw Next Number
+
+        <!-- SEQUENTIAL DRAW -->
+
+        <div
+            id="step-sequential-draw"
+            class="step-container"
+            style="display: none;"
+        >
+
+            <div
+                style="
+                    display: flex;
+                    gap: 12px;
+                    flex-wrap: wrap;
+                    align-items: center;
+                "
+            >
+
+                <button
+                    class="btn-game"
+                    onclick="drawNextInSequence()"
+                >
+                    <i class="fas fa-bullhorn"></i>
+                    Draw Next Number
                 </button>
 
-                <button class="btn-secondary" id="btnAutoDraw" onclick="startAutoDraw()">
-                    <i class="fas fa-forward"></i> Start Auto Draw (4s)
+
+                <button
+                    class="btn-secondary"
+                    id="btnAutoDraw"
+                    onclick="startAutoDraw()"
+                >
+                    <i class="fas fa-forward"></i>
+                    Start Auto Draw (4s)
                 </button>
 
-                <button class="btn-warning" id="btnStopAuto" onclick="stopAutoDraw()" style="display: none;">
-                    <i class="fas fa-pause"></i> Stop Auto Draw
+
+                <button
+                    class="btn-warning"
+                    id="btnStopAuto"
+                    onclick="stopAutoDraw()"
+                    style="display: none;"
+                >
+                    <i class="fas fa-pause"></i>
+                    Stop Auto Draw
                 </button>
+
+
+                <!-- TEST VOICE -->
+
+                <button
+                    class="btn-audio"
+                    onclick="testVoice()"
+                >
+                    <i class="fas fa-volume-up"></i>
+                    Test Voice
+                </button>
+
             </div>
+
         </div>
 
-        <!-- GAME STATUS DISPLAY & RESET -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap; gap: 12px;">
-            <span style="color: #a0a6b0; font-size: 0.95rem; font-weight: 600;">
-                Last Drawn Number: <strong id="adminLastDrawn" style="color: #3fb950; font-size: 1.3rem;">--</strong>
-                <span style="margin-left: 15px;">Drawn Count: <strong id="adminDrawnCount" style="color: #388bfd;">0</strong>/90</span>
+
+        <!-- NUMBER DISPLAY -->
+
+        <div class="number-display">
+
+            <div class="number-display-label">
+                LAST DRAWN NUMBER
+            </div>
+
+            <div
+                class="big-number"
+                id="adminLastDrawn"
+            >
+                --
+            </div>
+
+            <div class="audio-status" id="audioStatus">
+                Voice announcement ready
+            </div>
+
+        </div>
+
+
+        <!-- STATUS + RESET -->
+
+        <div
+            style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 20px;
+                flex-wrap: wrap;
+                gap: 12px;
+            "
+        >
+
+            <span
+                style="
+                    color: #a0a6b0;
+                    font-size: 0.95rem;
+                    font-weight: 600;
+                "
+            >
+
+                Drawn Count:
+
+                <strong
+                    id="adminDrawnCount"
+                    style="
+                        color: #388bfd;
+                        font-size: 1.3rem;
+                    "
+                >
+                    0
+                </strong>
+
+                /90
+
             </span>
 
-            <button class="btn-danger" onclick="resetGame()">
-                <i class="fas fa-undo"></i> Reset Game Board
+
+            <button
+                class="btn-danger"
+                onclick="resetGame()"
+            >
+                <i class="fas fa-undo"></i>
+                Reset Game Board
             </button>
+
         </div>
+
     </div>
 
+
     <!-- PENDING DEPOSIT APPROVALS -->
+
     <div class="card">
-        <div class="card-title"><i class="fas fa-clock" style="color: #d29922;"></i> Deposit Requests</div>
+
+        <div class="card-title">
+
+            <i
+                class="fas fa-clock"
+                style="color: #d29922;"
+            ></i>
+
+            Deposit Requests
+
+        </div>
+
+
         <div style="overflow-x: auto;">
+
             <table>
+
                 <thead>
+
                     <tr>
                         <th>User UID</th>
                         <th>Amount</th>
@@ -338,308 +590,1221 @@
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
+
                 </thead>
+
+
                 <tbody id="depositsTable">
+
                     <tr>
-                        <td colspan="5" style="text-align: center; color: #8b949e;">Loading requests...</td>
+
+                        <td
+                            colspan="5"
+                            style="
+                                text-align: center;
+                                color: #8b949e;
+                            "
+                        >
+                            Loading requests...
+                        </td>
+
                     </tr>
+
                 </tbody>
+
             </table>
+
         </div>
+
     </div>
 
-    <!-- DIRECT TOKEN OVERRIDE -->
+
+    <!-- DIRECT TOKEN ASSIGNMENT -->
+
     <div class="card">
-        <div class="card-title"><i class="fas fa-coins" style="color: #238636;"></i> Direct Token Assignment</div>
-        <div class="manual-form">
-            <input type="text" id="targetUid" placeholder="User UID">
-            <input type="number" id="tokenAmount" placeholder="Token Amount">
-            <button class="btn-submit" onclick="addTokensDirectly()">Add Tokens</button>
+
+        <div class="card-title">
+
+            <i
+                class="fas fa-coins"
+                style="color: #238636;"
+            ></i>
+
+            Direct Token Assignment
+
         </div>
+
+
+        <div class="manual-form">
+
+            <input
+                type="text"
+                id="targetUid"
+                placeholder="User UID"
+            >
+
+            <input
+                type="number"
+                id="tokenAmount"
+                placeholder="Token Amount"
+            >
+
+            <button
+                class="btn-submit"
+                onclick="addTokensDirectly()"
+            >
+                Add Tokens
+            </button>
+
+        </div>
+
     </div>
+
 </div>
 
-<!-- FIREBASE SDKs -->
+
+<!-- FIREBASE -->
+
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
+
 <script>
+
+    /* =====================================================
+       FIREBASE CONFIGURATION
+       ===================================================== */
+
     const firebaseConfig = {
+
         apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
+
         authDomain: "tambola-house-3dc56.firebaseapp.com",
+
         projectId: "tambola-house-3dc56",
+
         storageBucket: "tambola-house-3dc56.firebasestorage.app",
+
         messagingSenderId: "267918174188",
+
         appId: "1:267918174188:web:ec27684544c286c044c2c9"
+
     };
 
+
     firebase.initializeApp(firebaseConfig);
+
+
     const auth = firebase.auth();
+
     const db = firebase.firestore();
+
 
     let autoDrawTimer = null;
 
-    auth.onAuthStateChanged((user) => {
-        if (!user) {
-            window.location.href = "login.html";
+    let lastAnnouncedNumber = null;
+
+
+    /* =====================================================
+       TEXT TO SPEECH
+       ===================================================== */
+
+    function speakNumber(number, isFirst = false) {
+
+        if (!("speechSynthesis" in window)) {
+
+            document.getElementById("audioStatus").textContent =
+                "Voice is not supported by this browser.";
+
             return;
+
         }
+
+
+        /*
+         * Stop any previous speech.
+         */
+
+        window.speechSynthesis.cancel();
+
+
+        let message;
+
+
+        if (isFirst) {
+
+            message = "First number is " + number;
+
+        } else {
+
+            message = "Number " + number;
+
+        }
+
+
+        const speech =
+            new SpeechSynthesisUtterance(message);
+
+
+        /*
+         * Voice settings.
+         */
+
+        speech.rate = 0.85;
+
+        speech.pitch = 1;
+
+        speech.volume = 1;
+
+
+        /*
+         * Try to select an English voice.
+         */
+
+        const voices =
+            window.speechSynthesis.getVoices();
+
+
+        const preferredVoice =
+            voices.find(
+                voice =>
+                    voice.lang &&
+                    voice.lang.toLowerCase().startsWith("en")
+            );
+
+
+        if (preferredVoice) {
+
+            speech.voice = preferredVoice;
+
+        }
+
+
+        document.getElementById("audioStatus").textContent =
+            "🔊 Announcing: " + message;
+
+
+        speech.onend = function () {
+
+            document.getElementById("audioStatus").textContent =
+                "Voice announcement ready";
+
+        };
+
+
+        window.speechSynthesis.speak(speech);
+
+    }
+
+
+    /* =====================================================
+       TEST VOICE
+       ===================================================== */
+
+    function testVoice() {
+
+        speakNumber(25);
+
+    }
+
+
+    /* =====================================================
+       AUTHENTICATION
+       ===================================================== */
+
+    auth.onAuthStateChanged((user) => {
+
+        if (!user) {
+
+            window.location.href = "login.html";
+
+            return;
+
+        }
+
+
         loadDepositRequests();
+
         listenToActiveGame();
+
     });
 
-    /* --- SHUFFLE HELPER (Fisher-Yates) --- */
+
+    /* =====================================================
+       SHUFFLE 1-90
+       ===================================================== */
+
     function generateShuffledArray() {
-        const numbers = Array.from({ length: 90 }, (_, i) => i + 1);
-        for (let i = numbers.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+
+        const numbers =
+            Array.from(
+                { length: 90 },
+                (_, i) => i + 1
+            );
+
+
+        for (
+            let i = numbers.length - 1;
+            i > 0;
+            i--
+        ) {
+
+            const j =
+                Math.floor(
+                    Math.random() * (i + 1)
+                );
+
+
+            [
+                numbers[i],
+                numbers[j]
+            ] =
+            [
+                numbers[j],
+                numbers[i]
+            ];
+
         }
+
+
         return numbers;
+
     }
 
-    /* --- LISTEN TO ACTIVE GAME STATUS --- */
+
+    /* =====================================================
+       LISTEN TO ACTIVE GAME
+       ===================================================== */
+
     function listenToActiveGame() {
-        db.collection("games").doc("active_game").onSnapshot((doc) => {
-            if (doc.exists) {
-                const data = doc.data();
-                const drawnNumbers = data.drawnNumbers || [];
-                document.getElementById("adminLastDrawn").textContent = data.lastDrawn || "--";
-                document.getElementById("adminDrawnCount").textContent = drawnNumbers.length;
 
-                // Adjust UI steps based on whether first draw is done
-                if (data.isFirstDrawDone) {
-                    document.getElementById("step-first-pick").style.display = "none";
-                    document.getElementById("step-sequential-draw").style.display = "block";
+        db.collection("games")
+            .doc("active_game")
+            .onSnapshot((doc) => {
+
+                if (doc.exists) {
+
+                    const data = doc.data();
+
+
+                    const drawnNumbers =
+                        data.drawnNumbers || [];
+
+
+                    document.getElementById(
+                        "adminLastDrawn"
+                    ).textContent =
+                        data.lastDrawn || "--";
+
+
+                    document.getElementById(
+                        "adminDrawnCount"
+                    ).textContent =
+                        drawnNumbers.length;
+
+
+                    if (data.isFirstDrawDone) {
+
+                        document.getElementById(
+                            "step-first-pick"
+                        ).style.display = "none";
+
+
+                        document.getElementById(
+                            "step-sequential-draw"
+                        ).style.display = "block";
+
+                    } else {
+
+                        document.getElementById(
+                            "step-first-pick"
+                        ).style.display = "flex";
+
+
+                        document.getElementById(
+                            "step-sequential-draw"
+                        ).style.display = "none";
+
+                    }
+
                 } else {
-                    document.getElementById("step-first-pick").style.display = "flex";
-                    document.getElementById("step-sequential-draw").style.display = "none";
+
+                    resetGameData();
+
                 }
-            } else {
-                // Initialize default game doc if it doesn't exist
-                resetGameData();
-            }
-        });
+
+            });
+
     }
 
-    /* --- STEP 1: ADMIN MANUAL FIRST PICK --- */
+
+    /* =====================================================
+       FIRST NUMBER
+       ===================================================== */
+
     async function setFirstNumber() {
-        const inputVal = Number(document.getElementById("firstNumberInput").value);
-        if (!inputVal || inputVal < 1 || inputVal > 90) {
-            alert("Please enter a valid number between 1 and 90.");
+
+        const inputVal =
+            Number(
+                document.getElementById(
+                    "firstNumberInput"
+                ).value
+            );
+
+
+        if (
+            !inputVal ||
+            inputVal < 1 ||
+            inputVal > 90
+        ) {
+
+            alert(
+                "Please enter a valid number between 1 and 90."
+            );
+
             return;
+
         }
 
-        const gameRef = db.collection("games").doc("active_game");
+
+        const gameRef =
+            db.collection("games")
+                .doc("active_game");
+
 
         try {
-            await db.runTransaction(async (transaction) => {
-                const doc = await transaction.get(gameRef);
-                let sequence = doc.exists && doc.data().drawSequence ? [...doc.data().drawSequence] : generateShuffledArray();
 
-                // Swap Admin's chosen number to index 0
-                const chosenIndex = sequence.indexOf(inputVal);
-                if (chosenIndex !== -1) {
-                    [sequence[0], sequence[chosenIndex]] = [sequence[chosenIndex], sequence[0]];
+            await db.runTransaction(
+                async (transaction) => {
+
+                    const doc =
+                        await transaction.get(gameRef);
+
+
+                    let sequence =
+                        doc.exists &&
+                        doc.data().drawSequence
+                            ? [...doc.data().drawSequence]
+                            : generateShuffledArray();
+
+
+                    /*
+                     * Put admin-selected number
+                     * at the beginning.
+                     */
+
+                    const chosenIndex =
+                        sequence.indexOf(inputVal);
+
+
+                    if (chosenIndex !== -1) {
+
+                        [
+                            sequence[0],
+                            sequence[chosenIndex]
+                        ] =
+                        [
+                            sequence[chosenIndex],
+                            sequence[0]
+                        ];
+
+                    }
+
+
+                    const firstNumber =
+                        sequence[0];
+
+
+                    transaction.set(
+                        gameRef,
+                        {
+
+                            status: "running",
+
+                            drawSequence: sequence,
+
+                            drawnNumbers: [
+                                firstNumber
+                            ],
+
+                            lastDrawn:
+                                firstNumber,
+
+                            currentIndex: 1,
+
+                            isFirstDrawDone: true,
+
+                            updatedAt:
+                                firebase.firestore.FieldValue
+                                    .serverTimestamp()
+
+                        },
+                        { merge: true }
+                    );
+
                 }
+            );
 
-                const firstNumber = sequence[0];
 
-                transaction.set(gameRef, {
-                    status: "running",
-                    drawSequence: sequence,
-                    drawnNumbers: [firstNumber],
-                    lastDrawn: firstNumber,
-                    currentIndex: 1, // Advance index for subsequent draws
-                    isFirstDrawDone: true,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-            });
+            document.getElementById(
+                "firstNumberInput"
+            ).value = "";
 
-            document.getElementById("firstNumberInput").value = "";
-            console.log("First number set and sequence initialized!");
+
+            /*
+             * Announce first number.
+             */
+
+            speakNumber(
+                inputVal,
+                true
+            );
+
+
+            console.log(
+                "First number set:",
+                inputVal
+            );
+
+
         } catch (err) {
-            console.error("Error setting first number:", err);
-            alert("Failed to set first number: " + err.message);
+
+            console.error(
+                "Error setting first number:",
+                err
+            );
+
+
+            alert(
+                "Failed to set first number: " +
+                err.message
+            );
+
         }
+
     }
 
-    /* --- STEP 2: DRAW NEXT IN SEQUENCE --- */
+
+    /* =====================================================
+       DRAW NEXT NUMBER
+       ===================================================== */
+
     async function drawNextInSequence() {
-        const gameRef = db.collection("games").doc("active_game");
+
+        const gameRef =
+            db.collection("games")
+                .doc("active_game");
+
+
+        let numberToAnnounce = null;
+
 
         try {
-            await db.runTransaction(async (transaction) => {
-                const doc = await transaction.get(gameRef);
-                if (!doc.exists || !doc.data().isFirstDrawDone) {
-                    throw new Error("Please set the first number before starting sequence draws.");
+
+            await db.runTransaction(
+                async (transaction) => {
+
+                    const doc =
+                        await transaction.get(gameRef);
+
+
+                    if (
+                        !doc.exists ||
+                        !doc.data().isFirstDrawDone
+                    ) {
+
+                        throw new Error(
+                            "Please set the first number before starting sequence draws."
+                        );
+
+                    }
+
+
+                    const data =
+                        doc.data();
+
+
+                    const sequence =
+                        data.drawSequence || [];
+
+
+                    let currentIndex =
+                        data.currentIndex || 0;
+
+
+                    let drawnNumbers =
+                        data.drawnNumbers || [];
+
+
+                    if (
+                        currentIndex >= sequence.length ||
+                        drawnNumbers.length >= 90
+                    ) {
+
+                        stopAutoDraw();
+
+                        throw new Error(
+                            "All 90 numbers have already been drawn!"
+                        );
+
+                    }
+
+
+                    const nextNum =
+                        sequence[currentIndex];
+
+
+                    drawnNumbers.push(nextNum);
+
+
+                    numberToAnnounce =
+                        nextNum;
+
+
+                    transaction.update(
+                        gameRef,
+                        {
+
+                            drawnNumbers:
+                                drawnNumbers,
+
+                            lastDrawn:
+                                nextNum,
+
+                            currentIndex:
+                                currentIndex + 1,
+
+                            updatedAt:
+                                firebase.firestore.FieldValue
+                                    .serverTimestamp()
+
+                        }
+                    );
+
                 }
+            );
 
-                const data = doc.data();
-                const sequence = data.drawSequence || [];
-                let currentIndex = data.currentIndex || 0;
-                let drawnNumbers = data.drawnNumbers || [];
 
-                if (currentIndex >= sequence.length || drawnNumbers.length >= 90) {
-                    stopAutoDraw();
-                    alert("All 90 numbers have already been drawn!");
-                    return;
-                }
+            /*
+             * Speak only after Firebase
+             * successfully saves the number.
+             */
 
-                // Pick next sequential number from fixed array
-                const nextNum = sequence[currentIndex];
-                drawnNumbers.push(nextNum);
+            if (
+                numberToAnnounce !== null
+            ) {
 
-                transaction.update(gameRef, {
-                    drawnNumbers: drawnNumbers,
-                    lastDrawn: nextNum,
-                    currentIndex: currentIndex + 1,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            });
+                speakNumber(
+                    numberToAnnounce
+                );
+
+            }
+
+
         } catch (err) {
-            console.error("Error drawing next number:", err);
-            alert("Failed to draw number: " + err.message);
+
+            console.error(
+                "Error drawing next number:",
+                err
+            );
+
+
+            /*
+             * Don't show an alert every 4 seconds
+             * if the auto draw has finished.
+             */
+
             stopAutoDraw();
+
+
+            if (
+                err.message !==
+                "All 90 numbers have already been drawn!"
+            ) {
+
+                alert(
+                    "Failed to draw number: " +
+                    err.message
+                );
+
+            }
+
         }
+
     }
 
-    /* --- AUTO-DRAW CONTROLS --- */
+
+    /* =====================================================
+       AUTO DRAW
+       ===================================================== */
+
     function startAutoDraw() {
-        if (autoDrawTimer) return;
-        document.getElementById("btnAutoDraw").style.display = "none";
-        document.getElementById("btnStopAuto").style.display = "inline-flex";
 
-        drawNextInSequence(); // Draw immediately once
-        autoDrawTimer = setInterval(() => {
-            drawNextInSequence();
-        }, 4000); // 4 seconds interval
+        if (autoDrawTimer) {
+
+            return;
+
+        }
+
+
+        /*
+         * Browser audio permission is normally
+         * activated because this function is called
+         * by a button click.
+         */
+
+        document.getElementById(
+            "btnAutoDraw"
+        ).style.display = "none";
+
+
+        document.getElementById(
+            "btnStopAuto"
+        ).style.display = "inline-flex";
+
+
+        /*
+         * Draw immediately.
+         */
+
+        drawNextInSequence();
+
+
+        /*
+         * Then every 4 seconds.
+         */
+
+        autoDrawTimer =
+            setInterval(
+                () => {
+
+                    drawNextInSequence();
+
+                },
+                4000
+            );
+
     }
+
+
+    /* =====================================================
+       STOP AUTO DRAW
+       ===================================================== */
 
     function stopAutoDraw() {
+
         if (autoDrawTimer) {
-            clearInterval(autoDrawTimer);
+
+            clearInterval(
+                autoDrawTimer
+            );
+
             autoDrawTimer = null;
+
         }
-        document.getElementById("btnAutoDraw").style.display = "inline-flex";
-        document.getElementById("btnStopAuto").style.display = "none";
+
+
+        document.getElementById(
+            "btnAutoDraw"
+        ).style.display = "inline-flex";
+
+
+        document.getElementById(
+            "btnStopAuto"
+        ).style.display = "none";
+
     }
 
-    /* --- RESET GAME BOARD --- */
+
+    /* =====================================================
+       RESET GAME
+       ===================================================== */
+
     async function resetGame() {
-        if (!confirm("Are you sure you want to reset the active game? All drawn numbers and sequence will be cleared.")) return;
+
+        if (
+            !confirm(
+                "Are you sure you want to reset the active game? All drawn numbers and sequence will be cleared."
+            )
+        ) {
+
+            return;
+
+        }
+
+
         stopAutoDraw();
+
+
+        /*
+         * Stop voice immediately.
+         */
+
+        if ("speechSynthesis" in window) {
+
+            window.speechSynthesis.cancel();
+
+        }
+
+
         await resetGameData();
-        alert("Game board has been reset!");
+
+
+        document.getElementById(
+            "audioStatus"
+        ).textContent =
+            "Voice announcement ready";
+
+
+        alert(
+            "Game board has been reset!"
+        );
+
     }
+
+
+    /* =====================================================
+       RESET GAME DATA
+       ===================================================== */
 
     async function resetGameData() {
-        const initialSequence = generateShuffledArray();
-        await db.collection("games").doc("active_game").set({
-            status: "ready",
-            drawSequence: initialSequence,
-            drawnNumbers: [],
-            lastDrawn: null,
-            currentIndex: 0,
-            isFirstDrawDone: false,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-    }
 
-    /* --- DEPOSIT MANAGEMENT --- */
-    function loadDepositRequests() {
-        db.collection("deposits").onSnapshot((snapshot) => {
-            const table = document.getElementById("depositsTable");
-            table.innerHTML = "";
+        const initialSequence =
+            generateShuffledArray();
 
-            if (snapshot.empty) {
-                table.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #8b949e;">No deposit requests pending.</td></tr>`;
-                return;
-            }
 
-            snapshot.forEach((doc) => {
-                const dep = doc.data();
-                const depId = doc.id;
-                const isPending = dep.status === "pending";
+        await db.collection("games")
+            .doc("active_game")
+            .set({
 
-                let badgeClass = "badge-pending";
-                if (dep.status === "approved") badgeClass = "badge-approved";
-                if (dep.status === "rejected") badgeClass = "badge-rejected";
+                status: "ready",
 
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td style="font-family: monospace;">${dep.userId || 'N/A'}</td>
-                    <td><strong>${dep.amount} Tokens</strong></td>
-                    <td>${dep.txnId || 'N/A'}</td>
-                    <td><span class="${badgeClass}">${(dep.status || 'pending').toUpperCase()}</span></td>
-                    <td>
-                        ${isPending ? `
-                            <button class="btn-btn btn-approve" onclick="processDeposit('${depId}', '${dep.userId}', ${dep.amount}, 'approved')">Approve</button>
-                            <button class="btn-btn btn-reject" onclick="processDeposit('${depId}', '${dep.userId}', 0, 'rejected')">Reject</button>
-                        ` : '--'}
-                    </td>
-                `;
-                table.appendChild(row);
+                drawSequence:
+                    initialSequence,
+
+                drawnNumbers: [],
+
+                lastDrawn: null,
+
+                currentIndex: 0,
+
+                isFirstDrawDone: false,
+
+                updatedAt:
+                    firebase.firestore.FieldValue
+                        .serverTimestamp()
+
             });
-        });
+
     }
 
-    async function processDeposit(depId, userId, amount, newStatus) {
-        if (!confirm(`Are you sure you want to mark this request as ${newStatus.toUpperCase()}?`)) return;
 
-        try {
-            const userRef = db.collection("users").doc(userId);
-            const depRef = db.collection("deposits").doc(depId);
+    /* =====================================================
+       DEPOSIT MANAGEMENT
+       ===================================================== */
 
-            await db.runTransaction(async (transaction) => {
-                const userDoc = await transaction.get(userRef);
+    function loadDepositRequests() {
 
-                if (newStatus === "approved") {
-                    const currentTokens = userDoc.exists ? (userDoc.data().tokens || 0) : 0;
-                    transaction.update(userRef, { tokens: currentTokens + Number(amount) });
+        db.collection("deposits")
+            .onSnapshot((snapshot) => {
+
+                const table =
+                    document.getElementById(
+                        "depositsTable"
+                    );
+
+
+                table.innerHTML = "";
+
+
+                if (snapshot.empty) {
+
+                    table.innerHTML = `
+                        <tr>
+                            <td
+                                colspan="5"
+                                style="
+                                    text-align: center;
+                                    color: #8b949e;
+                                "
+                            >
+                                No deposit requests pending.
+                            </td>
+                        </tr>
+                    `;
+
+                    return;
+
                 }
 
-                transaction.update(depRef, { status: newStatus });
+
+                snapshot.forEach((doc) => {
+
+                    const dep =
+                        doc.data();
+
+
+                    const depId =
+                        doc.id;
+
+
+                    const isPending =
+                        dep.status === "pending";
+
+
+                    let badgeClass =
+                        "badge-pending";
+
+
+                    if (
+                        dep.status ===
+                        "approved"
+                    ) {
+
+                        badgeClass =
+                            "badge-approved";
+
+                    }
+
+
+                    if (
+                        dep.status ===
+                        "rejected"
+                    ) {
+
+                        badgeClass =
+                            "badge-rejected";
+
+                    }
+
+
+                    const row =
+                        document.createElement("tr");
+
+
+                    row.innerHTML = `
+
+                        <td
+                            style="
+                                font-family: monospace;
+                            "
+                        >
+                            ${dep.userId || "N/A"}
+                        </td>
+
+
+                        <td>
+                            <strong>
+                                ${dep.amount || 0} Tokens
+                            </strong>
+                        </td>
+
+
+                        <td>
+                            ${dep.txnId || "N/A"}
+                        </td>
+
+
+                        <td>
+
+                            <span
+                                class="${badgeClass}"
+                            >
+                                ${(dep.status || "pending").toUpperCase()}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                isPending
+                                    ? `
+
+                                <button
+                                    class="btn-btn btn-approve"
+                                    onclick="
+                                        processDeposit(
+                                            '${depId}',
+                                            '${dep.userId}',
+                                            ${dep.amount},
+                                            'approved'
+                                        )
+                                    "
+                                >
+                                    Approve
+                                </button>
+
+
+                                <button
+                                    class="btn-btn btn-reject"
+                                    onclick="
+                                        processDeposit(
+                                            '${depId}',
+                                            '${dep.userId}',
+                                            0,
+                                            'rejected'
+                                        )
+                                    "
+                                >
+                                    Reject
+                                </button>
+
+                                    `
+                                    : "--"
+                            }
+
+                        </td>
+
+                    `;
+
+
+                    table.appendChild(row);
+
+                });
+
             });
 
-            alert(`Deposit ${newStatus} successfully!`);
-        } catch (err) {
-            console.error("Processing error:", err);
-            alert("Action failed: " + err.message);
-        }
     }
 
-    /* --- DIRECT TOKEN OVERRIDE --- */
-    async function addTokensDirectly() {
-        const uid = document.getElementById("targetUid").value.trim();
-        const amount = Number(document.getElementById("tokenAmount").value);
 
-        if (!uid || !amount || amount <= 0) {
-            alert("Please provide a valid UID and Token Amount.");
+    /* =====================================================
+       PROCESS DEPOSIT
+       ===================================================== */
+
+    async function processDeposit(
+        depId,
+        userId,
+        amount,
+        newStatus
+    ) {
+
+        if (
+            !confirm(
+                "Are you sure you want to mark this request as " +
+                newStatus.toUpperCase() +
+                "?"
+            )
+        ) {
+
             return;
+
         }
+
 
         try {
-            const userRef = db.collection("users").doc(uid);
-            const userDoc = await userRef.get();
+
+            const userRef =
+                db.collection("users")
+                    .doc(userId);
+
+
+            const depRef =
+                db.collection("deposits")
+                    .doc(depId);
+
+
+            await db.runTransaction(
+                async (transaction) => {
+
+                    const userDoc =
+                        await transaction.get(
+                            userRef
+                        );
+
+
+                    if (
+                        newStatus ===
+                        "approved"
+                    ) {
+
+                        const currentTokens =
+                            userDoc.exists
+                                ? (
+                                    userDoc.data()
+                                        .tokens || 0
+                                )
+                                : 0;
+
+
+                        transaction.update(
+                            userRef,
+                            {
+                                tokens:
+                                    currentTokens +
+                                    Number(amount)
+                            }
+                        );
+
+                    }
+
+
+                    transaction.update(
+                        depRef,
+                        {
+                            status:
+                                newStatus
+                        }
+                    );
+
+                }
+            );
+
+
+            alert(
+                "Deposit " +
+                newStatus +
+                " successfully!"
+            );
+
+
+        } catch (err) {
+
+            console.error(
+                "Processing error:",
+                err
+            );
+
+
+            alert(
+                "Action failed: " +
+                err.message
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       DIRECT TOKEN ASSIGNMENT
+       ===================================================== */
+
+    async function addTokensDirectly() {
+
+        const uid =
+            document.getElementById(
+                "targetUid"
+            ).value.trim();
+
+
+        const amount =
+            Number(
+                document.getElementById(
+                    "tokenAmount"
+                ).value
+            );
+
+
+        if (
+            !uid ||
+            !amount ||
+            amount <= 0
+        ) {
+
+            alert(
+                "Please provide a valid UID and Token Amount."
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            const userRef =
+                db.collection("users")
+                    .doc(uid);
+
+
+            const userDoc =
+                await userRef.get();
+
 
             if (!userDoc.exists) {
-                alert("Target UID does not exist in database.");
+
+                alert(
+                    "Target UID does not exist in database."
+                );
+
                 return;
+
             }
 
-            const currentTokens = userDoc.data().tokens || 0;
-            await userRef.update({ tokens: currentTokens + amount });
 
-            alert(`Added ${amount} tokens to UID. New total: ${currentTokens + amount}`);
-            document.getElementById("targetUid").value = "";
-            document.getElementById("tokenAmount").value = "";
+            const currentTokens =
+                userDoc.data().tokens || 0;
+
+
+            const newTotal =
+                currentTokens + amount;
+
+
+            await userRef.update({
+
+                tokens:
+                    newTotal
+
+            });
+
+
+            alert(
+                "Added " +
+                amount +
+                " tokens to UID. New total: " +
+                newTotal
+            );
+
+
+            document.getElementById(
+                "targetUid"
+            ).value = "";
+
+
+            document.getElementById(
+                "tokenAmount"
+            ).value = "";
+
+
         } catch (err) {
-            console.error("Direct add error:", err);
-            alert("Error adding tokens: " + err.message);
+
+            console.error(
+                "Direct add error:",
+                err
+            );
+
+
+            alert(
+                "Error adding tokens: " +
+                err.message
+            );
+
         }
+
     }
+
+
+    /* =====================================================
+       LOAD AVAILABLE SPEECH VOICES
+       ===================================================== */
+
+    if ("speechSynthesis" in window) {
+
+        window.speechSynthesis.onvoiceschanged =
+            function () {
+
+                window.speechSynthesis.getVoices();
+
+            };
+
+    }
+
 </script>
+
 </body>
 </html>
