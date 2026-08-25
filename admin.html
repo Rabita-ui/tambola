@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Admin Portal - Tambola House</title>
+    <title>Admin - Tambola House</title>
 
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -18,355 +17,217 @@
         }
 
         body {
-            background: linear-gradient(145deg, #f8f3ed 0%, #e9dfd3 100%);
+            background: linear-gradient(145deg, #f7f3ee, #e9e1d7);
             color: #2d1f14;
             min-height: 100vh;
-            padding: 24px;
+            padding: 20px;
         }
 
         .container {
             max-width: 1100px;
-            margin: 0 auto;
+            margin: auto;
         }
 
-        /* HEADER */
         .header {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,.08);
+
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding: 20px 24px;
-            background: #ffffff;
-            border-radius: 18px;
-            border: 1px solid #e0d5c8;
-            box-shadow: 0 6px 20px rgba(80, 55, 35, 0.08);
-            flex-wrap: wrap;
             gap: 15px;
-        }
-
-        .header h2 {
-            font-size: 1.3rem;
-            color: #2d1f14;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .header-links {
-            display: flex;
             flex-wrap: wrap;
-            gap: 12px;
         }
 
-        .header-links a {
-            color: #6f5b49;
+        .header h1 {
+            font-size: 1.5rem;
+        }
+
+        .header h1 i {
+            color: #b35e2e;
+        }
+
+        .nav a {
             text-decoration: none;
-            font-size: 0.9rem;
+            color: #7b6856;
             font-weight: 600;
-            padding: 8px 12px;
-            border-radius: 8px;
+            margin-left: 15px;
         }
 
-        .header-links a:hover {
-            background: #f3ece5;
+        .nav a:hover {
             color: #b35e2e;
         }
 
-        /* CARDS */
         .card {
-            background: #ffffff;
-            border: 1px solid #e0d5c8;
-            border-radius: 18px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 6px 20px rgba(80, 55, 35, 0.07);
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,.07);
         }
 
-        .card-title {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: #2d1f14;
-            margin-bottom: 18px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .card h2 {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
         }
 
-        /* GAME STATUS */
-        .game-status {
-            background: #f8f3ed;
-            border: 1px solid #e0d5c8;
-            border-radius: 14px;
-            padding: 18px;
-            margin-top: 20px;
-        }
-
-        .last-number {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #1f7a4b;
-        }
-
-        .draw-count {
-            color: #b35e2e;
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
-
-        /* FORMS */
-        .manual-form {
+        .controls {
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
         }
 
         input {
-            background: #fffaf6;
-            border: 2px solid #e0d5c8;
-            color: #2d1f14;
-            padding: 11px 14px;
-            border-radius: 9px;
-            font-size: 0.95rem;
+            padding: 13px 15px;
+            border: 2px solid #ded4c9;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #faf8f5;
             outline: none;
-            flex: 1;
-            min-width: 200px;
         }
 
         input:focus {
             border-color: #b35e2e;
-            box-shadow: 0 0 0 3px rgba(179, 94, 46, 0.1);
         }
 
-        /* BUTTONS */
-        .btn-btn {
-            padding: 7px 12px;
+        button {
             border: none;
-            border-radius: 7px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-
-        .btn-approve {
-            background: #238636;
-            color: white;
-            margin-right: 6px;
-        }
-
-        .btn-reject {
-            background: #da3633;
-            color: white;
-        }
-
-        .btn-approve:hover,
-        .btn-reject:hover {
-            opacity: 0.85;
-        }
-
-        .btn-game {
-            background: #b35e2e;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 9px;
+            border-radius: 12px;
+            padding: 13px 18px;
             font-weight: 700;
             cursor: pointer;
-            font-size: 0.95rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            font-size: .95rem;
         }
 
-        .btn-game:hover {
-            background: #94491f;
-        }
-
-        .btn-secondary {
+        .btn-start {
             background: #1f7a4b;
             color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 9px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 0.95rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
         }
 
-        .btn-secondary:hover {
-            background: #16633b;
+        .btn-next {
+            background: #b35e2e;
+            color: white;
         }
 
-        .btn-warning {
+        .btn-auto {
+            background: #3878c7;
+            color: white;
+        }
+
+        .btn-stop {
             background: #d29922;
             color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 9px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 0.95rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
         }
 
-        .btn-warning:hover {
-            background: #b77e19;
-        }
-
-        .btn-danger {
+        .btn-reset {
             background: #b13e3e;
             color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 9px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 0.95rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
         }
 
-        .btn-danger:hover {
-            background: #942f2f;
+        button:disabled {
+            opacity: .55;
+            cursor: not-allowed;
         }
 
-        .btn-audio {
-            background: #6c4ab6;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 9px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 0.95rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+        .status {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
         }
 
-        .btn-audio:hover {
-            background: #573999;
+        .status-box {
+            background: #f6f1eb;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
         }
 
-        .step-container {
-            border-top: 1px solid #e0d5c8;
-            padding-top: 18px;
-            margin-top: 18px;
+        .status-box .label {
+            color: #7b6856;
+            font-size: .85rem;
+            margin-bottom: 5px;
         }
 
-        /* AUDIO STATUS */
-        .audio-status {
+        .status-box .value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #2d1f14;
+        }
+
+        .last-number {
+            font-size: 4rem !important;
+            color: #b35e2e !important;
+        }
+
+        .message {
             margin-top: 15px;
-            padding: 10px 14px;
-            background: #f1ebfa;
-            color: #573999;
-            border-radius: 9px;
-            font-size: 0.9rem;
+            padding: 12px;
+            border-radius: 10px;
             display: none;
         }
 
-        .audio-status.show {
+        .message.show {
             display: block;
         }
 
-        /* TABLE */
-        .table-wrapper {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            padding: 12px 16px;
-            text-align: left;
-            border-bottom: 1px solid #e0d5c8;
-            font-size: 0.9rem;
-        }
-
-        th {
-            background: #f5eee7;
-            color: #6f5b49;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-        }
-
-        td {
-            color: #3c2d20;
-        }
-
-        /* BADGES */
-        .badge-pending {
-            background: #fff3cd;
-            color: #856404;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .badge-approved {
-            background: #d4edda;
-            color: #155724;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .badge-rejected {
+        .message.error {
             background: #f8d7da;
             color: #721c24;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
         }
 
-        /* MOBILE */
-        @media (max-width: 768px) {
-            body {
-                padding: 12px;
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .drawn-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .number {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #b35e2e;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+        }
+
+        .number.latest {
+            background: #1f7a4b;
+            transform: scale(1.08);
+        }
+
+        .info {
+            color: #7b6856;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 700px) {
+            .status {
+                grid-template-columns: 1fr;
             }
 
-            .header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .header-links {
-                justify-content: center;
-            }
-
-            .manual-form {
-                flex-direction: column;
-            }
-
-            input {
+            .nav {
                 width: 100%;
             }
 
-            .btn-game,
-            .btn-secondary,
-            .btn-warning,
-            .btn-danger,
-            .btn-audio {
-                justify-content: center;
-                width: 100%;
+            .nav a {
+                margin-left: 0;
+                margin-right: 12px;
             }
 
-            .game-status {
-                text-align: center;
+            .last-number {
+                font-size: 3rem !important;
             }
         }
     </style>
@@ -376,272 +237,192 @@
 
 <div class="container">
 
-    <!-- HEADER -->
     <div class="header">
+        <h1>
+            <i class="fas fa-shield-alt"></i>
+            Tambola House — Admin
+        </h1>
 
-        <h2>
-            <i class="fas fa-shield-alt" style="color:#b35e2e;"></i>
-            System Administrator
-        </h2>
-
-        <div class="header-links">
-
+        <div class="nav">
             <a href="game.html">
-                <i class="fas fa-gamepad"></i>
-                Game Room
-            </a>
-
-            <a href="book-tickets.html">
-                <i class="fas fa-ticket-alt"></i>
-                Tickets
+                <i class="fas fa-gamepad"></i> Game Room
             </a>
 
             <a href="dashboard.html">
-                <i class="fas fa-desktop"></i>
-                Main Dashboard
+                <i class="fas fa-home"></i> Dashboard
             </a>
-
         </div>
-
     </div>
 
 
-    <!-- LIVE GAME CONTROL PANEL -->
+    <!-- DRAW CONTROL -->
+
     <div class="card">
 
-        <div class="card-title">
-            <i class="fas fa-dice" style="color:#b35e2e;"></i>
-            Live Game Host Controls
+        <h2>
+            <i class="fas fa-dice"></i>
+            Draw Control
+        </h2>
+
+        <p class="info">
+            The game state is stored in
+            <strong>games / active_game</strong>.
+            Both Admin and Game Room read the same document.
+        </p>
+
+        <br>
+
+        <div id="firstPickControls">
+
+            <div class="controls">
+
+                <input
+                    type="number"
+                    id="firstNumber"
+                    min="1"
+                    max="90"
+                    placeholder="First number 1-90"
+                >
+
+                <button
+                    class="btn-start"
+                    onclick="startGame()"
+                >
+                    <i class="fas fa-play"></i>
+                    Start Game
+                </button>
+
+            </div>
+
         </div>
 
 
-        <!-- FIRST NUMBER -->
-        <div id="step-first-pick" class="manual-form">
+        <div
+            id="drawControls"
+            style="display:none;"
+        >
 
-            <input
-                type="number"
-                id="firstNumberInput"
-                min="1"
-                max="90"
-                placeholder="Enter 1st Number to Draw (1-90)"
-            >
+            <div class="controls">
 
-            <button class="btn-game" onclick="setFirstNumber()">
-                <i class="fas fa-play"></i>
-                Confirm 1st Pick & Start Sequence
-            </button>
-
-        </div>
-
-
-        <!-- SEQUENTIAL DRAW -->
-        <div id="step-sequential-draw"
-             class="step-container"
-             style="display:none;">
-
-            <div style="display:flex; gap:12px; flex-wrap:wrap;">
-
-                <button class="btn-game"
-                        onclick="drawNextInSequence()">
-
+                <button
+                    class="btn-next"
+                    onclick="drawNext()"
+                >
                     <i class="fas fa-bullhorn"></i>
-                    Draw Next Number
-
+                    Draw Next
                 </button>
 
-
-                <button class="btn-secondary"
-                        id="btnAutoDraw"
-                        onclick="startAutoDraw()">
-
+                <button
+                    id="autoButton"
+                    class="btn-auto"
+                    onclick="startAutoDraw()"
+                >
                     <i class="fas fa-forward"></i>
-                    Start Auto Draw (4s)
-
+                    Auto Draw — 4s
                 </button>
 
-
-                <button class="btn-warning"
-                        id="btnStopAuto"
-                        onclick="stopAutoDraw()"
-                        style="display:none;">
-
+                <button
+                    id="stopButton"
+                    class="btn-stop"
+                    onclick="stopAutoDraw()"
+                    style="display:none;"
+                >
                     <i class="fas fa-pause"></i>
-                    Stop Auto Draw
-
-                </button>
-
-
-                <!-- TEST AUDIO -->
-                <button class="btn-audio"
-                        onclick="testAudio()">
-
-                    <i class="fas fa-volume-up"></i>
-                    Test Voice
-
-                </button>
-
-            </div>
-
-
-            <div id="audioStatus" class="audio-status">
-                <i class="fas fa-volume-up"></i>
-                Voice announcement ready
-            </div>
-
-        </div>
-
-
-        <!-- GAME STATUS -->
-        <div class="game-status">
-
-            <div style="
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                flex-wrap:wrap;
-                gap:20px;
-            ">
-
-                <div>
-
-                    <div style="
-                        color:#7b6856;
-                        font-size:0.9rem;
-                        margin-bottom:5px;
-                    ">
-                        Last Drawn Number
-                    </div>
-
-                    <div id="adminLastDrawn"
-                         class="last-number">
-                        --
-                    </div>
-
-                </div>
-
-
-                <div>
-
-                    <div style="
-                        color:#7b6856;
-                        font-size:0.9rem;
-                        margin-bottom:5px;
-                    ">
-                        Drawn Count
-                    </div>
-
-                    <div class="draw-count">
-                        <span id="adminDrawnCount">0</span> / 90
-                    </div>
-
-                </div>
-
-
-                <button class="btn-danger"
-                        onclick="resetGame()">
-
-                    <i class="fas fa-undo"></i>
-                    Reset Game Board
-
+                    Stop
                 </button>
 
             </div>
 
         </div>
+
+
+        <div class="status">
+
+            <div class="status-box">
+
+                <div class="label">
+                    Last Drawn
+                </div>
+
+                <div
+                    class="value last-number"
+                    id="lastNumber"
+                >
+                    --
+                </div>
+
+            </div>
+
+
+            <div class="status-box">
+
+                <div class="label">
+                    Numbers Drawn
+                </div>
+
+                <div
+                    class="value"
+                    id="drawnCount"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="status-box">
+
+                <div class="label">
+                    Game Status
+                </div>
+
+                <div
+                    class="value"
+                    id="gameStatus"
+                    style="font-size:1.3rem;"
+                >
+                    READY
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="message"
+            class="message"
+        ></div>
+
+        <br>
+
+        <button
+            class="btn-reset"
+            onclick="resetGame()"
+        >
+            <i class="fas fa-undo"></i>
+            Reset Game
+        </button>
 
     </div>
 
 
-    <!-- DEPOSIT REQUESTS -->
+    <!-- DRAWN NUMBERS -->
+
     <div class="card">
 
-        <div class="card-title">
+        <h2>
+            <i class="fas fa-list-ol"></i>
+            Numbers Already Drawn
+        </h2>
 
-            <i class="fas fa-clock"
-               style="color:#d29922;"></i>
-
-            Deposit Requests
-
-        </div>
-
-
-        <div class="table-wrapper">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>User UID</th>
-                        <th>Amount</th>
-                        <th>Transaction ID</th>
-                        <th>Status</th>
-                        <th>Action</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody id="depositsTable">
-
-                    <tr>
-
-                        <td colspan="5"
-                            style="text-align:center;color:#8b735f;">
-
-                            Loading requests...
-
-                        </td>
-
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-
-    <!-- DIRECT TOKEN ASSIGNMENT -->
-    <div class="card">
-
-        <div class="card-title">
-
-            <i class="fas fa-coins"
-               style="color:#1f7a4b;"></i>
-
-            Direct Token Assignment
-
-        </div>
-
-
-        <div class="manual-form">
-
-            <input
-                type="text"
-                id="targetUid"
-                placeholder="User UID"
-            >
-
-            <input
-                type="number"
-                id="tokenAmount"
-                placeholder="Token Amount"
-                min="1"
-            >
-
-            <button class="btn-secondary"
-                    onclick="addTokensDirectly()">
-
-                <i class="fas fa-plus-circle"></i>
-                Add Tokens
-
-            </button>
-
+        <div
+            id="drawnNumbers"
+            class="drawn-list"
+        >
+            <span class="info">
+                No numbers drawn yet.
+            </span>
         </div>
 
     </div>
@@ -649,7 +430,8 @@
 </div>
 
 
-<!-- FIREBASE SDK -->
+<!-- FIREBASE -->
+
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
@@ -659,1207 +441,578 @@
 
 <script>
 
-    /* =========================================
-       FIREBASE CONFIGURATION
-    ========================================= */
+const firebaseConfig = {
 
-    const firebaseConfig = {
+    apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
 
-        apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
+    authDomain:
+        "tambola-house-3dc56.firebaseapp.com",
 
-        authDomain:
-            "tambola-house-3dc56.firebaseapp.com",
+    projectId:
+        "tambola-house-3dc56",
 
-        projectId:
-            "tambola-house-3dc56",
+    storageBucket:
+        "tambola-house-3dc56.firebasestorage.app",
 
-        storageBucket:
-            "tambola-house-3dc56.firebasestorage.app",
+    messagingSenderId:
+        "267918174188",
 
-        messagingSenderId:
-            "267918174188",
+    appId:
+        "1:267918174188:web:ec27684544c286c044c2c9"
 
-        appId:
-            "1:267918174188:web:ec27684544c286c044c2c9"
-
-    };
+};
 
 
-    firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+
+const db = firebase.firestore();
+
+const gameRef =
+    db.collection("games").doc("active_game");
 
 
-    const auth = firebase.auth();
-
-    const db = firebase.firestore();
+let autoTimer = null;
 
 
-    let autoDrawTimer = null;
+/* AUTH */
 
+auth.onAuthStateChanged(async (user) => {
 
-    /* =========================================
-       AUDIO
-    ========================================= */
+    if (!user) {
 
-    let selectedVoice = null;
+        window.location.href = "login.html";
 
-
-    function loadVoices() {
-
-        if (!("speechSynthesis" in window)) {
-            return;
-        }
-
-        const voices =
-            window.speechSynthesis.getVoices();
-
-        if (!voices.length) {
-            return;
-        }
-
-
-        /*
-         Prefer an English voice.
-        */
-
-        selectedVoice =
-            voices.find(
-                voice =>
-                    voice.lang &&
-                    voice.lang.toLowerCase().startsWith("en")
-            ) || voices[0];
+        return;
 
     }
 
+    listenToGame();
 
-    if ("speechSynthesis" in window) {
-
-        loadVoices();
-
-        window.speechSynthesis.onvoiceschanged =
-            loadVoices;
-
-    }
+});
 
 
-    function announceNumber(number) {
+/* GAME LISTENER */
 
-        if (!("speechSynthesis" in window)) {
+function listenToGame() {
 
-            console.warn(
-                "Speech synthesis is not supported."
+    gameRef.onSnapshot((doc) => {
+
+        if (!doc.exists) {
+
+            showMessage(
+                "Game document does not exist.",
+                "error"
             );
 
             return;
 
         }
 
+        const data = doc.data();
 
-        /*
-         Stop previous announcement.
-        */
+        updateAdminScreen(data);
 
-        window.speechSynthesis.cancel();
+    });
 
-
-        const text =
-            "Number " + number;
+}
 
 
-        const utterance =
-            new SpeechSynthesisUtterance(text);
+/* UPDATE ADMIN SCREEN */
+
+function updateAdminScreen(data) {
+
+    const drawn =
+        data.drawnNumbers || [];
+
+    document.getElementById("lastNumber")
+        .textContent =
+        data.lastDrawn || "--";
+
+    document.getElementById("drawnCount")
+        .textContent =
+        drawn.length;
+
+    document.getElementById("gameStatus")
+        .textContent =
+        (data.status || "ready").toUpperCase();
 
 
-        utterance.rate = 0.85;
+    if (data.isFirstDrawDone) {
 
-        utterance.pitch = 1;
+        document.getElementById(
+            "firstPickControls"
+        ).style.display = "none";
 
-        utterance.volume = 1;
+        document.getElementById(
+            "drawControls"
+        ).style.display = "block";
 
+    } else {
 
-        if (selectedVoice) {
+        document.getElementById(
+            "firstPickControls"
+        ).style.display = "block";
 
-            utterance.voice =
-                selectedVoice;
+        document.getElementById(
+            "drawControls"
+        ).style.display = "none";
 
-        }
-
-
-        const audioStatus =
-            document.getElementById("audioStatus");
-
-
-        if (audioStatus) {
-
-            audioStatus.innerHTML =
-                '<i class="fas fa-volume-up"></i> Announcing Number ' +
-                number;
-
-            audioStatus.classList.add("show");
-
-        }
+    }
 
 
-        utterance.onend = function () {
-
-            if (audioStatus) {
-
-                audioStatus.innerHTML =
-                    '<i class="fas fa-volume-up"></i> Voice announcement ready';
-
-            }
-
-        };
+    renderDrawnNumbers(drawn);
 
 
-        window.speechSynthesis.speak(
-            utterance
+    if (drawn.length >= 90) {
+
+        stopAutoDraw();
+
+    }
+
+}
+
+
+/* CREATE SHUFFLED SEQUENCE */
+
+function shuffledNumbers() {
+
+    const numbers =
+        Array.from(
+            { length: 90 },
+            (_, i) => i + 1
+        );
+
+
+    for (
+        let i = numbers.length - 1;
+        i > 0;
+        i--
+    ) {
+
+        const j =
+            Math.floor(
+                Math.random() * (i + 1)
+            );
+
+        [
+            numbers[i],
+            numbers[j]
+        ] = [
+            numbers[j],
+            numbers[i]
+        ];
+
+    }
+
+    return numbers;
+
+}
+
+
+/* START GAME */
+
+async function startGame() {
+
+    const selected =
+        Number(
+            document.getElementById(
+                "firstNumber"
+            ).value
+        );
+
+
+    if (
+        !selected ||
+        selected < 1 ||
+        selected > 90
+    ) {
+
+        showMessage(
+            "Enter a number from 1 to 90.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const sequence =
+            shuffledNumbers();
+
+
+        const index =
+            sequence.indexOf(selected);
+
+
+        [
+            sequence[0],
+            sequence[index]
+        ] = [
+            sequence[index],
+            sequence[0]
+        ];
+
+
+        const first =
+            sequence[0];
+
+
+        await gameRef.set({
+
+            status: "running",
+
+            drawSequence:
+                sequence,
+
+            drawnNumbers:
+                [first],
+
+            lastDrawn:
+                first,
+
+            currentIndex:
+                1,
+
+            isFirstDrawDone:
+                true,
+
+            updatedAt:
+                firebase.firestore.FieldValue
+                    .serverTimestamp()
+
+        });
+
+
+        document.getElementById(
+            "firstNumber"
+        ).value = "";
+
+
+        showMessage(
+            "Game started. First number: " +
+            first,
+            "success"
         );
 
     }
 
+    catch (error) {
 
-    function testAudio() {
+        console.error(error);
 
-        announceNumber(25);
-
-    }
-
-
-    /* =========================================
-       AUTHENTICATION
-    ========================================= */
-
-    auth.onAuthStateChanged((user) => {
-
-        if (!user) {
-
-            window.location.href =
-                "login.html";
-
-            return;
-
-        }
-
-
-        loadDepositRequests();
-
-        listenToActiveGame();
-
-    });
-
-
-    /* =========================================
-       CREATE SHUFFLED 1-90 ARRAY
-    ========================================= */
-
-    function generateShuffledArray() {
-
-        const numbers =
-            Array.from(
-                { length: 90 },
-                (_, i) => i + 1
-            );
-
-
-        for (
-            let i = numbers.length - 1;
-            i > 0;
-            i--
-        ) {
-
-            const j =
-                Math.floor(
-                    Math.random() * (i + 1)
-                );
-
-
-            [
-                numbers[i],
-                numbers[j]
-            ] =
-            [
-                numbers[j],
-                numbers[i]
-            ];
-
-        }
-
-
-        return numbers;
+        showMessage(
+            "Unable to start game: " +
+            error.message,
+            "error"
+        );
 
     }
 
-
-    /* =========================================
-       LISTEN TO ACTIVE GAME
-    ========================================= */
-
-    function listenToActiveGame() {
-
-        db.collection("games")
-            .doc("active_game")
-            .onSnapshot(
-                (doc) => {
-
-                    if (doc.exists) {
-
-                        const data =
-                            doc.data();
+}
 
 
-                        const drawnNumbers =
-                            data.drawnNumbers || [];
+/* DRAW NEXT */
+
+async function drawNext() {
+
+    try {
+
+        await db.runTransaction(
+            async (transaction) => {
+
+                const doc =
+                    await transaction.get(gameRef);
 
 
-                        document.getElementById(
-                            "adminLastDrawn"
-                        ).textContent =
-                            data.lastDrawn || "--";
+                if (!doc.exists) {
 
-
-                        document.getElementById(
-                            "adminDrawnCount"
-                        ).textContent =
-                            drawnNumbers.length;
-
-
-                        if (
-                            data.isFirstDrawDone
-                        ) {
-
-                            document.getElementById(
-                                "step-first-pick"
-                            ).style.display =
-                                "none";
-
-
-                            document.getElementById(
-                                "step-sequential-draw"
-                            ).style.display =
-                                "block";
-
-                        } else {
-
-                            document.getElementById(
-                                "step-first-pick"
-                            ).style.display =
-                                "flex";
-
-
-                            document.getElementById(
-                                "step-sequential-draw"
-                            ).style.display =
-                                "none";
-
-                        }
-
-                    } else {
-
-                        resetGameData();
-
-                    }
-
-                },
-
-                (error) => {
-
-                    console.error(
-                        "Game listener error:",
-                        error
-                    );
-
-                    alert(
-                        "Unable to read game data: " +
-                        error.message
+                    throw new Error(
+                        "Game has not been initialized."
                     );
 
                 }
-            );
-
-    }
 
 
-    /* =========================================
-       FIRST NUMBER
-    ========================================= */
-
-    async function setFirstNumber() {
-
-        const inputVal =
-            Number(
-                document.getElementById(
-                    "firstNumberInput"
-                ).value
-            );
+                const data =
+                    doc.data();
 
 
-        if (
-            !inputVal ||
-            inputVal < 1 ||
-            inputVal > 90
-        ) {
+                if (!data.isFirstDrawDone) {
 
-            alert(
-                "Please enter a valid number between 1 and 90."
-            );
-
-            return;
-
-        }
-
-
-        const gameRef =
-            db.collection("games")
-                .doc("active_game");
-
-
-        try {
-
-            await db.runTransaction(
-                async (transaction) => {
-
-                    const doc =
-                        await transaction.get(
-                            gameRef
-                        );
-
-
-                    let sequence =
-                        doc.exists &&
-                        doc.data().drawSequence
-                            ? [
-                                ...doc.data()
-                                    .drawSequence
-                              ]
-                            : generateShuffledArray();
-
-
-                    const chosenIndex =
-                        sequence.indexOf(
-                            inputVal
-                        );
-
-
-                    if (
-                        chosenIndex !== -1
-                    ) {
-
-                        [
-                            sequence[0],
-                            sequence[chosenIndex]
-                        ] =
-                        [
-                            sequence[chosenIndex],
-                            sequence[0]
-                        ];
-
-                    }
-
-
-                    const firstNumber =
-                        sequence[0];
-
-
-                    transaction.set(
-                        gameRef,
-                        {
-
-                            status: "running",
-
-                            drawSequence:
-                                sequence,
-
-                            drawnNumbers:
-                                [firstNumber],
-
-                            lastDrawn:
-                                firstNumber,
-
-                            currentIndex:
-                                1,
-
-                            isFirstDrawDone:
-                                true,
-
-                            updatedAt:
-                                firebase.firestore
-                                    .FieldValue
-                                    .serverTimestamp()
-
-                        },
-                        {
-                            merge: true
-                        }
+                    throw new Error(
+                        "Start the game first."
                     );
 
                 }
-            );
 
 
-            document.getElementById(
-                "firstNumberInput"
-            ).value = "";
+                const sequence =
+                    data.drawSequence || [];
 
 
-            /*
-             Announce first number.
-            */
-
-            announceNumber(
-                inputVal
-            );
+                const drawn =
+                    data.drawnNumbers || [];
 
 
-            console.log(
-                "First number set:",
-                inputVal
-            );
+                const index =
+                    data.currentIndex || 0;
 
 
-        } catch (err) {
+                if (
+                    index >= 90 ||
+                    drawn.length >= 90
+                ) {
 
-            console.error(
-                "Error setting first number:",
-                err
-            );
-
-
-            alert(
-                "Failed to set first number: " +
-                err.message
-            );
-
-        }
-
-    }
-
-
-    /* =========================================
-       DRAW NEXT NUMBER
-    ========================================= */
-
-    async function drawNextInSequence() {
-
-        const gameRef =
-            db.collection("games")
-                .doc("active_game");
-
-
-        let numberToAnnounce = null;
-
-
-        try {
-
-            await db.runTransaction(
-                async (transaction) => {
-
-                    const doc =
-                        await transaction.get(
-                            gameRef
-                        );
-
-
-                    if (
-                        !doc.exists ||
-                        !doc.data().isFirstDrawDone
-                    ) {
-
-                        throw new Error(
-                            "Please set the first number before starting sequence draws."
-                        );
-
-                    }
-
-
-                    const data =
-                        doc.data();
-
-
-                    const sequence =
-                        data.drawSequence || [];
-
-
-                    const currentIndex =
-                        data.currentIndex || 0;
-
-
-                    const drawnNumbers =
-                        data.drawnNumbers || [];
-
-
-                    if (
-                        currentIndex >=
-                            sequence.length ||
-                        drawnNumbers.length >= 90
-                    ) {
-
-                        stopAutoDraw();
-
-                        throw new Error(
-                            "All 90 numbers have already been drawn!"
-                        );
-
-                    }
-
-
-                    const nextNum =
-                        sequence[currentIndex];
-
-
-                    numberToAnnounce =
-                        nextNum;
-
-
-                    const updatedDrawnNumbers =
-                        [
-                            ...drawnNumbers,
-                            nextNum
-                        ];
-
-
-                    transaction.update(
-                        gameRef,
-                        {
-
-                            drawnNumbers:
-                                updatedDrawnNumbers,
-
-                            lastDrawn:
-                                nextNum,
-
-                            currentIndex:
-                                currentIndex + 1,
-
-                            updatedAt:
-                                firebase.firestore
-                                    .FieldValue
-                                    .serverTimestamp()
-
-                        }
+                    throw new Error(
+                        "All 90 numbers have been drawn."
                     );
 
                 }
-            );
 
 
-            /*
-             Announce only after Firestore
-             successfully records the number.
-            */
+                const nextNumber =
+                    sequence[index];
 
-            if (
-                numberToAnnounce !== null
-            ) {
 
-                announceNumber(
-                    numberToAnnounce
+                const updatedDrawn =
+                    [...drawn, nextNumber];
+
+
+                transaction.update(
+                    gameRef,
+                    {
+
+                        drawnNumbers:
+                            updatedDrawn,
+
+                        lastDrawn:
+                            nextNumber,
+
+                        currentIndex:
+                            index + 1,
+
+                        status:
+                            updatedDrawn.length >= 90
+                                ? "completed"
+                                : "running",
+
+                        updatedAt:
+                            firebase.firestore.FieldValue
+                                .serverTimestamp()
+
+                    }
                 );
 
             }
-
-
-        } catch (err) {
-
-            console.error(
-                "Error drawing next number:",
-                err
-            );
-
-
-            stopAutoDraw();
-
-
-            alert(
-                "Failed to draw number: " +
-                err.message
-            );
-
-        }
+        );
 
     }
 
+    catch (error) {
 
-    /* =========================================
-       AUTO DRAW
-    ========================================= */
-
-    function startAutoDraw() {
-
-        if (autoDrawTimer) {
-
-            return;
-
-        }
-
-
-        document.getElementById(
-            "btnAutoDraw"
-        ).style.display =
-            "none";
-
-
-        document.getElementById(
-            "btnStopAuto"
-        ).style.display =
-            "inline-flex";
-
-
-        /*
-         Draw immediately.
-        */
-
-        drawNextInSequence();
-
-
-        /*
-         Then every 4 seconds.
-        */
-
-        autoDrawTimer =
-            setInterval(
-                () => {
-
-                    drawNextInSequence();
-
-                },
-                4000
-            );
-
-    }
-
-
-    /* =========================================
-       STOP AUTO DRAW
-    ========================================= */
-
-    function stopAutoDraw() {
-
-        if (autoDrawTimer) {
-
-            clearInterval(
-                autoDrawTimer
-            );
-
-            autoDrawTimer = null;
-
-        }
-
-
-        document.getElementById(
-            "btnAutoDraw"
-        ).style.display =
-            "inline-flex";
-
-
-        document.getElementById(
-            "btnStopAuto"
-        ).style.display =
-            "none";
-
-
-        /*
-         Stop any current voice.
-        */
-
-        if (
-            "speechSynthesis" in window
-        ) {
-
-            window.speechSynthesis.cancel();
-
-        }
-
-    }
-
-
-    /* =========================================
-       RESET GAME
-    ========================================= */
-
-    async function resetGame() {
-
-        const confirmed =
-            confirm(
-                "Are you sure you want to reset the active game? All drawn numbers and the sequence will be cleared."
-            );
-
-
-        if (!confirmed) {
-
-            return;
-
-        }
-
+        console.error(error);
 
         stopAutoDraw();
 
+        showMessage(
+            error.message,
+            "error"
+        );
 
-        try {
+    }
 
-            await resetGameData();
-
-
-            alert(
-                "Game board has been reset!"
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "Reset error:",
-                error
-            );
+}
 
 
-            alert(
-                "Could not reset game: " +
-                error.message
-            );
+/* AUTO DRAW */
 
-        }
+function startAutoDraw() {
+
+    if (autoTimer) return;
+
+
+    document.getElementById(
+        "autoButton"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "stopButton"
+    ).style.display = "inline-block";
+
+
+    drawNext();
+
+
+    autoTimer =
+        setInterval(
+            drawNext,
+            4000
+        );
+
+}
+
+
+/* STOP */
+
+function stopAutoDraw() {
+
+    if (autoTimer) {
+
+        clearInterval(autoTimer);
+
+        autoTimer = null;
 
     }
 
 
-    /* =========================================
-       RESET GAME DATA
-    ========================================= */
+    document.getElementById(
+        "autoButton"
+    ).style.display = "inline-block";
 
-    async function resetGameData() {
 
-        const initialSequence =
-            generateShuffledArray();
+    document.getElementById(
+        "stopButton"
+    ).style.display = "none";
 
+}
 
-        await db.collection("games")
-            .doc("active_game")
-            .set({
 
-                status: "ready",
+/* RESET */
 
-                drawSequence:
-                    initialSequence,
+async function resetGame() {
 
-                drawnNumbers: [],
-
-                lastDrawn: null,
-
-                currentIndex: 0,
-
-                isFirstDrawDone: false,
-
-                updatedAt:
-                    firebase.firestore
-                        .FieldValue
-                        .serverTimestamp()
-
-            });
-
-    }
-
-
-    /* =========================================
-       DEPOSIT MANAGEMENT
-    ========================================= */
-
-    function loadDepositRequests() {
-
-        db.collection("deposits")
-            .onSnapshot(
-                (snapshot) => {
-
-                    const table =
-                        document.getElementById(
-                            "depositsTable"
-                        );
-
-
-                    table.innerHTML = "";
-
-
-                    if (
-                        snapshot.empty
-                    ) {
-
-                        table.innerHTML = `
-                            <tr>
-                                <td colspan="5"
-                                    style="text-align:center;color:#8b735f;">
-                                    No deposit requests pending.
-                                </td>
-                            </tr>
-                        `;
-
-                        return;
-
-                    }
-
-
-                    snapshot.forEach(
-                        (doc) => {
-
-                            const dep =
-                                doc.data();
-
-
-                            const depId =
-                                doc.id;
-
-
-                            const isPending =
-                                dep.status ===
-                                "pending";
-
-
-                            let badgeClass =
-                                "badge-pending";
-
-
-                            if (
-                                dep.status ===
-                                "approved"
-                            ) {
-
-                                badgeClass =
-                                    "badge-approved";
-
-                            }
-
-
-                            if (
-                                dep.status ===
-                                "rejected"
-                            ) {
-
-                                badgeClass =
-                                    "badge-rejected";
-
-                            }
-
-
-                            const row =
-                                document.createElement(
-                                    "tr"
-                                );
-
-
-                            row.innerHTML = `
-
-                                <td style="font-family:monospace;">
-                                    ${dep.userId || "N/A"}
-                                </td>
-
-                                <td>
-                                    <strong>
-                                        ${dep.amount || 0} Tokens
-                                    </strong>
-                                </td>
-
-                                <td>
-                                    ${dep.txnId || "N/A"}
-                                </td>
-
-                                <td>
-                                    <span class="${badgeClass}">
-                                        ${(dep.status || "pending").toUpperCase()}
-                                    </span>
-                                </td>
-
-                                <td>
-
-                                    ${
-                                        isPending
-                                        ? `
-
-                                            <button
-                                                class="btn-btn btn-approve"
-                                                onclick="processDeposit(
-                                                    '${depId}',
-                                                    '${dep.userId}',
-                                                    ${Number(dep.amount || 0)},
-                                                    'approved'
-                                                )">
-                                                Approve
-                                            </button>
-
-                                            <button
-                                                class="btn-btn btn-reject"
-                                                onclick="processDeposit(
-                                                    '${depId}',
-                                                    '${dep.userId}',
-                                                    0,
-                                                    'rejected'
-                                                )">
-                                                Reject
-                                            </button>
-
-                                        `
-                                        : "--"
-                                    }
-
-                                </td>
-
-                            `;
-
-
-                            table.appendChild(
-                                row
-                            );
-
-                        }
-                    );
-
-                },
-
-                (error) => {
-
-                    console.error(
-                        "Deposit listener error:",
-                        error
-                    );
-
-                }
-            );
-
-    }
-
-
-    /* =========================================
-       PROCESS DEPOSIT
-    ========================================= */
-
-    async function processDeposit(
-        depId,
-        userId,
-        amount,
-        newStatus
+    if (
+        !confirm(
+            "Reset the current game?"
+        )
     ) {
 
-        const confirmed =
-            confirm(
-                "Are you sure you want to mark this request as " +
-                newStatus.toUpperCase() +
-                "?"
-            );
-
-
-        if (!confirmed) {
-
-            return;
-
-        }
-
-
-        try {
-
-            const userRef =
-                db.collection("users")
-                    .doc(userId);
-
-
-            const depRef =
-                db.collection("deposits")
-                    .doc(depId);
-
-
-            await db.runTransaction(
-                async (transaction) => {
-
-                    const userDoc =
-                        await transaction.get(
-                            userRef
-                        );
-
-
-                    if (
-                        newStatus ===
-                        "approved"
-                    ) {
-
-                        if (
-                            !userDoc.exists
-                        ) {
-
-                            throw new Error(
-                                "User document does not exist."
-                            );
-
-                        }
-
-
-                        transaction.update(
-                            userRef,
-                            {
-
-                                tokens:
-                                    firebase.firestore
-                                        .FieldValue
-                                        .increment(
-                                            Number(amount)
-                                        )
-
-                            }
-                        );
-
-                    }
-
-
-                    transaction.update(
-                        depRef,
-                        {
-
-                            status:
-                                newStatus,
-
-                            processedAt:
-                                firebase.firestore
-                                    .FieldValue
-                                    .serverTimestamp()
-
-                        }
-                    );
-
-                }
-            );
-
-
-            alert(
-                "Deposit " +
-                newStatus +
-                " successfully!"
-            );
-
-
-        } catch (err) {
-
-            console.error(
-                "Processing error:",
-                err
-            );
-
-
-            alert(
-                "Action failed: " +
-                err.message
-            );
-
-        }
+        return;
 
     }
 
 
-    /* =========================================
-       DIRECT TOKEN ASSIGNMENT
-    ========================================= */
-
-    async function addTokensDirectly() {
-
-        const uid =
-            document.getElementById(
-                "targetUid"
-            ).value.trim();
+    stopAutoDraw();
 
 
-        const amount =
-            Number(
-                document.getElementById(
-                    "tokenAmount"
-                ).value
-            );
+    try {
+
+        await gameRef.set({
+
+            status:
+                "ready",
+
+            drawSequence:
+                shuffledNumbers(),
+
+            drawnNumbers:
+                [],
+
+            lastDrawn:
+                null,
+
+            currentIndex:
+                0,
+
+            isFirstDrawDone:
+                false,
+
+            updatedAt:
+                firebase.firestore.FieldValue
+                    .serverTimestamp()
+
+        });
 
 
-        if (
-            !uid ||
-            !amount ||
-            amount <= 0
-        ) {
+        showMessage(
+            "Game reset successfully.",
+            "success"
+        );
 
-            alert(
-                "Please provide a valid UID and Token Amount."
-            );
+    }
 
-            return;
+    catch (error) {
 
-        }
+        showMessage(
+            error.message,
+            "error"
+        );
 
+    }
 
-        try {
-
-            const userRef =
-                db.collection("users")
-                    .doc(uid);
+}
 
 
-            const userDoc =
-                await userRef.get();
+/* DRAWN NUMBERS */
+
+function renderDrawnNumbers(numbers) {
+
+    const container =
+        document.getElementById(
+            "drawnNumbers"
+        );
 
 
-            if (
-                !userDoc.exists
-            ) {
+    if (!numbers.length) {
 
-                alert(
-                    "Target UID does not exist in database."
-                );
+        container.innerHTML =
+            '<span class="info">No numbers drawn yet.</span>';
 
-                return;
+        return;
+
+    }
+
+
+    container.innerHTML =
+        numbers.map(
+            (number, index) => {
+
+                const latest =
+                    index === numbers.length - 1
+                        ? "latest"
+                        : "";
+
+                return `
+                    <span class="number ${latest}">
+                        ${number}
+                    </span>
+                `;
 
             }
+        ).join("");
+
+}
 
 
-            await userRef.update({
+/* MESSAGE */
 
-                tokens:
-                    firebase.firestore
-                        .FieldValue
-                        .increment(
-                            amount
-                        )
+function showMessage(text, type) {
 
-            });
+    const element =
+        document.getElementById(
+            "message"
+        );
 
 
-            const newTotal =
-                Number(
-                    userDoc.data().tokens || 0
-                ) + amount;
+    element.textContent = text;
+
+    element.className =
+        "message show " + type;
 
 
-            alert(
-                "Added " +
-                amount +
-                " tokens. New total: " +
-                newTotal
-            );
+    setTimeout(() => {
 
+        element.classList.remove("show");
 
-            document.getElementById(
-                "targetUid"
-            ).value = "";
+    }, 4000);
 
-
-            document.getElementById(
-                "tokenAmount"
-            ).value = "";
-
-
-        } catch (err) {
-
-            console.error(
-                "Direct token error:",
-                err
-            );
-
-
-            alert(
-                "Error adding tokens: " +
-                err.message
-            );
-
-        }
-
-    }
+}
 
 </script>
 
