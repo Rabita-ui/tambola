@@ -295,6 +295,11 @@
         <form id="drawSetupForm">
             <div class="form-grid">
                 <div class="form-group">
+                    <label for="drawTime">Draw Date & Time:</label>
+                    <input type="datetime-local" id="drawTime" required>
+                </div>
+
+                <div class="form-group">
                     <label for="ticketPrice">Ticket Price (Tokens):</label>
                     <input type="number" id="ticketPrice" min="1" value="10" required>
                 </div>
@@ -580,6 +585,7 @@ auth.onAuthStateChanged(async (user) => {
 document.getElementById('drawSetupForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    const drawTime = document.getElementById('drawTime').value;
     const price = Number(document.getElementById('ticketPrice').value);
     const total = Number(document.getElementById('totalTickets').value);
 
@@ -593,6 +599,7 @@ document.getElementById('drawSetupForm').addEventListener('submit', async (e) =>
 
     try {
         await gameRef.set({
+            drawTime: drawTime,
             ticketPrice: price,
             totalTicketsAvailable: total,
             prizes: prizes,
@@ -627,6 +634,7 @@ function listenToGame() {
         const data = doc.data();
 
         // Populate Setup Inputs if values exist in Firestore
+        if (data.drawTime) document.getElementById("drawTime").value = data.drawTime;
         if (data.ticketPrice) document.getElementById("ticketPrice").value = data.ticketPrice;
         if (data.totalTicketsAvailable) document.getElementById("totalTickets").value = data.totalTicketsAvailable;
         if (data.prizes) {
