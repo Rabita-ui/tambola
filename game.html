@@ -3,220 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Room - Tambola House</title>
-
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <title>Live Game Room - Tambola House</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: #f8f9fa; color: #1a1d20; min-height: 100vh; padding: 20px; }
+        
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* HEADER & NAVIGATION */
+        .header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: #ffffff; border: 1px solid #e9ecef; padding: 16px 24px; 
+            border-radius: 12px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .header h2 { font-size: 1.3rem; color: #1a1d20; display: flex; align-items: center; gap: 10px; }
+        .nav-links { display: flex; gap: 15px; align-items: center; }
+        .nav-link { color: #1a73e8; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+
+        /* LIVE BOARD SECTION */
+        .live-board-card {
+            background: #ffffff; border: 1px solid #dadce0; border-radius: 12px;
+            padding: 20px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .board-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 700; }
+        
+        .draw-status-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px;
+        }
+        .status-box {
+            background: #f1f3f4; border-radius: 8px; padding: 15px; text-align: center;
+        }
+        .status-box .label { font-size: 0.8rem; color: #5f6368; font-weight: 600; text-transform: uppercase; }
+        .status-box .value { font-size: 1.8rem; font-weight: 800; color: #1a73e8; margin-top: 5px; }
+        .status-box .value.highlight { color: #d93025; font-size: 2.2rem; }
+
+        /* DRAWN NUMBERS TRACKER */
+        .numbers-history {
+            display: flex; flex-wrap: wrap; gap: 6px; padding: 10px; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 8px; max-height: 120px; overflow-y: auto;
+        }
+        .num-chip {
+            width: 32px; height: 32px; border-radius: 50%; background: #1a73e8; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;
         }
 
-        body {
-            background: linear-gradient(145deg, #f7f3ee, #e9e1d7);
-            color: #2d1f14;
-            min-height: 100vh;
-            padding: 20px;
+        /* PLAYER TICKETS GRID */
+        .my-tickets-section { margin-top: 20px; }
+        .section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+
+        .tickets-container {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px;
         }
 
-        .container {
-            max-width: 1100px;
-            margin: auto;
+        .ticket-card {
+            background: #ffffff; border: 1px solid #dadce0; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
+        .ticket-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; color: #202124; display: flex; justify-content: space-between; }
 
-        .header {
-            background: white;
-            border-radius: 20px;
-            padding: 20px 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,.08);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
+        /* TAMBOLA BOARD (3x9 GRID) */
+        .tambola-board { 
+            display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; 
+            background: #bdc1c6; border: 1px solid #bdc1c6; border-radius: 6px; 
+            overflow: hidden; margin-bottom: 14px; 
         }
-
-        .header h1 i {
-            color: #b35e2e;
+        .cell { 
+            background: #ffffff; aspect-ratio: 1; display: flex; align-items: center; 
+            justify-content: center; font-size: 0.8rem; font-weight: 700; color: #202124; 
         }
+        .cell.empty { background: #f1f3f4; color: transparent; }
+        .cell.drawn { background: #34a853; color: #ffffff; font-weight: 800; }
 
-        .nav a {
-            text-decoration: none;
-            color: #7b6856;
-            font-weight: 600;
-            margin-left: 15px;
+        /* CLAIM BUTTONS */
+        .claim-actions {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
         }
-
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,.07);
+        .btn-claim {
+            background: #f1f3f4; border: 1px solid #dadce0; color: #3c4043; padding: 8px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; transition: all 0.2s;
         }
-
-        .card h2 {
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .info-box {
-            background: #f6f1eb;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .info-box .label {
-            color: #7b6856;
-            font-size: 0.85rem;
-            margin-bottom: 5px;
-        }
-
-        .info-box .value {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #2d1f14;
-        }
-
-        .highlight-number {
-            font-size: 3.5rem !important;
-            color: #b35e2e !important;
-        }
-
-        .btn-buy {
-            background: #1f7a4b;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 13px 25px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 1rem;
-            width: 100%;
-            margin-top: 15px;
-        }
-
-        .btn-buy:disabled {
-            background: #a0a0a0;
-            cursor: not-allowed;
-        }
-
-        .prizes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .prize-tag {
-            background: #faf8f5;
-            border: 1px solid #ded4c9;
-            border-radius: 10px;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .prize-tag span {
-            display: block;
-            font-size: 0.8rem;
-            color: #7b6856;
-        }
-
-        .prize-tag strong {
-            color: #b35e2e;
-            font-size: 1.1rem;
-        }
-
-        .message {
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 10px;
-            display: none;
-        }
-
-        .message.show { display: block; }
-        .message.error { background: #f8d7da; color: #721c24; }
-        .message.success { background: #d4edda; color: #155724; }
+        .btn-claim:hover { background: #e8f0fe; color: #1a73e8; border-color: #d2e3fc; }
+        .btn-claim.claimed { background: #ceead6; color: #0d652d; border-color: #ceead6; cursor: default; }
     </style>
 </head>
 <body>
 
 <div class="container">
-
+    <!-- HEADER -->
     <div class="header">
-        <h1><i class="fas fa-gamepad"></i> Tambola House</h1>
-        <div class="nav">
-            <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+        <h2><i class="fas fa-gamepad" style="color: #1a73e8;"></i> Tambola Game Room</h2>
+        <div class="nav-links">
+            <a href="book-tickets.html" class="nav-link"><i class="fas fa-shopping-cart"></i> Buy Tickets</a>
+            <a href="dashboard.html" class="nav-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
         </div>
     </div>
 
-    <!-- LIVE DRAW DETAILS -->
-    <div class="card">
-        <h2><i class="fas fa-clock"></i> Next Draw Details</h2>
-        <div class="grid-3">
-            <div class="info-box">
+    <!-- LIVE DRAW BOARD -->
+    <div class="live-board-card">
+        <div class="board-header">
+            <span>Live Draw Display</span>
+            <span id="gameStatusText" style="color: #1a73e8;">STATUS: READY</span>
+        </div>
+
+        <div class="draw-status-grid">
+            <div class="status-box">
+                <div class="label">Current Call</div>
+                <div class="value highlight" id="lastDrawnNum">--</div>
+            </div>
+            <div class="status-box">
+                <div class="label">Total Calls</div>
+                <div class="value" id="totalCallsCount">0</div>
+            </div>
+            <div class="status-box">
                 <div class="label">Draw Date & Time</div>
-                <div class="value" id="gameDrawTime" style="font-size: 1.1rem;">Loading...</div>
-            </div>
-            <div class="info-box">
-                <div class="label">Ticket Price</div>
-                <div class="value" id="gameTicketPrice">--</div>
-            </div>
-            <div class="info-box">
-                <div class="label">Remaining Tickets</div>
-                <div class="value" id="gameRemainingTickets">--</div>
+                <div class="value" id="drawTimeDisplay" style="font-size: 1rem;">Loading...</div>
             </div>
         </div>
 
-        <button id="buyTicketBtn" class="btn-buy" onclick="buyTicket()">
-            <i class="fas fa-ticket-alt"></i> Buy Ticket
-        </button>
-        <div id="message" class="message"></div>
-    </div>
-
-    <!-- PRIZE POOL -->
-    <div class="card">
-        <h2><i class="fas fa-trophy"></i> Prize Pool</h2>
-        <div class="prizes-grid">
-            <div class="prize-tag"><span>Full House</span><strong id="prizeFH">--</strong></div>
-            <div class="prize-tag"><span>Top Line</span><strong id="prizeTL">--</strong></div>
-            <div class="prize-tag"><span>Middle Line</span><strong id="prizeML">--</strong></div>
-            <div class="prize-tag"><span>Bottom Line</span><strong id="prizeBL">--</strong></div>
-            <div class="prize-tag"><span>Early 5</span><strong id="prizeE5">--</strong></div>
+        <div class="board-header">
+            <span>Drawn Numbers History</span>
+        </div>
+        <div class="numbers-history" id="drawnHistoryContainer">
+            <span style="color: #70757a; font-size: 0.85rem;">No numbers drawn yet.</span>
         </div>
     </div>
 
-    <!-- LIVE BOARD & DRAW STATUS -->
-    <div class="card">
-        <h2><i class="fas fa-broadcast-tower"></i> Live Board</h2>
-        <div class="grid-3">
-            <div class="info-box">
-                <div class="label">Last Drawn</div>
-                <div class="value highlight-number" id="gameLastNumber">--</div>
-            </div>
-            <div class="info-box">
-                <div class="label">Total Drawn</div>
-                <div class="value" id="gameDrawnCount">0</div>
-            </div>
-            <div class="info-box">
-                <div class="label">Status</div>
-                <div class="value" id="gameStatus" style="font-size: 1.3rem;">READY</div>
-            </div>
+    <!-- MY TICKETS LIST -->
+    <div class="my-tickets-section">
+        <div class="section-title"><i class="fas fa-ticket-alt" style="color: #1a73e8;"></i> My Game Tickets</div>
+        <div class="tickets-container" id="myTicketsGrid">
+            <p style="color: #70757a; grid-column: 1/-1;">Loading your purchased tickets...</p>
         </div>
     </div>
-
 </div>
 
 <!-- FIREBASE SDKs -->
@@ -225,131 +141,187 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
-const firebaseConfig = {
-    apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-    authDomain: "tambola-house-3dc56.firebaseapp.com",
-    projectId: "tambola-house-3dc56",
-    storageBucket: "tambola-house-3dc56.firebasestorage.app",
-    messagingSenderId: "267918174188",
-    appId: "1:267918174188:web:ec27684544c286c044c2c9"
-};
+    const firebaseConfig = {
+        apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
+        authDomain: "tambola-house-3dc56.firebaseapp.com",
+        projectId: "tambola-house-3dc56",
+        storageBucket: "tambola-house-3dc56.firebasestorage.app",
+        messagingSenderId: "267918174188",
+        appId: "1:267918174188:web:ec27684544c286c044c2c9"
+    };
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-const gameRef = db.collection("games").doc("active_game");
-let currentUser = null;
+    let currentUser = null;
+    let drawnNumbers = [];
+    let myTickets = [];
+    let gamePrizes = {};
 
-auth.onAuthStateChanged((user) => {
-    if (!user) {
-        window.location.href = "login.html";
-        return;
-    }
-    currentUser = user;
-    listenToGame();
-});
-
-/* LISTEN TO ACTIVE GAME STATE */
-function listenToGame() {
-    gameRef.onSnapshot((doc) => {
-        if (!doc.exists) return;
-        const data = doc.data();
-
-        // Update Configuration Display
-        document.getElementById("gameDrawTime").textContent = data.drawTime ? new Date(data.drawTime).toLocaleString() : "TBD";
-        document.getElementById("gameTicketPrice").textContent = (data.ticketPrice || 0) + " Tokens";
-        document.getElementById("gameRemainingTickets").textContent = data.totalTicketsAvailable || 0;
-
-        // Disable Buy button if no tickets available
-        const buyBtn = document.getElementById("buyTicketBtn");
-        if ((data.totalTicketsAvailable || 0) <= 0) {
-            buyBtn.disabled = true;
-            buyBtn.textContent = "Sold Out";
-        } else {
-            buyBtn.disabled = false;
-            buyBtn.innerHTML = '<i class="fas fa-ticket-alt"></i> Buy Ticket';
+    /* AUTH & INITIALIZATION */
+    auth.onAuthStateChanged((user) => {
+        if (!user) {
+            window.location.href = "login.html";
+            return;
         }
-
-        // Update Prizes Display
-        if (data.prizes) {
-            document.getElementById("prizeFH").textContent = (data.prizes.fullHouse || 0) + " T";
-            document.getElementById("prizeTL").textContent = (data.prizes.topLine || 0) + " T";
-            document.getElementById("prizeML").textContent = (data.prizes.middleLine || 0) + " T";
-            document.getElementById("prizeBL").textContent = (data.prizes.bottomLine || 0) + " T";
-            document.getElementById("prizeE5").textContent = (data.prizes.earlyFive || 0) + " T";
-        }
-
-        // Update Live Numbers Display
-        document.getElementById("gameLastNumber").textContent = data.lastDrawn || "--";
-        document.getElementById("gameDrawnCount").textContent = (data.drawnNumbers || []).length;
-        document.getElementById("gameStatus").textContent = (data.status || "READY").toUpperCase();
+        currentUser = user;
+        listenToActiveGame();
+        listenToUserTickets();
     });
-}
 
-/* TICKET PURCHASING SYSTEM */
-async function buyTicket() {
-    const buyBtn = document.getElementById("buyTicketBtn");
-    buyBtn.disabled = true;
+    /* LISTEN TO ACTIVE GAME STATUS AND DRAWN NUMBERS */
+    function listenToActiveGame() {
+        db.collection("games").doc("active_game").onSnapshot((doc) => {
+            if (!doc.exists) return;
+            const data = doc.data();
 
-    try {
-        await db.runTransaction(async (transaction) => {
-            const gameDoc = await transaction.get(gameRef);
-            if (!gameDoc.exists) throw new Error("Game not active.");
+            drawnNumbers = data.drawnNumbers || [];
+            gamePrizes = data.prizes || {};
 
-            const gameData = gameDoc.data();
-            const ticketPrice = gameData.ticketPrice || 0;
-            const availableTickets = gameData.totalTicketsAvailable || 0;
+            // Update Header Display
+            document.getElementById("lastDrawnNum").textContent = data.lastDrawn || "--";
+            document.getElementById("totalCallsCount").textContent = drawnNumbers.length;
+            document.getElementById("gameStatusText").textContent = `STATUS: ${(data.status || "READY").toUpperCase()}`;
+            document.getElementById("drawTimeDisplay").textContent = data.drawTime ? new Date(data.drawTime).toLocaleString() : "TBD";
 
-            if (availableTickets <= 0) throw new Error("No tickets left for this draw.");
-
-            // Fetch User Wallet Document
-            const userRef = db.collection("users").doc(currentUser.uid);
-            const userDoc = await transaction.get(userRef);
-
-            if (!userDoc.exists) throw new Error("User record not found.");
-            const userData = userDoc.data();
-            const currentBalance = userData.tokens || 0;
-
-            if (currentBalance < ticketPrice) {
-                throw new Error(`Insufficient tokens! You need ${ticketPrice} tokens.`);
+            // Render Drawn Numbers History
+            const historyContainer = document.getElementById("drawnHistoryContainer");
+            if (drawnNumbers.length === 0) {
+                historyContainer.innerHTML = `<span style="color: #70757a; font-size: 0.85rem;">No numbers drawn yet.</span>`;
+            } else {
+                historyContainer.innerHTML = drawnNumbers.map(n => `<div class="num-chip">${n}</div>`).join("");
             }
 
-            // Deduct Tokens from User
-            transaction.update(userRef, {
-                tokens: currentBalance - ticketPrice
-            });
-
-            // Deduct Available Tickets Count
-            transaction.update(gameRef, {
-                totalTicketsAvailable: availableTickets - 1
-            });
-
-            // Generate Ticket Entry
-            const ticketRef = db.collection("tickets").doc();
-            transaction.set(ticketRef, {
-                userId: currentUser.uid,
-                gameId: "active_game",
-                pricePaid: ticketPrice,
-                purchasedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            // Re-render tickets to automatically mark numbers
+            renderMyTickets();
         });
-
-        showMessage("Ticket purchased successfully!", "success");
-    } catch (error) {
-        showMessage(error.message, "error");
-    } finally {
-        buyBtn.disabled = false;
     }
-}
 
-function showMessage(text, type) {
-    const element = document.getElementById("message");
-    element.textContent = text;
-    element.className = "message show " + type;
-    setTimeout(() => { element.classList.remove("show"); }, 4000);
-}
+    /* LISTEN TO USER OWNED TICKETS */
+    function listenToUserTickets() {
+        db.collection("tickets")
+            .where("ownerId", "==", currentUser.uid)
+            .onSnapshot((snapshot) => {
+                myTickets = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderMyTickets();
+            });
+    }
+
+    /* RENDER TICKETS & AUTO-HIGHLIGHT DRAWN NUMBERS */
+    function renderMyTickets() {
+        const container = document.getElementById("myTicketsGrid");
+        if (!myTickets.length) {
+            container.innerHTML = `<p style="color: #70757a; grid-column: 1/-1;">You haven't purchased any tickets for this draw yet. <a href="book-tickets.html">Book Tickets Now</a></p>`;
+            return;
+        }
+
+        container.innerHTML = myTickets.map((ticket) => {
+            const numbers = ticket.numbers || Array(27).fill(null);
+            const claims = ticket.claims || {};
+
+            let cellsHtml = numbers.map(num => {
+                if (!num) return `<div class="cell empty"></div>`;
+                const isDrawn = drawnNumbers.includes(num);
+                return `<div class="cell ${isDrawn ? 'drawn' : ''}">${num}</div>`;
+            }).join("");
+
+            return `
+                <div class="ticket-card">
+                    <div class="ticket-title">
+                        <span>${ticket.ticketCode || ticket.id}</span>
+                    </div>
+                    <div class="tambola-board">
+                        ${cellsHtml}
+                    </div>
+                    <div class="claim-actions">
+                        <button class="btn-claim ${claims.earlyFive ? 'claimed' : ''}" onclick="claimWin('${ticket.id}', 'earlyFive')">
+                            ${claims.earlyFive ? '✓ Early 5 Won' : 'Claim Early 5'}
+                        </button>
+                        <button class="btn-claim ${claims.topLine ? 'claimed' : ''}" onclick="claimWin('${ticket.id}', 'topLine')">
+                            ${claims.topLine ? '✓ Top Line Won' : 'Claim Top Line'}
+                        </button>
+                        <button class="btn-claim ${claims.middleLine ? 'claimed' : ''}" onclick="claimWin('${ticket.id}', 'middleLine')">
+                            ${claims.middleLine ? '✓ Mid Line Won' : 'Claim Middle Line'}
+                        </button>
+                        <button class="btn-claim ${claims.bottomLine ? 'claimed' : ''}" onclick="claimWin('${ticket.id}', 'bottomLine')">
+                            ${claims.bottomLine ? '✓ Bot Line Won' : 'Claim Bottom Line'}
+                        </button>
+                        <button class="btn-claim ${claims.fullHouse ? 'claimed' : ''}" onclick="claimWin('${ticket.id}', 'fullHouse')" style="grid-column: span 2;">
+                            ${claims.fullHouse ? '✓ Full House Won' : 'Claim Full House'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join("");
+    }
+
+    /* WIN CLAIM VALIDATION AND PRIZE REWARDING */
+    async function claimWin(ticketId, claimType) {
+        const ticket = myTickets.find(t => t.id === ticketId);
+        if (!ticket) return;
+
+        if (ticket.claims && ticket.claims[claimType]) {
+            alert("You have already claimed this prize on this ticket!");
+            return;
+        }
+
+        const numbers = ticket.numbers || [];
+        // Transform 27-element flat array into 3x9 grid matrix
+        const rows = [
+            numbers.slice(0, 9),
+            numbers.slice(9, 18),
+            numbers.slice(18, 27)
+        ];
+
+        const isDrawn = num => !num || drawnNumbers.includes(num);
+        let isValid = false;
+
+        if (claimType === 'earlyFive') {
+            const validNumbersOnTicket = numbers.filter(n => n !== null && n !== 0);
+            const matchedCount = validNumbersOnTicket.filter(n => drawnNumbers.includes(n)).length;
+            isValid = matchedCount >= 5;
+        } else if (claimType === 'topLine') {
+            isValid = rows[0].every(isDrawn);
+        } else if (claimType === 'middleLine') {
+            isValid = rows[1].every(isDrawn);
+        } else if (claimType === 'bottomLine') {
+            isValid = rows[2].every(isDrawn);
+        } else if (claimType === 'fullHouse') {
+            isValid = numbers.every(isDrawn);
+        }
+
+        if (!isValid) {
+            alert(`Boogie! Claim for ${claimType} is invalid based on current drawn numbers.`);
+            return;
+        }
+
+        const prizeReward = gamePrizes[claimType] || 0;
+
+        try {
+            const userRef = db.collection("users").doc(currentUser.uid);
+            const ticketRef = db.collection("tickets").doc(ticketId);
+
+            await db.runTransaction(async (transaction) => {
+                const userDoc = await transaction.get(userRef);
+                const currentTokens = userDoc.exists ? (userDoc.data().tokens || 0) : 0;
+
+                // 1. Credit tokens to user
+                transaction.update(userRef, { tokens: currentTokens + prizeReward });
+
+                // 2. Record successful claim on ticket
+                transaction.update(ticketRef, {
+                    [`claims.${claimType}`]: true,
+                    [`claimTimestamps.${claimType}`]: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            });
+
+            alert(`Congratulations! Claim Verified! You won ${prizeReward} Tokens for ${claimType}!`);
+        } catch (err) {
+            console.error("Claim Transaction Error:", err);
+            alert("Failed to process win claim: " + err);
+        }
+    }
 </script>
-
 </body>
 </html>
