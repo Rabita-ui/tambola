@@ -284,8 +284,6 @@
     </div>
 
 
-    <!-- SETUP & CONFIGURATION -->
-
     <div class="card">
         <h2>
             <i class="fas fa-cog"></i>
@@ -342,7 +340,31 @@
     </div>
 
 
-    <!-- DRAW CONTROL -->
+    <div class="card">
+        <h2>
+            <i class="fas fa-info-circle"></i>
+            Active Draw Settings
+        </h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
+            <div class="status-box">
+                <div class="label">Draw Date & Time</div>
+                <div class="value" id="displayDrawTime" style="font-size: 1.1rem; color: #2d1f14;">--</div>
+            </div>
+            <div class="status-box">
+                <div class="label">Ticket Price</div>
+                <div class="value" id="displayTicketPrice" style="font-size: 1.3rem;">--</div>
+            </div>
+            <div class="status-box">
+                <div class="label">Available Tickets</div>
+                <div class="value" id="displayTotalTickets" style="font-size: 1.3rem;">--</div>
+            </div>
+            <div class="status-box">
+                <div class="label">Full House Prize</div>
+                <div class="value" id="displayFullHouse" style="font-size: 1.3rem;">--</div>
+            </div>
+        </div>
+    </div>
+
 
     <div class="card">
 
@@ -494,8 +516,6 @@
     </div>
 
 
-    <!-- DRAWN NUMBERS -->
-
     <div class="card">
 
         <h2>
@@ -516,8 +536,6 @@
 
 </div>
 
-
-<!-- FIREBASE -->
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 
@@ -633,7 +651,7 @@ function listenToGame() {
 
         const data = doc.data();
 
-        // Populate Setup Inputs if values exist in Firestore
+        // Populate Form Inputs
         if (data.drawTime) document.getElementById("drawTime").value = data.drawTime;
         if (data.ticketPrice) document.getElementById("ticketPrice").value = data.ticketPrice;
         if (data.totalTicketsAvailable) document.getElementById("totalTickets").value = data.totalTicketsAvailable;
@@ -644,6 +662,12 @@ function listenToGame() {
             if (data.prizes.bottomLine !== undefined) document.getElementById("prizeBottomLine").value = data.prizes.bottomLine;
             if (data.prizes.earlyFive !== undefined) document.getElementById("prizeEarlyFive").value = data.prizes.earlyFive;
         }
+
+        // Display Active Settings
+        document.getElementById("displayDrawTime").textContent = data.drawTime ? new Date(data.drawTime).toLocaleString() : "Not Set";
+        document.getElementById("displayTicketPrice").textContent = (data.ticketPrice || 0) + " Tokens";
+        document.getElementById("displayTotalTickets").textContent = data.totalTicketsAvailable || 0;
+        document.getElementById("displayFullHouse").textContent = (data.prizes && data.prizes.fullHouse !== undefined) ? data.prizes.fullHouse + " Tokens" : "--";
 
         updateAdminScreen(data);
 
