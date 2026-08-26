@@ -1,854 +1,355 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Room - Tambola House</title>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Tambola Game Room</title>
-
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    >
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family:
-                system-ui,
-                -apple-system,
-                "Segoe UI",
-                Roboto,
-                sans-serif;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
         }
 
         body {
-
-            min-height: 100vh;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    #f7f3ee,
-                    #e8dfd5
-                );
-
+            background: linear-gradient(145deg, #f7f3ee, #e9e1d7);
             color: #2d1f14;
-
+            min-height: 100vh;
             padding: 20px;
-
         }
-
 
         .container {
-
-            max-width: 1200px;
-
+            max-width: 1100px;
             margin: auto;
-
         }
-
 
         .header {
-
             background: white;
-
-            border-radius: 22px;
-
+            border-radius: 20px;
             padding: 20px 25px;
-
             margin-bottom: 20px;
-
-            box-shadow:
-                0 5px 20px
-                rgba(0,0,0,.08);
-
+            box-shadow: 0 5px 20px rgba(0,0,0,.08);
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
-
             gap: 15px;
-
             flex-wrap: wrap;
-
         }
-
-
-        .header h1 {
-
-            font-size: 1.5rem;
-
-        }
-
 
         .header h1 i {
-
             color: #b35e2e;
-
         }
 
-
-        .header a {
-
-            color: #7b6856;
-
+        .nav a {
             text-decoration: none;
-
-            font-weight: 700;
-
+            color: #7b6856;
+            font-weight: 600;
             margin-left: 15px;
-
         }
-
-
-        .header a:hover {
-
-            color: #b35e2e;
-
-        }
-
 
         .card {
-
             background: white;
-
-            border-radius: 22px;
-
+            border-radius: 20px;
             padding: 25px;
-
             margin-bottom: 20px;
-
-            box-shadow:
-                0 5px 20px
-                rgba(0,0,0,.07);
-
+            box-shadow: 0 5px 20px rgba(0,0,0,.07);
         }
 
-
-        .main-display {
-
-            text-align: center;
-
-            padding: 30px;
-
-        }
-
-
-        .label {
-
-            color: #7b6856;
-
-            font-size: 1rem;
-
-            font-weight: 600;
-
-        }
-
-
-        .number-display {
-
-            width: 190px;
-
-            height: 190px;
-
-            margin: 20px auto;
-
-            border-radius: 50%;
-
-            background: #b35e2e;
-
-            color: white;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            font-size: 5rem;
-
-            font-weight: 900;
-
-            box-shadow:
-                0 15px 35px
-                rgba(179,94,46,.3);
-
-        }
-
-
-        .status {
-
-            font-size: 1rem;
-
-            font-weight: 700;
-
-        }
-
-
-        .status.running {
-
-            color: #1f7a4b;
-
-        }
-
-
-        .status.ready {
-
-            color: #b35e2e;
-
-        }
-
-
-        .status.completed {
-
-            color: #3878c7;
-
-        }
-
-
-        .count {
-
-            margin-top: 8px;
-
-            color: #7b6856;
-
-        }
-
-
-        .numbers-title {
-
+        .card h2 {
+            margin-bottom: 20px;
             font-size: 1.2rem;
-
-            margin-bottom: 15px;
-
         }
 
-
-        .numbers-grid {
-
+        .grid-3 {
             display: grid;
-
-            grid-template-columns:
-                repeat(10, 1fr);
-
-            gap: 8px;
-
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
         }
 
-
-        .ball {
-
-            aspect-ratio: 1;
-
-            min-height: 48px;
-
-            border-radius: 50%;
-
-            background: #eee7df;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            font-weight: 800;
-
-            color: #8a7765;
-
-            transition: .2s;
-
-        }
-
-
-        .ball.drawn {
-
-            background: #b35e2e;
-
-            color: white;
-
-        }
-
-
-        .ball.latest {
-
-            background: #1f7a4b;
-
-            color: white;
-
-            transform: scale(1.12);
-
-            box-shadow:
-                0 5px 15px
-                rgba(31,122,75,.3);
-
-        }
-
-
-        .history {
-
-            display: flex;
-
-            flex-wrap: wrap;
-
-            gap: 8px;
-
-        }
-
-
-        .history-ball {
-
-            width: 42px;
-
-            height: 42px;
-
-            border-radius: 50%;
-
-            background: #b35e2e;
-
-            color: white;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            font-weight: 800;
-
-        }
-
-
-        .empty {
-
+        .info-box {
+            background: #f6f1eb;
+            border-radius: 15px;
+            padding: 20px;
             text-align: center;
+        }
 
+        .info-box .label {
             color: #7b6856;
-
-            padding: 25px;
-
+            font-size: 0.85rem;
+            margin-bottom: 5px;
         }
 
-
-        @media (max-width: 700px) {
-
-            .number-display {
-
-                width: 150px;
-
-                height: 150px;
-
-                font-size: 4rem;
-
-            }
-
-            .numbers-grid {
-
-                grid-template-columns:
-                    repeat(9, 1fr);
-
-                gap: 5px;
-
-            }
-
-            .ball {
-
-                min-height: 38px;
-
-                font-size: .85rem;
-
-            }
-
+        .info-box .value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #2d1f14;
         }
 
+        .highlight-number {
+            font-size: 3.5rem !important;
+            color: #b35e2e !important;
+        }
+
+        .btn-buy {
+            background: #1f7a4b;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 13px 25px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .btn-buy:disabled {
+            background: #a0a0a0;
+            cursor: not-allowed;
+        }
+
+        .prizes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .prize-tag {
+            background: #faf8f5;
+            border: 1px solid #ded4c9;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .prize-tag span {
+            display: block;
+            font-size: 0.8rem;
+            color: #7b6856;
+        }
+
+        .prize-tag strong {
+            color: #b35e2e;
+            font-size: 1.1rem;
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .message.show { display: block; }
+        .message.error { background: #f8d7da; color: #721c24; }
+        .message.success { background: #d4edda; color: #155724; }
     </style>
-
 </head>
-
-
 <body>
 
 <div class="container">
 
-
-    <!-- HEADER -->
-
     <div class="header">
-
-        <h1>
-
-            <i class="fas fa-gamepad"></i>
-
-            Tambola Game Room
-
-        </h1>
-
-
-        <div>
-
-            <a href="admin.html">
-
-                <i class="fas fa-shield-alt"></i>
-
-                Admin
-
-            </a>
-
-            <a href="dashboard.html">
-
-                <i class="fas fa-home"></i>
-
-                Dashboard
-
-            </a>
-
+        <h1><i class="fas fa-gamepad"></i> Tambola House</h1>
+        <div class="nav">
+            <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
         </div>
-
     </div>
 
-
-    <!-- CURRENT NUMBER -->
-
-    <div class="card main-display">
-
-        <div class="label">
-
-            CURRENT NUMBER
-
-        </div>
-
-
-        <div
-            id="numberDisplay"
-            class="number-display"
-        >
-            --
-        </div>
-
-
-        <div
-            id="gameStatus"
-            class="status ready"
-        >
-            WAITING FOR GAME
-        </div>
-
-
-        <div
-            id="drawCount"
-            class="count"
-        >
-            0 / 90 numbers drawn
-        </div>
-
-    </div>
-
-
-    <!-- 1-90 BOARD -->
-
+    <!-- LIVE DRAW DETAILS -->
     <div class="card">
-
-        <div class="numbers-title">
-
-            <i class="fas fa-th"></i>
-
-            Number Board
-
-        </div>
-
-
-        <div
-            id="numberBoard"
-            class="numbers-grid"
-        ></div>
-
-    </div>
-
-
-    <!-- HISTORY -->
-
-    <div class="card">
-
-        <div class="numbers-title">
-
-            <i class="fas fa-history"></i>
-
-            Draw History
-
-        </div>
-
-
-        <div
-            id="history"
-            class="history"
-        >
-
-            <div class="empty">
-                No numbers have been drawn yet.
+        <h2><i class="fas fa-clock"></i> Next Draw Details</h2>
+        <div class="grid-3">
+            <div class="info-box">
+                <div class="label">Draw Date & Time</div>
+                <div class="value" id="gameDrawTime" style="font-size: 1.1rem;">Loading...</div>
             </div>
-
+            <div class="info-box">
+                <div class="label">Ticket Price</div>
+                <div class="value" id="gameTicketPrice">--</div>
+            </div>
+            <div class="info-box">
+                <div class="label">Remaining Tickets</div>
+                <div class="value" id="gameRemainingTickets">--</div>
+            </div>
         </div>
 
+        <button id="buyTicketBtn" class="btn-buy" onclick="buyTicket()">
+            <i class="fas fa-ticket-alt"></i> Buy Ticket
+        </button>
+        <div id="message" class="message"></div>
     </div>
 
+    <!-- PRIZE POOL -->
+    <div class="card">
+        <h2><i class="fas fa-trophy"></i> Prize Pool</h2>
+        <div class="prizes-grid">
+            <div class="prize-tag"><span>Full House</span><strong id="prizeFH">--</strong></div>
+            <div class="prize-tag"><span>Top Line</span><strong id="prizeTL">--</strong></div>
+            <div class="prize-tag"><span>Middle Line</span><strong id="prizeML">--</strong></div>
+            <div class="prize-tag"><span>Bottom Line</span><strong id="prizeBL">--</strong></div>
+            <div class="prize-tag"><span>Early 5</span><strong id="prizeE5">--</strong></div>
+        </div>
+    </div>
+
+    <!-- LIVE BOARD & DRAW STATUS -->
+    <div class="card">
+        <h2><i class="fas fa-broadcast-tower"></i> Live Board</h2>
+        <div class="grid-3">
+            <div class="info-box">
+                <div class="label">Last Drawn</div>
+                <div class="value highlight-number" id="gameLastNumber">--</div>
+            </div>
+            <div class="info-box">
+                <div class="label">Total Drawn</div>
+                <div class="value" id="gameDrawnCount">0</div>
+            </div>
+            <div class="info-box">
+                <div class="label">Status</div>
+                <div class="value" id="gameStatus" style="font-size: 1.3rem;">READY</div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
-
-<!-- FIREBASE -->
-
+<!-- FIREBASE SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-
 <script>
-
 const firebaseConfig = {
-
     apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-
-    authDomain:
-        "tambola-house-3dc56.firebaseapp.com",
-
-    projectId:
-        "tambola-house-3dc56",
-
-    storageBucket:
-        "tambola-house-3dc56.firebasestorage.app",
-
-    messagingSenderId:
-        "267918174188",
-
-    appId:
-        "1:267918174188:web:ec27684544c286c044c2c9"
-
+    authDomain: "tambola-house-3dc56.firebaseapp.com",
+    projectId: "tambola-house-3dc56",
+    storageBucket: "tambola-house-3dc56.firebasestorage.app",
+    messagingSenderId: "267918174188",
+    appId: "1:267918174188:web:ec27684544c286c044c2c9"
 };
 
-
 firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-
-const auth =
-    firebase.auth();
-
-const db =
-    firebase.firestore();
-
-
-const gameRef =
-    db.collection("games")
-      .doc("active_game");
-
-
-/* CREATE 1-90 BOARD */
-
-function createBoard() {
-
-    const board =
-        document.getElementById(
-            "numberBoard"
-        );
-
-
-    let html = "";
-
-
-    for (
-        let number = 1;
-        number <= 90;
-        number++
-    ) {
-
-        html += `
-            <div
-                id="ball-${number}"
-                class="ball"
-            >
-                ${number}
-            </div>
-        `;
-
-    }
-
-
-    board.innerHTML = html;
-
-}
-
-
-/* AUTH */
+const gameRef = db.collection("games").doc("active_game");
+let currentUser = null;
 
 auth.onAuthStateChanged((user) => {
-
     if (!user) {
-
-        window.location.href =
-            "login.html";
-
+        window.location.href = "login.html";
         return;
-
     }
-
+    currentUser = user;
     listenToGame();
-
 });
 
-
-/* LISTEN TO FIREBASE */
-
+/* LISTEN TO ACTIVE GAME STATE */
 function listenToGame() {
+    gameRef.onSnapshot((doc) => {
+        if (!doc.exists) return;
+        const data = doc.data();
 
-    gameRef.onSnapshot(
+        // Update Configuration Display
+        document.getElementById("gameDrawTime").textContent = data.drawTime ? new Date(data.drawTime).toLocaleString() : "TBD";
+        document.getElementById("gameTicketPrice").textContent = (data.ticketPrice || 0) + " Tokens";
+        document.getElementById("gameRemainingTickets").textContent = data.totalTicketsAvailable || 0;
 
-        (doc) => {
+        // Disable Buy button if no tickets available
+        const buyBtn = document.getElementById("buyTicketBtn");
+        if ((data.totalTicketsAvailable || 0) <= 0) {
+            buyBtn.disabled = true;
+            buyBtn.textContent = "Sold Out";
+        } else {
+            buyBtn.disabled = false;
+            buyBtn.innerHTML = '<i class="fas fa-ticket-alt"></i> Buy Ticket';
+        }
 
-            if (!doc.exists) {
+        // Update Prizes Display
+        if (data.prizes) {
+            document.getElementById("prizeFH").textContent = (data.prizes.fullHouse || 0) + " T";
+            document.getElementById("prizeTL").textContent = (data.prizes.topLine || 0) + " T";
+            document.getElementById("prizeML").textContent = (data.prizes.middleLine || 0) + " T";
+            document.getElementById("prizeBL").textContent = (data.prizes.bottomLine || 0) + " T";
+            document.getElementById("prizeE5").textContent = (data.prizes.earlyFive || 0) + " T";
+        }
 
-                showWaiting();
+        // Update Live Numbers Display
+        document.getElementById("gameLastNumber").textContent = data.lastDrawn || "--";
+        document.getElementById("gameDrawnCount").textContent = (data.drawnNumbers || []).length;
+        document.getElementById("gameStatus").textContent = (data.status || "READY").toUpperCase();
+    });
+}
 
-                return;
+/* TICKET PURCHASING SYSTEM */
+async function buyTicket() {
+    const buyBtn = document.getElementById("buyTicketBtn");
+    buyBtn.disabled = true;
 
+    try {
+        await db.runTransaction(async (transaction) => {
+            const gameDoc = await transaction.get(gameRef);
+            if (!gameDoc.exists) throw new Error("Game not active.");
+
+            const gameData = gameDoc.data();
+            const ticketPrice = gameData.ticketPrice || 0;
+            const availableTickets = gameData.totalTicketsAvailable || 0;
+
+            if (availableTickets <= 0) throw new Error("No tickets left for this draw.");
+
+            // Fetch User Wallet Document
+            const userRef = db.collection("users").doc(currentUser.uid);
+            const userDoc = await transaction.get(userRef);
+
+            if (!userDoc.exists) throw new Error("User record not found.");
+            const userData = userDoc.data();
+            const currentBalance = userData.tokens || 0;
+
+            if (currentBalance < ticketPrice) {
+                throw new Error(`Insufficient tokens! You need ${ticketPrice} tokens.`);
             }
 
+            // Deduct Tokens from User
+            transaction.update(userRef, {
+                tokens: currentBalance - ticketPrice
+            });
 
-            const data =
-                doc.data();
+            // Deduct Available Tickets Count
+            transaction.update(gameRef, {
+                totalTicketsAvailable: availableTickets - 1
+            });
 
+            // Generate Ticket Entry
+            const ticketRef = db.collection("tickets").doc();
+            transaction.set(ticketRef, {
+                userId: currentUser.uid,
+                gameId: "active_game",
+                pricePaid: ticketPrice,
+                purchasedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        });
 
-            updateGame(data);
-
-        },
-
-        (error) => {
-
-            console.error(
-                "Game listener error:",
-                error
-            );
-
-        }
-
-    );
-
-}
-
-
-/* UPDATE GAME */
-
-function updateGame(data) {
-
-    const drawn =
-        data.drawnNumbers || [];
-
-
-    const last =
-        data.lastDrawn;
-
-
-    /* CURRENT NUMBER */
-
-    document.getElementById(
-        "numberDisplay"
-    ).textContent =
-        last || "--";
-
-
-    /* STATUS */
-
-    const status =
-        data.status || "ready";
-
-
-    const statusElement =
-        document.getElementById(
-            "gameStatus"
-        );
-
-
-    statusElement.textContent =
-        status.toUpperCase();
-
-
-    statusElement.className =
-        "status " + status;
-
-
-    /* COUNT */
-
-    document.getElementById(
-        "drawCount"
-    ).textContent =
-        `${drawn.length} / 90 numbers drawn`;
-
-
-    /* BOARD */
-
-    updateBoard(drawn);
-
-
-    /* HISTORY */
-
-    updateHistory(drawn);
-
-}
-
-
-/* BOARD */
-
-function updateBoard(drawn) {
-
-    for (
-        let number = 1;
-        number <= 90;
-        number++
-    ) {
-
-        const ball =
-            document.getElementById(
-                "ball-" + number
-            );
-
-
-        ball.className =
-            "ball";
-
-
-        if (drawn.includes(number)) {
-
-            ball.classList.add(
-                "drawn"
-            );
-
-        }
-
+        showMessage("Ticket purchased successfully!", "success");
+    } catch (error) {
+        showMessage(error.message, "error");
+    } finally {
+        buyBtn.disabled = false;
     }
-
-
-    if (drawn.length) {
-
-        const latest =
-            drawn[drawn.length - 1];
-
-
-        const latestBall =
-            document.getElementById(
-                "ball-" + latest
-            );
-
-
-        if (latestBall) {
-
-            latestBall.classList.add(
-                "latest"
-            );
-
-        }
-
-    }
-
 }
 
-
-/* HISTORY */
-
-function updateHistory(drawn) {
-
-    const history =
-        document.getElementById(
-            "history"
-        );
-
-
-    if (!drawn.length) {
-
-        history.innerHTML = `
-            <div class="empty">
-                No numbers have been drawn yet.
-            </div>
-        `;
-
-        return;
-
-    }
-
-
-    history.innerHTML =
-        drawn
-            .map(
-                number => `
-                    <div class="history-ball">
-                        ${number}
-                    </div>
-                `
-            )
-            .join("");
-
+function showMessage(text, type) {
+    const element = document.getElementById("message");
+    element.textContent = text;
+    element.className = "message show " + type;
+    setTimeout(() => { element.classList.remove("show"); }, 4000);
 }
-
-
-/* WAITING */
-
-function showWaiting() {
-
-    document.getElementById(
-        "numberDisplay"
-    ).textContent = "--";
-
-
-    document.getElementById(
-        "gameStatus"
-    ).textContent =
-        "WAITING FOR GAME";
-
-
-    document.getElementById(
-        "drawCount"
-    ).textContent =
-        "0 / 90 numbers drawn";
-
-
-    updateBoard([]);
-
-    updateHistory([]);
-
-}
-
-
-/* INITIALIZE */
-
-createBoard();
-
 </script>
-<script type="module">
-  import { listenToGameUpdates, startGlobalPickup } from './app.js';
 
-  const roomID = "ROOM_001"; // Use your active game room ID
-
-  window.addEventListener('DOMContentLoaded', () => {
-    listenToGameUpdates(roomID);
-  });
-
-  // Attach to your "Start Pickup" button if present in game.html
-  const startBtn = document.getElementById('startPickupBtn');
-  if (startBtn) {
-    startBtn.addEventListener('click', () => {
-      startGlobalPickup(roomID, 5); // 5-second interval
-    });
-  }
-</script>
-</body>
 </body>
 </html>
