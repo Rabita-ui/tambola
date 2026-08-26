@@ -1,446 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Tambola House</title>
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(145deg, #f5f0eb 0%, #e8e0d8 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        /* HEADER */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 20px 30px;
-            background: white;
-            border-radius: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .header-left h1 {
-            color: #2d1f14;
-            font-size: 1.8rem;
-        }
-
-        .header-left h1 i {
-            color: #b35e2e;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .user-badge {
-            background: #f0ebe6;
-            padding: 8px 18px;
-            border-radius: 60px;
-            font-weight: 600;
-            color: #2d1f14;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .tokens-badge {
-            background: #1f7a4b;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 60px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .logout-btn {
-            background: #b13e3e;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 60px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .logout-btn:hover {
-            background: #942f2f;
-        }
-
-        /* STATS */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-            border: 1px solid #e0d5c8;
-        }
-
-        .stat-card i {
-            font-size: 2rem;
-            color: #b35e2e;
-            margin-bottom: 10px;
-        }
-
-        .stat-card .number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #2d1f14;
-        }
-
-        .stat-card .label {
-            color: #7b6856;
-            font-size: 0.9rem;
-        }
-
-        /* ACTIONS */
-        .actions-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .action-card {
-            background: white;
-            padding: 30px 20px;
-            border-radius: 20px;
-            text-align: center;
-            text-decoration: none;
-            color: #2d1f14;
-            border: 2px solid transparent;
-            transition: 0.3s;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-        }
-
-        .action-card:hover {
-            border-color: #b35e2e;
-            transform: translateY(-4px);
-        }
-
-        .action-card i {
-            font-size: 2.5rem;
-            color: #b35e2e;
-            margin-bottom: 10px;
-        }
-
-        .action-card h3 {
-            font-size: 1.1rem;
-            margin-bottom: 5px;
-        }
-
-        .action-card p {
-            color: #7b6856;
-            font-size: 0.9rem;
-        }
-
-        .badge {
-            display: inline-block;
-            background: #b13e3e;
-            color: white;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            margin-top: 8px;
-        }
-
-        /* LIVE DRAW SECTION */
-        .section-header {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #2d1f14;
-        }
-
-        .section-header h2 {
-            font-size: 1.4rem;
-        }
-
-        .section-header i {
-            color: #b35e2e;
-        }
-
-        .live-draw-container {
-            display: grid;
-            grid-template-columns: 260px 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .live-card {
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-            border: 1px solid #e0d5c8;
-        }
-
-        .current-draw-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        .current-draw-card h3 {
-            color: #7b6856;
-            font-size: 1rem;
-            margin-bottom: 10px;
-        }
-
-        .current-display {
-            width: 110px;
-            height: 110px;
-            border-radius: 50%;
-            background: #b35e2e;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            font-weight: 800;
-            margin: 10px 0;
-            box-shadow: 0 8px 16px rgba(179, 94, 46, 0.3);
-        }
-
-        .draw-status {
-            font-size: 0.85rem;
-            color: #1f7a4b;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 5px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #1f7a4b;
-            border-radius: 50%;
-            display: inline-block;
-            animation: pulse-dot 1.5s infinite;
-        }
-
-        @keyframes pulse-dot {
-            0% { opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { opacity: 1; }
-        }
-
-        /* 1-90 BOARD GRID */
-        .board-grid {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 8px;
-        }
-
-        .number-cell {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f0ebe6;
-            border: 1px solid #e0d5c8;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #7b6856;
-            transition: all 0.3s ease;
-        }
-
-        .number-cell.drawn {
-            background-color: #b35e2e;
-            color: #ffffff;
-            border-color: #b35e2e;
-            font-weight: 700;
-        }
-
-        .number-cell.last-drawn {
-            transform: scale(1.08);
-            box-shadow: 0 0 10px rgba(179, 94, 46, 0.5);
-            animation: pulse-active 1s infinite alternate;
-        }
-
-        @keyframes pulse-active {
-            from { transform: scale(1.05); }
-            to { transform: scale(1.12); }
-        }
-
-        /* TOAST */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 30px;
-            border-radius: 50px;
-            color: white;
-            font-weight: 500;
-            display: none;
-            z-index: 9999;
-        }
-
-        .toast.show { display: flex; align-items: center; gap: 10px; }
-        .toast.success { background: #1f7a4b; }
-        .toast.error { background: #b13e3e; }
-        .toast.info { background: #2d1f14; }
-
-        /* MOBILE RESPONSIVENESS */
-        @media (max-width: 900px) {
-            .stats-grid, .actions-grid { grid-template-columns: repeat(2, 1fr); }
-            .live-draw-container { grid-template-columns: 1fr; }
-        }
-
-        @media (max-width: 600px) {
-            body { padding: 10px; }
-            .header { padding: 20px; flex-direction: column; }
-            .header-left { text-align: center; }
-            .user-info { justify-content: center; }
-            .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .stat-card { padding: 18px 10px; }
-            .stat-card .number { font-size: 1.5rem; }
-            .actions-grid { grid-template-columns: 1fr; }
-            .board-grid { gap: 4px; }
-            .number-cell { font-size: 0.75rem; border-radius: 4px; }
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-    <!-- HEADER -->
-    <div class="header">
-        <div class="header-left">
-            <h1><i class="fas fa-ticket-alt"></i> Tambola House</h1>
-        </div>
-        <div class="user-info">
-            <span class="user-badge" id="userName"><i class="fas fa-user"></i> Loading...</span>
-            <span class="tokens-badge">
-                <i class="fas fa-coins"></i>
-                <span id="tokenCount">0</span> Tokens
-            </span>
-            <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
-        </div>
-    </div>
-
-    <!-- STATISTICS -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <i class="fas fa-ticket-alt"></i>
-            <div class="number" id="totalTickets">0</div>
-            <div class="label">Total Tickets</div>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-check-circle"></i>
-            <div class="number" id="availableTickets">0</div>
-            <div class="label">Available</div>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-bookmark"></i>
-            <div class="number" id="myTickets">0</div>
-            <div class="label">My Tickets</div>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-trophy"></i>
-            <div class="number" id="winsCount">0</div>
-            <div class="label">Wins</div>
-        </div>
-    </div>
-
-    <!-- ACTIONS -->
-    <div class="actions-grid">
-        <a href="book-tickets.html" class="action-card">
-            <i class="fas fa-ticket-alt"></i>
-            <h3>Book Tickets</h3>
-            <p>Buy tickets for current draw</p>
-        </a>
-        <a href="deposit-request.html" class="action-card">
-            <i class="fas fa-coins"></i>
-            <h3>Request Deposit</h3>
-            <p>Request token deposit</p>
-            <span class="badge" id="pendingDeposits">0 Pending</span>
-        </a>
-        <a href="my-tickets.html" class="action-card">
-            <i class="fas fa-list"></i>
-            <h3>My Tickets</h3>
-            <p>View your tickets</p>
-        </a>
-        <a href="draw-schedule.html" class="action-card">
-            <i class="fas fa-calendar-alt"></i>
-            <h3>Draw Schedule</h3>
-            <p>View upcoming draws</p>
-        </a>
-    </div>
-
-    <!-- LIVE DRAW BOARD SECTION -->
-    <div class="section-header">
-        <i class="fas fa-broadcast-tower"></i>
-        <h2>Live Game Draw</h2>
-    </div>
-
-    <div class="live-draw-container">
-        <!-- Current Called Number -->
-        <div class="live-card current-draw-card">
-            <h3>CURRENT NUMBER</h3>
-            <div class="current-display" id="currentNum">--</div>
-            <div class="draw-status">
-                <span class="status-dot"></span> Live Syncing
-            </div>
-        </div>
-
-        <!-- 1-90 Number Grid Board -->
-        <div class="live-card">
-            <div class="board-grid" id="board"></div>
-        </div>
-    </div>
-</div>
-
-<!-- TOAST -->
-<div class="toast" id="toast">
-    <i id="toastIcon" class="fas fa-info-circle"></i>
-    <span id="toastMessage">Message</span>
-</div>
-
 <!-- FIREBASE COMPAT SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
@@ -448,7 +5,6 @@
 
 <!-- IMMEDIATE BOARD RENDERER -->
 <script>
-    // Build 1-90 number grid immediately as standard script
     function renderBoardGrid() {
         const board = document.getElementById('board');
         if (!board) return;
@@ -470,7 +26,7 @@
     }
 </script>
 
-<!-- DASHBOARD MAIN SCRIPT -->
+<!-- DASHBOARD MAIN & REALTIME GAME SYNC SCRIPT -->
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
@@ -481,7 +37,9 @@
         appId: "1:267918174188:web:ec27684544c286c044c2c9"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
 
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -531,6 +89,7 @@
         currentUser = user;
         await loadUserData();
         loadTicketStats();
+        listenToActiveGame();
     });
 
     /* LOAD USER DATA */
@@ -562,10 +121,9 @@
         }
     }
 
-    /* FETCH TICKET STATS */
+    /* FETCH TICKET STATS (Reads all game tickets without hardcoded drawId) */
     function loadTicketStats() {
         db.collection("tickets")
-            .where("drawId", "==", "draw_001")
             .onSnapshot((snapshot) => {
                 let total = 0;
                 let available = 0;
@@ -574,8 +132,8 @@
                 snapshot.forEach((doc) => {
                     total++;
                     const data = doc.data();
-                    if (data.status === "available") available++;
-                    if ((data.status === "booked" || data.status === "sold") && data.ownerId === currentUser.uid) {
+                    if (data.status === "available" || !data.ownerId) available++;
+                    if (data.ownerId === currentUser.uid) {
                         mine++;
                     }
                 });
@@ -587,15 +145,38 @@
                 console.error("Ticket stats error:", error);
             });
     }
+
+    /* DIRECT REALTIME GAME SYNC (Listens to games/active_game) */
+    function listenToActiveGame() {
+        db.collection("games").doc("active_game").onSnapshot((doc) => {
+            if (!doc.exists) return;
+
+            const data = doc.data();
+            const drawnNumbers = data.drawnNumbers || [];
+            const lastDrawn = data.lastDrawn || "--";
+
+            // Update Big Display
+            document.getElementById("currentNum").textContent = lastDrawn;
+
+            // Update 1-90 Grid Highlights
+            for (let i = 1; i <= 90; i++) {
+                const cell = document.getElementById(`num-${i}`);
+                if (!cell) continue;
+
+                if (drawnNumbers.includes(i)) {
+                    cell.classList.add("drawn");
+                } else {
+                    cell.classList.remove("drawn");
+                }
+
+                if (i === lastDrawn) {
+                    cell.classList.add("last-drawn");
+                } else {
+                    cell.classList.remove("last-drawn");
+                }
+            }
+        }, (error) => {
+            console.error("Live sync error:", error);
+        });
+    }
 </script>
-
-<!-- REALTIME GAME SYNC MODULE -->
-<script type="module">
-    import { listenToGameUpdates } from './app.js';
-
-    const roomID = "ROOM_001";
-    listenToGameUpdates(roomID);
-</script>
-
-</body>
-</html>
