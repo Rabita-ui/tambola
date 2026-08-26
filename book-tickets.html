@@ -26,6 +26,14 @@
         .nav-link { color: #1a73e8; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
         .nav-link:hover { text-decoration: underline; }
 
+        /* MARKET METRICS BAR */
+        .info-bar {
+            display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;
+        }
+        .info-chip {
+            background: #f1f3f4; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: #3c4043;
+        }
+
         /* TICKET GRID */
         .ticket-grid { 
             display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
@@ -41,7 +49,7 @@
         .ticket-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         
         .ticket-card.owned { border-color: #34a853; background: #f6fbf7; }
-        .ticket-card.sold { border-color: #e0e0e0; background: #f8f9fa; opacity: 0.7; }
+        .ticket-card.sold { border-color: #e0e0e0; background: #f8f9fa; opacity: 0.75; }
 
         .ticket-header { 
             display: flex; justify-content: space-between; align-items: center; 
@@ -71,8 +79,8 @@
         .btn-buy:hover { background: #1557b0; }
         .btn-buy:disabled { background: #dadce0; color: #70757a; cursor: not-allowed; }
 
-        .badge-owned { color: #137333; font-size: 0.85rem; font-weight: 700; text-align: center; display: block; }
-        .badge-sold { color: #70757a; font-size: 0.85rem; font-weight: 700; text-align: center; display: block; }
+        .badge-owned { color: #137333; font-size: 0.85rem; font-weight: 700; text-align: center; display: block; padding: 6px; }
+        .badge-sold { color: #70757a; font-size: 0.85rem; font-weight: 700; text-align: center; display: block; padding: 6px; }
     </style>
 </head>
 <body>
@@ -85,6 +93,12 @@
             <div class="token-badge"><i class="fas fa-coins"></i> <span id="userTokens">0</span> Tokens</div>
             <a href="dashboard.html" class="nav-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
         </div>
+    </div>
+
+    <!-- MARKET METRICS -->
+    <div class="info-bar">
+        <div class="info-chip"><i class="fas fa-tag"></i> Active Price: <span id="activeGamePrice">10</span> Tokens</div>
+        <div class="info-chip"><i class="fas fa-user-check"></i> My Purchased Tickets: <span id="userTicketCount">0</span> / 6</div>
     </div>
 
     <!-- TICKETS DISPLAY CONTAINER -->
@@ -114,6 +128,8 @@
 
     let currentUser = null;
     let currentUserTokens = 0;
+    let currentGameTicketPrice = 10;
+    let userOwnedTicketCount = 0;
 
     /* AUTH MONITOR & DATA INITIALIZATION */
     auth.onAuthStateChanged((user) => {
@@ -123,10 +139,11 @@
         }
         currentUser = user;
         listenToUserData(user.uid);
+        listenToActiveGame();
         listenToTickets();
     });
 
-    /* LISTEN TO CURRENT USER TOKEN BALANCE */
+    /* LISTEN TO CURRENT USER TOKEN BALANCE & OWNERSHIP COUNT */
     function listenToUserData(uid) {
         db.collection("users").doc(uid).onSnapshot((doc) => {
             if (doc.exists) {
@@ -136,7 +153,17 @@
         });
     }
 
-    /* REALTIME LISTENER FOR ALL 300 TICKETS */
+    /* LISTEN TO ACTIVE GAME CONFIGURATION FOR TICKET PRICE */
+    function listenToActiveGame() {
+        db.collection("games").doc("active_game").onSnapshot((doc) => {
+            if (doc.exists && doc.data().ticketPrice) {
+                currentGameTicketPrice = doc.data().ticketPrice;
+                document.getElementById("activeGamePrice").textContent = currentGameTicketPrice;
+            }
+        });
+    }
+
+    /* REALTIME LISTENER FOR ALL TICKETS */
     function listenToTickets() {
         db.collection("tickets").orderBy(firebase.firestore.FieldPath.documentId()).onSnapshot((snapshot) => {
             const container = document.getElementById("ticketContainer");
@@ -147,11 +174,18 @@
                 return;
             }
 
+            userOwnedTicketCount = 0;
+            snapshot.forEach(doc => {
+                if (doc.data().ownerId === currentUser.uid) userOwnedTicketCount++;
+            });
+            document.getElementById("userTicketCount").textContent = userOwnedTicketCount;
+
             snapshot.forEach((doc) => {
                 const ticket = doc.data();
                 const ticketId = doc.id;
                 const isOwned = ticket.ownerId === currentUser.uid;
                 const isAvailable = !ticket.ownerId && ticket.status === "available";
+                const displayPrice = ticket.price || currentGameTicketPrice;
 
                 const card = document.createElement("div");
                 card.className = `ticket-card ${isOwned ? 'owned' : (!isAvailable ? 'sold' : '')}`;
@@ -165,15 +199,19 @@
 
                 card.innerHTML = `
                     <div class="ticket-header">
-                        <span class="ticket-id">${ticketId}</span>
-                        <span class="ticket-price">${ticket.price || 10} Tokens</span>
+                        <span class="ticket-id">${ticket.ticketCode || ticketId}</span>
+                        <span class="ticket-price">${displayPrice} Tokens</span>
                     </div>
                     <div class="tambola-board">
                         ${cellsHtml}
                     </div>
                     ${isOwned ? `<span class="badge-owned"><i class="fas fa-check-circle"></i> Purchased</span>` : ''}
                     ${!isOwned && !isAvailable ? `<span class="badge-sold"><i class="fas fa-lock"></i> Claimed</span>` : ''}
-                    ${isAvailable ? `<button class="btn-buy" onclick="buyTicket('${ticketId}', ${ticket.price || 10})">Buy Ticket</button>` : ''}
+                    ${isAvailable ? `
+                        <button class="btn-buy" id="buyBtn-${ticketId}" onclick="buyTicket('${ticketId}', ${displayPrice})">
+                            Buy Ticket
+                        </button>
+                    ` : ''}
                 `;
 
                 container.appendChild(card);
@@ -183,6 +221,11 @@
 
     /* ATOMIC TICKET PURCHASE TRANSACTION */
     async function buyTicket(ticketId, price) {
+        if (userOwnedTicketCount >= 6) {
+            alert("Maximum ticket limit reached! You can purchase up to 6 tickets per game.");
+            return;
+        }
+
         if (currentUserTokens < price) {
             alert(`Insufficient tokens! You need ${price} tokens to buy this ticket.`);
             return;
@@ -190,13 +233,18 @@
 
         if (!confirm(`Are you sure you want to purchase ${ticketId} for ${price} tokens?`)) return;
 
+        const btn = document.getElementById(`buyBtn-${ticketId}`);
+        if (btn) btn.disabled = true;
+
         const userRef = db.collection("users").doc(currentUser.uid);
         const ticketRef = db.collection("tickets").doc(ticketId);
+        const activeGameRef = db.collection("games").doc("active_game");
 
         try {
             await db.runTransaction(async (transaction) => {
                 const ticketDoc = await transaction.get(ticketRef);
                 const userDoc = await transaction.get(userRef);
+                const gameDoc = await transaction.get(activeGameRef);
 
                 if (!ticketDoc.exists) throw "Ticket does not exist!";
                 if (ticketDoc.data().ownerId) throw "Ticket was already purchased by another user!";
@@ -204,20 +252,29 @@
                 const currentTokens = userDoc.exists ? (userDoc.data().tokens || 0) : 0;
                 if (currentTokens < price) throw "Insufficient token balance!";
 
+                let availableTickets = gameDoc.exists ? (gameDoc.data().totalTicketsAvailable || 0) : 0;
+
                 // 1. Deduct tokens from user balance
                 transaction.update(userRef, { tokens: currentTokens - price });
 
                 // 2. Assign ticket ownership to current user
                 transaction.update(ticketRef, { 
                     ownerId: currentUser.uid, 
-                    status: "sold" 
+                    status: "sold",
+                    purchasedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+
+                // 3. Decrement available ticket counter on active game
+                if (availableTickets > 0) {
+                    transaction.update(activeGameRef, { totalTicketsAvailable: availableTickets - 1 });
+                }
             });
 
-            alert(`Congratulations! You now permanently own ${ticketId}.`);
+            alert(`Congratulations! You now own ticket ${ticketId}.`);
         } catch (err) {
             console.error("Purchase Error:", err);
             alert("Purchase failed: " + err);
+            if (btn) btn.disabled = false;
         }
     }
 </script>
