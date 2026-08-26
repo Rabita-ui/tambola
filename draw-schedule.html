@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draw Schedule - Tambola House</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: #fdfbf7; color: #1a1d20; min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: #ffffff; border: 1px solid #e9ecef; padding: 16px 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .schedule-list { display: flex; flex-direction: column; gap: 15px; }
+        .schedule-card { background: #ffffff; border: 1px solid #dadce0; border-radius: 12px; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
+        .badge.scheduled { background: #e8f0fe; color: #1a73e8; }
+        .badge.live { background: #fce8e6; color: #d93025; }
+        .badge.completed { background: #f1f3f4; color: #5f6368; }
+        .btn-action { background: #00796b; color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; }
+        .btn-action:hover { background: #004d40; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2><i class="fas fa-calendar-alt" style="color: #00796b;"></i> Draw Schedule</h2>
+        <a href="dashboard.html" style="color: #00796b; text-decoration: none; font-weight: 600;">Dashboard</a>
+    </div>
+
+    <div id="scheduleContainer" class="schedule-list">
+        <p style="color: #70757a; text-align: center;">Loading draw schedule...</p>
+    </div>
+</div>
+
+<!-- FIREBASE SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
+        authDomain: "tambola-house-3dc56.firebaseapp.com",
+        projectId: "tambola-house-3dc56",
+        storageBucket: "tambola-house-3dc56.firebasestorage.app",
+        messagingSenderId: "267918174188",
+        appId: "1:267918174188:web:ec27684544c286c044c2c9"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // LISTEN DIRECTLY TO THE ACTIVE GAME DOCUMENT
+    db.collection("games").doc("active_game").onSnapshot((doc) => {
+        const container = document.getElementById("scheduleContainer");
+        container.innerHTML = "";
+
+        if (!doc.exists) {
+            container.innerHTML = `<p style="color: #70757a; text-align: center;">No active draw configured yet.</p>`;
+            return;
+        }
+
+        const draw = doc.data();
+
+        // Format raw date string or Firestore timestamp into human-readable format
+        let dateStr = "TBD";
+        if (draw.drawTime) {
+            const dateObj = draw.drawTime.toDate ? draw.drawTime.toDate() : new Date(draw.drawTime);
+            dateStr = dateObj.toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        } else if (draw.drawDate) {
+            dateStr = new Date(draw.drawDate).toLocaleString();
+        }
+
+        const status = (draw.status || "scheduled").toLowerCase();
+
+        const card = document.createElement("div");
+        card.className = "schedule-card";
+        card.innerHTML = `
+            <div>
+                <h3 style="font-size: 1.05rem; color: #202124; margin-bottom: 6px;">
+                    ${draw.title || 'Tambola Mega Draw'}
+                </h3>
+                <p style="font-size: 0.85rem; color: #5f6368;"><i class="far fa-clock"></i> ${dateStr}</p>
+                <p style="font-size: 0.8rem; color: #70757a; margin-top: 4px;">Full House Prize: <strong>${draw.prizes?.fullHouse || draw.fullHousePrize || 500} Tokens</strong></p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span class="badge ${status}">${status}</span>
+                <span style="font-weight: 700; color: #137333; font-size: 0.9rem;">${draw.ticketPrice || 10} Tokens</span>
+                <a href="book-tickets.html" class="btn-action">Book Tickets</a>
+            </div>
+        `;
+
+        container.appendChild(card);
+    }, (error) => {
+        console.error("Error reading schedule:", error);
+        document.getElementById("scheduleContainer").innerHTML = `<p style="color: #d93025; text-align: center;">Unable to load draw schedule.</p>`;
+    });
+</script>
+</body>
+</html>
