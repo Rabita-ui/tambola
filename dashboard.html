@@ -356,6 +356,12 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -379,7 +385,7 @@
         </div>
 
         <!-- Stats -->
-        <div class="stats-grid">
+        <div class="stats-grid" id="statsGrid">
             <div class="stat-card">
                 <i class="fas fa-ticket-alt"></i>
                 <div class="number" id="totalTickets">0</div>
@@ -462,10 +468,10 @@
         };
 
         // Initialize Firebase
-        if (!firebase.apps.length) {
+        if (typeof firebase !== 'undefined' && !firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
-        
+
         const auth = firebase.auth();
         const db = firebase.firestore();
 
@@ -481,10 +487,8 @@
             const toastMessage = document.getElementById('toastMessage');
             const toastIcon = document.getElementById('toastIcon');
             
-            // Check if elements exist
             if (!toast || !toastMessage || !toastIcon) {
-                console.warn('Toast elements not found');
-                alert(message);
+                console.log('Toast:', message);
                 return;
             }
             
@@ -527,15 +531,16 @@
         // ============================================
         async function loadUserData() {
             try {
-                const doc = await db.collection('users').doc(currentUser.uid).get();
-                
-                // Check if elements exist before updating
                 const userNameEl = document.getElementById('userName');
                 const tokenCountEl = document.getElementById('tokenCount');
+                const winsCountEl = document.getElementById('winsCount');
                 const pendingDepositsEl = document.getElementById('pendingDeposits');
+                
+                const doc = await db.collection('users').doc(currentUser.uid).get();
                 
                 if (doc.exists) {
                     userData = doc.data();
+                    console.log('User data loaded:', userData);
                     
                     if (userNameEl) {
                         userNameEl.innerHTML = `<i class="fas fa-user"></i> ${userData.fullName || userData.email || 'User'}`;
@@ -545,7 +550,10 @@
                         tokenCountEl.textContent = userData.tokens || 0;
                     }
                     
-                    // Check pending deposits
+                    if (winsCountEl) {
+                        winsCountEl.textContent = userData.wins || 0;
+                    }
+                    
                     if (pendingDepositsEl) {
                         const deposits = userData.depositRequests || [];
                         const pending = deposits.filter(d => d.status === 'pending').length;
@@ -578,12 +586,12 @@
                     if (tokenCountEl) {
                         tokenCountEl.textContent = '50';
                     }
-                }
-                
-                // Update wins count
-                const winsEl = document.getElementById('winsCount');
-                if (winsEl) {
-                    winsEl.textContent = userData?.wins || 0;
+                    
+                    if (winsCountEl) {
+                        winsCountEl.textContent = '0';
+                    }
+                    
+                    showToast('🎉 Welcome! You received 50 free tokens!', 'success');
                 }
                 
             } catch (error) {
@@ -597,7 +605,7 @@
         // ============================================
         function loadTickets() {
             // Listen to tickets in real-time
-            const unsubscribe = db.collection('tickets')
+            db.collection('tickets')
                 .orderBy('id')
                 .onSnapshot((snapshot) => {
                     allTickets = [];
@@ -727,12 +735,12 @@
                 position: fixed; top: 0; left: 0; right: 0; bottom: 0;
                 background: rgba(0,0,0,0.6); z-index: 9999;
                 display: flex; align-items: center; justify-content: center;
-                padding: 20px; animation: fadeIn 0.3s ease;
+                padding: 20px;
             `;
             
             modal.innerHTML = `
                 <div style="background: white; border-radius: 24px; padding: 30px; max-width: 650px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative;">
-                    <button onclick="this.closest('div[style*="position: fixed"]').remove()" style="position: sticky; top: 0; float: right; background: none; border: none; font-size: 2rem; cursor: pointer; color: #999;">✕</button>
+                    <button onclick="this.closest('div[style]').remove()" style="position: sticky; top: 0; float: right; background: none; border: none; font-size: 2rem; cursor: pointer; color: #999;">✕</button>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                         <h2 style="color: #2d1f14;">${ticket.id}</h2>
                         <span style="background: #1f7a4b; color: white; padding: 5px 20px; border-radius: 20px; font-weight: 600;">${ticket.price || 10} Tokens</span>
@@ -748,7 +756,7 @@
                         <button onclick="bookTicket('${ticket.id}')" style="padding: 10px 30px; background: #1f7a4b; color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: 600;">
                             <i class="fas fa-check"></i> Book This Ticket
                         </button>
-                        <button onclick="this.closest('div[style*="position: fixed"]').remove()" style="padding: 10px 30px; background: #6c5a4a; color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: 600;">
+                        <button onclick="this.closest('div[style]').remove()" style="padding: 10px 30px; background: #6c5a4a; color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: 600;">
                             Close
                         </button>
                     </div>
