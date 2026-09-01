@@ -24,7 +24,6 @@
         .btn-launch { display: inline-block; background: #b35e2e; color: white; text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; margin-top: 15px; transition: opacity 0.2s ease; }
         .btn-launch:hover { opacity: 0.9; }
 
-        /* WINNER & GAME HISTORY STYLES */
         .winner-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .winner-table th, .winner-table td { text-align: left; padding: 12px; border-bottom: 1px solid #ded4c9; font-size: 0.95rem; }
         .winner-table th { color: #7b6856; font-weight: 700; background: #faf8f5; }
@@ -32,7 +31,6 @@
         .badge-prize { background: #f6f1eb; color: #2d1f14; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; border: 1px solid #ded4c9; }
         .empty-history { text-align: center; color: #a89a8c; padding: 25px; font-style: italic; }
 
-        /* RECENT GAME CARDS */
         .history-card { background: #faf5ef; border: 1px solid #e2d7ca; border-radius: 12px; padding: 15px; margin-bottom: 12px; }
         .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .history-title { font-weight: 700; color: #b35e2e; font-size: 0.95rem; }
@@ -52,13 +50,12 @@
         <h1><i class="fas fa-home"></i> Tambola House — Dashboard</h1>
         <div class="nav">
             <a href="game.html"><i class="fas fa-gamepad"></i> Game Room</a>
-            <a href="admin.html"><i class="fas fa-shield-alt"></i> Admin Panel</a>
+            <a href="admin.html" id="adminNavLink" style="display: none;"><i class="fas fa-shield-alt"></i> Admin Panel</a>
         </div>
     </div>
 
     <div class="grid-layout">
         
-        <!-- LEFT PANEL: GAME STATUS -->
         <div>
             <div class="card">
                 <h2><i class="fas fa-signal"></i> Active Game Status</h2>
@@ -74,9 +71,7 @@
             </div>
         </div>
 
-        <!-- RIGHT PANEL: PAST GAMES & WINNER LOG -->
         <div>
-            <!-- PAST 2 GAMES HISTORY -->
             <div class="card">
                 <h2><i class="fas fa-history"></i> Recent Finished Games (Winning Numbers)</h2>
                 <div id="pastGamesContainer">
@@ -84,7 +79,6 @@
                 </div>
             </div>
 
-            <!-- WINNER LOG -->
             <div class="card">
                 <h2><i class="fas fa-trophy"></i> Winner History Log</h2>
                 <div id="winnerLogContainer">
@@ -114,12 +108,21 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// CONFIGURE YOUR ADMIN EMAIL HERE
+const ADMIN_EMAIL = "your-admin-email@gmail.com";
+
 window.addEventListener('DOMContentLoaded', () => {
+    // Show Admin Link only if current user is Admin
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user && user.email === ADMIN_EMAIL) {
+            document.getElementById("adminNavLink").style.display = "inline-block";
+        }
+    });
+
     listenToDashboard();
 });
 
 function listenToDashboard() {
-    // 1. Listen to active game status
     db.collection("games").doc("active_game").onSnapshot((doc) => {
         if (doc.exists) {
             const data = doc.data();
@@ -135,7 +138,6 @@ function listenToDashboard() {
         }
     });
 
-    // 2. Real-time listener for the 2 Latest Finished Games
     db.collection("games_history").orderBy("timestamp", "desc").limit(2).onSnapshot((snapshot) => {
         const container = document.getElementById("pastGamesContainer");
 
@@ -170,7 +172,6 @@ function listenToDashboard() {
         container.innerHTML = html;
     });
 
-    // 3. Real-time listener for Winner History
     db.collection("winners").orderBy("timestamp", "desc").limit(20).onSnapshot((snapshot) => {
         const container = document.getElementById("winnerLogContainer");
 
