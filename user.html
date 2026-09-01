@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Tambola House</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; color: #333; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; max-width: 600px; }
+        .hidden { display: none; }
+        input, button, select { padding: 12px; margin: 8px 0; display: block; width: 100%; box-sizing: border-box; border-radius: 4px; font-weight: bold; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        button.withdraw-btn { background: #ff9800; }
+        button.withdraw-btn:hover { background: #e68a00; }
+        button.nav-btn { background: #28a745; font-size: 1em; margin-top: 10px; }
+        button.nav-btn:hover { background: #218838; }
+        button.reject { background: #dc3545; }
+        button.reject:hover { background: #bd2130; }
+        .wallet-box { background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 15px; text-align: center; border: 2px solid #007bff; }
+        .request-item { background: #f9f9f9; padding: 10px; border: 1px solid #ddd; margin-bottom: 10px; border-radius: 4px; }
+        .nav-section { display: flex; gap: 10px; }
+    </style>
+</head>
+<body>
+
+    <!-- User Dashboard -->
+    <div id="main-section" class="card">
+        <p>Logged in as: <strong id="user-display">Loading...</strong> (<span id="user-role">User</span>)</p>
+        
+        <!-- Token Balance -->
+        <div class="wallet-box">
+            <h3 style="margin: 0;">Token Balance: <span id="user-balance" style="color: #007bff; font-size: 1.5em;">0</span> Tokens</h3>
+        </div>
+
+        <!-- Navigation Buttons to book.html and game.html -->
+        <div class="nav-section">
+            <button class="nav-btn" onclick="window.location.href='book.html'">🎟️ Go to Book Tickets (book.html)</button>
+            <button class="nav-btn" style="background: #17a2b8;" onclick="window.location.href='game.html'">🎮 Join Live Game (game.html)</button>
+        </div>
+        
+        <hr style="margin: 20px 0;">
+
+        <!-- Token Request -->
+        <div>
+            <h3>Add Tokens (Deposit)</h3>
+            <label for="token-req-count">Amount to Request:</label>
+            <input type="number" id="token-req-count" min="1" value="5" placeholder="Enter token amount">
+            <button id="btn-request-tokens">Request Tokens from Admin</button>
+        </div>
+        
+        <hr style="margin: 20px 0;">
+
+        <!-- Token Withdrawal Request -->
+        <div>
+            <h3>Withdraw Tokens</h3>
+            <label for="token-withdraw-count">Amount to Withdraw:</label>
+            <input type="number" id="token-withdraw-count" min="1" placeholder="Enter withdrawal amount">
+            <button id="btn-withdraw-tokens" class="withdraw-btn">Submit Withdrawal Request</button>
+        </div>
+
+        <button id="btn-logout" style="background: #6c757d; margin-top: 20px;">Logout</button>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-section" class="card hidden">
+        <h2>Admin Panel</h2>
+
+        <!-- Game Creation -->
+        <div style="border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
+            <h3>Create New Game</h3>
+            <label>Game Start Time:</label>
+            <input type="datetime-local" id="game-time">
+            
+            <label>Prizes Info:</label>
+            <input type="text" id="game-prizes" placeholder="e.g. Early 5, Top Line, Full House">
+            
+            <label>First Drawn Number Pickup (1-90):</label>
+            <input type="number" id="first-number" min="1" max="90" placeholder="Optional starting number">
+            
+            <button id="btn-create-game">Create Game & Auto-Prune Old Data</button>
+        </div>
+
+        <!-- Pending Deposit Requests -->
+        <div>
+            <h3>Pending Token Requests (Deposits)</h3>
+            <div id="requests-list">Loading deposit requests...</div>
+        </div>
+
+        <hr>
+
+        <!-- Pending Withdrawal Requests -->
+        <div>
+            <h3>Pending Token Withdrawals</h3>
+            <div id="withdrawals-list">Loading withdrawal requests...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs, updateDoc, deleteDoc, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
+            authDomain: "tambola-house-3dc56.firebaseapp.com",
+            projectId: "tambola-house-3dc56",
+            storageBucket: "tambola-house-3dc56.firebasestorage.app",
+            messagingSenderId: "267918174188",
+            appId: "1:267918174188:web:0bf6b47282f1b14d44c2c9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let userTokenBalance = 0;
+        let unsubscribeUserListener = null;
+
+        // Auth Check & Dynamic Loading
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('user-display').innerText = user.email;
+                listenToUserData(user.uid);
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+
+        // Logout
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            if (unsubscribeUserListener) unsubscribeUserListener();
+            signOut(auth);
+        });
+
+        // Sync Balance & Admin Access
+        function listenToUserData(uid) {
+            const userRef = doc(db, "users", uid);
+            unsubscribeUserListener = onSnapshot(userRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    userTokenBalance = data.tokens !== undefined ? data.tokens : 0;
+                    document.getElementById('user-balance').innerText = userTokenBalance;
+
+                    if (data.role === 'admin') {
+                        document.getElementById('user-role').innerText = "Admin";
+                        document.getElementById('admin-section').classList.remove('hidden');
+                        loadPendingRequests();
+                        loadPendingWithdrawals();
+                    } else {
+                        document.getElementById('user-role').innerText = "User";
+                        document.getElementById('admin-section').classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        // Submit Token Deposit Request
+        document.getElementById('btn-request-tokens').addEventListener('click', async () => {
+            const amount = parseInt(document.getElementById('token-req-count').value);
+            if (!amount || amount <= 0) return alert("Enter a valid token amount.");
+            try {
+                await addDoc(collection(db, "token_requests"), {
+                    userId: currentUser.uid,
+                    email: currentUser.email,
+                    tokensRequested: amount,
+                    status: "pending",
+                    createdAt: new Date().toISOString()
+                });
+                alert("Token request sent! Waiting for Admin approval.");
+            } catch (err) { alert(err.message); }
+        });
+
+        // Submit Token Withdrawal Request
+        document.getElementById('btn-withdraw-tokens').addEventListener('click', async () => {
+            const amount = parseInt(document.getElementById('token-withdraw-count').value);
+            if (!amount || amount <= 0) return alert("Enter a valid withdrawal amount.");
+            
+            if (amount > userTokenBalance) {
+                return alert(`Insufficient tokens! You only have ${userTokenBalance} tokens available.`);
+            }
+
+            try {
+                await addDoc(collection(db, "withdrawal_requests"), {
+                    userId: currentUser.uid,
+                    email: currentUser.email,
+                    tokensRequested: amount,
+                    status: "pending",
+                    createdAt: new Date().toISOString()
+                });
+                alert("Withdrawal request sent! Waiting for Admin approval.");
+            } catch (err) { alert(err.message); }
+        });
+
+        // Admin: Load Deposit Requests
+        async function loadPendingRequests() {
+            const q = query(collection(db, "token_requests"), where("status", "==", "pending"));
+            const snapshot = await getDocs(q);
+            const container = document.getElementById('requests-list');
+            container.innerHTML = "";
+
+            if (snapshot.empty) {
+                container.innerHTML = "<p>No pending token requests.</p>";
+                return;
+            }
+
+            snapshot.forEach((reqDoc) => {
+                const data = reqDoc.data();
+                const div = document.createElement('div');
+                div.className = "request-item";
+                div.innerHTML = `
+                    <p><strong>User:</strong> ${data.email}</p>
+                    <p><strong>Tokens Requested:</strong> ${data.tokensRequested}</p>
+                    <button onclick="approveTokenRequest('${reqDoc.id}', '${data.userId}', ${data.tokensRequested})">Approve & Add Tokens</button>
+                    <button class="reject" onclick="rejectTokenRequest('${reqDoc.id}')">Reject</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Admin: Load Withdrawal Requests
+        async function loadPendingWithdrawals() {
+            const q = query(collection(db, "withdrawal_requests"), where("status", "==", "pending"));
+            const snapshot = await getDocs(q);
+            const container = document.getElementById('withdrawals-list');
+            container.innerHTML = "";
+
+            if (snapshot.empty) {
+                container.innerHTML = "<p>No pending withdrawal requests.</p>";
+                return;
+            }
+
+            snapshot.forEach((reqDoc) => {
+                const data = reqDoc.data();
+                const div = document.createElement('div');
+                div.className = "request-item";
+                div.innerHTML = `
+                    <p><strong>User:</strong> ${data.email}</p>
+                    <p><strong>Tokens to Withdraw:</strong> ${data.tokensRequested}</p>
+                    <button class="withdraw-btn" onclick="approveWithdrawalRequest('${reqDoc.id}', '${data.userId}', ${data.tokensRequested})">Approve & Deduct Tokens</button>
+                    <button class="reject" onclick="rejectWithdrawalRequest('${reqDoc.id}')">Reject</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Admin: Approve Token Deposit
+        window.approveTokenRequest = async (requestId, userId, requestedTokens) => {
+            try {
+                const userRef = doc(db, "users", userId);
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    const currentTokens = userSnap.data().tokens || 0;
+                    await updateDoc(userRef, { tokens: currentTokens + requestedTokens });
+                    await updateDoc(doc(db, "token_requests", requestId), { status: "approved" });
+                    alert("Tokens approved and added to user balance!");
+                    loadPendingRequests();
+                }
+            } catch (err) { alert(err.message); }
+        };
+
+        // Admin: Reject Token Deposit
+        window.rejectTokenRequest = async (requestId) => {
+            await updateDoc(doc(db, "token_requests", requestId), { status: "rejected" });
+            alert("Request Rejected!");
+            loadPendingRequests();
+        };
+
+        // Admin: Approve Token Withdrawal (Deducts balance)
+        window.approveWithdrawalRequest = async (requestId, userId, requestedTokens) => {
+            try {
+                const userRef = doc(db, "users", userId);
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    const currentTokens = userSnap.data().tokens || 0;
+                    if (currentTokens < requestedTokens) {
+                        return alert("User does not have enough tokens to complete this withdrawal!");
+                    }
+                    await updateDoc(userRef, { tokens: currentTokens - requestedTokens });
+                    await updateDoc(doc(db, "withdrawal_requests", requestId), { status: "approved" });
+                    alert("Withdrawal approved and tokens deducted from balance!");
+                    loadPendingWithdrawals();
+                }
+            } catch (err) { alert(err.message); }
+        };
+
+        // Admin: Reject Token Withdrawal
+        window.rejectWithdrawalRequest = async (requestId) => {
+            await updateDoc(doc(db, "withdrawal_requests", requestId), { status: "rejected" });
+            alert("Withdrawal Request Rejected!");
+            loadPendingWithdrawals();
+        };
+
+        // Admin: Create Game
+        document.getElementById('btn-create-game').addEventListener('click', async () => {
+            const time = document.getElementById('game-time').value;
+            const prizes = document.getElementById('game-prizes').value;
+            const firstNumber = parseInt(document.getElementById('first-number').value) || null;
+
+            if (!time) return alert("Please select a valid game time.");
+
+            await addDoc(collection(db, "games"), {
+                startTime: time,
+                prizes: prizes,
+                firstNumber: firstNumber,
+                status: "upcoming",
+                createdAt: new Date().toISOString()
+            });
+
+            await pruneGamesData();
+            alert("New game scheduled!");
+        });
+
+        // Auto-Prune Rules (Keep 1 Finished, Max 2 Upcoming)
+        async function pruneGamesData() {
+            const upcomingQ = query(collection(db, "games"), where("status", "==", "upcoming"), orderBy("createdAt", "desc"));
+            const upcomingSnap = await getDocs(upcomingQ);
+            if (upcomingSnap.docs.length > 2) {
+                for (let i = 2; i < upcomingSnap.docs.length; i++) {
+                    await deleteDoc(doc(db, "games", upcomingSnap.docs[i].id));
+                }
+            }
+
+            const finishedQ = query(collection(db, "games"), where("status", "==", "finished"), orderBy("createdAt", "desc"));
+            const finishedSnap = await getDocs(finishedQ);
+            if (finishedSnap.docs.length > 1) {
+                for (let i = 1; i < finishedSnap.docs.length; i++) {
+                    await deleteDoc(doc(db, "games", finishedSnap.docs[i].id));
+                }
+            }
+        }
+    </script>
+</body>
+</html>
