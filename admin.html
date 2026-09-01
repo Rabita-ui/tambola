@@ -1,63 +1,101 @@
-// Add this inside admin.html script section
-async function seed600MasterTickets() {
-    const confirmation = confirm("This will generate and upload 600 Master Tickets to Firestore. Continue?");
-    if (!confirmation) return;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambola Admin - Seed Master Tickets</title>
+</head>
+<body>
 
-    console.log("Generating 600 master tickets...");
-    const masterRef = db.collection("masterTickets");
+    <h2>Admin Master Ticket Seeder</h2>
+    <!-- BUTTON TO TRIGGER THE SEED FUNCTION -->
+    <button onclick="seed600MasterTickets()" style="padding: 12px 24px; font-size: 1rem; cursor: pointer;">
+        Seed 600 Master Tickets
+    </button>
 
-    // Process in two batches of 300 to stay under Firestore's 500 batch limit
-    for (let batchNum = 0; batchNum < 2; batchNum++) {
-        const batch = db.batch();
-        for (let i = 1; i <= 300; i++) {
-            const ticketIndex = batchNum * 300 + i;
-            const ticketId = `ticket_${String(ticketIndex).padStart(3, '0')}`;
-            const ticketGrid = generateTambolaTicket(); // 3x9 grid generator algorithm
+    <!-- FIREBASE LIBRARIES (REQUIRED) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-            const docRef = masterRef.doc(ticketId);
-            batch.set(docRef, {
-                ticketNumber: ticketIndex,
-                grid: ticketGrid,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+    <!-- YOUR JAVASCRIPT CODE MUST BE INSIDE THESE SCRIPT TAGS -->
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
-        await batch.commit();
-        console.log(`Batch ${batchNum + 1}/2 committed (300 tickets).`);
-    }
-    alert("Success! 600 Master Tickets are permanently stored in Firestore.");
-}
+        const db = firebase.firestore();
 
-// Standard 3x9 Tambola Generator Algorithm
-function generateTambolaTicket() {
-    let ticket = Array.from({ length: 3 }, () => Array(9).fill(0));
-    let colRanges = [[1, 9], [10, 19], [20, 29], [30, 39], [40, 49], [50, 59], [60, 69], [70, 79], [80, 90]];
+        // 1. MASTER TICKET SEEDER FUNCTION
+        async function seed600MasterTickets() {
+            const confirmation = confirm("This will generate and upload 600 Master Tickets to Firestore. Continue?");
+            if (!confirmation) return;
 
-    for (let r = 0; r < 3; r++) {
-        let cols = [];
-        while (cols.length < 5) {
-            let col = Math.floor(Math.random() * 9);
-            if (!cols.includes(col)) cols.push(col);
+            console.log("Generating 600 master tickets...");
+            const masterRef = db.collection("masterTickets");
+
+            for (let batchNum = 0; batchNum < 2; batchNum++) {
+                const batch = db.batch();
+                for (let i = 1; i <= 300; i++) {
+                    const ticketIndex = batchNum * 300 + i;
+                    const ticketId = `ticket_${String(ticketIndex).padStart(3, '0')}`;
+                    const ticketGrid = generateTambolaTicket();
+
+                    const docRef = masterRef.doc(ticketId);
+                    batch.set(docRef, {
+                        ticketNumber: ticketIndex,
+                        grid: ticketGrid,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                await batch.commit();
+                console.log(`Batch ${batchNum + 1}/2 committed (300 tickets).`);
+            }
+            alert("Success! 600 Master Tickets are permanently stored in Firestore.");
         }
-        cols.sort((a, b) => a - b);
-        for (let col of cols) {
-            let [min, max] = colRanges[col];
-            let num;
-            do {
-                num = Math.floor(Math.random() * (max - min + 1)) + min;
-            } while (ticket.some(row => row[col] === num));
-            ticket[r][col] = num;
+
+        // 2. TAMBOLA TICKET GENERATOR ALGORITHM
+        function generateTambolaTicket() {
+            let ticket = Array.from({ length: 3 }, () => Array(9).fill(0));
+            let colRanges = [[1, 9], [10, 19], [20, 29], [30, 39], [40, 49], [50, 59], [60, 69], [70, 79], [80, 90]];
+
+            for (let r = 0; r < 3; r++) {
+                let cols = [];
+                while (cols.length < 5) {
+                    let col = Math.floor(Math.random() * 9);
+                    if (!cols.includes(col)) cols.push(col);
+                }
+                cols.sort((a, b) => a - b);
+                for (let col of cols) {
+                    let [min, max] = colRanges[col];
+                    let num;
+                    do {
+                        num = Math.floor(Math.random() * (max - min + 1)) + min;
+                    } while (ticket.some(row => row[col] === num));
+                    ticket[r][col] = num;
+                }
+            }
+            for (let c = 0; c < 9; c++) {
+                let colNums = [];
+                for (let r = 0; r < 3; r++) {
+                    if (ticket[r][c] !== 0) colNums.push(ticket[r][c]);
+                }
+                colNums.sort((a, b) => a - b);
+                let idx = 0;
+                for (let r = 0; r < 3; r++) {
+                    if (ticket[r][c] !== 0) ticket[r][c] = colNums[idx++];
+                }
+            }
+            return ticket;
         }
-    }
-    for (let c = 0; c < 9; c++) {
-        let colNums = [];
-        for (let r = 0; r < 3; r++) {
-            if (ticket[r][c] !== 0) colNums.push(ticket[r][c]);
-        }
-        colNums.sort((a, b) => a - b);
-        let idx = 0;
-        for (let r = 0; r < 3; r++) {
-            if (ticket[r][c] !== 0) ticket[r][c] = colNums[idx++];
-        }
-    }
-    return ticket;
-}
+    </script>
+</body>
+</html>
