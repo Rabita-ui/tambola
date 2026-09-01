@@ -9,7 +9,6 @@
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; max-width: 1000px; margin-left: auto; margin-right: auto; }
         .top-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         
-        /* Board Grid 1-90 */
         .board-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin-top: 15px; }
         .board-cell { background: #e9ecef; border: 1px solid #ccc; height: 38px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 4px; font-size: 0.95em; }
         .board-cell.called { background: #28a745; color: white; border-color: #1e7e34; box-shadow: 0 0 6px rgba(40, 167, 69, 0.5); }
@@ -20,11 +19,9 @@
             100% { transform: scale(1.08); }
         }
 
-        /* Call Display Box */
         .caller-box { background: #212529; color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
         .current-number { font-size: 3.5em; font-weight: bold; color: #ffc107; margin: 10px 0; }
         
-        /* User Tickets Section */
         .tickets-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         .ticket-card { background: #fff; border: 2px solid #007bff; border-radius: 6px; padding: 10px; }
         .ticket-header { font-weight: bold; margin-bottom: 6px; color: #d9534f; display: flex; justify-content: space-between; }
@@ -49,27 +46,33 @@
     <div class="card">
         <div class="top-bar">
             <div>
-                <a href="user.html" class="nav-btn">⬅️ Dashboard</a>
+                <a id="dashboard-link" href="user.html" class="nav-btn">⬅️ Dashboard</a>
                 <h2 style="margin: 10px 0 0 0;">Live Tambola Game</h2>
             </div>
             <div>
-                <span id="player-role" style="font-weight: bold; background: #e0e0e0; padding: 5px 10px; border-radius: 4px;">Player</span>
+                <span id="player-role" style="font-weight: bold; background: #e0e0e0; padding: 5px 10px; border-radius: 4px;">Loading...</span>
             </div>
         </div>
 
-        <!-- Host Admin Controls (Only visible to admin) -->
-        <div id="admin-controls" class="card" style="display: none; background: #fff3cd; border: 1px solid #ffeeba;">
+        <!-- Host Admin Controls -->
+        <div id="admin-controls" class="card" style="display: none; background: #fff3cd; border: 2px solid #ffeeba;">
             <h3 style="margin-top: 0; color: #856404;">⚙️ Host Game Controls</h3>
             <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-                <label><strong>Start From Number:</strong></label>
-                <select id="start-number-select"></select>
+                <div>
+                    <label style="display: block; font-size: 0.85em;"><strong>Start From Number:</strong></label>
+                    <select id="start-number-select"></select>
+                </div>
 
-                <label><strong>Call Interval (Sec):</strong></label>
-                <input type="number" id="call-interval" value="5" min="2" max="30" style="width: 60px;">
+                <div>
+                    <label style="display: block; font-size: 0.85em;"><strong>Interval (Sec):</strong></label>
+                    <input type="number" id="call-interval" value="5" min="2" max="30" style="width: 60px;">
+                </div>
 
-                <button id="btn-start-game" class="btn-success">▶ Start Game</button>
-                <button id="btn-pause-game" class="btn-danger">⏸ Pause</button>
-                <button id="btn-reset-game" style="background: #6c757d;">🔄 Reset Game</button>
+                <div style="margin-top: 15px; display: flex; gap: 8px;">
+                    <button id="btn-start-game" class="btn-success">▶ Start Game</button>
+                    <button id="btn-pause-game" class="btn-danger">⏸ Pause</button>
+                    <button id="btn-reset-game" style="background: #6c757d;">🔄 Reset Game</button>
+                </div>
             </div>
         </div>
 
@@ -100,13 +103,12 @@
         import { doc, setDoc, onSnapshot, collection, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         let currentUser = null;
-        let isAdmin = false;
         let callTimer = null;
 
         // Deterministic Pseudo-Random Generator to create a fixed sequence of numbers 1-90
         function generateFixedSequence() {
             let nums = Array.from({length: 90}, (_, i) => i + 1);
-            let seed = 987654321; // Constant seed guarantees identical sequence everywhere
+            let seed = 987654321;
             
             for (let i = nums.length - 1; i > 0; i--) {
                 let x = Math.sin(seed++) * 10000;
@@ -128,25 +130,35 @@
             boardEl.appendChild(cell);
         }
 
-        // Populate Start Dropdown with the sequence
+        // Populate Start Dropdown with the fixed sequence numbers
         const selectEl = document.getElementById('start-number-select');
         FIXED_SEQUENCE.forEach((num, index) => {
             const opt = document.createElement('option');
             opt.value = index;
-            opt.innerText = `${num} (Seq Pos #${index + 1})`;
+            opt.innerText = `Number ${num} (Position #${index + 1})`;
             selectEl.appendChild(opt);
         });
 
-        // Auth check & state load
+        // Auth Check & Host Detection
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
-                // Simple admin check based on email (Adjust to your admin email)
-                isAdmin = user.email.includes("admin"); 
 
-                if (isAdmin) {
+                // Check URL parameters or referrer to establish Host privilege
+                const urlParams = new URLSearchParams(window.location.search);
+                const isHostParam = urlParams.get('role') === 'host';
+                const isHost = isHostParam || user.email.includes("admin") || document.referrer.includes("admin.html");
+
+                if (isHost) {
                     document.getElementById('player-role').innerText = "HOST / ADMIN";
+                    document.getElementById('player-role').style.background = "#dc3545";
+                    document.getElementById('player-role').style.color = "#ffffff";
                     document.getElementById('admin-controls').style.display = "block";
+                    document.getElementById('dashboard-link').href = "admin.html";
+                } else {
+                    document.getElementById('player-role').innerText = "PLAYER";
+                    document.getElementById('admin-controls').style.display = "none";
+                    document.getElementById('dashboard-link').href = "user.html";
                 }
 
                 loadUserTickets(user.uid);
@@ -156,7 +168,7 @@
             }
         });
 
-        // Live Game State Listener
+        // Listen for live updates
         function listenToGameState() {
             onSnapshot(doc(db, "game_session", "active_game"), (snap) => {
                 if (!snap.exists()) return;
@@ -166,11 +178,9 @@
                 const currentNum = data.currentNumber || "--";
                 const isRunning = data.isRunning || false;
 
-                // Update Caller Display
                 document.getElementById('current-number-display').innerText = currentNum;
                 document.getElementById('game-status-text').innerText = isRunning ? "🔴 GAME IN PROGRESS" : "⏸ GAME PAUSED / STOPPED";
 
-                // Highlight Board Cells
                 for (let i = 1; i <= 90; i++) {
                     const el = document.getElementById(`board-${i}`);
                     el.classList.remove('called', 'current');
@@ -180,22 +190,20 @@
                     }
                 }
 
-                if (currentNum !== "--") {
+                if (currentNum !== "--" && document.getElementById(`board-${currentNum}`)) {
                     document.getElementById(`board-${currentNum}`).classList.add('current');
                 }
             });
         }
 
-        // Host Control Actions
+        // Host Actions
         document.getElementById('btn-start-game').addEventListener('click', () => {
-            if (!isAdmin) return;
             const startIndex = parseInt(selectEl.value);
             const intervalSec = parseInt(document.getElementById('call-interval').value) || 5;
 
             let currentIndex = startIndex;
             let calledNumbers = [];
 
-            // Resume or start clean sequence
             clearInterval(callTimer);
             
             setDoc(doc(db, "game_session", "active_game"), {
@@ -240,7 +248,7 @@
             });
         });
 
-        // Load Booked Tickets for Player Interactive Marking
+        // Load Booked Tickets
         function loadUserTickets(uid) {
             const container = document.getElementById('my-game-tickets');
             const ticketsQuery = query(collection(db, "booked_tickets"), where("userId", "==", uid));
