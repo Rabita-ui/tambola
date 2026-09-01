@@ -28,32 +28,41 @@
         .num-cell.active { background: #27ae60; color: white; }
         
         #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f7f3ee; display: flex; justify-content: center; align-items: center; z-index: 2000; font-weight: bold; font-size: 1.2rem; color: #b35e2e; }
+        #seedStatus { margin-top: 10px; font-weight: bold; color: #7b6856; }
     </style>
 </head>
 <body>
 
 <div id="authOverlay">
-    <i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i> Verifying Admin Access...
+    <i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i> Verifying Access...
 </div>
 
 <div class="container">
     <div class="header">
-        <h1><i class="fas fa-shield-alt"></i> Admin Game Operations</h1>
+        <h1><i class="fas fa-shield-alt"></i> Admin Dashboard</h1>
         <div>
             <a href="index.html" class="btn btn-secondary"><i class="fas fa-home"></i> Home</a>
             <button class="btn btn-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
     </div>
 
-    <!-- GAME SESSION CREATION -->
+    <!-- 1. MASTER SEEDER CARD -->
     <div class="card">
-        <h2><i class="fas fa-plus-circle"></i> Create New Game Session</h2>
-        <p style="margin-bottom: 15px; color: #7b6856;">Creates an active game and copies 600 tickets from masterTemplates.</p>
-        <button class="btn btn-primary" onclick="createNewGame()"><i class="fas fa-play"></i> Initialize Game & Copy 600 Tickets</button>
-        <span id="activeGameStatus" style="margin-left: 15px; font-weight: bold; color: #27ae60;"></span>
+        <h2><i class="fas fa-database"></i> Master Tickets Initialization</h2>
+        <p style="margin-bottom: 15px; color: #7b6856;">Run this once to seed 600 flat-array ticket templates into Firestore.</p>
+        <button class="btn btn-primary" onclick="seed600MasterTickets()"><i class="fas fa-seedling"></i> Seed 600 Master Tickets</button>
+        <div id="seedStatus">Status: Idle</div>
     </div>
 
-    <!-- LIVE NUMBER CALLER -->
+    <!-- 2. GAME SESSION INITIALIZATION -->
+    <div class="card">
+        <h2><i class="fas fa-plus-circle"></i> Create New Game Session</h2>
+        <p style="margin-bottom: 15px; color: #7b6856;">Creates an active game and duplicates tickets from masterTickets into the active game tickets pool.</p>
+        <button class="btn btn-primary" onclick="createNewGame()"><i class="fas fa-play"></i> Initialize Game & Copy 600 Tickets</button>
+        <div id="activeGameStatus" style="margin-top: 10px; font-weight: bold; color: #27ae60;"></div>
+    </div>
+
+    <!-- 3. LIVE NUMBER CALLER -->
     <div class="card">
         <h2><i class="fas fa-bullhorn"></i> Live Caller Controls</h2>
         <div class="current-number" id="displayCurrentNum">--</div>
@@ -85,13 +94,12 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-const ADMIN_EMAIL = "your-admin-email@gmail.com";
 let currentActiveGameId = null;
 
-/* AUTH & ROLE CHECK */
+/* AUTH CHECK */
 auth.onAuthStateChanged((user) => {
-    if (!user || user.email !== ADMIN_EMAIL) {
-        alert("Access Denied: Admin authorization required.");
+    if (!user) {
+        alert("Please log in first!");
         window.location.href = "index.html";
     } else {
         document.getElementById("authOverlay").style.display = "none";
@@ -100,7 +108,7 @@ auth.onAuthStateChanged((user) => {
     }
 });
 
-/* RENDER 1-90 BOARD STRUCTURE */
+/* RENDER 1-90 BOARD GRID STRUCTURE */
 function renderBoardGrid() {
     const grid = document.getElementById("boardGrid");
     grid.innerHTML = "";
@@ -109,7 +117,82 @@ function renderBoardGrid() {
     }
 }
 
-/* CREATE GAME SESSION & COPY 600 MASTER TICKETS */
+/* 1. SEED MASTER TICKETS TO FIRESTORE (FLAT ARRAYS) */
+async function seed600MasterTickets() {
+    const statusDiv = document.getElementById("seedStatus");
+    const confirmAction = confirm("Upload 600 Master Tickets to Firestore?");
+    if (!confirmAction) return;
+
+    statusDiv.style.color = "#7b6856";
+    statusDiv.textContent = "Status: Writing batch 1/2...";
+    const masterRef = db.collection("masterTickets");
+
+    try {
+        for (let batchNum = 0; batchNum < 2; batchNum++) {
+            const batch = db.batch();
+            for (let i = 1; i <= 300; i++) {
+                const ticketIndex = batchNum * 300 + i;
+                const ticketId = `ticket_${String(ticketIndex).padStart(3, '0')}`;
+                const rawGrid = generateTambolaTicket();
+                const flatGrid = rawGrid.flat(); // Flatten 3x9 2D array to 27 1D array
+
+                const docRef = masterRef.doc(ticketId);
+                batch.set(docRef, {
+                    ticketNumber: ticketIndex,
+                    grid: flatGrid,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            await batch.commit();
+            statusDiv.textContent = `Status: Batch ${batchNum + 1}/2 committed (300 tickets)...`;
+        }
+
+        statusDiv.style.color = "#27ae60";
+        statusDiv.textContent = "Status: SUCCESS! 600 Master Tickets uploaded.";
+        alert("600 Master Tickets successfully stored!");
+    } catch (err) {
+        console.error(err);
+        statusDiv.style.color = "#c0392b";
+        statusDiv.textContent = "Status: Error - " + err.message;
+    }
+}
+
+/* 2. TAMBOLA TICKET GENERATION ALGORITHM */
+function generateTambolaTicket() {
+    let ticket = Array.from({ length: 3 }, () => Array(9).fill(0));
+    let colRanges = [[1, 9], [10, 19], [20, 29], [30, 39], [40, 49], [50, 59], [60, 69], [70, 79], [80, 90]];
+
+    for (let r = 0; r < 3; r++) {
+        let cols = [];
+        while (cols.length < 5) {
+            let col = Math.floor(Math.random() * 9);
+            if (!cols.includes(col)) cols.push(col);
+        }
+        cols.sort((a, b) => a - b);
+        for (let col of cols) {
+            let [min, max] = colRanges[col];
+            let num;
+            do {
+                num = Math.floor(Math.random() * (max - min + 1)) + min;
+            } while (ticket.some(row => row[col] === num));
+            ticket[r][col] = num;
+        }
+    }
+    for (let c = 0; c < 9; c++) {
+        let colNums = [];
+        for (let r = 0; r < 3; r++) {
+            if (ticket[r][c] !== 0) colNums.push(ticket[r][c]);
+        }
+        colNums.sort((a, b) => a - b);
+        let idx = 0;
+        for (let r = 0; r < 3; r++) {
+            if (ticket[r][c] !== 0) ticket[r][c] = colNums[idx++];
+        }
+    }
+    return ticket;
+}
+
+/* 3. CREATE GAME SESSION & COPY MASTER TICKETS */
 async function createNewGame() {
     try {
         const gameRef = await db.collection("games").add({
@@ -120,7 +203,6 @@ async function createNewGame() {
         });
 
         currentActiveGameId = gameRef.id;
-
         const masterSnapshot = await db.collection("masterTickets").get();
         let batch = db.batch();
         let count = 0;
@@ -134,7 +216,6 @@ async function createNewGame() {
                 ticketNumber: masterData.ticketNumber,
                 grid: masterData.grid,
                 ownerUid: null,
-                ownerEmail: null,
                 isPurchased: false
             });
 
@@ -150,13 +231,13 @@ async function createNewGame() {
         }
 
         document.getElementById("activeGameStatus").textContent = `Active Game ID: ${currentActiveGameId}`;
-        alert(`Game Started! Session ID: ${currentActiveGameId} initialized with 600 ticket copies.`);
+        alert(`Game Started! ID: ${currentActiveGameId} initialized.`);
     } catch (err) {
-        alert("Error initializing game: " + err.message);
+        alert("Error starting game: " + err.message);
     }
 }
 
-/* LISTEN TO CURRENT ACTIVE GAME REAL-TIME */
+/* 4. LISTEN TO ACTIVE GAME STATE */
 function listenToActiveGame() {
     db.collection("games").where("status", "==", "active").limit(1).onSnapshot((snapshot) => {
         if (!snapshot.empty) {
@@ -167,10 +248,9 @@ function listenToActiveGame() {
             document.getElementById("activeGameStatus").textContent = `Active Game ID: ${currentActiveGameId}`;
             document.getElementById("displayCurrentNum").textContent = data.currentNumber || "--";
 
-            // Highlight drawn numbers on board
             for (let i = 1; i <= 90; i++) {
                 const cell = document.getElementById(`num-${i}`);
-                if (data.drawnNumbers.includes(i)) {
+                if (data.drawnNumbers && data.drawnNumbers.includes(i)) {
                     cell.classList.add("active");
                 } else {
                     cell.classList.remove("active");
@@ -180,21 +260,15 @@ function listenToActiveGame() {
     });
 }
 
-/* DRAW NEXT RANDOM NUMBER */
+/* 5. DRAW RANDOM NUMBER */
 async function drawNextNumber() {
-    if (!currentActiveGameId) {
-        alert("Please create or select an active game session first!");
-        return;
-    }
+    if (!currentActiveGameId) return alert("Create an active game session first!");
 
     const gameRef = db.collection("games").doc(currentActiveGameId);
     const gameDoc = await gameRef.get();
     const drawn = gameDoc.data().drawnNumbers || [];
 
-    if (drawn.length >= 90) {
-        alert("All 90 numbers have been drawn for this game!");
-        return;
-    }
+    if (drawn.length >= 90) return alert("All 90 numbers have been drawn!");
 
     let nextNum;
     do {
@@ -212,325 +286,5 @@ function logout() {
 }
 </script>
 
-</body>
-</html>                        <input type="text" id="game-prizes" placeholder="10,10,10,50" class="form-control">
-                    </div>
-                    <button id="btn-create-game" class="btn btn-primary w-100">Create & Initialize Game</button>
-                </div>
-
-                <!-- Approvals Section -->
-                <div class="card p-3">
-                    <h4>Token Requests Approval</h4>
-                    <div id="token-requests-container">
-                        <p class="text-muted">Loading requests...</p>
-                    </div>
-                </div>
-
-                <div class="card p-3">
-                    <h4>Withdrawal Requests Approval</h4>
-                    <div id="withdrawal-requests-container">
-                        <p class="text-muted">Loading requests...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column: Live Host Controls & Master Board -->
-            <div class="col-lg-7">
-                <div class="card p-3 border-danger">
-                    <h4 class="text-danger">Live Game Host Controls</h4>
-                    
-                    <div class="current-call-box mb-3">
-                        <div style="font-size: 0.9rem; color: #fff;">CURRENT NUMBER</div>
-                        <div id="current-number-display">--</div>
-                    </div>
-
-                    <div id="game-status-text" class="fw-bold mb-3 text-center text-muted">GAME PAUSED / STOPPED</div>
-
-                    <div class="mb-3">
-                        <label for="start-number-select" class="form-label">Start Position in Sequence</label>
-                        <select id="start-number-select" class="form-control"></select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="call-interval" class="form-label">Call Interval (Seconds)</label>
-                        <input type="number" id="call-interval" value="5" min="1" max="30" class="form-control">
-                    </div>
-
-                    <div class="d-grid gap-2 mb-4">
-                        <button id="btn-start-game" class="btn btn-success">▶ Start Draw</button>
-                        <button id="btn-pause-game" class="btn btn-warning">⏸ Pause Draw</button>
-                        <button id="btn-reset-game" class="btn btn-danger">🔄 Reset Board</button>
-                    </div>
-
-                    <h5 class="text-center">Master Board (1-90)</h5>
-                    <div id="master-board" class="board-grid"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script type="module">
-        import { auth, db } from "./firebase-config.js";
-        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { collection, doc, setDoc, addDoc, getDocs, getDoc, deleteDoc, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        let callTimer = null;
-
-        function generateFixedSequence() {
-            let nums = Array.from({length: 90}, (_, i) => i + 1);
-            let seed = 987654321;
-            for (let i = nums.length - 1; i > 0; i--) {
-                let x = Math.sin(seed++) * 10000;
-                let j = Math.floor((x - Math.floor(x)) * (i + 1));
-                [nums[i], nums[j]] = [nums[j], nums[i]];
-            }
-            return nums;
-        }
-
-        const FIXED_SEQUENCE = generateFixedSequence();
-
-        // Build Master Board UI
-        const boardEl = document.getElementById('master-board');
-        for (let i = 1; i <= 90; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'board-cell';
-            cell.id = `board-${i}`;
-            cell.innerText = i;
-            boardEl.appendChild(cell);
-        }
-
-        // Populate Sequence Select Dropdown
-        const selectEl = document.getElementById('start-number-select');
-        FIXED_SEQUENCE.forEach((num, index) => {
-            const opt = document.createElement('option');
-            opt.value = index;
-            opt.innerText = `Number ${num} (Position #${index + 1})`;
-            selectEl.appendChild(opt);
-        });
-
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                window.location.href = "index.html";
-            } else {
-                listenToGameState();
-            }
-        });
-
-        document.getElementById('btn-logout').addEventListener('click', () => {
-            signOut(auth).then(() => { window.location.href = "index.html"; });
-        });
-
-        document.getElementById('btn-create-game').addEventListener('click', async () => {
-            const startTime = document.getElementById('game-start-time').value;
-            const prizes = document.getElementById('game-prizes').value;
-
-            if (!startTime || !prizes) {
-                alert("Please fill out all game fields.");
-                return;
-            }
-
-            try {
-                // 1. Create a new entry in the 'games' collection (or active_game)
-                const gameRef = await addDoc(collection(db, "games"), {
-                    startTime: startTime,
-                    prizes: prizes,
-                    status: "upcoming",
-                    createdAt: new Date().toISOString(),
-                    currentNumber: "--",
-                    calledNumbers: [],
-                    isRunning: false
-                });
-                
-                const gameId = gameRef.id;
-
-                // Also keep/update active_game reference if needed by your host panel controls
-                await setDoc(doc(db, "games", "active_game"), {
-                    gameId: gameId,
-                    startTime: startTime,
-                    prizes: prizes,
-                    status: "upcoming",
-                    createdAt: new Date().toISOString(),
-                    currentNumber: "--",
-                    calledNumbers: [],
-                    isRunning: false
-                }, { merge: true });
-
-                // 2. Fetch master tickets pool (e.g., your 600 master tickets) and generate permanent copies for this game
-                const masterSnap = await getDocs(collection(db, "master_tickets"));
-                
-                if (masterSnap.empty) {
-                    alert("Game created, but no master tickets were found in the database to clone!");
-                    return;
-                }
-
-                let batch = writeBatch(db);
-                let operationCount = 0;
-
-                for (const masterDoc of masterSnap.docs) {
-                    const masterData = masterDoc.data();
-                    const gameTicketRef = doc(collection(db, "booked_tickets")); // or a designated game_tickets collection depending on setup
-                    
-                    batch.set(gameTicketRef, {
-                        gameId: gameId,
-                        ticketNo: masterData.ticketNo,
-                        numbersString: masterData.numbersString,
-                        status: "available",
-                        bookedBy: null,
-                        bookedAt: null
-                    });
-
-                    operationCount++;
-                    if (operationCount >= 400) {
-                        await batch.commit();
-                        batch = writeBatch(db);
-                        operationCount = 0;
-                    }
-                }
-
-                if (operationCount > 0) {
-                    await batch.commit();
-                }
-
-                alert("Game created and master ticket copies successfully generated for this game!");
-            } catch (err) {
-                console.error("Error creating game and tickets:", err);
-                alert("Failed to create game: " + err.message);
-            }
-        });
-
-        function listenToGameState() {
-            onSnapshot(doc(db, "games", "active_game"), (snap) => {
-                if (!snap.exists()) return;
-                const data = snap.data();
-                const calledNumbers = data.calledNumbers || [];
-                const currentNum = data.currentNumber || "--";
-                const isRunning = data.isRunning || false;
-
-                document.getElementById('current-number-display').innerText = currentNum;
-                document.getElementById('game-status-text').innerText = isRunning ? "🔴 GAME IN PROGRESS" : "⏸ GAME PAUSED / STOPPED";
-
-                for (let i = 1; i <= 90; i++) {
-                    const el = document.getElementById(`board-${i}`);
-                    el.classList.remove('called', 'current');
-                    if (calledNumbers.includes(i)) {
-                        el.classList.add('called');
-                    }
-                }
-
-                if (currentNum !== "--" && document.getElementById(`board-${currentNum}`)) {
-                    document.getElementById(`board-${currentNum}`).classList.add('current');
-                }
-            });
-        }
-
-        document.getElementById('btn-start-game').addEventListener('click', async () => {
-            try {
-                const startIndex = parseInt(selectEl.value) || 0;
-                const intervalSec = parseInt(document.getElementById('call-interval').value) || 5;
-                let currentIndex = startIndex;
-                let calledNumbers = [];
-
-                clearInterval(callTimer);
-                
-                await setDoc(doc(db, "games", "active_game"), {
-                    isRunning: true,
-                    startIndex: startIndex,
-                    intervalSec: intervalSec,
-                    lastUpdated: new Date().toISOString()
-                }, { merge: true });
-
-                callTimer = setInterval(async () => {
-                    if (currentIndex >= FIXED_SEQUENCE.length) {
-                        clearInterval(callTimer);
-                        alert("All 90 numbers called!");
-                        return;
-                    }
-
-                    const numToCall = FIXED_SEQUENCE[currentIndex];
-                    calledNumbers.push(numToCall);
-
-                    await setDoc(doc(db, "games", "active_game"), {
-                        currentNumber: numToCall,
-                        calledNumbers: calledNumbers,
-                        isRunning: true
-                    }, { merge: true });
-
-                    currentIndex++;
-                }, intervalSec * 1000);
-            } catch (error) {
-                console.error("Start Game Error:", error);
-                alert("Failed to start game: " + error.message);
-            }
-        });
-
-        document.getElementById('btn-pause-game').addEventListener('click', async () => {
-            clearInterval(callTimer);
-            await setDoc(doc(db, "games", "active_game"), { isRunning: false }, { merge: true });
-        });
-
-        document.getElementById('btn-reset-game').addEventListener('click', async () => {
-            if (!confirm("Reset game board for everyone?")) return;
-            clearInterval(callTimer);
-            await setDoc(doc(db, "games", "active_game"), {
-                currentNumber: "--",
-                calledNumbers: [],
-                isRunning: false
-            }, { merge: true });
-        });
-
-        // Load Token Requests
-        const tokenContainer = document.getElementById('token-requests-container');
-        onSnapshot(collection(db, "token_requests"), (snapshot) => {
-            if (snapshot.empty) {
-                tokenContainer.innerHTML = "<p class='text-muted'>No pending token requests.</p>";
-                return;
-            }
-            tokenContainer.innerHTML = "";
-            snapshot.forEach((docSnap) => {
-                const req = docSnap.data();
-                const div = document.createElement('div');
-                div.className = "d-flex justify-content-between align-items-center border-bottom py-2";
-                div.innerHTML = `<span>User: ${req.userId || 'Unknown'} - Amt: ${req.amount || 0}</span>
-                                 <button class="btn btn-success btn-sm" onclick="approveToken('${docSnap.id}', '${req.userId}', ${req.amount || 0})">Approve</button>`;
-                tokenContainer.appendChild(div);
-            });
-        }, (error) => {
-            console.error("Error loading token requests:", error);
-            tokenContainer.innerHTML = `<p class='text-danger'>Error loading requests: ${error.message}</p>`;
-        });
-
-        window.approveToken = async function(reqId, userId, amount) {
-            try {
-                if (!userId || userId === 'undefined' || userId === 'null') {
-                    alert("Error: User ID is missing from this request!");
-                    return;
-                }
-
-                const userRef = doc(db, "users", userId);
-                const userSnap = await getDoc(userRef);
-
-                let currentBalance = 0;
-                if (userSnap.exists()) {
-                    const data = userSnap.data();
-                    currentBalance = Number(data.wallet || data.balance || data.tokens) || 0;
-                }
-
-                const newBalance = currentBalance + Number(amount);
-
-                await setDoc(userRef, {
-                    wallet: newBalance,
-                    balance: newBalance,
-                    tokens: newBalance
-                }, { merge: true });
-
-                await deleteDoc(doc(db, "token_requests", reqId));
-
-                alert(`Successfully approved and credited ${amount} tokens to user!`);
-            } catch (err) {
-                console.error("Approval & Credit Error:", err);
-                alert("Failed to credit tokens: " + err.message);
-            }
-        };
-    </script>
 </body>
 </html>
