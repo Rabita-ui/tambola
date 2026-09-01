@@ -21,7 +21,7 @@
         </div>
 
         <div class="card p-3 mb-4">
-            <h4>All Game Draws & Status</h4>
+            <h4>Latest Game Draws (Showing up to 3)</h4>
             <div id="available-games-container">
                 <p class="text-muted">Loading game draws...</p>
             </div>
@@ -31,24 +31,24 @@
     <script type="module">
         import { auth, db } from "./firebase-config.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { collection, getDocs, query, orderBy, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { collection, getDocs, query, orderBy, limit, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         let currentUser = null;
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                loadAllGames();
+                loadLatestGames();
             } else {
                 window.location.href = "index.html";
             }
         });
 
-        async function loadAllGames() {
+        async function loadLatestGames() {
             const container = document.getElementById('available-games-container');
             try {
                 const now = new Date();
-                const q = query(collection(db, "games"), orderBy("createdAt", "desc"));
+                const q = query(collection(db, "games"), orderBy("createdAt", "desc"), limit(3));
                 const snapshot = await getDocs(q);
 
                 if (snapshot.empty) {
