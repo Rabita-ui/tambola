@@ -93,7 +93,7 @@
     <script type="module">
         import { auth, db } from "./firebase-config.js";
         import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { collection, doc, setDoc, getDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { collection, doc, setDoc, addDoc, getDocs, getDoc, deleteDoc, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         let callTimer = null;
 
@@ -151,7 +151,22 @@
             }
 
             try {
+                // 1. Create a new entry in the 'games' collection (or active_game)
+                const gameRef = await addDoc(collection(db, "games"), {
+                    startTime: startTime,
+                    prizes: prizes,
+                    status: "upcoming",
+                    createdAt: new Date().toISOString(),
+                    currentNumber: "--",
+                    calledNumbers: [],
+                    isRunning: false
+                });
+                
+                const gameId = gameRef.id;
+
+                // Also keep/update active_game reference if needed by your host panel controls
                 await setDoc(doc(db, "games", "active_game"), {
+                    gameId: gameId,
                     startTime: startTime,
                     prizes: prizes,
                     status: "upcoming",
@@ -161,9 +176,45 @@
                     isRunning: false
                 }, { merge: true });
 
-                alert("Game created and initialized successfully!");
+                // 2. Fetch master tickets pool (e.g., your 600 master tickets) and generate permanent copies for this game
+                const masterSnap = await getDocs(collection(db, "master_tickets"));
+                
+                if (masterSnap.empty) {
+                    alert("Game created, but no master tickets were found in the database to clone!");
+                    return;
+                }
+
+                let batch = writeBatch(db);
+                let operationCount = 0;
+
+                for (const masterDoc of masterSnap.docs) {
+                    const masterData = masterDoc.data();
+                    const gameTicketRef = doc(collection(db, "booked_tickets")); // or a designated game_tickets collection depending on setup
+                    
+                    batch.set(gameTicketRef, {
+                        gameId: gameId,
+                        ticketNo: masterData.ticketNo,
+                        numbersString: masterData.numbersString,
+                        status: "available",
+                        bookedBy: null,
+                        bookedAt: null
+                    });
+
+                    operationCount++;
+                    if (operationCount >= 400) {
+                        await batch.commit();
+                        batch = writeBatch(db);
+                        operationCount = 0;
+                    }
+                }
+
+                if (operationCount > 0) {
+                    await batch.commit();
+                }
+
+                alert("Game created and master ticket copies successfully generated for this game!");
             } catch (err) {
-                console.error("Error creating game:", err);
+                console.error("Error creating game and tickets:", err);
                 alert("Failed to create game: " + err.message);
             }
         });
@@ -245,7 +296,7 @@
                 currentNumber: "--",
                 calledNumbers: [],
                 isRunning: false
-            });
+            }, { merge: true });
         });
 
         // Load Token Requests
@@ -269,49 +320,38 @@
             tokenContainer.innerHTML = `<p class='text-danger'>Error loading requests: ${error.message}</p>`;
         });
 
-       window.approveToken = async function(reqId, userId, amount) {
-    console.log("Approving Request ID:", reqId);
-    console.log("Target User ID:", userId);
-    console.log("Requested Amount:", amount);
+        window.approveToken = async function(reqId, userId, amount) {
+            try {
+                if (!userId || userId === 'undefined' || userId === 'null') {
+                    alert("Error: User ID is missing from this request!");
+                    return;
+                }
 
-    try {
-        if (!userId || userId === 'undefined' || userId === 'null') {
-            alert("Error: User ID is missing from this request!");
-            return;
-        }
+                const userRef = doc(db, "users", userId);
+                const userSnap = await getDoc(userRef);
 
-        const userRef = doc(db, "users", userId);
-        const userSnap = await getDoc(userRef);
+                let currentBalance = 0;
+                if (userSnap.exists()) {
+                    const data = userSnap.data();
+                    currentBalance = Number(data.wallet || data.balance || data.tokens) || 0;
+                }
 
-        let currentBalance = 0;
-        if (userSnap.exists()) {
-            const data = userSnap.data();
-            // Check whichever field name your user app uses
-            currentBalance = Number(data.wallet || data.balance || data.tokens) || 0;
-            console.log("Existing user data found:", data);
-        } else {
-            console.warn("No user document found with ID:", userId, "- Creating one now.");
-        }
+                const newBalance = currentBalance + Number(amount);
 
-        const newBalance = currentBalance + Number(amount);
-        console.log("New calculated balance:", newBalance);
+                await setDoc(userRef, {
+                    wallet: newBalance,
+                    balance: newBalance,
+                    tokens: newBalance
+                }, { merge: true });
 
-        // Update wallet, balance, and tokens all at once to match your app's code
-        await setDoc(userRef, {
-            wallet: newBalance,
-            balance: newBalance,
-            tokens: newBalance
-        }, { merge: true });
+                await deleteDoc(doc(db, "token_requests", reqId));
 
-        // Delete the pending request after successful credit
-        await deleteDoc(doc(db, "token_requests", reqId));
-
-        alert(`Successfully approved and credited ${amount} tokens to user!`);
-    } catch (err) {
-        console.error("Approval & Credit Error:", err);
-        alert("Failed to credit tokens: " + err.message);
-    }
-};
+                alert(`Successfully approved and credited ${amount} tokens to user!`);
+            } catch (err) {
+                console.error("Approval & Credit Error:", err);
+                alert("Failed to credit tokens: " + err.message);
+            }
+        };
     </script>
 </body>
 </html>
