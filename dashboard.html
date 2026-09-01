@@ -24,12 +24,21 @@
         .btn-launch { display: inline-block; background: #b35e2e; color: white; text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; margin-top: 15px; transition: opacity 0.2s ease; }
         .btn-launch:hover { opacity: 0.9; }
 
+        /* WINNER & GAME HISTORY STYLES */
         .winner-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .winner-table th, .winner-table td { text-align: left; padding: 12px; border-bottom: 1px solid #ded4c9; font-size: 0.95rem; }
         .winner-table th { color: #7b6856; font-weight: 700; background: #faf8f5; }
         .winner-table td strong { color: #b35e2e; }
         .badge-prize { background: #f6f1eb; color: #2d1f14; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; border: 1px solid #ded4c9; }
         .empty-history { text-align: center; color: #a89a8c; padding: 25px; font-style: italic; }
+
+        /* RECENT GAME CARDS */
+        .history-card { background: #faf5ef; border: 1px solid #e2d7ca; border-radius: 12px; padding: 15px; margin-bottom: 12px; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .history-title { font-weight: 700; color: #b35e2e; font-size: 0.95rem; }
+        .history-date { font-size: 0.8rem; color: #7b6856; }
+        .numbers-pill-container { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; max-height: 100px; overflow-y: auto; }
+        .number-pill { background: #2d1f14; color: #fff; font-size: 0.75rem; font-weight: bold; padding: 3px 7px; border-radius: 6px; }
 
         @media (max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
     </style>
@@ -65,8 +74,17 @@
             </div>
         </div>
 
-        <!-- RIGHT PANEL: WINNER HISTORY LOG -->
+        <!-- RIGHT PANEL: PAST GAMES & WINNER LOG -->
         <div>
+            <!-- PAST 2 GAMES HISTORY -->
+            <div class="card">
+                <h2><i class="fas fa-history"></i> Recent Finished Games (Winning Numbers)</h2>
+                <div id="pastGamesContainer">
+                    <div class="empty-history">Loading finished games history...</div>
+                </div>
+            </div>
+
+            <!-- WINNER LOG -->
             <div class="card">
                 <h2><i class="fas fa-trophy"></i> Winner History Log</h2>
                 <div id="winnerLogContainer">
@@ -117,7 +135,42 @@ function listenToDashboard() {
         }
     });
 
-    // 2. Real-time listener for Winner History
+    // 2. Real-time listener for the 2 Latest Finished Games
+    db.collection("games_history").orderBy("timestamp", "desc").limit(2).onSnapshot((snapshot) => {
+        const container = document.getElementById("pastGamesContainer");
+
+        if (snapshot.empty) {
+            container.innerHTML = '<div class="empty-history">No finished game history available.</div>';
+            return;
+        }
+
+        let html = "";
+        snapshot.docs.forEach((doc, index) => {
+            const game = doc.data();
+            const timeStr = game.timestamp ? new Date(game.timestamp.toDate()).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : "Recently";
+            const drawn = game.drawnNumbers || [];
+
+            html += `
+                <div class="history-card">
+                    <div class="history-header">
+                        <span class="history-title"><i class="fas fa-check-circle"></i> Completed Game #${snapshot.docs.length - index}</span>
+                        <span class="history-date">${timeStr}</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #7b6856; margin-bottom: 6px;">
+                        <strong>Total Numbers Drawn:</strong> ${game.totalDrawn || drawn.length}
+                    </p>
+                    <div style="font-size: 0.8rem; font-weight: bold; color: #2d1f14;">Winning Ticket Numbers Drawn:</div>
+                    <div class="numbers-pill-container">
+                        ${drawn.map(num => `<span class="number-pill">${num}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    });
+
+    // 3. Real-time listener for Winner History
     db.collection("winners").orderBy("timestamp", "desc").limit(20).onSnapshot((snapshot) => {
         const container = document.getElementById("winnerLogContainer");
 
