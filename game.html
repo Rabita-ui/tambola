@@ -17,21 +17,25 @@
         .btn-primary { background: #b35e2e; color: white; }
         .btn-secondary { background: #7b6856; color: white; }
         .btn-success { background: #27ae60; color: white; }
+        .btn-claim { background: #f39c12; color: white; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; border: none; }
+        .btn-claim:disabled { background: #bdc3c7; cursor: not-allowed; }
 
         .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,.07); margin-bottom: 25px; }
         .card h2 { font-size: 1.3rem; margin-bottom: 15px; color: #b35e2e; border-bottom: 2px solid #f6f1eb; padding-bottom: 10px; }
 
-        /* LIVE CALLER DISPLAY */
         .caller-box { text-align: center; background: #f6f1eb; padding: 20px; border-radius: 16px; margin-bottom: 20px; }
         .current-num { font-size: 3.5rem; font-weight: 800; color: #b35e2e; }
 
-        /* TAMBOLA TICKET GRID (3x9) */
+        /* TICKET GRID */
         .ticket-container { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; background: #2d1f14; padding: 12px; border-radius: 14px; max-width: 550px; margin: 20px auto; }
         .ticket-cell { background: white; height: 50px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; border-radius: 6px; cursor: pointer; user-select: none; }
         .ticket-cell.empty { background: #ded4c9; cursor: default; }
         .ticket-cell.marked { background: #e74c3c; color: white; text-decoration: line-through; }
 
-        /* LIVE 1-90 BOARD */
+        /* CLAIMS BAR */
+        .claims-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 15px; }
+
+        /* 1-90 BOARD */
         .board-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-top: 10px; }
         .board-cell { background: #f6f1eb; padding: 6px 0; border-radius: 4px; text-align: center; font-weight: bold; font-size: 0.8rem; color: #ded4c9; }
         .board-cell.active { background: #27ae60; color: white; }
@@ -44,11 +48,11 @@
         <h1><i class="fas fa-gamepad"></i> Game Room</h1>
         <div>
             <span style="margin-right: 15px; font-weight: 600;"><i class="fas fa-coins" style="color: #f39c12;"></i> Balance: <strong id="userTokens">0</strong></span>
-            <a href="index.html" class="btn btn-secondary"><i class="fas fa-home"></i> Home</a>
+            <a href="user.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Dashboard</a>
         </div>
     </div>
 
-    <!-- LIVE CALLER PANEL -->
+    <!-- CALLER PANEL -->
     <div class="card">
         <div class="caller-box">
             <div style="font-size: 0.9rem; font-weight: bold; color: #7b6856;">CURRENT NUMBER</div>
@@ -59,14 +63,23 @@
             <button class="btn btn-success" id="buyBtn" onclick="buyTicket()"><i class="fas fa-ticket-alt"></i> Buy Ticket (10 Tokens)</button>
         </div>
 
-        <!-- TICKET RENDER AREA -->
+        <!-- TICKET VIEW & CLAIMS -->
         <div id="ticketWrapper" style="display: none;">
             <h3 style="text-align: center; margin-top: 20px; color: #7b6856;" id="ticketNumLabel">Your Ticket</h3>
             <div class="ticket-container" id="ticketGrid"></div>
+
+            <h4 style="text-align: center; color: #b35e2e; margin-top: 15px;">Claim Prizes</h4>
+            <div class="claims-grid">
+                <button class="btn-claim" onclick="claimPrize('Early 5')">Early 5</button>
+                <button class="btn-claim" onclick="claimPrize('Top Line')">Top Line</button>
+                <button class="btn-claim" onclick="claimPrize('Middle Line')">Middle Line</button>
+                <button class="btn-claim" onclick="claimPrize('Bottom Line')">Bottom Line</button>
+                <button class="btn-claim" onclick="claimPrize('Full House')">Full House</button>
+            </div>
         </div>
     </div>
 
-    <!-- LIVE 1-90 BOARD -->
+    <!-- 1-90 BOARD -->
     <div class="card">
         <h2><i class="fas fa-th"></i> Drawn Numbers Board</h2>
         <div class="board-grid" id="mainBoard"></div>
@@ -93,32 +106,27 @@ const db = firebase.firestore();
 
 let activeGameId = null;
 let currentUserId = null;
+let drawnNumbersList = [];
+let userTicketFlatGrid = [];
 
-// Build 1-90 board UI
+// Build 1-90 board
 const mainBoard = document.getElementById("mainBoard");
 for (let i = 1; i <= 90; i++) {
     mainBoard.innerHTML += `<div class="board-cell" id="b-${i}">${i}</div>`;
 }
 
-/* AUTH & INITIALIZATION */
 auth.onAuthStateChanged((user) => {
     if (!user) {
-        alert("Please log in on index.html first!");
         window.location.href = "index.html";
     } else {
         currentUserId = user.uid;
-        
-        // Listen to User Tokens
         db.collection("users").doc(user.uid).onSnapshot(doc => {
             if (doc.exists) document.getElementById("userTokens").textContent = doc.data().tokens || 0;
         });
-
-        // Listen to Active Game
         listenToActiveGame();
     }
 });
 
-/* LISTEN TO ACTIVE GAME SESSION */
 function listenToActiveGame() {
     db.collection("games").where("status", "==", "active").limit(1).onSnapshot(snapshot => {
         if (snapshot.empty) {
@@ -130,37 +138,29 @@ function listenToActiveGame() {
         activeGameId = gameDoc.id;
         const gameData = gameDoc.data();
 
+        drawnNumbersList = gameData.drawnNumbers || [];
         document.getElementById("liveNum").textContent = gameData.currentNumber || "--";
 
-        // Highlight board cells
         for (let i = 1; i <= 90; i++) {
             const cell = document.getElementById(`b-${i}`);
-            if (gameData.drawnNumbers && gameData.drawnNumbers.includes(i)) {
+            if (drawnNumbersList.includes(i)) {
                 cell.classList.add("active");
             } else {
                 cell.classList.remove("active");
             }
         }
 
-        // Check if user already owns a ticket in this game
         checkUserTicket();
     });
 }
 
-/* BUY TICKET FOR ACTIVE GAME */
 async function buyTicket() {
-    if (!activeGameId) {
-        alert("No active game session found! Ask Admin to start a game.");
-        return;
-    }
+    if (!activeGameId) return alert("No active game found!");
 
     const availableRef = db.collection("games").doc(activeGameId).collection("gameTickets");
     const snapshot = await availableRef.where("isPurchased", "==", false).limit(1).get();
 
-    if (snapshot.empty) {
-        alert("All tickets for this game are sold out!");
-        return;
-    }
+    if (snapshot.empty) return alert("All tickets are sold out!");
 
     const ticketDoc = snapshot.docs[0];
 
@@ -170,7 +170,7 @@ async function buyTicket() {
             const userDoc = await transaction.get(userRef);
             const tokens = userDoc.data().tokens || 0;
 
-            if (tokens < 10) throw new Error("Not enough tokens! You need 10 tokens.");
+            if (tokens < 10) throw new Error("Not enough tokens!");
 
             transaction.update(userRef, { tokens: tokens - 10 });
             transaction.update(ticketDoc.ref, {
@@ -181,30 +181,30 @@ async function buyTicket() {
         });
 
         alert(`Ticket #${ticketDoc.data().ticketNumber} purchased!`);
-        renderTicket(ticketDoc.data().grid, ticketDoc.data().ticketNumber);
+        userTicketFlatGrid = ticketDoc.data().grid;
+        renderTicket(userTicketFlatGrid, ticketDoc.data().ticketNumber);
     } catch (err) {
         alert("Error: " + err.message);
     }
 }
 
-/* CHECK IF USER ALREADY HAS A TICKET IN THIS GAME */
 async function checkUserTicket() {
     if (!activeGameId || !currentUserId) return;
     
-    const userTicketSnapshot = await db.collection("games").doc(activeGameId)
+    const snapshot = await db.collection("games").doc(activeGameId)
         .collection("gameTickets")
         .where("ownerUid", "==", currentUserId)
         .limit(1)
         .get();
 
-    if (!userTicketSnapshot.empty) {
-        const tData = userTicketSnapshot.docs[0].data();
-        renderTicket(tData.grid, tData.ticketNumber);
+    if (!snapshot.empty) {
+        const tData = snapshot.docs[0].data();
+        userTicketFlatGrid = tData.grid;
+        renderTicket(userTicketFlatGrid, tData.ticketNumber);
         document.getElementById("buyBtn").style.display = "none";
     }
 }
 
-/* RENDER 3x9 TICKET GRID FROM 27-ITEM FLAT ARRAY */
 function renderTicket(flatGrid, ticketNum) {
     document.getElementById("ticketWrapper").style.display = "block";
     document.getElementById("ticketNumLabel").textContent = `Your Ticket (#${ticketNum})`;
@@ -218,6 +218,43 @@ function renderTicket(flatGrid, ticketNum) {
             gridDiv.innerHTML += `<div class="ticket-cell" onclick="this.classList.toggle('marked')">${val}</div>`;
         }
     });
+}
+
+/* WINNING CLAIM VALIDATION LOGIC */
+async function claimPrize(claimType) {
+    if (!userTicketFlatGrid.length) return;
+
+    const row1 = userTicketFlatGrid.slice(0, 9).filter(n => n !== 0);
+    const row2 = userTicketFlatGrid.slice(9, 18).filter(n => n !== 0);
+    const row3 = userTicketFlatGrid.slice(18, 27).filter(n => n !== 0);
+    const allNums = [...row1, ...row2, ...row3];
+
+    let isValid = false;
+
+    if (claimType === 'Early 5') {
+        const matched = allNums.filter(num => drawnNumbersList.includes(num));
+        isValid = matched.length >= 5;
+    } else if (claimType === 'Top Line') {
+        isValid = row1.every(num => drawnNumbersList.includes(num));
+    } else if (claimType === 'Middle Line') {
+        isValid = row2.every(num => drawnNumbersList.includes(num));
+    } else if (claimType === 'Bottom Line') {
+        isValid = row3.every(num => drawnNumbersList.includes(num));
+    } else if (claimType === 'Full House') {
+        isValid = allNums.every(num => drawnNumbersList.includes(num));
+    }
+
+    if (isValid) {
+        // Record winning claim in Firestore
+        await db.collection("games").doc(activeGameId).collection("winners").add({
+            claimType: claimType,
+            winnerUid: currentUserId,
+            claimedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert(`CONGRATULATIONS! Your claim for "${claimType}" is VALID and recorded! 🎉`);
+    } else {
+        alert(`INVALID CLAIM! You do not meet the criteria for ${claimType} based on drawn numbers.`);
+    }
 }
 </script>
 
