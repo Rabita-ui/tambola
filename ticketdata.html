@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Data - Tambola House</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; padding: 20px; }
+        .card { box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .tickets-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; max-height: 500px; overflow-y: auto; padding: 10px; background: #fff; border-radius: 6px; border: 1px solid #ddd; }
+        .ticket-box { border: 1px solid #007bff; border-radius: 6px; padding: 10px; background: #fdfdfd; font-size: 0.8rem; }
+        .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 1px; background: #333; border: 1px solid #333; margin-top: 5px; }
+        .cell { background: #fff; height: 22px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.75rem; }
+        .cell.empty { background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Latest 3 Game Draws & Tickets</h2>
+            <a href="user.html" class="btn btn-secondary btn-sm">Back to Dashboard</a>
+        </div>
+
+        <div id="games-ticket-sections">
+            <p class="text-muted">Loading latest game records...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from "./firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                await loadLatestGamesAndTickets();
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+
+        async function loadLatestGamesAndTickets() {
+            const container = document.getElementById('games-ticket-sections');
+            try {
+                const gamesQuery = query(collection(db, "games"), orderBy("createdAt", "desc"), limit(3));
+                const gamesSnap = await getDocs(gamesQuery);
+
+                if (gamesSnap.empty) {
+                    container.innerHTML = "<p class='text-muted'>No games available.</p>";
+                    return;
+                }
+
+                const ticketsSnap = await getDocs(collection(db, "booked_tickets"));
+                const allTickets = ticketsSnap.docs.map(doc => doc.data());
+
+                container.innerHTML = "";
+                let index = 1;
+
+                gamesSnap.forEach(gameDoc => {
+                    const gameData = gameDoc.data();
+                    const gameId = gameDoc.id;
+                    const gameTickets = allTickets.filter(t => t.gameId === gameId);
+
+                    let section = document.createElement('div');
+                    section.className = "card p-3 mb-4";
+                    
+                    let ticketsHtml = "";
+                    if (gameTickets.length === 0) {
+                        ticketsHtml = "<p class='text-muted'>No tickets booked for this game yet.</p>";
+                    } else {
+                        ticketsHtml = `<div class="tickets-container">`;
+                        gameTickets.forEach(ticket => {
+                            const numbersArray = ticket.numbersString ? ticket.numbersString.split(',') : Array(27).fill(0);
+                            ticketsHtml += `
+                                <div class="ticket-box">
+                                    <div class="fw-bold text-danger mb-1">Ticket #${ticket.ticketNo}</div>
+                                    <div class="ticket-grid">
+                            `;
+                            for (let idx = 0; idx < 27; idx++) {
+                                let val = numbersArray[idx];
+                                let displayVal = (val === "0" || !val) ? "" : val;
+                                ticketsHtml += `<div class="cell ${displayVal === "" ? "empty" : ""}">${displayVal}</div>`;
+                            }
+                            ticketsHtml += `</div></div>`;
+                        });
+                        ticketsHtml += `</div>`;
+                    }
+
+                    section.innerHTML = `
+                        <h4 class="text-primary">Game Slot #${index}: ${new Date(gameData.startTime).toLocaleString()}</h4>
+                        <p class="mb-2"><strong>Prizes:</strong> ${gameData.prizes} | <strong>Booked Tickets:</strong> ${gameTickets.length}</p>
+                        ${ticketsHtml}
+                    `;
+                    container.appendChild(section);
+                    index++;
+                });
+
+            } catch (err) {
+                console.error("Error loading ticket data:", err);
+                container.innerHTML = "<p class='text-danger'>Failed to load ticket records.</p>";
+            }
+        }
+    </script>
+</body>
+</html>
