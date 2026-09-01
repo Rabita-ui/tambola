@@ -3,98 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Draw Schedule - Tambola House</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Admin Game Host - Tambola House</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: #fdfbf7; color: #1a1d20; min-height: 100vh; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; background: #ffffff; border: 1px solid #e9ecef; padding: 16px 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .schedule-list { display: flex; flex-direction: column; gap: 15px; }
-        .schedule-card { background: #ffffff; border: 1px solid #dadce0; border-radius: 12px; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
-        .badge.scheduled { background: #e8f0fe; color: #1a73e8; }
-        .badge.live { background: #fce8e6; color: #d93025; }
-        .badge.completed { background: #f1f3f4; color: #5f6368; }
-        .btn-action { background: #00796b; color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; }
-        .btn-action:hover { background: #004d40; }
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; color: #333; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; max-width: 1000px; margin-left: auto; margin-right: auto; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        
+        .board-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin-top: 15px; }
+        .board-cell { background: #e9ecef; border: 1px solid #ccc; height: 38px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 4px; font-size: 0.95em; }
+        .board-cell.called { background: #28a745; color: white; border-color: #1e7e34; box-shadow: 0 0 6px rgba(40, 167, 69, 0.5); }
+        .board-cell.current { background: #ffc107; color: #000; border-color: #d39e00; animation: pulse 1s infinite alternate; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.08); }
+        }
+
+        .caller-box { background: #212529; color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+        .current-number { font-size: 3.5em; font-weight: bold; color: #ffc107; margin: 10px 0; }
+        
+        button { background: #007bff; color: white; border: none; padding: 10px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .btn-danger { background: #dc3545; }
+        .btn-danger:hover { background: #bd2130; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        
+        .nav-btn { background: #6c757d; text-decoration: none; color: white; padding: 8px 15px; border-radius: 4px; font-weight: bold; display: inline-block; }
+        select, input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h2><i class="fas fa-calendar-alt" style="color: #00796b;"></i> Draw Schedule</h2>
-        <a href="dashboard.html" style="color: #00796b; text-decoration: none; font-weight: 600;">Dashboard</a>
-    </div>
-
-    <div id="scheduleContainer" class="schedule-list">
-        <p style="color: #70757a; text-align: center;">Loading draw schedule...</p>
-    </div>
-</div>
-
-<!-- FIREBASE SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-        authDomain: "tambola-house-3dc56.firebaseapp.com",
-        projectId: "tambola-house-3dc56",
-        storageBucket: "tambola-house-3dc56.firebasestorage.app",
-        messagingSenderId: "267918174188",
-        appId: "1:267918174188:web:ec27684544c286c044c2c9"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    // LISTEN DIRECTLY TO THE ACTIVE GAME DOCUMENT
-    db.collection("games").doc("active_game").onSnapshot((doc) => {
-        const container = document.getElementById("scheduleContainer");
-        container.innerHTML = "";
-
-        if (!doc.exists) {
-            container.innerHTML = `<p style="color: #70757a; text-align: center;">No active draw configured yet.</p>`;
-            return;
-        }
-
-        const draw = doc.data();
-
-        // Format raw date string or Firestore timestamp into human-readable format
-        let dateStr = "TBD";
-        if (draw.drawTime) {
-            const dateObj = draw.drawTime.toDate ? draw.drawTime.toDate() : new Date(draw.drawTime);
-            dateStr = dateObj.toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        } else if (draw.drawDate) {
-            dateStr = new Date(draw.drawDate).toLocaleString();
-        }
-
-        const status = (draw.status || "scheduled").toLowerCase();
-
-        const card = document.createElement("div");
-        card.className = "schedule-card";
-        card.innerHTML = `
+    <div class="card">
+        <div class="top-bar">
             <div>
-                <h3 style="font-size: 1.05rem; color: #202124; margin-bottom: 6px;">
-                    ${draw.title || 'Tambola Mega Draw'}
-                </h3>
-                <p style="font-size: 0.85rem; color: #5f6368;"><i class="far fa-clock"></i> ${dateStr}</p>
-                <p style="font-size: 0.8rem; color: #70757a; margin-top: 4px;">Full House Prize: <strong>${draw.prizes?.fullHouse || draw.fullHousePrize || 500} Tokens</strong></p>
+                <a href="admin.html" class="nav-btn">⬅️ Admin Dashboard</a>
+                <h2 style="margin: 10px 0 0 0;">Host Game Controller</h2>
             </div>
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <span class="badge ${status}">${status}</span>
-                <span style="font-weight: 700; color: #137333; font-size: 0.9rem;">${draw.ticketPrice || 10} Tokens</span>
-                <a href="book-tickets.html" class="btn-action">Book Tickets</a>
+            <div>
+                <span style="font-weight: bold; background: #dc3545; color: white; padding: 5px 10px; border-radius: 4px;">GAME HOST / ADMIN</span>
             </div>
-        `;
+        </div>
 
-        container.appendChild(card);
-    }, (error) => {
-        console.error("Error reading schedule:", error);
-        document.getElementById("scheduleContainer").innerHTML = `<p style="color: #d93025; text-align: center;">Unable to load draw schedule.</p>`;
-    });
-</script>
+        <!-- Host Admin Controls (ALWAYS VISIBLE HERE) -->
+        <div class="card" style="background: #fff3cd; border: 2px solid #ffeeba;">
+            <h3 style="margin-top: 0; color: #856404;">⚙️ Game Calling Controls</h3>
+            <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                <div>
+                    <label style="display: block; font-size: 0.85em; margin-bottom: 4px;"><strong>Start From Number:</strong></label>
+                    <select id="start-number-select"></select>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.85em; margin-bottom: 4px;"><strong>Interval (Sec):</strong></label>
+                    <input type="number" id="call-interval" value="5" min="2" max="30" style="width: 60px;">
+                </div>
+
+                <div style="margin-top: 15px; display: flex; gap: 8px;">
+                    <button id="btn-start-game" class="btn-success">▶ Start Game</button>
+                    <button id="btn-pause-game" class="btn-danger">⏸ Pause</button>
+                    <button id="btn-reset-game" style="background: #6c757d;">🔄 Reset Game</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call Board Display -->
+        <div class="caller-box">
+            <small style="text-transform: uppercase; letter-spacing: 1px; color: #aaa;">Current Called Number</small>
+            <div id="current-number-display" class="current-number">--</div>
+            <div id="game-status-text" style="color: #ffc107; font-weight: bold;">Waiting for host to start...</div>
+        </div>
+
+        <!-- Master Board 1-90 -->
+        <h3>Master Board (1-90)</h3>
+        <div class="board-grid" id="master-board"></div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from "./firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        let callTimer = null;
+
+        // Fixed sequence 1-90
+        function generateFixedSequence() {
+            let nums = Array.from({length: 90}, (_, i) => i + 1);
+            let seed = 987654321;
+            for (let i = nums.length - 1; i > 0; i--) {
+                let x = Math.sin(seed++) * 10000;
+                let j = Math.floor((x - Math.floor(x)) * (i + 1));
+                [nums[i], nums[j]] = [nums[j], nums[i]];
+            }
+            return nums;
+        }
+
+        const FIXED_SEQUENCE = generateFixedSequence();
+
+        // Populate Master Board UI
+        const boardEl = document.getElementById('master-board');
+        for (let i = 1; i <= 90; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'board-cell';
+            cell.id = `board-${i}`;
+            cell.innerText = i;
+            boardEl.appendChild(cell);
+        }
+
+        // Populate Dropdown
+        const selectEl = document.getElementById('start-number-select');
+        FIXED_SEQUENCE.forEach((num, index) => {
+            const opt = document.createElement('option');
+            opt.value = index;
+            opt.innerText = `Number ${num} (Pos #${index + 1})`;
+            selectEl.appendChild(opt);
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                listenToGameState();
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+
+        function listenToGameState() {
+            onSnapshot(doc(db, "game_session", "active_game"), (snap) => {
+                if (!snap.exists()) return;
+                const data = snap.data();
+                const calledNumbers = data.calledNumbers || [];
+                const currentNum = data.currentNumber || "--";
+                const isRunning = data.isRunning || false;
+
+                document.getElementById('current-number-display').innerText = currentNum;
+                document.getElementById('game-status-text').innerText = isRunning ? "🔴 GAME IN PROGRESS" : "⏸ GAME PAUSED / STOPPED";
+
+                for (let i = 1; i <= 90; i++) {
+                    const el = document.getElementById(`board-${i}`);
+                    el.classList.remove('called', 'current');
+                    if (calledNumbers.includes(i)) el.classList.add('called');
+                }
+
+                if (currentNum !== "--" && document.getElementById(`board-${currentNum}`)) {
+                    document.getElementById(`board-${currentNum}`).classList.add('current');
+                }
+            });
+        }
+
+        // Host Actions
+        document.getElementById('btn-start-game').addEventListener('click', () => {
+            const startIndex = parseInt(selectEl.value);
+            const intervalSec = parseInt(document.getElementById('call-interval').value) || 5;
+
+            let currentIndex = startIndex;
+            let calledNumbers = [];
+
+            clearInterval(callTimer);
+            
+            setDoc(doc(db, "game_session", "active_game"), {
+                isRunning: true,
+                startIndex: startIndex,
+                intervalSec: intervalSec,
+                lastUpdated: new Date().toISOString()
+            }, { merge: true });
+
+            callTimer = setInterval(async () => {
+                if (currentIndex >= FIXED_SEQUENCE.length) {
+                    clearInterval(callTimer);
+                    alert("All 90 numbers called!");
+                    return;
+                }
+
+                const numToCall = FIXED_SEQUENCE[currentIndex];
+                calledNumbers.push(numToCall);
+
+                await setDoc(doc(db, "game_session", "active_game"), {
+                    currentNumber: numToCall,
+                    calledNumbers: calledNumbers,
+                    isRunning: true
+                }, { merge: true });
+
+                currentIndex++;
+            }, intervalSec * 1000);
+        });
+
+        document.getElementById('btn-pause-game').addEventListener('click', async () => {
+            clearInterval(callTimer);
+            await setDoc(doc(db, "game_session", "active_game"), { isRunning: false }, { merge: true });
+        });
+
+        document.getElementById('btn-reset-game').addEventListener('click', async () => {
+            if (!confirm("Reset game board for everyone?")) return;
+            clearInterval(callTimer);
+            await setDoc(doc(db, "game_session", "active_game"), {
+                currentNumber: "--",
+                calledNumbers: [],
+                isRunning: false
+            });
+        });
+    </script>
 </body>
 </html>
