@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambola House - Book Ticket</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: linear-gradient(145deg, #f7f3ee, #e9e1d7); color: #2d1f14; min-height: 100vh; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; }
+
+        .header { background: white; border-radius: 20px; padding: 20px 25px; margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .header h1 { font-size: 1.5rem; color: #b35e2e; }
+
+        .btn { padding: 10px 18px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; text-decoration: none; font-size: 0.9rem; display: inline-block; }
+        .btn-secondary { background: #7b6856; color: white; }
+        .btn-success { background: #27ae60; color: white; }
+
+        .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,.07); margin-bottom: 25px; }
+        .card h2 { font-size: 1.3rem; margin-bottom: 15px; color: #b35e2e; border-bottom: 2px solid #f6f1eb; padding-bottom: 10px; }
+
+        .game-card { background: #f6f1eb; border: 2px solid #ded4c9; border-radius: 12px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
+        .game-card:hover, .game-card.selected { border-color: #b35e2e; background: #fff8f0; }
+
+        /* 600 TICKETS GRID */
+        .tickets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 15px; max-height: 500px; overflow-y: auto; padding-right: 5px; }
+        .ticket-item { background: #f6f1eb; border: 2px solid #27ae60; border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; transition: 0.2s; font-weight: bold; }
+        .ticket-item:hover { background: #27ae60; color: white; transform: translateY(-2px); }
+        .ticket-item.sold { background: #ded4c9; border-color: #7b6856; color: #7b6856; cursor: not-allowed; text-decoration: line-through; opacity: 0.6; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-ticket-alt"></i> Ticket Booking Counter</h1>
+        <div>
+            <span style="margin-right: 15px; font-weight: 600;"><i class="fas fa-coins" style="color: #f39c12;"></i> Balance: <strong id="userTokens">0</strong></span>
+            <a href="game.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Game</a>
+        </div>
+    </div>
+
+    <!-- ACTIVE GAMES SECTION -->
+    <div class="card">
+        <h2><i class="fas fa-play-circle"></i> Select Active Game</h2>
+        <div id="gamesList">Loading active games...</div>
+    </div>
+
+    <!-- 600 TICKETS SELECTION GRID -->
+    <div class="card" id="ticketsSection" style="display: none;">
+        <h2><i class="fas fa-th"></i> Select Ticket (600 Available Templates)</h2>
+        <p style="color: #7b6856; font-size: 0.9rem; margin-bottom: 10px;">Each ticket costs <strong>10 Tokens</strong>. Click an available ticket to purchase.</p>
+        <div class="tickets-grid" id="ticketsGrid"></div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
+    authDomain: "tambola-house-3dc56.firebaseapp.com",
+    projectId: "tambola-house-3dc56",
+    storageBucket: "tambola-house-3dc56.firebasestorage.app",
+    messagingSenderId: "267918174188",
+    appId: "1:267918174188:web:ec27684544c286c044c2c9"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUserId = null;
+let selectedGameId = null;
+
+auth.onAuthStateChanged((user) => {
+    if (!user) {
+        window.location.href = "index.html";
+    } else {
+        currentUserId = user.uid;
+        db.collection("users").doc(user.uid).onSnapshot(doc => {
+            if (doc.exists) document.getElementById("userTokens").textContent = doc.data().tokens || 0;
+        });
+        loadActiveGames();
+    }
+});
+
+/* FETCH ACTIVE GAMES */
+function loadActiveGames() {
+    db.collection("games").where("status", "==", "active").onSnapshot(snapshot => {
+        const container = document.getElementById("gamesList");
+        container.innerHTML = "";
+
+        if (snapshot.empty) {
+            container.innerHTML = "<p>No active game sessions currently available.</p>";
+            return;
+        }
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const dateStr = data.createdAt ? new Date(data.createdAt.toDate()).toLocaleTimeString() : "Just now";
+            
+            container.innerHTML += `
+                <div class="game-card" id="game-card-${doc.id}" onclick="selectGame('${doc.id}')">
+                    <div>
+                        <strong style="color: #b35e2e;">Game Session ID: ${doc.id.substring(0, 8)}...</strong>
+                        <div style="font-size: 0.85rem; color: #7b6856;">Created: ${dateStr}</div>
+                    </div>
+                    <button class="btn btn-success">View Tickets</button>
+                </div>
+            `;
+        });
+    });
+}
+
+/* LOAD ALL 600 TICKETS FOR SELECTED GAME */
+function selectGame(gameId) {
+    selectedGameId = gameId;
+    document.querySelectorAll('.game-card').forEach(el => el.classList.remove('selected'));
+    document.getElementById(`game-card-${gameId}`).classList.add('selected');
+    document.getElementById("ticketsSection").style.display = "block";
+
+    db.collection("games").doc(gameId).collection("gameTickets").orderBy("ticketNumber", "asc")
+        .onSnapshot(snapshot => {
+            const grid = document.getElementById("ticketsGrid");
+            grid.innerHTML = "";
+
+            snapshot.forEach(tDoc => {
+                const tData = tDoc.data();
+                const isSold = tData.isPurchased;
+
+                grid.innerHTML += `
+                    <div class="ticket-item ${isSold ? 'sold' : ''}" 
+                         onclick="${isSold ? '' : `buySelectedTicket('${tDoc.id}', ${tData.ticketNumber})`}">
+                        <div>Ticket #${tData.ticketNumber}</div>
+                        <div style="font-size: 0.75rem; margin-top: 4px;">${isSold ? 'BOOKED' : '10 Tokens'}</div>
+                    </div>
+                `;
+            });
+        });
+}
+
+/* BUY TICKET TRANSACTION */
+async function buySelectedTicket(ticketDocId, ticketNumber) {
+    if (!confirm(`Confirm purchase for Ticket #${ticketNumber} for 10 Tokens?`)) return;
+
+    const ticketRef = db.collection("games").doc(selectedGameId).collection("gameTickets").doc(ticketDocId);
+
+    try {
+        await db.runTransaction(async (transaction) => {
+            const userRef = db.collection("users").doc(currentUserId);
+            const userDoc = await transaction.get(userRef);
+            const tokens = userDoc.data().tokens || 0;
+
+            if (tokens < 10) throw new Error("Insufficient token balance!");
+
+            const ticketDoc = await transaction.get(ticketRef);
+            if (ticketDoc.data().isPurchased) throw new Error("Ticket was just bought by another player!");
+
+            transaction.update(userRef, { tokens: tokens - 10 });
+            transaction.update(ticketRef, {
+                ownerUid: currentUserId,
+                isPurchased: true,
+                purchasedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        });
+
+        alert(`Ticket #${ticketNumber} successfully purchased! Redirecting to game...`);
+        window.location.href = "game.html";
+    } catch (err) {
+        alert("Purchase Failed: " + err.message);
+    }
+}
+</script>
+
+</body>
+</html>
