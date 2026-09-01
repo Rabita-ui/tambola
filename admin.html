@@ -267,29 +267,42 @@
         });
 
         window.approveToken = async function(reqId, userId, amount) {
-            try {
-                const userRef = doc(db, "users", userId);
-                const userSnap = await getDoc(userRef);
+    console.log("Approving Request ID:", reqId);
+    console.log("Target User ID:", userId);
+    console.log("Requested Amount:", amount);
 
-                let currentWallet = 0;
-                if (userSnap.exists()) {
-                    currentWallet = Number(userSnap.data().wallet) || 0;
-                }
+    try {
+        if (!userId || userId === 'undefined') {
+            alert("Error: User ID is missing from this request!");
+            return;
+        }
 
-                const newWalletBalance = currentWallet + Number(amount);
+        const userRef = doc(db, "users", userId);
+        const userSnap = await getDoc(userRef);
 
-                await setDoc(userRef, {
-                    wallet: newWalletBalance
-                }, { merge: true });
+        let currentWallet = 0;
+        if (userSnap.exists()) {
+            console.log("User document found:", userSnap.data());
+            currentWallet = Number(userSnap.data().wallet) || 0;
+        } else {
+            console.warn("User document not found in 'users' collection for ID:", userId);
+        }
 
-                await deleteDoc(doc(db, "token_requests", reqId));
+        const newWalletBalance = currentWallet + Number(amount);
+        console.log("New calculated wallet balance:", newWalletBalance);
 
-                alert(`Successfully approved and credited ${amount} tokens to user!`);
-            } catch (err) {
-                console.error("Approval & Credit Error:", err);
-                alert("Failed to credit tokens: " + err.message);
-            }
-        };
+        await setDoc(userRef, {
+            wallet: newWalletBalance
+        }, { merge: true });
+
+        await deleteDoc(doc(db, "token_requests", reqId));
+
+        alert(`Successfully approved and credited ${amount} tokens to user!`);
+    } catch (err) {
+        console.error("Approval & Credit Error:", err);
+        alert("Failed to credit tokens: " + err.message);
+    }
+};        };
     </script>
 </body>
 </html>
