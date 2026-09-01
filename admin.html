@@ -3,76 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambola Admin - Game Operations</title>
+    <title>Tambola Admin - Master Operations Control</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
         body { background: linear-gradient(145deg, #f7f3ee, #e9e1d7); color: #2d1f14; min-height: 100vh; padding: 20px; }
-        .container { max-width: 900px; margin: auto; }
+        .container { max-width: 950px; margin: auto; }
         
-        .header { background: white; border-radius: 20px; padding: 20px 25px; margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,.08); display: flex; justify-content: space-between; align-items: center; }
+        .header { background: white; border-radius: 20px; padding: 20px 25px; margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .header h1 { font-size: 1.5rem; color: #b35e2e; }
 
-        .btn { padding: 12px 20px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.95rem; display: inline-block; text-decoration: none; }
+        .btn { padding: 10px 16px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.9rem; display: inline-block; text-decoration: none; margin: 2px; }
         .btn-primary { background: #b35e2e; color: white; }
         .btn-success { background: #27ae60; color: white; }
+        .btn-warning { background: #f39c12; color: white; }
         .btn-secondary { background: #7b6856; color: white; }
         .btn-danger { background: #c0392b; color: white; }
 
         .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,.07); margin-bottom: 25px; }
         .card h2 { font-size: 1.3rem; margin-bottom: 15px; color: #b35e2e; border-bottom: 2px solid #f6f1eb; padding-bottom: 10px; }
 
-        .current-number { font-size: 4rem; font-weight: 800; color: #b35e2e; text-align: center; margin: 15px 0; }
+        .current-number { font-size: 4rem; font-weight: 800; color: #b35e2e; text-align: center; margin: 10px 0; }
         .drawn-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin-top: 15px; }
         .num-cell { background: #f6f1eb; padding: 8px 0; border-radius: 6px; text-align: center; font-weight: bold; font-size: 0.85rem; color: #ded4c9; }
         .num-cell.active { background: #27ae60; color: white; }
         
+        /* TABLES */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #f6f1eb; }
+        th { background: #f6f1eb; color: #7b6856; font-weight: bold; }
+
+        /* INPUTS & TOGGLES */
+        .controls-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; margin-bottom: 15px; }
+        input[type="number"] { padding: 8px 12px; border: 1px solid #ded4c9; border-radius: 8px; width: 80px; text-align: center; font-weight: bold; }
+        
         #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f7f3ee; display: flex; justify-content: center; align-items: center; z-index: 2000; font-weight: bold; font-size: 1.2rem; color: #b35e2e; }
-        #seedStatus { margin-top: 10px; font-weight: bold; color: #7b6856; }
     </style>
 </head>
 <body>
 
 <div id="authOverlay">
-    <i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i> Verifying Access...
+    <i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i> Accessing Admin Portal...
 </div>
 
 <div class="container">
     <div class="header">
-        <h1><i class="fas fa-shield-alt"></i> Admin Dashboard</h1>
+        <h1><i class="fas fa-user-shield"></i> Master Control Panel</h1>
         <div>
             <a href="index.html" class="btn btn-secondary"><i class="fas fa-home"></i> Home</a>
             <button class="btn btn-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
     </div>
 
-    <!-- 1. MASTER SEEDER CARD -->
+    <!-- 1. MASTER TICKET & GAME INITIALIZATION -->
     <div class="card">
-        <h2><i class="fas fa-database"></i> Master Tickets Initialization</h2>
-        <p style="margin-bottom: 15px; color: #7b6856;">Run this once to seed 600 flat-array ticket templates into Firestore.</p>
-        <button class="btn btn-primary" onclick="seed600MasterTickets()"><i class="fas fa-seedling"></i> Seed 600 Master Tickets</button>
-        <div id="seedStatus">Status: Idle</div>
-    </div>
-
-    <!-- 2. GAME SESSION INITIALIZATION -->
-    <div class="card">
-        <h2><i class="fas fa-plus-circle"></i> Create New Game Session</h2>
-        <p style="margin-bottom: 15px; color: #7b6856;">Creates an active game, copies 600 master tickets, and automatically prunes database to retain only the 3 latest games.</p>
-        <button class="btn btn-primary" onclick="createNewGame()"><i class="fas fa-play"></i> Initialize Game & Copy 600 Tickets</button>
+        <h2><i class="fas fa-cogs"></i> Setup & Game Session</h2>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <button class="btn btn-primary" onclick="seed600MasterTickets()"><i class="fas fa-seedling"></i> Seed 600 Master Tickets</button>
+            <button class="btn btn-success" onclick="createNewGame()"><i class="fas fa-play"></i> Start Game Session & Copy Tickets</button>
+        </div>
         <div id="activeGameStatus" style="margin-top: 10px; font-weight: bold; color: #27ae60;"></div>
     </div>
 
-    <!-- 3. LIVE NUMBER CALLER -->
+    <!-- 2. ADVANCED LIVE CALLER CONTROLS -->
     <div class="card">
         <h2><i class="fas fa-bullhorn"></i> Live Caller Controls</h2>
         <div class="current-number" id="displayCurrentNum">--</div>
-        
-        <div style="text-align: center; margin-bottom: 20px;">
-            <button class="btn btn-success" onclick="drawNextNumber()"><i class="fas fa-dice"></i> Draw Next Number</button>
+
+        <!-- CALLER CONTROL BUTTONS -->
+        <div class="controls-row">
+            <button class="btn btn-success" onclick="drawNextNumber()"><i class="fas fa-dice"></i> Draw Single Number</button>
+            <button class="btn btn-warning" onclick="drawRemainingNumbers()"><i class="fas fa-fast-forward"></i> Draw All Remaining Numbers</button>
         </div>
 
-        <h3>Drawn Numbers Board (1-90)</h3>
+        <div class="controls-row" style="background: #f6f1eb; padding: 12px; border-radius: 12px;">
+            <span style="font-weight: bold;"><i class="fas fa-play-circle"></i> Auto-Caller:</span>
+            <label>Speed (s): <input type="number" id="autoSpeed" value="3" min="1" max="10"></label>
+            <button class="btn btn-primary" id="autoBtn" onclick="toggleAutoCaller()"><i class="fas fa-robot"></i> Start Auto Call</button>
+        </div>
+
+        <div class="controls-row" style="background: #f6f1eb; padding: 12px; border-radius: 12px;">
+            <span style="font-weight: bold;"><i class="fas fa-bullseye"></i> Select Specific First Number:</span>
+            <input type="number" id="firstNumInput" placeholder="1-90" min="1" max="90">
+            <button class="btn btn-secondary" onclick="drawFirstSelectedNumber()"><i class="fas fa-check"></i> Set & Draw</button>
+        </div>
+
+        <h3 style="margin-top: 15px;">Drawn Numbers (1-90)</h3>
         <div class="drawn-grid" id="boardGrid"></div>
+    </div>
+
+    <!-- 3. TOKEN REQUESTS & WITHDRAWALS APPROVAL PANEL -->
+    <div class="card">
+        <h2><i class="fas fa-hand-holding-usd"></i> Token Top-Up & Withdrawal Requests</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>User UID</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="requestsTableBody">
+                <tr><td colspan="5" style="text-align:center;">No pending requests.</td></tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -95,20 +131,19 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 let currentActiveGameId = null;
+let autoCallerInterval = null;
 
-/* AUTH CHECK */
 auth.onAuthStateChanged((user) => {
     if (!user) {
-        alert("Please log in first!");
         window.location.href = "index.html";
     } else {
         document.getElementById("authOverlay").style.display = "none";
         renderBoardGrid();
         listenToActiveGame();
+        listenToTokenRequests();
     }
 });
 
-/* RENDER 1-90 BOARD GRID STRUCTURE */
 function renderBoardGrid() {
     const grid = document.getElementById("boardGrid");
     grid.innerHTML = "";
@@ -117,14 +152,9 @@ function renderBoardGrid() {
     }
 }
 
-/* 1. SEED MASTER TICKETS TO FIRESTORE (FLAT ARRAYS) */
+/* 1. SEED 600 MASTER TICKETS */
 async function seed600MasterTickets() {
-    const statusDiv = document.getElementById("seedStatus");
-    const confirmAction = confirm("Upload 600 Master Tickets to Firestore?");
-    if (!confirmAction) return;
-
-    statusDiv.style.color = "#7b6856";
-    statusDiv.textContent = "Status: Writing batch 1/2...";
+    if (!confirm("Upload 600 Master Tickets to Firestore?")) return;
     const masterRef = db.collection("masterTickets");
 
     try {
@@ -134,34 +164,23 @@ async function seed600MasterTickets() {
                 const ticketIndex = batchNum * 300 + i;
                 const ticketId = `ticket_${String(ticketIndex).padStart(3, '0')}`;
                 const rawGrid = generateTambolaTicket();
-                const flatGrid = rawGrid.flat();
-
-                const docRef = masterRef.doc(ticketId);
-                batch.set(docRef, {
+                batch.set(masterRef.doc(ticketId), {
                     ticketNumber: ticketIndex,
-                    grid: flatGrid,
+                    grid: rawGrid.flat(),
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
             }
             await batch.commit();
-            statusDiv.textContent = `Status: Batch ${batchNum + 1}/2 committed (300 tickets)...`;
         }
-
-        statusDiv.style.color = "#27ae60";
-        statusDiv.textContent = "Status: SUCCESS! 600 Master Tickets uploaded.";
-        alert("600 Master Tickets successfully stored!");
+        alert("600 Master Tickets seeded successfully!");
     } catch (err) {
-        console.error(err);
-        statusDiv.style.color = "#c0392b";
-        statusDiv.textContent = "Status: Error - " + err.message;
+        alert("Error: " + err.message);
     }
 }
 
-/* 2. TAMBOLA TICKET GENERATION ALGORITHM */
 function generateTambolaTicket() {
     let ticket = Array.from({ length: 3 }, () => Array(9).fill(0));
     let colRanges = [[1, 9], [10, 19], [20, 29], [30, 39], [40, 49], [50, 59], [60, 69], [70, 79], [80, 90]];
-
     for (let r = 0; r < 3; r++) {
         let cols = [];
         while (cols.length < 5) {
@@ -172,27 +191,21 @@ function generateTambolaTicket() {
         for (let col of cols) {
             let [min, max] = colRanges[col];
             let num;
-            do {
-                num = Math.floor(Math.random() * (max - min + 1)) + min;
-            } while (ticket.some(row => row[col] === num));
+            do { num = Math.floor(Math.random() * (max - min + 1)) + min; } while (ticket.some(row => row[col] === num));
             ticket[r][col] = num;
         }
     }
     for (let c = 0; c < 9; c++) {
         let colNums = [];
-        for (let r = 0; r < 3; r++) {
-            if (ticket[r][c] !== 0) colNums.push(ticket[r][c]);
-        }
+        for (let r = 0; r < 3; r++) { if (ticket[r][c] !== 0) colNums.push(ticket[r][c]); }
         colNums.sort((a, b) => a - b);
         let idx = 0;
-        for (let r = 0; r < 3; r++) {
-            if (ticket[r][c] !== 0) ticket[r][c] = colNums[idx++];
-        }
+        for (let r = 0; r < 3; r++) { if (ticket[r][c] !== 0) ticket[r][c] = colNums[idx++]; }
     }
     return ticket;
 }
 
-/* 3. CREATE GAME SESSION & AUTO-PRUNE OLDER GAMES */
+/* 2. CREATE ACTIVE GAME & CLEAN UP OLDER GAMES */
 async function createNewGame() {
     try {
         const gameRef = await db.collection("games").add({
@@ -203,90 +216,42 @@ async function createNewGame() {
         });
 
         currentActiveGameId = gameRef.id;
-
         const masterSnapshot = await db.collection("masterTickets").get();
         let batch = db.batch();
         let count = 0;
 
         masterSnapshot.forEach((doc) => {
-            const masterData = doc.data();
             const gameTicketRef = db.collection("games").doc(currentActiveGameId).collection("gameTickets").doc(doc.id);
-
             batch.set(gameTicketRef, {
                 masterTicketId: doc.id,
-                ticketNumber: masterData.ticketNumber,
-                grid: masterData.grid,
+                ticketNumber: doc.data().ticketNumber,
+                grid: doc.data().grid,
                 ownerUid: null,
                 isPurchased: false
             });
-
             count++;
-            if (count % 300 === 0) {
-                batch.commit();
-                batch = db.batch();
-            }
+            if (count % 300 === 0) { batch.commit(); batch = db.batch(); }
         });
+        if (count % 300 !== 0) await batch.commit();
 
-        if (count % 300 !== 0) {
-            await batch.commit();
-        }
-
-        document.getElementById("activeGameStatus").textContent = `Active Game ID: ${currentActiveGameId}`;
-
-        // Prune older games beyond the 3 latest created
         await pruneOldGames();
-
-        alert(`Game Started! ID: ${currentActiveGameId} initialized. Database retention kept to 3 latest games.`);
+        alert(`New Game Initialized (${currentActiveGameId})! Databases pruned to keep 3 latest games.`);
     } catch (err) {
         alert("Error starting game: " + err.message);
     }
 }
 
-/* 4. HELPER FUNCTION: DELETE GAMES BEYOND THE 3 MOST RECENT */
 async function pruneOldGames() {
-    try {
-        const snapshot = await db.collection("games")
-            .orderBy("createdAt", "desc")
-            .get();
-
-        if (snapshot.size > 3) {
-            const docsToDelete = snapshot.docs.slice(3);
-
-            for (const gameDoc of docsToDelete) {
-                const gameId = gameDoc.id;
-
-                // Delete subcollection gameTickets
-                const ticketsSnapshot = await db.collection("games").doc(gameId).collection("gameTickets").get();
-                let batch = db.batch();
-                let bCount = 0;
-
-                ticketsSnapshot.forEach((tDoc) => {
-                    batch.delete(tDoc.ref);
-                    bCount++;
-                    if (bCount % 300 === 0) {
-                        batch.commit();
-                        batch = db.batch();
-                    }
-                });
-                if (bCount % 300 !== 0) await batch.commit();
-
-                // Delete subcollection winners
-                const winnersSnapshot = await db.collection("games").doc(gameId).collection("winners").get();
-                const wBatch = db.batch();
-                winnersSnapshot.forEach(wDoc => wBatch.delete(wDoc.ref));
-                await wBatch.commit();
-
-                // Delete parent game document
-                await db.collection("games").doc(gameId).delete();
-                console.log(`Pruned old game session: ${gameId}`);
-            }
+    const snapshot = await db.collection("games").orderBy("createdAt", "desc").get();
+    if (snapshot.size > 3) {
+        const docsToDelete = snapshot.docs.slice(3);
+        for (const gameDoc of docsToDelete) {
+            await db.collection("games").doc(gameDoc.id).delete();
         }
-    } catch (e) {
-        console.error("Auto-prune error:", e);
     }
 }
 
-/* 5. LISTEN TO ACTIVE GAME STATE */
+/* 3. LISTEN TO ACTIVE GAME */
 function listenToActiveGame() {
     db.collection("games").where("status", "==", "active").limit(1).onSnapshot((snapshot) => {
         if (!snapshot.empty) {
@@ -299,35 +264,141 @@ function listenToActiveGame() {
 
             for (let i = 1; i <= 90; i++) {
                 const cell = document.getElementById(`num-${i}`);
-                if (data.drawnNumbers && data.drawnNumbers.includes(i)) {
-                    cell.classList.add("active");
-                } else {
-                    cell.classList.remove("active");
-                }
+                if (data.drawnNumbers && data.drawnNumbers.includes(i)) cell.classList.add("active");
+                else cell.classList.remove("active");
             }
         }
     });
 }
 
-/* 6. DRAW RANDOM NUMBER */
+/* 4. NUMBER CALLING LOGIC */
 async function drawNextNumber() {
-    if (!currentActiveGameId) return alert("Create an active game session first!");
-
+    if (!currentActiveGameId) return alert("No active game!");
     const gameRef = db.collection("games").doc(currentActiveGameId);
     const gameDoc = await gameRef.get();
     const drawn = gameDoc.data().drawnNumbers || [];
 
-    if (drawn.length >= 90) return alert("All 90 numbers have been drawn!");
+    if (drawn.length >= 90) {
+        if (autoCallerInterval) toggleAutoCaller();
+        return alert("All 90 numbers drawn!");
+    }
 
     let nextNum;
-    do {
-        nextNum = Math.floor(Math.random() * 90) + 1;
-    } while (drawn.includes(nextNum));
+    do { nextNum = Math.floor(Math.random() * 90) + 1; } while (drawn.includes(nextNum));
 
     await gameRef.update({
         currentNumber: nextNum,
         drawnNumbers: firebase.firestore.FieldValue.arrayUnion(nextNum)
     });
+}
+
+// Draw specific first number
+async function drawFirstSelectedNumber() {
+    const inputVal = parseInt(document.getElementById("firstNumInput").value);
+    if (!inputVal || inputVal < 1 || inputVal > 90) return alert("Enter valid number (1-90)");
+
+    if (!currentActiveGameId) return alert("No active game!");
+    const gameRef = db.collection("games").doc(currentActiveGameId);
+    const gameDoc = await gameRef.get();
+    const drawn = gameDoc.data().drawnNumbers || [];
+
+    if (drawn.includes(inputVal)) return alert("Number already drawn!");
+
+    await gameRef.update({
+        currentNumber: inputVal,
+        drawnNumbers: firebase.firestore.FieldValue.arrayUnion(inputVal)
+    });
+    document.getElementById("firstNumInput").value = "";
+}
+
+// Draw remaining numbers automatically in rapid batch
+async function drawRemainingNumbers() {
+    if (!currentActiveGameId) return alert("No active game!");
+    if (!confirm("Are you sure you want to draw ALL remaining numbers now?")) return;
+
+    const gameRef = db.collection("games").doc(currentActiveGameId);
+    const gameDoc = await gameRef.get();
+    let drawn = gameDoc.data().drawnNumbers || [];
+
+    for (let i = 1; i <= 90; i++) {
+        if (!drawn.includes(i)) drawn.push(i);
+    }
+
+    await gameRef.update({
+        currentNumber: drawn[drawn.length - 1],
+        drawnNumbers: drawn
+    });
+}
+
+// Auto-pickup caller toggle
+function toggleAutoCaller() {
+    const autoBtn = document.getElementById("autoBtn");
+    if (autoCallerInterval) {
+        clearInterval(autoCallerInterval);
+        autoCallerInterval = null;
+        autoBtn.innerHTML = `<i class="fas fa-robot"></i> Start Auto Call`;
+        autoBtn.className = "btn btn-primary";
+    } else {
+        const speed = (parseInt(document.getElementById("autoSpeed").value) || 3) * 1000;
+        autoCallerInterval = setInterval(drawNextNumber, speed);
+        autoBtn.innerHTML = `<i class="fas fa-pause"></i> Pause Auto Call`;
+        autoBtn.className = "btn btn-danger";
+    }
+}
+
+/* 5. TOKEN APPROVAL & WITHDRAWAL MANAGEMENT */
+function listenToTokenRequests() {
+    db.collection("tokenRequests").where("status", "==", "pending").onSnapshot(snapshot => {
+        const tbody = document.getElementById("requestsTableBody");
+        tbody.innerHTML = "";
+
+        if (snapshot.empty) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No pending requests.</td></tr>`;
+            return;
+        }
+
+        snapshot.forEach(doc => {
+            const req = doc.data();
+            tbody.innerHTML += `
+                <tr>
+                    <td>${req.userUid.substring(0, 8)}...</td>
+                    <td><strong>${req.type.toUpperCase()}</strong></td>
+                    <td>${req.amount} Tokens</td>
+                    <td><span style="color:#f39c12;">Pending</span></td>
+                    <td>
+                        <button class="btn btn-success" onclick="processRequest('${doc.id}', '${req.userUid}', ${req.amount}, '${req.type}', true)">Approve</button>
+                        <button class="btn btn-danger" onclick="processRequest('${doc.id}', '${req.userUid}', ${req.amount}, '${req.type}', false)">Reject</button>
+                    </td>
+                </tr>
+            `;
+        });
+    });
+}
+
+async function processRequest(reqId, uid, amount, type, isApproved) {
+    try {
+        if (isApproved) {
+            const userRef = db.collection("users").doc(uid);
+            const userDoc = await userRef.get();
+            const currentTokens = userDoc.data()?.tokens || 0;
+
+            if (type === "deposit") {
+                await userRef.update({ tokens: currentTokens + amount });
+            } else if (type === "withdraw") {
+                if (currentTokens < amount) return alert("User balance is insufficient for withdrawal!");
+                await userRef.update({ tokens: currentTokens - amount });
+            }
+        }
+
+        await db.collection("tokenRequests").doc(reqId).update({
+            status: isApproved ? "approved" : "rejected",
+            processedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        alert(`Request ${isApproved ? 'Approved' : 'Rejected'}!`);
+    } catch (e) {
+        alert("Error processing request: " + e.message);
+    }
 }
 
 function logout() {
