@@ -1,29 +1,221 @@
-<!-- FIREBASE COMPAT SDKs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambola House - Welcome</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: linear-gradient(145deg, #f7f3ee, #e9e1d7); color: #2d1f14; min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: auto; }
+        
+        .header { background: white; border-radius: 20px; padding: 20px 25px; margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,.08); display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.5rem; color: #b35e2e; }
+        
+        .user-info { display: flex; align-items: center; gap: 15px; font-weight: 600; }
+        .token-badge { background: #f6f1eb; border: 1px solid #ded4c9; padding: 5px 12px; border-radius: 12px; font-size: 0.9rem; }
+        
+        .btn { padding: 10px 18px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; text-decoration: none; font-size: 0.9rem; display: inline-block; }
+        .btn-primary { background: #b35e2e; color: white; }
+        .btn-secondary { background: #7b6856; color: white; }
+        .btn-outline { border: 2px solid #b35e2e; color: #b35e2e; background: transparent; }
+        .btn-danger { background: #c0392b; color: white; }
+
+        .hero-card { background: white; border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,.07); margin-bottom: 20px; }
+        .hero-card h2 { font-size: 2rem; margin-bottom: 10px; }
+        .hero-card p { color: #7b6856; margin-bottom: 25px; line-height: 1.6; }
+
+        /* AUTH MODALS */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal h3 { margin-bottom: 15px; color: #b35e2e; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ded4c9; border-radius: 8px; font-size: 1rem; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-actions button { flex: 1; }
+        .switch-auth { text-align: center; margin-top: 15px; font-size: 0.85rem; color: #7b6856; cursor: pointer; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-th"></i> Tambola House</h1>
+        
+        <div id="authButtons">
+            <button class="btn btn-outline" onclick="openModal('loginModal')">Log In</button>
+            <button class="btn btn-primary" onclick="openModal('registerModal')">Register</button>
+        </div>
+
+        <div id="userProfile" class="user-info" style="display: none;">
+            <span class="token-badge"><i class="fas fa-coins" style="color: #f39c12;"></i> Tokens: <strong id="tokenBalance">0</strong></span>
+            <span id="userEmailDisplay" style="color: #2d1f14;">user@email.com</span>
+            <button class="btn btn-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+    </div>
+
+    <div class="hero-card">
+        <h2>Welcome to Live Tambola!</h2>
+        <p>Join live games, claim full house prizes, and track win history in real time.</p>
+        
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <a href="game.html" class="btn btn-primary" style="padding: 14px 28px; font-size: 1.1rem;">
+                <i class="fas fa-play"></i> Enter Game Room
+            </a>
+            <a href="dashboard.html" class="btn btn-secondary" style="padding: 14px 28px; font-size: 1.1rem;">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+            <a href="admin.html" id="adminBtn" class="btn btn-outline" style="display: none; padding: 14px 28px; font-size: 1.1rem;">
+                <i class="fas fa-shield-alt"></i> Admin Panel
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="loginModal">
+    <div class="modal">
+        <h3>Login to Play</h3>
+        <form onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="loginEmail" required placeholder="name@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" required placeholder="••••••••">
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary">Log In</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('loginModal')">Cancel</button>
+            </div>
+        </form>
+        <div class="switch-auth" onclick="switchModal('loginModal', 'registerModal')">Need an account? Register here</div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="registerModal">
+    <div class="modal">
+        <h3>Create an Account</h3>
+        <form onsubmit="handleRegister(event)">
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="regEmail" required placeholder="name@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="regPassword" required placeholder="At least 6 characters">
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary">Register</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('registerModal')">Cancel</button>
+            </div>
+        </form>
+        <div class="switch-auth" onclick="switchModal('registerModal', 'loginModal')">Already have an account? Log In</div>
+    </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-        authDomain: "tambola-house-3dc56.firebaseapp.com",
-        projectId: "tambola-house-3dc56",
-        storageBucket: "tambola-house-3dc56.firebasestorage.app",
-        messagingSenderId: "267918174188",
-        appId: "1:267918174188:web:ec27684544c286c044c2c9"
-    };
+const firebaseConfig = {
+    apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
+    authDomain: "tambola-house-3dc56.firebaseapp.com",
+    projectId: "tambola-house-3dc56",
+    storageBucket: "tambola-house-3dc56.firebasestorage.app",
+    messagingSenderId: "267918174188",
+    appId: "1:267918174188:web:ec27684544c286c044c2c9"
+};
 
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-    // AUTH ROUTE CHECK
-    firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-            // User is logged in -> Go to Dashboard
-            window.location.replace("dashboard.html");
+// CONFIGURE YOUR ADMIN EMAIL HERE
+const ADMIN_EMAIL = "your-admin-email@gmail.com";
+
+/* AUTH STATE LISTENER */
+auth.onAuthStateChanged(async (user) => {
+    const authButtons = document.getElementById("authButtons");
+    const userProfile = document.getElementById("userProfile");
+    const adminBtn = document.getElementById("adminBtn");
+
+    if (user) {
+        authButtons.style.display = "none";
+        userProfile.style.display = "flex";
+        document.getElementById("userEmailDisplay").textContent = user.email;
+
+        // Display Admin button if admin
+        if (user.email === ADMIN_EMAIL) {
+            adminBtn.style.display = "inline-block";
         } else {
-            // No session -> Go to Login Page
-            window.location.replace("login.html");
+            adminBtn.style.display = "none";
         }
-    });
+
+        // Fetch or create user document in Firestore to load tokens
+        const userRef = db.collection("users").doc(user.uid);
+        const doc = await userRef.get();
+        if (doc.exists) {
+            document.getElementById("tokenBalance").textContent = doc.data().tokens || 0;
+        } else {
+            await userRef.set({ email: user.email, tokens: 100 }); // Default starting tokens
+            document.getElementById("tokenBalance").textContent = 100;
+        }
+    } else {
+        authButtons.style.display = "block";
+        userProfile.style.display = "none";
+        adminBtn.style.display = "none";
+    }
+});
+
+/* HANDLE REGISTER */
+async function handleRegister(e) {
+    e.preventDefault();
+    const email = document.getElementById("regEmail").value;
+    const password = document.getElementById("regPassword").value;
+
+    try {
+        const res = await auth.createUserWithEmailAndPassword(email, password);
+        // Create user record in Firestore
+        await db.collection("users").doc(res.user.uid).set({
+            email: email,
+            tokens: 100, // Welcome bonus
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        closeModal("registerModal");
+        alert("Account registered successfully! You have received 100 starting tokens.");
+    } catch (err) {
+        alert("Registration failed: " + err.message);
+    }
+}
+
+/* HANDLE LOGIN */
+async function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+
+    try {
+        await auth.signInWithEmailAndPassword(email, password);
+        closeModal("loginModal");
+    } catch (err) {
+        alert("Login failed: " + err.message);
+    }
+}
+
+/* HANDLE LOGOUT */
+function logout() {
+    auth.signOut();
+}
+
+/* MODAL CONTROL HELPERS */
+function openModal(id) { document.getElementById(id).style.display = "flex"; }
+function closeModal(id) { document.getElementById(id).style.display = "none"; }
+function switchModal(closeId, openId) { closeModal(closeId); openModal(openId); }
 </script>
+
+</body>
+</html>
