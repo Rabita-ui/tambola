@@ -10,23 +10,24 @@
         body { background: linear-gradient(145deg, #f7f3ee, #e9e1d7); color: #2d1f14; min-height: 100vh; padding: 20px; }
         .container { max-width: 900px; margin: auto; }
         
-        .header { background: white; border-radius: 20px; padding: 20px 25px; margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,.08); display: flex; justify-content: space-between; align-items: center; }
+        .header { background: white; border-radius: 20px; padding: 20px 25px; margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         .header h1 { font-size: 1.5rem; color: #b35e2e; }
         
-        .user-info { display: flex; align-items: center; gap: 15px; font-weight: 600; }
-        .token-badge { background: #f6f1eb; border: 1px solid #ded4c9; padding: 5px 12px; border-radius: 12px; font-size: 0.9rem; }
+        .user-info { display: flex; align-items: center; gap: 12px; font-weight: 600; flex-wrap: wrap; }
+        .token-badge { background: #f6f1eb; border: 1px solid #ded4c9; padding: 6px 14px; border-radius: 12px; font-size: 0.9rem; }
         
         .btn { padding: 10px 18px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; text-decoration: none; font-size: 0.9rem; display: inline-block; }
         .btn-primary { background: #b35e2e; color: white; }
         .btn-secondary { background: #7b6856; color: white; }
         .btn-outline { border: 2px solid #b35e2e; color: #b35e2e; background: transparent; }
+        .btn-success { background: #27ae60; color: white; }
         .btn-danger { background: #c0392b; color: white; }
 
         .hero-card { background: white; border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,.07); margin-bottom: 20px; }
         .hero-card h2 { font-size: 2rem; margin-bottom: 10px; }
         .hero-card p { color: #7b6856; margin-bottom: 25px; line-height: 1.6; }
 
-        /* AUTH MODALS */
+        /* AUTH & ACTION MODALS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal { background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal h3 { margin-bottom: 15px; color: #b35e2e; text-align: center; }
@@ -50,9 +51,15 @@
             <button class="btn btn-primary" onclick="openModal('registerModal')">Register</button>
         </div>
 
-        <!-- LOGGED IN VIEW -->
+        <!-- LOGGED IN VIEW WITH TOKEN REQUEST OPTION -->
         <div id="userProfile" class="user-info" style="display: none;">
             <span class="token-badge"><i class="fas fa-coins" style="color: #f39c12;"></i> Tokens: <strong id="tokenBalance">0</strong></span>
+            
+            <!-- REQUEST TOKENS LINK/BUTTON -->
+            <button class="btn btn-success" onclick="openModal('tokenRequestModal')">
+                <i class="fas fa-plus-circle"></i> Request Tokens
+            </button>
+
             <span id="userEmailDisplay" style="color: #2d1f14;">user@email.com</span>
             <button class="btn btn-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
@@ -120,6 +127,27 @@
     </div>
 </div>
 
+<!-- REQUEST TOKENS MODAL -->
+<div class="modal-overlay" id="tokenRequestModal">
+    <div class="modal">
+        <h3>Request Extra Tokens</h3>
+        <form onsubmit="handleTokenRequest(event)">
+            <div class="form-group">
+                <label>Amount of Tokens Requested</label>
+                <input type="number" id="requestAmount" min="10" max="1000" value="50" required>
+            </div>
+            <div class="form-group">
+                <label>Reason / Message (Optional)</label>
+                <input type="text" id="requestReason" placeholder="e.g. Need tokens for next game room">
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-success">Submit Request</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('tokenRequestModal')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
@@ -138,7 +166,6 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Set target admin email
 const ADMIN_EMAIL = "your-admin-email@gmail.com";
 let userUnsubscribe = null;
 
@@ -148,7 +175,6 @@ auth.onAuthStateChanged((user) => {
     const userProfile = document.getElementById("userProfile");
     const adminBtn = document.getElementById("adminBtn");
 
-    // Clean up active listener when user changes
     if (userUnsubscribe) {
         userUnsubscribe();
         userUnsubscribe = null;
@@ -159,10 +185,8 @@ auth.onAuthStateChanged((user) => {
         userProfile.style.display = "flex";
         document.getElementById("userEmailDisplay").textContent = user.email;
 
-        // Display Admin button if admin email matches
         adminBtn.style.display = (user.email === ADMIN_EMAIL) ? "inline-block" : "none";
 
-        // Listen for live token changes in Firestore
         userUnsubscribe = db.collection("users").doc(user.uid).onSnapshot((doc) => {
             if (doc.exists) {
                 document.getElementById("tokenBalance").textContent = doc.data().tokens || 0;
@@ -184,6 +208,33 @@ auth.onAuthStateChanged((user) => {
         adminBtn.style.display = "none";
     }
 });
+
+/* SUBMIT TOKEN REQUEST TO FIRESTORE */
+async function handleTokenRequest(e) {
+    e.preventDefault();
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+
+    const amount = parseInt(document.getElementById("requestAmount").value);
+    const reason = document.getElementById("requestReason").value.trim();
+
+    try {
+        await db.collection("tokenRequests").add({
+            uid: currentUser.uid,
+            email: currentUser.email,
+            amount: amount,
+            reason: reason || "No reason specified",
+            status: "pending", // pending, approved, or rejected
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        closeModal("tokenRequestModal");
+        document.getElementById("requestReason").value = "";
+        alert("Token request submitted successfully! An admin will review it shortly.");
+    } catch (err) {
+        alert("Failed to submit request: " + err.message);
+    }
+}
 
 /* HANDLE REGISTER */
 async function handleRegister(e) {
