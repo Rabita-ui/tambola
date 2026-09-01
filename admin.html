@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Tambola House</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- CSS fallback or standard CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; padding: 20px; }
         .card { box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
@@ -60,7 +61,7 @@
     <script type="module">
         import { auth, db } from "./firebase-config.js";
         import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { collection, addRef, getDocs, doc, setDoc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { collection, getDocs, doc, setDoc, deleteDoc, onSnapshot, query, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         onAuthStateChanged(auth, (user) => {
             if (!user) {
@@ -100,7 +101,7 @@
             }
         });
 
-        // Load Token Requests
+        // Load Token Requests dynamically
         const tokenContainer = document.getElementById('token-requests-container');
         onSnapshot(collection(db, "token_requests"), (snapshot) => {
             if (snapshot.empty) {
@@ -113,10 +114,22 @@
                 const div = document.createElement('div');
                 div.className = "d-flex justify-content-between align-items-center border-bottom py-2";
                 div.innerHTML = `<span>User: ${req.userId || 'Unknown'} - Amount: ${req.amount || 0}</span>
-                                 <button class="btn btn-success btn-sm" onclick="approveToken('${docSnap.id}')">Approve</button>`;
+                                 <button class="btn btn-success btn-sm" onclick="handleTokenAction('${docSnap.id}', '${req.userId}', ${req.amount || 0})">Approve</button>`;
                 tokenContainer.appendChild(div);
             });
         });
+
+        // Global function for button execution
+        window.handleTokenAction = async function(reqId, userId, amount) {
+            try {
+                // Delete request on approval
+                await deleteDoc(doc(db, "token_requests", reqId));
+                alert("Token request approved successfully!");
+            } catch (err) {
+                console.error("Approval error:", err);
+                alert("Failed to approve: " + err.message);
+            }
+        };
     </script>
 </body>
 </html>
