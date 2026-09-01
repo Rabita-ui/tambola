@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Tickets Data - Tambola House</title>
+    <title>Master Tickets - Tambola House</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; padding: 20px; }
         .card { box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .tickets-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; max-height: 600px; overflow-y: auto; padding: 10px; background: #fff; border-radius: 6px; border: 1px solid #ddd; }
+        .tickets-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; max-height: 650px; overflow-y: auto; padding: 10px; background: #fff; border-radius: 6px; border: 1px solid #ddd; }
         .ticket-box { border: 1px solid #ced4da; border-radius: 6px; padding: 10px; background: #fdfdfd; font-size: 0.8rem; }
         .ticket-box.booked { border-color: #dc3545; background: #fff5f5; }
         .ticket-box.available { border-color: #198754; background: #f4fcf7; }
@@ -20,117 +20,132 @@
 <body>
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Game Ticket Data (Booked vs Available)</h2>
+            <h2>Master Ticket Pool (600 Tickets)</h2>
             <div class="d-flex gap-2">
                 <a href="book.html" class="btn btn-primary btn-sm">Back to Bookings</a>
                 <a href="user.html" class="btn btn-secondary btn-sm">Dashboard</a>
             </div>
         </div>
 
-        <div id="games-ticket-sections">
-            <p class="text-muted">Loading tickets for the selected game...</p>
+        <div id="game-info-card" class="card p-3 mb-3">
+            <h5 class="text-muted">Loading game context...</h5>
+        </div>
+
+        <div class="card p-3">
+            <div id="master-tickets-container">
+                <p class="text-muted">Loading master ticket pool...</p>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { auth, db } from "./firebase-config.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                await loadTargetGameTickets();
+                await loadMasterTicketsAndStatus();
             } else {
                 window.location.href = "index.html";
             }
         });
 
-        async function loadTargetGameTickets() {
-            const container = document.getElementById('games-ticket-sections');
+        async function loadMasterTicketsAndStatus() {
+            const infoContainer = document.getElementById('game-info-card');
+            const ticketsContainer = document.getElementById('master-tickets-container');
             const urlParams = new URLSearchParams(window.location.search);
-            const targetGameId = urlParams.get('gameId');
-
-            if (!targetGameId) {
-                container.innerHTML = "<p class='text-danger'>No game specified. Please select a game from the booking page.</p>";
-                return;
-            }
+            let targetGameId = urlParams.get('gameId');
 
             try {
-                // Fetch all games to locate the matching game details
+                // Fetch games to match context
                 const gamesQuery = query(collection(db, "games"), orderBy("createdAt", "desc"));
                 const gamesSnap = await getDocs(gamesQuery);
 
+                if (gamesSnap.empty) {
+                    infoContainer.innerHTML = "<p class='text-danger mb-0'>No game draws available.</p>";
+                    ticketsContainer.innerHTML = "";
+                    return;
+                }
+
                 let targetGameData = null;
                 gamesSnap.forEach(docSnap => {
-                    if (docSnap.id === targetGameId) {
+                    if (!targetGameId && !targetGameData) {
+                        // Default to latest game if none specified in URL
+                        targetGameId = docSnap.id;
+                        targetGameData = docSnap.data();
+                    } else if (docSnap.id === targetGameId) {
                         targetGameData = docSnap.data();
                     }
                 });
 
                 if (!targetGameData) {
-                    container.innerHTML = "<p class='text-warning'>Specified game draw not found or has expired.</p>";
+                    infoContainer.innerHTML = "<p class='text-warning mb-0'>Selected game not found.</p>";
+                    ticketsContainer.innerHTML = "";
                     return;
                 }
 
-                // Fetch booked tickets for this specific game
-                const ticketsSnap = await getDocs(collection(db, "booked_tickets"));
-                const allBookedTickets = ticketsSnap.docs.map(doc => doc.data());
-                const gameBooked = allBookedTickets.filter(t => t.gameId === targetGameId);
-                const bookedTicketNumbers = new Set(gameBooked.map(t => Number(t.ticketNo)));
-
-                // Fetch master pool tickets
-                const masterSnap = await getDocs(collection(db, "master_tickets"));
-                const masterTickets = masterSnap.docs.map(doc => doc.data());
-
-                container.innerHTML = "";
+                // Render game header info
                 const startTime = new Date(targetGameData.startTime);
                 const now = new Date();
                 const isPast = startTime <= now;
-                const headerColor = isPast ? "text-danger" : "text-primary";
                 const badgeText = isPast ? "<span class='badge bg-danger'>Past / Finished</span>" : "<span class='badge bg-primary'>Upcoming</span>";
 
-                let section = document.createElement('div');
-                section.className = "card p-3 mb-4";
+                // Fetch booked tickets for this specific game
+                const bookedSnap = await getDocs(collection(db, "booked_tickets"));
+                const gameBookedTickets = bookedSnap.docs
+                    .map(doc => doc.data())
+                    .filter(t => t.gameId === targetGameId);
                 
-                let ticketsHtml = `<div class="tickets-container">`;
+                const bookedTicketNumbers = new Set(gameBookedTickets.map(t => Number(t.ticketNo)));
+
+                // Fetch all master tickets (up to 600 pool)
+                const masterSnap = await getDocs(collection(db, "master_tickets"));
+                const masterTickets = masterSnap.docs.map(doc => doc.data());
+
+                infoContainer.innerHTML = `
+                    <h4 class="text-primary mb-1">Draw Time: ${startTime.toLocaleString()} ${badgeText}</h4>
+                    <p class="mb-0"><strong>Prizes:</strong> ${targetGameData.prizes} | <strong>Booked:</strong> ${gameBookedTickets.length} / <strong>Total Master Tickets:</strong> ${masterTickets.length}</p>
+                `;
 
                 if (masterTickets.length === 0) {
-                    ticketsHtml += `<p class='text-muted'>No master tickets configured in database.</p>`;
-                } else {
-                    masterTickets.sort((a, b) => a.ticketNo - b.ticketNo).forEach(master => {
-                        const isBooked = bookedTicketNumbers.has(Number(master.ticketNo));
-                        const statusClass = isBooked ? "booked" : "available";
-                        const badgeStatus = isBooked ? `<span class="badge bg-danger float-end">Booked</span>` : `<span class="badge bg-success float-end">Available</span>`;
-                        
-                        const numbersArray = master.numbersString ? master.numbersString.split(',') : Array(27).fill(0);
-
-                        ticketsHtml += `
-                            <div class="ticket-box ${statusClass}">
-                                <div class="fw-bold mb-1">Ticket #${master.ticketNo} ${badgeStatus}</div>
-                                <div class="text-muted" style="font-size: 0.7rem;">${isBooked ? 'Status: Taken' : 'Status: Ready'}</div>
-                                <div class="ticket-grid">
-                        `;
-
-                        for (let idx = 0; idx < 27; idx++) {
-                            let val = numbersArray[idx];
-                            let displayVal = (val === "0" || !val) ? "" : val;
-                            ticketsHtml += `<div class="cell ${displayVal === "" ? "empty" : ""}">${displayVal}</div>`;
-                        }
-                        ticketsHtml += `</div></div>`;
-                    });
+                    ticketsContainer.innerHTML = "<p class='text-muted'>No master tickets found in the database. Please ensure admin has generated the 600 ticket pool.</p>";
+                    return;
                 }
+
+                // Sort master tickets by ticketNo
+                masterTickets.sort((a, b) => Number(a.ticketNo) - Number(b.ticketNo));
+
+                let ticketsHtml = `<div class="tickets-container">`;
+                masterTickets.forEach(master => {
+                    const tNo = Number(master.ticketNo);
+                    const isBooked = bookedTicketNumbers.has(tNo);
+                    const statusClass = isBooked ? "booked" : "available";
+                    const badgeStatus = isBooked ? `<span class="badge bg-danger float-end">Booked</span>` : `<span class="badge bg-success float-end">Available</span>`;
+                    
+                    const numbersArray = master.numbersString ? master.numbersString.split(',') : Array(27).fill(0);
+
+                    ticketsHtml += `
+                        <div class="ticket-box ${statusClass}">
+                            <div class="fw-bold mb-1">Ticket #${tNo} ${badgeStatus}</div>
+                            <div class="text-muted" style="font-size: 0.7rem;">${isBooked ? 'Status: Taken' : 'Status: Ready to Book'}</div>
+                            <div class="ticket-grid">
+                    `;
+
+                    for (let idx = 0; idx < 27; idx++) {
+                        let val = numbersArray[idx];
+                        let displayVal = (val === "0" || !val) ? "" : val;
+                        ticketsHtml += `<div class="cell ${displayVal === "" ? "empty" : ""}">${displayVal}</div>`;
+                    }
+                    ticketsHtml += `</div></div>`;
+                });
                 ticketsHtml += `</div>`;
 
-                section.innerHTML = `
-                    <h4 class="${headerColor}">Draw Time: ${startTime.toLocaleString()} ${badgeText}</h4>
-                    <p class="mb-2"><strong>Prizes:</strong> ${targetGameData.prizes} | <strong>Booked:</strong> ${gameBooked.length} / <strong>Total Master Tickets:</strong> ${masterTickets.length}</p>
-                    ${ticketsHtml}
-                `;
-                container.appendChild(section);
+                ticketsContainer.innerHTML = ticketsHtml;
 
             } catch (err) {
-                console.error("Error loading ticket data:", err);
-                container.innerHTML = "<p class='text-danger'>Failed to load game ticket records.</p>";
+                console.error("Error loading master tickets:", err);
+                ticketsContainer.innerHTML = "<p class='text-danger'>Failed to load master ticket pool.</p>";
             }
         }
     </script>
