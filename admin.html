@@ -3,283 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Game - Tambola House</title>
+    <title>Admin Dashboard - Tambola House</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; color: #333; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; max-width: 1000px; margin-left: auto; margin-right: auto; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-        
-        .board-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin-top: 15px; }
-        .board-cell { background: #e9ecef; border: 1px solid #ccc; height: 38px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 4px; font-size: 0.95em; }
-        .board-cell.called { background: #28a745; color: white; border-color: #1e7e34; box-shadow: 0 0 6px rgba(40, 167, 69, 0.5); }
-        .board-cell.current { background: #ffc107; color: #000; border-color: #d39e00; animation: pulse 1s infinite alternate; }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.08); }
-        }
-
-        .caller-box { background: #212529; color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
-        .current-number { font-size: 3.5em; font-weight: bold; color: #ffc107; margin: 10px 0; }
-        
-        .tickets-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .ticket-card { background: #fff; border: 2px solid #007bff; border-radius: 6px; padding: 10px; }
-        .ticket-header { font-weight: bold; margin-bottom: 6px; color: #d9534f; display: flex; justify-content: space-between; }
-        .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; background: #333; border: 2px solid #333; }
-        .cell { background: #fff; height: 26px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85em; cursor: pointer; user-select: none; }
-        .cell.empty { background: #f0f0f0; cursor: default; }
-        .cell.marked { background: #ffc107; color: #000; }
-        
-        button { background: #007bff; color: white; border: none; padding: 10px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        button:hover { background: #0056b3; }
-        .btn-danger { background: #dc3545; }
-        .btn-danger:hover { background: #bd2130; }
-        .btn-success { background: #28a745; }
-        .btn-success:hover { background: #218838; }
-        
-        .nav-btn { background: #6c757d; text-decoration: none; color: white; padding: 8px 15px; border-radius: 4px; font-weight: bold; display: inline-block; }
-        select, input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; }
+        body { background-color: #f8f9fa; padding: 20px; }
+        .card { box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
     </style>
 </head>
 <body>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Admin Control Panel</h2>
+            <button id="btn-logout" class="btn btn-outline-danger btn-sm">Logout</button>
+        </div>
 
-    <div class="card">
-        <div class="top-bar">
-            <div>
-                <a href="user.html" class="nav-btn">⬅️ Dashboard</a>
-                <h2 style="margin: 10px 0 0 0;">Live Tambola Game</h2>
+        <!-- Game Creation Form -->
+        <div class="card p-3">
+            <h4>Create New Game</h4>
+            <div class="mb-3">
+                <label for="game-start-time" class="form-label">Start Time</label>
+                <input type="datetime-local" id="game-start-time" class="form-control">
             </div>
-            <div>
-                <span id="player-role" style="font-weight: bold; background: #e0e0e0; padding: 5px 10px; border-radius: 4px;">Loading...</span>
+            <div class="mb-3">
+                <label for="game-prizes" class="form-label">Prizes (Comma-separated, e.g. 10,10,10,50)</label>
+                <input type="text" id="game-prizes" placeholder="10,10,10,50" class="form-control">
+            </div>
+            <button id="btn-create-game" class="btn btn-primary">Create Game</button>
+        </div>
+
+        <!-- Live Game Host Launcher & Configuration -->
+        <div class="card p-3">
+            <h4>Live Game Host Controls</h4>
+            <div class="mb-3">
+                <label for="call-interval" class="form-label">Call Interval (Seconds)</label>
+                <input type="number" id="call-interval" value="5" min="1" max="30" class="form-control">
+            </div>
+            <a href="game.html?role=host" id="dashboard-link" class="btn btn-warning w-100" target="_blank">Launch Live Game Host View</a>
+        </div>
+
+        <!-- Approvals Section -->
+        <div class="card p-3">
+            <h4>Token Requests Approval</h4>
+            <div id="token-requests-container">
+                <p class="text-muted">Loading requests...</p>
             </div>
         </div>
 
-        <!-- Host Admin Controls (Always accessible if user accesses via admin flow or email match) -->
-        <div id="admin-controls" class="card" style="display: none; background: #fff3cd; border: 2px solid #ffeeba;">
-            <h3 style="margin-top: 0; color: #856404;">⚙️ Host Game Controls</h3>
-            <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-                <div>
-                    <label style="display: block; font-size: 0.85em;"><strong>Start From Number:</strong></label>
-                    <select id="start-number-select"></select>
-                </div>
-
-                <div>
-                    <label style="display: block; font-size: 0.85em;"><strong>Interval (Sec):</strong></label>
-                    <input type="number" id="call-interval" value="5" min="2" max="30" style="width: 60px;">
-                </div>
-
-                <div style="margin-top: 15px; display: flex; gap: 8px;">
-                    <button id="btn-start-game" class="btn-success">▶ Start Game</button>
-                    <button id="btn-pause-game" class="btn-danger">⏸ Pause</button>
-                    <button id="btn-reset-game" style="background: #6c757d;">🔄 Reset Game</button>
-                </div>
+        <div class="card p-3">
+            <h4>Withdrawal Requests Approval</h4>
+            <div id="withdrawal-requests-container">
+                <p class="text-muted">Loading requests...</p>
             </div>
-        </div>
-
-        <!-- Call Board Display -->
-        <div class="caller-box">
-            <small style="text-transform: uppercase; letter-spacing: 1px; color: #aaa;">Current Called Number</small>
-            <div id="current-number-display" class="current-number">--</div>
-            <div id="game-status-text" style="color: #ffc107; font-weight: bold;">Waiting for host to start...</div>
-        </div>
-
-        <!-- Master Board 1-90 -->
-        <h3>Master Board (1-90)</h3>
-        <div class="board-grid" id="master-board"></div>
-    </div>
-
-    <!-- User Tickets Section -->
-    <div class="card">
-        <h3>My Live Tickets</h3>
-        <small style="color: #666;">Click numbers on your tickets to mark them off as they are called.</small>
-        <div class="tickets-container" id="my-game-tickets" style="margin-top: 15px;">
-            <p>Loading your tickets...</p>
         </div>
     </div>
 
     <script type="module">
         import { auth, db } from "./firebase-config.js";
-        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { doc, setDoc, onSnapshot, collection, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { collection, addRef, getDocs, doc, setDoc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        let currentUser = null;
-        let callTimer = null;
-
-        // Deterministic Pseudo-Random Generator to create a fixed sequence of numbers 1-90
-        function generateFixedSequence() {
-            let nums = Array.from({length: 90}, (_, i) => i + 1);
-            let seed = 987654321;
-            
-            for (let i = nums.length - 1; i > 0; i--) {
-                let x = Math.sin(seed++) * 10000;
-                let j = Math.floor((x - Math.floor(x)) * (i + 1));
-                [nums[i], nums[j]] = [nums[j], nums[i]];
-            }
-            return nums;
-        }
-
-        const FIXED_SEQUENCE = generateFixedSequence();
-
-        // Populate Master Board 1-90 UI
-        const boardEl = document.getElementById('master-board');
-        for (let i = 1; i <= 90; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'board-cell';
-            cell.id = `board-${i}`;
-            cell.innerText = i;
-            boardEl.appendChild(cell);
-        }
-
-        // Populate Start Dropdown with the fixed sequence numbers
-        const selectEl = document.getElementById('start-number-select');
-        FIXED_SEQUENCE.forEach((num, index) => {
-            const opt = document.createElement('option');
-            opt.value = index;
-            opt.innerText = `Number ${num} (Position #${index + 1})`;
-            selectEl.appendChild(opt);
-        });
-
-        // Auth Check
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-
-                // Display admin controls if referee/admin email OR if navigated from admin dashboard
-                const isHost = user.email.includes("admin") || document.referrer.includes("admin.html");
-
-                if (isHost) {
-                    document.getElementById('player-role').innerText = "HOST / ADMIN";
-                    document.getElementById('admin-controls').style.display = "block";
-                } else {
-                    document.getElementById('player-role').innerText = "PLAYER";
-                    document.getElementById('admin-controls').style.display = "none";
-                }
-
-                loadUserTickets(user.uid);
-                listenToGameState();
-            } else {
+            if (!user) {
                 window.location.href = "index.html";
             }
         });
 
-        // Listen for live updates
-        function listenToGameState() {
-            onSnapshot(doc(db, "game_session", "active_game"), (snap) => {
-                if (!snap.exists()) return;
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            signOut(auth).then(() => { window.location.href = "index.html"; });
+        });
 
-                const data = snap.data();
-                const calledNumbers = data.calledNumbers || [];
-                const currentNum = data.currentNumber || "--";
-                const isRunning = data.isRunning || false;
+        document.getElementById('btn-create-game').addEventListener('click', async () => {
+            const startTime = document.getElementById('game-start-time').value;
+            const prizes = document.getElementById('game-prizes').value;
 
-                document.getElementById('current-number-display').innerText = currentNum;
-                document.getElementById('game-status-text').innerText = isRunning ? "🔴 GAME IN PROGRESS" : "⏸ GAME PAUSED / STOPPED";
+            if (!startTime || !prizes) {
+                alert("Please fill out all game fields.");
+                return;
+            }
 
-                for (let i = 1; i <= 90; i++) {
-                    const el = document.getElementById(`board-${i}`);
-                    el.classList.remove('called', 'current');
-                    
-                    if (calledNumbers.includes(i)) {
-                        el.classList.add('called');
-                    }
-                }
-
-                if (currentNum !== "--" && document.getElementById(`board-${currentNum}`)) {
-                    document.getElementById(`board-${currentNum}`).classList.add('current');
-                }
-            });
-        }
-
-        // Host Actions
-        document.getElementById('btn-start-game').addEventListener('click', () => {
-            const startIndex = parseInt(selectEl.value);
-            const intervalSec = parseInt(document.getElementById('call-interval').value) || 5;
-
-            let currentIndex = startIndex;
-            let calledNumbers = [];
-
-            clearInterval(callTimer);
-            
-            setDoc(doc(db, "game_session", "active_game"), {
-                isRunning: true,
-                startIndex: startIndex,
-                intervalSec: intervalSec,
-                lastUpdated: new Date().toISOString()
-            }, { merge: true });
-
-            callTimer = setInterval(async () => {
-                if (currentIndex >= FIXED_SEQUENCE.length) {
-                    clearInterval(callTimer);
-                    alert("All 90 numbers called!");
-                    return;
-                }
-
-                const numToCall = FIXED_SEQUENCE[currentIndex];
-                calledNumbers.push(numToCall);
-
-                await setDoc(doc(db, "game_session", "active_game"), {
-                    currentNumber: numToCall,
-                    calledNumbers: calledNumbers,
-                    isRunning: true
+            try {
+                await setDoc(doc(db, "games", "active_game"), {
+                    startTime: startTime,
+                    prizes: prizes,
+                    firstNumber: 5,
+                    status: "upcoming",
+                    createdAt: new Date().toISOString(),
+                    currentNumber: "--",
+                    calledNumbers: [],
+                    isRunning: false
                 }, { merge: true });
 
-                currentIndex++;
-            }, intervalSec * 1000);
+                alert("Game created and initialized successfully!");
+            } catch (err) {
+                console.error("Error creating game:", err);
+                alert("Failed to create game: " + err.message);
+            }
         });
 
-        document.getElementById('btn-pause-game').addEventListener('click', async () => {
-            clearInterval(callTimer);
-            await setDoc(doc(db, "game_session", "active_game"), { isRunning: false }, { merge: true });
-        });
-
-        document.getElementById('btn-reset-game').addEventListener('click', async () => {
-            if (!confirm("Reset game board for everyone?")) return;
-            clearInterval(callTimer);
-            await setDoc(doc(db, "game_session", "active_game"), {
-                currentNumber: "--",
-                calledNumbers: [],
-                isRunning: false
+        // Load Token Requests
+        const tokenContainer = document.getElementById('token-requests-container');
+        onSnapshot(collection(db, "token_requests"), (snapshot) => {
+            if (snapshot.empty) {
+                tokenContainer.innerHTML = "<p class='text-muted'>No pending token requests.</p>";
+                return;
+            }
+            tokenContainer.innerHTML = "";
+            snapshot.forEach((docSnap) => {
+                const req = docSnap.data();
+                const div = document.createElement('div');
+                div.className = "d-flex justify-content-between align-items-center border-bottom py-2";
+                div.innerHTML = `<span>User: ${req.userId || 'Unknown'} - Amount: ${req.amount || 0}</span>
+                                 <button class="btn btn-success btn-sm" onclick="approveToken('${docSnap.id}')">Approve</button>`;
+                tokenContainer.appendChild(div);
             });
         });
-
-        // Load Booked Tickets
-        function loadUserTickets(uid) {
-            const container = document.getElementById('my-game-tickets');
-            const ticketsQuery = query(collection(db, "booked_tickets"), where("userId", "==", uid));
-
-            onSnapshot(ticketsQuery, (snapshot) => {
-                if (snapshot.empty) {
-                    container.innerHTML = "<p>No booked tickets found for live game.</p>";
-                    return;
-                }
-
-                container.innerHTML = "";
-                snapshot.forEach((docSnap) => {
-                    const ticket = docSnap.data();
-                    const numbersArray = ticket.numbersString ? ticket.numbersString.split(',') : Array(27).fill(0);
-
-                    const card = document.createElement('div');
-                    card.className = "ticket-card";
-
-                    let gridHtml = `
-                        <div class="ticket-header">
-                            <span>Ticket #${ticket.ticketNo}</span>
-                        </div>
-                        <div class="ticket-grid">
-                    `;
-
-                    for (let idx = 0; idx < 27; idx++) {
-                        let val = numbersArray[idx];
-                        let displayVal = (val === "0" || !val) ? "" : val;
-                        gridHtml += `<div class="cell ${displayVal === "" ? "empty" : ""}" onclick="this.classList.toggle('marked')">${displayVal}</div>`;
-                    }
-
-                    gridHtml += `</div>`;
-                    card.innerHTML = gridHtml;
-                    container.appendChild(card);
-                });
-            });
-        }
     </script>
 </body>
 </html>
