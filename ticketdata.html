@@ -18,32 +18,38 @@
 <body>
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Latest 3 Game Draws & Tickets</h2>
-            <a href="user.html" class="btn btn-secondary btn-sm">Back to Dashboard</a>
+            <h2>Game Draws & Tickets</h2>
+            <div class="d-flex gap-2">
+                <a href="book.html" class="btn btn-primary btn-sm">Book Tickets</a>
+                <a href="user.html" class="btn btn-secondary btn-sm">Dashboard</a>
+            </div>
         </div>
 
         <div id="games-ticket-sections">
-            <p class="text-muted">Loading latest game records...</p>
+            <p class="text-muted">Loading game records...</p>
         </div>
     </div>
 
     <script type="module">
         import { auth, db } from "./firebase-config.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                await loadLatestGamesAndTickets();
+                await loadGamesAndTickets();
             } else {
                 window.location.href = "index.html";
             }
         });
 
-        async function loadLatestGamesAndTickets() {
+        async function loadGamesAndTickets() {
             const container = document.getElementById('games-ticket-sections');
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetGameId = urlParams.get('gameId');
+
             try {
-                const gamesQuery = query(collection(db, "games"), orderBy("createdAt", "desc"), limit(3));
+                const gamesQuery = query(collection(db, "games"), orderBy("createdAt", "desc"));
                 const gamesSnap = await getDocs(gamesQuery);
 
                 if (gamesSnap.empty) {
@@ -55,11 +61,20 @@
                 const allTickets = ticketsSnap.docs.map(doc => doc.data());
 
                 container.innerHTML = "";
-                let index = 1;
+                const now = new Date();
 
                 gamesSnap.forEach(gameDoc => {
                     const gameData = gameDoc.data();
                     const gameId = gameDoc.id;
+
+                    // If a specific gameId was clicked from book.html, highlight or filter it
+                    if (targetGameId && targetGameId !== gameId) return;
+
+                    const startTime = new Date(gameData.startTime);
+                    const isPast = startTime <= now;
+                    const headerColor = isPast ? "text-danger" : "text-primary";
+                    const badgeText = isPast ? "<span class='badge bg-danger'>Past / Finished</span>" : "<span class='badge bg-primary'>Upcoming</span>";
+
                     const gameTickets = allTickets.filter(t => t.gameId === gameId);
 
                     let section = document.createElement('div');
@@ -74,7 +89,7 @@
                             const numbersArray = ticket.numbersString ? ticket.numbersString.split(',') : Array(27).fill(0);
                             ticketsHtml += `
                                 <div class="ticket-box">
-                                    <div class="fw-bold text-danger mb-1">Ticket #${ticket.ticketNo}</div>
+                                    <div class="fw-bold text-danger mb-1">Ticket #${ticket.ticketNo} <span class="text-muted fw-normal" style="font-size: 0.7rem;">(${ticket.email || 'User'})</span></div>
                                     <div class="ticket-grid">
                             `;
                             for (let idx = 0; idx < 27; idx++) {
@@ -88,13 +103,16 @@
                     }
 
                     section.innerHTML = `
-                        <h4 class="text-primary">Game Slot #${index}: ${new Date(gameData.startTime).toLocaleString()}</h4>
-                        <p class="mb-2"><strong>Prizes:</strong> ${gameData.prizes} | <strong>Booked Tickets:</strong> ${gameTickets.length}</p>
+                        <h4 class="${headerColor}">Draw Time: ${startTime.toLocaleString()} ${badgeText}</h4>
+                        <p class="mb-2"><strong>Prizes:</strong> ${gameData.prizes} | <strong>Total Booked Tickets:</strong> ${gameTickets.length}</p>
                         ${ticketsHtml}
                     `;
                     container.appendChild(section);
-                    index++;
                 });
+
+                if (targetGameId && container.innerHTML === "") {
+                    container.innerHTML = "<p class='text-warning'>Selected game not found or has expired.</p>";
+                }
 
             } catch (err) {
                 console.error("Error loading ticket data:", err);
