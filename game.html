@@ -3,325 +3,425 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Game Room - Tambola House</title>
+    <title>Game Room - Tambola House</title>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: #f8f9fa; color: #1a1d20; min-height: 100vh; padding: 20px; }
-        
-        .container { max-width: 1200px; margin: 0 auto; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        }
 
-        /* HEADER & NAVIGATION */
-        .header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            background: #ffffff; border: 1px solid #e9ecef; padding: 16px 24px; 
-            border-radius: 12px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        body {
+            background: linear-gradient(145deg, #f7f3ee, #e9e1d7);
+            color: #2d1f14;
+            min-height: 100vh;
+            padding: 20px;
         }
-        .header h2 { font-size: 1.3rem; color: #1a1d20; display: flex; align-items: center; gap: 10px; }
-        .nav-links { display: flex; gap: 15px; align-items: center; }
-        .nav-link { color: #1a73e8; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
 
-        /* LIVE BOARD SECTION */
-        .live-board-card {
-            background: #ffffff; border: 1px solid #dadce0; border-radius: 12px;
-            padding: 20px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        .container {
+            max-width: 1100px;
+            margin: auto;
         }
-        .board-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 700; }
-        
-        .draw-status-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px;
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
         }
+
+        .header h1 {
+            font-size: 1.5rem;
+        }
+
+        .header h1 i {
+            color: #b35e2e;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: #7b6856;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+
+        .nav a:hover {
+            color: #b35e2e;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,.07);
+        }
+
+        .card h2 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            color: #2d1f14;
+        }
+
         .status-box {
-            background: #f1f3f4; border-radius: 8px; padding: 15px; text-align: center;
-        }
-        .status-box .label { font-size: 0.8rem; color: #5f6368; font-weight: 600; text-transform: uppercase; }
-        .status-box .value { font-size: 1.8rem; font-weight: 800; color: #1a73e8; margin-top: 5px; }
-        .status-box .value.highlight { color: #d93025; font-size: 2.2rem; }
-
-        /* DRAWN NUMBERS TRACKER */
-        .numbers-history {
-            display: flex; flex-wrap: wrap; gap: 6px; padding: 10px; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 8px; max-height: 120px; overflow-y: auto;
-        }
-        .num-chip {
-            width: 32px; height: 32px; border-radius: 50%; background: #1a73e8; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;
+            background: #f6f1eb;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 15px;
         }
 
-        /* PLAYER TICKETS GRID */
-        .my-tickets-section { margin-top: 20px; }
-        .section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-
-        .tickets-container {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px;
+        .status-box .label {
+            color: #7b6856;
+            font-size: .85rem;
+            margin-bottom: 5px;
         }
 
-        .ticket-card {
-            background: #ffffff; border: 1px solid #dadce0; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        .status-box .value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #2d1f14;
         }
-        .ticket-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; color: #202124; display: flex; justify-content: space-between; }
 
-        /* TAMBOLA BOARD (3x9 GRID) */
-        .tambola-board { 
-            display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; 
-            background: #bdc1c6; border: 1px solid #bdc1c6; border-radius: 6px; 
-            overflow: hidden; margin-bottom: 14px; 
+        .last-number {
+            font-size: 4.5rem !important;
+            color: #b35e2e !important;
         }
-        .cell { 
-            background: #ffffff; aspect-ratio: 1; display: flex; align-items: center; 
-            justify-content: center; font-size: 0.8rem; font-weight: 700; color: #202124; 
-        }
-        .cell.empty { background: #f1f3f4; color: transparent; }
-        .cell.drawn { background: #34a853; color: #ffffff; font-weight: 800; }
 
-        /* CLAIM BUTTONS */
-        .claim-actions {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+        /* 1-90 BOARD GRID STYLES */
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 6px;
         }
-        .btn-claim {
-            background: #f1f3f4; border: 1px solid #dadce0; color: #3c4043; padding: 8px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; transition: all 0.2s;
+
+        .board-cell {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            background: #faf8f5;
+            border: 1px solid #ded4c9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #a89a8c;
+            transition: all 0.2s ease;
         }
-        .btn-claim:hover { background: #e8f0fe; color: #1a73e8; border-color: #d2e3fc; }
-        .btn-claim.claimed { background: #ceead6; color: #0d652d; border-color: #ceead6; cursor: default; }
+
+        .board-cell.drawn {
+            background: #b35e2e;
+            color: white;
+            border-color: #b35e2e;
+        }
+
+        .board-cell.latest {
+            background: #1f7a4b;
+            color: white;
+            border-color: #1f7a4b;
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(31, 122, 75, 0.4);
+        }
+
+        /* TAMBOLA TICKET STYLES */
+        .ticket-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 6px;
+            background: #f7f3ee;
+            padding: 10px;
+            border-radius: 12px;
+            border: 2px solid #ded4c9;
+            margin-top: 15px;
+        }
+
+        .ticket-cell {
+            aspect-ratio: 1;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #2d1f14;
+            cursor: pointer;
+            user-select: none;
+            border: 1px solid #e2d7ca;
+        }
+
+        .ticket-cell.empty {
+            background: #eae3d9;
+            cursor: default;
+        }
+
+        .ticket-cell.marked {
+            background: #2b7a78;
+            color: white;
+            border-color: #205e5c;
+        }
+
+        .ticket-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            border: none;
+            border-radius: 12px;
+            padding: 12px 18px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: .9rem;
+            background: #b35e2e;
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .prize-list {
+            list-style: none;
+        }
+
+        .prize-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 850px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
+
 <body>
 
 <div class="container">
-    <!-- HEADER -->
+
     <div class="header">
-        <h2><i class="fas fa-gamepad" style="color: #1a73e8;"></i> Tambola Game Room</h2>
-        <div class="nav-links">
-            <a href="book-tickets.html" class="nav-link"><i class="fas fa-shopping-cart"></i> Buy Tickets</a>
-            <a href="dashboard.html" class="nav-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        <h1>
+            <i class="fas fa-gamepad"></i>
+            Tambola House — Game Room
+        </h1>
+
+        <div class="nav">
+            <a href="admin.html">
+                <i class="fas fa-shield-alt"></i> Admin Panel
+            </a>
+            <a href="dashboard.html">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
         </div>
     </div>
 
-    <!-- LIVE DRAW BOARD -->
-    <div class="live-board-card">
-        <div class="board-header">
-            <span>Live Draw Display</span>
-            <span id="gameStatusText" style="color: #1a73e8;">STATUS: READY</span>
+    <div class="grid-layout">
+        
+        <!-- LEFT SIDEBAR: LIVE CALL & PRIZES -->
+        <div>
+            <div class="card">
+                <h2><i class="fas fa-bullhorn"></i> Live Call</h2>
+                
+                <div class="status-box">
+                    <div class="label">Current Number</div>
+                    <div class="value last-number" id="liveLastNumber">--</div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="status-box" style="margin-bottom: 0;">
+                        <div class="label">Drawn</div>
+                        <div class="value" id="liveDrawnCount">0</div>
+                    </div>
+                    <div class="status-box" style="margin-bottom: 0;">
+                        <div class="label">Status</div>
+                        <div class="value" id="liveGameStatus" style="font-size: 1.1rem;">READY</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-trophy"></i> Prize Pool</h2>
+                <ul class="prize-list">
+                    <li class="prize-item"><span>Full House</span><strong id="prizeFullHouse">--</strong></li>
+                    <li class="prize-item"><span>Top Line</span><strong id="prizeTopLine">--</strong></li>
+                    <li class="prize-item"><span>Middle Line</span><strong id="prizeMiddleLine">--</strong></li>
+                    <li class="prize-item"><span>Bottom Line</span><strong id="prizeBottomLine">--</strong></li>
+                    <li class="prize-item"><span>Early 5</span><strong id="prizeEarlyFive">--</strong></li>
+                </ul>
+            </div>
         </div>
 
-        <div class="draw-status-grid">
-            <div class="status-box">
-                <div class="label">Current Call</div>
-                <div class="value highlight" id="lastDrawnNum">--</div>
+        <!-- RIGHT PANEL: BOARD & TICKET -->
+        <div>
+            <div class="card">
+                <h2><i class="fas fa-th"></i> Draw Board (1 - 90)</h2>
+                <div class="board-grid" id="boardGrid"></div>
             </div>
-            <div class="status-box">
-                <div class="label">Total Calls</div>
-                <div class="value" id="totalCallsCount">0</div>
-            </div>
-            <div class="status-box">
-                <div class="label">Draw Date & Time</div>
-                <div class="value" id="drawTimeDisplay" style="font-size: 1rem;">Loading...</div>
+
+            <div class="card">
+                <h2><i class="fas fa-ticket-alt"></i> Your Live Ticket</h2>
+                <div class="ticket-grid" id="ticketGrid"></div>
+                
+                <div class="ticket-actions">
+                    <button onclick="generateNewTicket()"><i class="fas fa-sync-alt"></i> Get New Ticket</button>
+                </div>
             </div>
         </div>
 
-        <div class="board-header">
-            <span>Drawn Numbers History</span>
-        </div>
-        <div class="numbers-history" id="drawnHistoryContainer">
-            <span style="color: #70757a; font-size: 0.85rem;">No numbers drawn yet.</span>
-        </div>
     </div>
 
-    <!-- MY TICKETS LIST -->
-    <div class="my-tickets-section">
-        <div class="section-title"><i class="fas fa-ticket-alt" style="color: #1a73e8;"></i> My Game Tickets</div>
-        <div class="tickets-container" id="myTicketsGrid">
-            <p style="color: #70757a; grid-column: 1/-1;">Loading your purchased tickets...</p>
-        </div>
-    </div>
 </div>
 
-<!-- FIREBASE SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-        authDomain: "tambola-house-3dc56.firebaseapp.com",
-        projectId: "tambola-house-3dc56",
-        storageBucket: "tambola-house-3dc56.firebasestorage.app",
-        messagingSenderId: "267918174188",
-        appId: "1:267918174188:web:ec27684544c286c044c2c9"
-    };
+const firebaseConfig = {
+    apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
+    authDomain: "tambola-house-3dc56.firebaseapp.com",
+    projectId: "tambola-house-3dc56",
+    storageBucket: "tambola-house-3dc56.firebasestorage.app",
+    messagingSenderId: "267918174188",
+    appId: "1:267918174188:web:ec27684544c286c044c2c9"
+};
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const gameRef = db.collection("games").doc("active_game");
 
-    let currentUser = null;
-    let drawnNumbers = [];
-    let myTickets = [];
-    let gamePrizes = {};
+let playerTicket = [];
 
-    /* AUTH & INITIALIZATION */
-    auth.onAuthStateChanged((user) => {
-        if (!user) {
-            window.location.href = "login.html";
-            return;
+// Initialize Page
+window.addEventListener('DOMContentLoaded', () => {
+    buildBoardGrid();
+    generateNewTicket();
+    listenToGame();
+});
+
+/* BUILD 1-90 DISPLAY BOARD */
+function buildBoardGrid() {
+    const grid = document.getElementById("boardGrid");
+    grid.innerHTML = "";
+    for (let i = 1; i <= 90; i++) {
+        const cell = document.createElement("div");
+        cell.className = "board-cell";
+        cell.id = `board-cell-${i}`;
+        cell.textContent = i;
+        grid.appendChild(cell);
+    }
+}
+
+/* FIRESTORE REALTIME LISTENER */
+function listenToGame() {
+    gameRef.onSnapshot((doc) => {
+        if (!doc.exists) return;
+
+        const data = doc.data();
+        const drawn = data.drawnNumbers || [];
+        const last = data.lastDrawn || "--";
+
+        document.getElementById("liveLastNumber").textContent = last;
+        document.getElementById("liveDrawnCount").textContent = drawn.length;
+        document.getElementById("liveGameStatus").textContent = (data.status || "READY").toUpperCase();
+
+        // Update Prizes
+        if (data.prizes) {
+            document.getElementById("prizeFullHouse").textContent = (data.prizes.fullHouse || 0) + " Tokens";
+            document.getElementById("prizeTopLine").textContent = (data.prizes.topLine || 0) + " Tokens";
+            document.getElementById("prizeMiddleLine").textContent = (data.prizes.middleLine || 0) + " Tokens";
+            document.getElementById("prizeBottomLine").textContent = (data.prizes.bottomLine || 0) + " Tokens";
+            document.getElementById("prizeEarlyFive").textContent = (data.prizes.earlyFive || 0) + " Tokens";
         }
-        currentUser = user;
-        listenToActiveGame();
-        listenToUserTickets();
-    });
 
-    /* LISTEN TO ACTIVE GAME STATUS AND DRAWN NUMBERS */
-    function listenToActiveGame() {
-        db.collection("games").doc("active_game").onSnapshot((doc) => {
-            if (!doc.exists) return;
-            const data = doc.data();
-
-            drawnNumbers = data.drawnNumbers || [];
-            gamePrizes = data.prizes || {};
-
-            // Update Header Display
-            document.getElementById("lastDrawnNum").textContent = data.lastDrawn || "--";
-            document.getElementById("totalCallsCount").textContent = drawnNumbers.length;
-            document.getElementById("gameStatusText").textContent = `STATUS: ${(data.status || "READY").toUpperCase()}`;
-            document.getElementById("drawTimeDisplay").textContent = data.drawTime ? new Date(data.drawTime).toLocaleString() : "TBD";
-
-            // Render Drawn Numbers History
-            const historyContainer = document.getElementById("drawnHistoryContainer");
-            if (drawnNumbers.length === 0) {
-                historyContainer.innerHTML = `<span style="color: #70757a; font-size: 0.85rem;">No numbers drawn yet.</span>`;
-            } else {
-                historyContainer.innerHTML = drawnNumbers.map(n => `<div class="num-chip">${n}</div>`).join("");
+        // Update Board Visuals
+        for (let i = 1; i <= 90; i++) {
+            const el = document.getElementById(`board-cell-${i}`);
+            el.className = "board-cell";
+            if (drawn.includes(i)) {
+                el.classList.add("drawn");
             }
-
-            // Re-render tickets to automatically mark numbers
-            renderMyTickets();
-        });
-    }
-
-    /* LISTEN TO USER OWNED TICKETS */
-    function listenToUserTickets() {
-        db.collection("tickets")
-            .where("ownerId", "==", currentUser.uid)
-            .onSnapshot((snapshot) => {
-                myTickets = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderMyTickets();
-            });
-    }
-
-    /* RENDER TICKETS & AUTO-HIGHLIGHT DRAWN NUMBERS */
-    function renderMyTickets() {
-        const container = document.getElementById("myTicketsGrid");
-        if (!myTickets.length) {
-            container.innerHTML = `<p style="color: #70757a; grid-column: 1/-1;">You haven't purchased any tickets for this draw yet. <a href="book-tickets.html">Book Tickets Now</a></p>`;
-            return;
         }
-
-        container.innerHTML = myTickets.map((ticket) => {
-            const numbers = ticket.numbers || Array(27).fill(null);
-            const claims = ticket.claims || {};
-
-            let cellsHtml = numbers.map(num => {
-                if (!num) return `<div class="cell empty"></div>`;
-                const isDrawn = drawnNumbers.includes(num);
-                return `<div class="cell ${isDrawn ? 'drawn' : ''}">${num}</div>`;
-            }).join("");
-
-            return `
-                <div class="ticket-card">
-                    <div class="ticket-title">
-                        <span>${ticket.ticketCode || ticket.id}</span>
-                    </div>
-                    <div class="tambola-board">
-                        ${cellsHtml}
-                    </div>
-                    <div class="claim-actions">
-                        <button class="btn-claim ${claims.earlyFive ? 'claimed' : ''}" onclick="claimWin('${ticket.id}', 'earlyFive')">
-                            ${claims.earlyFive ? '✓ Early 5 Won' : 'Claim Early 5'}
-                        </button>
-                        <button class="btn-claim ${claims.topLine ? 'claimed' : ''}" onclick="claimWin('${ticket.id}', 'topLine')">
-                            ${claims.topLine ? '✓ Top Line Won' : 'Claim Top Line'}
-                        </button>
-                        <button class="btn-claim ${claims.middleLine ? 'claimed' : ''}" onclick="claimWin('${ticket.id}', 'middleLine')">
-                            ${claims.middleLine ? '✓ Mid Line Won' : 'Claim Middle Line'}
-                        </button>
-                        <button class="btn-claim ${claims.bottomLine ? 'claimed' : ''}" onclick="claimWin('${ticket.id}', 'bottomLine')">
-                            ${claims.bottomLine ? '✓ Bot Line Won' : 'Claim Bottom Line'}
-                        </button>
-                        <button class="btn-claim ${claims.fullHouse ? 'claimed' : ''}" onclick="claimWin('${ticket.id}', 'fullHouse')" style="grid-column: span 2;">
-                            ${claims.fullHouse ? '✓ Full House Won' : 'Claim Full House'}
-                        </button>
-                    </div>
-                </div>
-            `;
-        }).join("");
-    }
-
-    /* WIN CLAIM VALIDATION AND PRIZE REWARDING */
-    async function claimWin(ticketId, claimType) {
-        const ticket = myTickets.find(t => t.id === ticketId);
-        if (!ticket) return;
-
-        if (ticket.claims && ticket.claims[claimType]) {
-            alert("You have already claimed this prize on this ticket!");
-            return;
+        if (last !== "--") {
+            const latestEl = document.getElementById(`board-cell-${last}`);
+            if (latestEl) latestEl.classList.add("latest");
         }
+    });
+}
 
-        const numbers = ticket.numbers || [];
-        // Transform 27-element flat array into 3x9 grid matrix
-        const rows = [
-            numbers.slice(0, 9),
-            numbers.slice(9, 18),
-            numbers.slice(18, 27)
-        ];
-
-        const isDrawn = num => !num || drawnNumbers.includes(num);
-        let isValid = false;
-
-        if (claimType === 'earlyFive') {
-            const validNumbersOnTicket = numbers.filter(n => n !== null && n !== 0);
-            const matchedCount = validNumbersOnTicket.filter(n => drawnNumbers.includes(n)).length;
-            isValid = matchedCount >= 5;
-        } else if (claimType === 'topLine') {
-            isValid = rows[0].every(isDrawn);
-        } else if (claimType === 'middleLine') {
-            isValid = rows[1].every(isDrawn);
-        } else if (claimType === 'bottomLine') {
-            isValid = rows[2].every(isDrawn);
-        } else if (claimType === 'fullHouse') {
-            isValid = numbers.every(isDrawn);
+/* GENERATE VALID 3x9 TAMBOLA TICKET */
+function generateNewTicket() {
+    playerTicket = Array.from({ length: 3 }, () => Array(9).fill(0));
+    
+    // Pick 5 numbers per row (total 15 numbers)
+    for (let r = 0; r < 3; r++) {
+        let cols = [];
+        while (cols.length < 5) {
+            let col = Math.floor(Math.random() * 9);
+            if (!cols.includes(col)) cols.push(col);
         }
-
-        if (!isValid) {
-            alert(`Boogie! Claim for ${claimType} is invalid based on current drawn numbers.`);
-            return;
-        }
-
-        const prizeReward = gamePrizes[claimType] || 0;
-
-        try {
-            const userRef = db.collection("users").doc(currentUser.uid);
-            const ticketRef = db.collection("tickets").doc(ticketId);
-
-            await db.runTransaction(async (transaction) => {
-                const userDoc = await transaction.get(userRef);
-                const currentTokens = userDoc.exists ? (userDoc.data().tokens || 0) : 0;
-
-                // 1. Credit tokens to user
-                transaction.update(userRef, { tokens: currentTokens + prizeReward });
-
-                // 2. Record successful claim on ticket
-                transaction.update(ticketRef, {
-                    [`claims.${claimType}`]: true,
-                    [`claimTimestamps.${claimType}`]: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            });
-
-            alert(`Congratulations! Claim Verified! You won ${prizeReward} Tokens for ${claimType}!`);
-        } catch (err) {
-            console.error("Claim Transaction Error:", err);
-            alert("Failed to process win claim: " + err);
+        cols.sort((a, b) => a - b);
+        
+        for (let col of cols) {
+            let min = col * 10 + (col === 0 ? 1 : 0);
+            let max = col * 10 + 9 + (col === 8 ? 1 : 0);
+            let num;
+            do {
+                num = Math.floor(Math.random() * (max - min + 1)) + min;
+            } while (playerTicket.some(row => row[col] === num));
+            
+            playerTicket[r][col] = num;
         }
     }
+
+    renderTicket();
+}
+
+/* RENDER PLAYER TICKET */
+function renderTicket() {
+    const grid = document.getElementById("ticketGrid");
+    grid.innerHTML = "";
+
+    for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 9; c++) {
+            const cell = document.createElement("div");
+            const val = playerTicket[r][c];
+
+            if (val === 0) {
+                cell.className = "ticket-cell empty";
+            } else {
+                cell.className = "ticket-cell";
+                cell.textContent = val;
+                cell.onclick = () => cell.classList.toggle("marked");
+            }
+            grid.appendChild(cell);
+        }
+    }
+}
 </script>
+
 </body>
 </html>
