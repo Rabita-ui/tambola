@@ -30,7 +30,7 @@
         .ticket-card.selected .checkbox-indicator { background: #28a745; border-color: #28a745; position: relative; }
         .ticket-card.selected .checkbox-indicator::after { content: '✓'; color: white; position: absolute; top: -3px; left: 3px; font-size: 14px; font-weight: bold; }
 
-        /* 3x9 Grid */
+        /* 3x9 Grid Layout */
         .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; background: #333; border: 2px solid #333; }
         .cell { background: #fff; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8em; }
         .cell.empty { background: #f0f0f0; }
@@ -53,12 +53,12 @@
             </div>
         </div>
 
-        <!-- Scrollable Ticket List -->
+        <!-- Scrollable Grid Displaying All 600 Tickets -->
         <div class="tickets-container" id="tickets-container">
             <p>Loading 600 fixed tickets...</p>
         </div>
 
-        <!-- Sticky Checkout Bar -->
+        <!-- Sticky Bottom Checkout Bar -->
         <div class="checkout-bar">
             <div>
                 <span style="font-size: 1.1em;">Selected: <strong id="selected-count" style="color: #28a745;">0</strong> Tickets</span>
@@ -70,30 +70,20 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase Modular Setup -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, collection, runTransaction, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-            authDomain: "tambola-house-3dc56.firebaseapp.com",
-            projectId: "tambola-house-3dc56",
-            storageBucket: "tambola-house-3dc56.firebasestorage.app",
-            messagingSenderId: "267918174188",
-            appId: "1:267918174188:web:0bf6b47282f1b14d44c2c9"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        // Import shared auth and db instances from firebase-config.js
+        import { auth, db } from "./firebase-config.js";
+        
+        // Import Firebase Firestore & Auth methods
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { doc, collection, runTransaction, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         let currentUser = null;
         let userTokenBalance = 0;
         let selectedTickets = new Set();
 
-        // Auth & Balance Listener
+        // Check authentication state & load live token balance
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
@@ -109,14 +99,14 @@
             }
         });
 
-        // Seeded Generator for 600 Tickets
+        // Seeded Pseudo-Random Generator (Guarantees identical 600 ticket set across games)
         function seededRandom(seed) {
             let x = Math.sin(seed++) * 10000;
             return x - Math.floor(x);
         }
 
-        // Returns a flat 1D array of 27 elements (Firestore compatible)
-        function generateFlatTicketData(ticketNo) {
+        // Generates a 27-element flat array for 3x9 layout compatibility with Firestore
+        function generateTicketGrid(ticketNo) {
             let seed = ticketNo * 12345;
             let flatGrid = Array(27).fill(0);
             let colRanges = [[1,9],[10,19],[20,29],[30,39],[40,49],[50,59],[60,69],[70,79],[80,90]];
@@ -139,13 +129,13 @@
             return flatGrid;
         }
 
-        // Render Cards with Multi-Select Toggle
+        // Render all 600 ticket cards into the container
         function render600Tickets() {
             const container = document.getElementById('tickets-container');
             container.innerHTML = "";
 
             for (let i = 1; i <= 600; i++) {
-                const flatGrid = generateFlatTicketData(i);
+                const flatGrid = generateTicketGrid(i);
                 
                 const card = document.createElement('div');
                 card.className = "ticket-card";
@@ -170,7 +160,7 @@
             }
         }
 
-        // Toggle Selection Handler
+        // Toggle ticket card selection state
         function toggleTicketSelection(ticketNo) {
             const card = document.getElementById(`ticket-card-${ticketNo}`);
             
@@ -184,13 +174,13 @@
             updateCheckoutBar();
         }
 
-        // Calculate Cost & Offers
+        // Calculate checkout pricing & discounts
         function updateCheckoutBar() {
             const count = selectedTickets.size;
             const btn = document.getElementById('btn-book-selected');
             const offerTag = document.getElementById('offer-tag');
             
-            // Special Discount Rule: Every batch of 6 tickets gives 1 ticket free (Cost = 5 tokens per 6 tickets)
+            // "Buy 6 Pay for 5" offer calculation
             const setsOfSix = Math.floor(count / 6);
             const remainingTickets = count % 6;
             const totalPrice = (setsOfSix * 5) + remainingTickets;
@@ -198,16 +188,11 @@
             document.getElementById('selected-count').innerText = count;
             document.getElementById('total-price').innerText = totalPrice;
 
-            if (setsOfSix > 0) {
-                offerTag.style.display = 'inline-block';
-            } else {
-                offerTag.style.display = 'none';
-            }
-
+            offerTag.style.display = setsOfSix > 0 ? 'inline-block' : 'none';
             btn.disabled = count === 0;
         }
 
-        // Single Deduction Bulk Booking Transaction
+        // Process single token deduction transaction for all selected tickets
         document.getElementById('btn-book-selected').addEventListener('click', async () => {
             const count = selectedTickets.size;
             if (count === 0) return;
@@ -228,7 +213,7 @@
                     const userRef = doc(db, "users", currentUser.uid);
                     const userSnap = await transaction.get(userRef);
 
-                    if (!userSnap.exists()) throw "User not found!";
+                    if (!userSnap.exists()) throw "User profile not found!";
                     const currentTokens = userSnap.data().tokens || 0;
 
                     if (currentTokens < requiredTokens) throw "Not enough tokens in wallet!";
@@ -236,14 +221,14 @@
                     // 1. Single Token Balance Deduction
                     transaction.update(userRef, { tokens: currentTokens - requiredTokens });
 
-                    // 2. Save all selected tickets using flat 1D arrays
+                    // 2. Save ticket data as JSON strings to safely pass through Firestore
                     ticketArray.forEach(tNo => {
                         const bookingRef = doc(collection(db, "booked_tickets"));
                         transaction.set(bookingRef, {
                             userId: currentUser.uid,
                             email: currentUser.email,
                             ticketNo: tNo,
-                            ticketData: generateFlatTicketData(tNo),
+                            ticketDataJson: JSON.stringify(generateTicketGrid(tNo)),
                             bookedAt: new Date().toISOString()
                         });
                     });
