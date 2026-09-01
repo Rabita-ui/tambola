@@ -84,7 +84,8 @@
 
                 onSnapshot(doc(db, "users", user.uid), (snap) => {
                     if (snap.exists()) {
-                        document.getElementById('user-balance').innerText = snap.data().tokens || 0;
+                        const data = snap.data();
+                        document.getElementById('user-balance').innerText = data.wallet ?? data.tokens ?? 0;
                     }
                 });
 
