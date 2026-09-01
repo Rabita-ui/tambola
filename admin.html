@@ -3,222 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Control - Tambola House</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Admin Dashboard - Tambola House</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: #f4ece1; color: #2d1f14; padding: 20px; display: none; /* Hidden until admin verified */ }
-        .container { max-width: 1000px; margin: auto; }
-        .header { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .btn { padding: 10px 18px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; color: white; margin-right: 8px; margin-bottom: 8px; }
-        .btn-draw { background: #b35e2e; }
-        .btn-new { background: #27ae60; }
-        .btn-reset { background: #c0392b; }
-        .btn-approve { background: #27ae60; padding: 5px 10px; }
-        .btn-reject { background: #c0392b; padding: 5px 10px; }
-        .claims-list { margin-top: 15px; }
-        .claim-item { background: #faf5ef; padding: 12px; border-radius: 8px; border: 1px solid #e2d7ca; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .drawn-box { background: #2d1f14; color: #fff; font-size: 2rem; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 10px; font-weight: bold; }
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; color: #333; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; max-width: 1000px; margin-left: auto; margin-right: auto; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 15px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #007bff; color: white; }
+
+        button { background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #218838; }
+        .btn-danger { background: #dc3545; }
+        .btn-danger:hover { background: #bd2130; }
+        
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; }
+        .badge-pending { background: #ffc107; color: #333; }
+        .badge-approved { background: #28a745; color: white; }
+        .badge-rejected { background: #dc3545; color: white; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1><i class="fas fa-shield-alt"></i> Tambola Admin Panel</h1>
-        <div>
-            <a href="dashboard.html" style="margin-right: 15px; text-decoration: none; color: #7b6856; font-weight:600;">Dashboard</a>
-            <a href="game.html" style="text-decoration: none; color: #b35e2e; font-weight:600;">Game Room</a>
-        </div>
-    </div>
-
     <div class="card">
-        <h2>Game Control</h2>
-        <p style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">Manage live number draws or cycle to an upcoming game while keeping history capped at 3 total games.</p>
-        
-        <button class="btn btn-draw" onclick="drawNextNumber()"><i class="fas fa-random"></i> Draw Next Number</button>
-        <button class="btn btn-new" onclick="archiveAndCreateNewGame()"><i class="fas fa-plus-circle"></i> Save & Start Upcoming Game</button>
-        
-        <div style="margin-top: 15px;">
-            <h3>Last Drawn:</h3>
-            <div class="drawn-box" id="lastDrawnDisplay">-</div>
-            <p style="margin-top: 8px; color: #7b6856;" id="totalDrawnCount">Total Drawn: 0 / 90</p>
-        </div>
-    </div>
-
-    <div class="card">
-        <h2>Pending Winner Claims</h2>
-        <div id="claimsList" class="claims-list">
-            <p style="color: #888;">No pending claims.</p>
-        </div>
-    </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-<script>
-const firebaseConfig = {
-    apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-    authDomain: "tambola-house-3dc56.firebaseapp.com",
-    projectId: "tambola-house-3dc56",
-    storageBucket: "tambola-house-3dc56.firebasestorage.app",
-    messagingSenderId: "267918174188",
-    appId: "1:267918174188:web:ec27684544c286c044c2c9"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const gameRef = db.collection("games").doc("active_game");
-
-// CONFIGURE YOUR ADMIN EMAIL HERE
-const ADMIN_EMAIL = "your-admin-email@gmail.com";
-
-let activeDrawn = [];
-let activeClaims = [];
-
-/* AUTHENTICATION ROUTE PROTECTION */
-firebase.auth().onAuthStateChanged((user) => {
-    if (user && user.email === ADMIN_EMAIL) {
-        document.body.style.display = "block"; // Reveal admin interface
-        listenToActiveGame();
-    } else {
-        alert("Access Denied: You must be logged in as an administrator.");
-        window.location.href = "game.html"; // Redirect non-admins away
-    }
-});
-
-/* LISTEN TO ACTIVE GAME */
-function listenToActiveGame() {
-    gameRef.onSnapshot((doc) => {
-        if (doc.exists) {
-            const data = doc.data();
-            activeDrawn = data.drawnNumbers || [];
-            activeClaims = data.claims || [];
-            
-            document.getElementById("lastDrawnDisplay").textContent = data.lastDrawn || "-";
-            document.getElementById("totalDrawnCount").textContent = `Total Drawn: ${activeDrawn.length} / 90`;
-            
-            renderClaims();
-        }
-    });
-}
-
-/* DRAW NEXT NUMBER */
-async function drawNextNumber() {
-    if (activeDrawn.length >= 90) {
-        alert("All numbers have been drawn!");
-        return;
-    }
-    
-    let next;
-    do {
-        next = Math.floor(Math.random() * 90) + 1;
-    } while (activeDrawn.includes(next));
-
-    activeDrawn.push(next);
-
-    await gameRef.set({
-        drawnNumbers: activeDrawn,
-        lastDrawn: next,
-        status: "ACTIVE"
-    }, { merge: true });
-}
-
-/* RENDER PENDING CLAIMS */
-function renderClaims() {
-    const list = document.getElementById("claimsList");
-    if (!activeClaims || activeClaims.length === 0) {
-        list.innerHTML = '<p style="color: #888;">No pending claims.</p>';
-        return;
-    }
-
-    let html = "";
-    activeClaims.forEach((c, index) => {
-        html += `
-            <div class="claim-item">
-                <div>
-                    <strong>${c.userEmail}</strong> — <span style="color:#b35e2e;">${c.claimName}</span>
-                </div>
-                <div>
-                    <button class="btn btn-approve" onclick="resolveClaim(${index}, true)">Approve</button>
-                    <button class="btn btn-reject" onclick="resolveClaim(${index}, false)">Reject</button>
-                </div>
+        <div class="top-bar">
+            <div>
+                <h2 style="margin: 0;">Admin Control Center</h2>
+                <small>Logged in as: <strong id="admin-email">Admin</strong></small>
             </div>
-        `;
-    });
-    list.innerHTML = html;
-}
+            <button id="btn-logout" class="btn-danger">Logout</button>
+        </div>
+    </div>
 
-/* APPROVE OR REJECT CLAIM */
-async function resolveClaim(index, isApproved) {
-    const targetClaim = activeClaims[index];
-    
-    await gameRef.update({
-        claims: firebase.firestore.FieldValue.arrayRemove(targetClaim)
-    });
+    <!-- Token Requests -->
+    <div class="card">
+        <h3>Pending Token Requests</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>User Email</th>
+                    <th>Tokens Requested</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="token-requests-table">
+                <tr><td colspan="4">Loading requests...</td></tr>
+            </tbody>
+        </table>
+    </div>
 
-    if (isApproved) {
-        await db.collection("winners").add({
-            userEmail: targetClaim.userEmail,
-            claimName: targetClaim.claimName,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    <!-- Overview of All Booked Tickets -->
+    <div class="card">
+        <h3>All Ticket Bookings</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>User Email</th>
+                    <th>Ticket #</th>
+                    <th>Booked At</th>
+                </tr>
+            </thead>
+            <tbody id="all-bookings-table">
+                <tr><td colspan="3">Loading bookings...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script type="module">
+        import { auth, db } from "./firebase-config.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { collection, doc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('admin-email').innerText = user.email;
+                loadTokenRequests();
+                loadAllBookings();
+            } else {
+                window.location.href = "index.html";
+            }
         });
-        alert(`Approved ${targetClaim.userEmail}'s claim! Saved to Dashboard Winner Log.`);
-    }
-}
 
-/* ARCHIVE CURRENT GAME & START UPCOMING GAME (MAX 3 GAMES TOTAL) */
-async function archiveAndCreateNewGame() {
-    if (!confirm("Save current game to history and set up an upcoming game?")) return;
+        // Load Pending Token Requests
+        function loadTokenRequests() {
+            const tableBody = document.getElementById('token-requests-table');
+            
+            onSnapshot(collection(db, "token_requests"), (snapshot) => {
+                if (snapshot.empty) {
+                    tableBody.innerHTML = "<tr><td colspan='4'>No pending requests found.</td></tr>";
+                    return;
+                }
 
-    try {
-        if (activeDrawn && activeDrawn.length > 0) {
-            await db.collection("games_history").add({
-                drawnNumbers: activeDrawn,
-                totalDrawn: activeDrawn.length,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                status: "COMPLETED"
+                tableBody.innerHTML = "";
+                snapshot.forEach((docSnap) => {
+                    const req = docSnap.data();
+                    const reqId = docSnap.id;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${req.email}</td>
+                        <td><strong>${req.amount}</strong></td>
+                        <td><span class="badge badge-${req.status}">${req.status.toUpperCase()}</span></td>
+                        <td>
+                            ${req.status === 'pending' ? `<button onclick="approveRequest('${reqId}', '${req.userId}', ${req.amount})">Approve</button>` : 'Completed'}
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
             });
         }
 
-        await gameRef.set({
-            drawnNumbers: [],
-            lastDrawn: null,
-            status: "READY",
-            claims: []
+        // Transaction to Approve Request & Add Balance
+        window.approveRequest = async (requestId, userId, amount) => {
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const userRef = doc(db, "users", userId);
+                    const requestRef = doc(db, "token_requests", requestId);
+
+                    const userSnap = await transaction.get(userRef);
+                    if (!userSnap.exists()) throw "User document does not exist!";
+
+                    const currentTokens = userSnap.data().tokens || 0;
+                    transaction.update(userRef, { tokens: currentTokens + amount });
+                    transaction.update(requestRef, { status: "approved" });
+                });
+                alert("Tokens credited successfully!");
+            } catch (err) {
+                alert("Approval failed: " + err);
+            }
+        };
+
+        // Load All Bookings
+        function loadAllBookings() {
+            const tableBody = document.getElementById('all-bookings-table');
+
+            onSnapshot(collection(db, "booked_tickets"), (snapshot) => {
+                if (snapshot.empty) {
+                    tableBody.innerHTML = "<tr><td colspan='3'>No tickets booked yet.</td></tr>";
+                    return;
+                }
+
+                tableBody.innerHTML = "";
+                snapshot.forEach((docSnap) => {
+                    const b = docSnap.data();
+                    const date = b.bookedAt ? new Date(b.bookedAt).toLocaleString() : "N/A";
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${b.email}</td>
+                        <td><strong>Ticket #${b.ticketNo}</strong></td>
+                        <td>${date}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            });
+        }
+
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            signOut(auth).then(() => {
+                window.location.href = "index.html";
+            });
         });
-
-        await pruneOldGamesHistory();
-
-        alert("New upcoming game setup complete! Kept 1 active game and the 2 most recent completed games.");
-
-    } catch (error) {
-        console.error("Error creating new game:", error);
-        alert("Error: " + error.message);
-    }
-}
-
-/* PRUNE OLD GAMES HISTORY */
-async function pruneOldGamesHistory() {
-    const snapshot = await db.collection("games_history")
-                              .orderBy("timestamp", "desc")
-                              .get();
-
-    if (snapshot.docs.length > 2) {
-        const docsToDelete = snapshot.docs.slice(2);
-        const batch = db.batch();
-
-        docsToDelete.forEach((doc) => {
-            batch.delete(doc.ref);
-        });
-
-        await batch.commit();
-    }
-}
-</script>
-
+    </script>
 </body>
 </html>
