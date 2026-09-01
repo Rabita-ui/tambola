@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Tickets - Tambola House</title>
+    <title>Game Draws - Tambola House</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; padding: 20px; }
@@ -13,15 +13,12 @@
 <body>
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Book Game Tickets</h2>
-            <div class="d-flex gap-2">
-                <a href="ticketdata.html" class="btn btn-info btn-sm text-white">📊 View All Game Tickets</a>
-                <a href="user.html" class="btn btn-secondary btn-sm">Back to Dashboard</a>
-            </div>
+            <h2>Latest Game Draws</h2>
+            <a href="user.html" class="btn btn-secondary btn-sm">Back to Dashboard</a>
         </div>
 
         <div class="card p-3 mb-4">
-            <h4>Latest Game Draws (Showing up to 3)</h4>
+            <h4>Game Sessions (Showing up to 3)</h4>
             <div id="available-games-container">
                 <p class="text-muted">Loading game draws...</p>
             </div>
@@ -31,13 +28,10 @@
     <script type="module">
         import { auth, db } from "./firebase-config.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { collection, getDocs, query, orderBy, limit, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        let currentUser = null;
+        import { collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                currentUser = user;
                 loadLatestGames();
             } else {
                 window.location.href = "index.html";
@@ -62,7 +56,6 @@
                     const gameId = docSnap.id;
                     const startTime = new Date(game.startTime);
                     
-                    // Automatically determine if the game is past or upcoming based on the current time
                     const isPast = startTime <= now;
                     const statusColor = isPast ? "border-danger text-danger bg-light" : "border-primary text-primary bg-white";
                     const badgeText = isPast ? "<span class='badge bg-danger'>Past / Finished</span>" : "<span class='badge bg-primary'>Upcoming</span>";
@@ -75,9 +68,8 @@
                                 <h5 class="mb-1">Draw Time: ${startTime.toLocaleString()} ${badgeText}</h5>
                                 <p class="mb-0 text-muted"><strong>Prizes:</strong> ${game.prizes}</p>
                             </div>
-                            <div class="d-flex gap-2">
-                                <a href="ticketdata.html?gameId=${gameId}" class="btn btn-outline-dark btn-sm">View Related Tickets</a>
-                                ${!isPast ? `<button class="btn btn-success btn-sm" onclick="ticketdata.html('${gameId}')">Generate & Book Ticket</button>` : ''}
+                            <div>
+                                <a href="ticketdata.html?gameId=${gameId}" class="btn btn-outline-primary btn-sm">View Related Tickets</a>
                             </div>
                         </div>
                     `;
@@ -88,35 +80,6 @@
                 container.innerHTML = "<p class='text-danger'>Failed to load game draws.</p>";
             }
         }
-
-        function generateTicketNumbers() {
-            let nums = Array.from({length: 27}, () => Math.floor(Math.random() * 90) + 1);
-            return nums.join(',');
-        }
-
-        window.bookTicket = async function(gameId) {
-            if (!currentUser) return;
-
-            try {
-                const ticketNo = Math.floor(1000 + Math.random() * 9000);
-                const numbersString = generateTicketNumbers();
-
-                await addDoc(collection(db, "booked_tickets"), {
-                    userId: currentUser.uid,
-                    email: currentUser.email,
-                    gameId: gameId,
-                    ticketNo: ticketNo,
-                    numbersString: numbersString,
-                    bookedAt: new Date().toISOString()
-                });
-
-                alert(`Ticket #${ticketNo} successfully booked for this draw!`);
-                window.location.reload();
-            } catch (err) {
-                console.error("Booking Error:", err);
-                alert("Failed to book ticket: " + err.message);
-            }
-        };
     </script>
 </body>
 </html>
