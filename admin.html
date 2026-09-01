@@ -270,10 +270,6 @@
         });
 
         window.approveToken = async function(reqId, userId, amount) {
-            console.log("Approving Request ID:", reqId);
-            console.log("Target User ID:", userId);
-            console.log("Requested Amount:", amount);
-
             try {
                 if (!userId || userId === 'undefined') {
                     alert("Error: User ID is missing from this request!");
@@ -285,14 +281,10 @@
 
                 let currentWallet = 0;
                 if (userSnap.exists()) {
-                    console.log("User document found:", userSnap.data());
                     currentWallet = Number(userSnap.data().wallet) || 0;
-                } else {
-                    console.warn("User document not found in 'users' collection for ID:", userId);
                 }
 
                 const newWalletBalance = currentWallet + Number(amount);
-                console.log("New calculated wallet balance:", newWalletBalance);
 
                 await setDoc(userRef, {
                     wallet: newWalletBalance
