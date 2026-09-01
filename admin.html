@@ -45,7 +45,6 @@ const db = firebase.firestore();
 async function seed600MasterTickets() {
     const statusDiv = document.getElementById("status");
     
-    // Auth Check
     const user = auth.currentUser;
     if (!user) {
         alert("Please log in on index.html first before running the seed script!");
@@ -56,6 +55,7 @@ async function seed600MasterTickets() {
     const confirmAction = confirm("This will upload 600 Master Tickets to Firestore. Proceed?");
     if (!confirmAction) return;
 
+    statusDiv.style.color = "#7b6856";
     statusDiv.textContent = "Status: Generating tickets & writing batch 1/2...";
     const masterRef = db.collection("masterTickets");
 
@@ -65,12 +65,15 @@ async function seed600MasterTickets() {
             for (let i = 1; i <= 300; i++) {
                 const ticketIndex = batchNum * 300 + i;
                 const ticketId = `ticket_${String(ticketIndex).padStart(3, '0')}`;
-                const ticketGrid = generateTambolaTicket();
+                
+                // Generate 2D grid and convert to 1D flat array for Firestore compatibility
+                const rawGrid = generateTambolaTicket();
+                const flatGrid = rawGrid.flat(); 
 
                 const docRef = masterRef.doc(ticketId);
                 batch.set(docRef, {
                     ticketNumber: ticketIndex,
-                    grid: ticketGrid,
+                    grid: flatGrid, // Saved as a 1D array of 27 numbers
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
             }
