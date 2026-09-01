@@ -13,6 +13,7 @@
         button:hover { background: #0056b3; }
         button.reject { background: #dc3545; }
         button.reject:hover { background: #bd2130; }
+        .wallet-box { background: #e9ecef; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; }
         .request-item { background: #f9f9f9; padding: 10px; border: 1px solid #ddd; margin-bottom: 10px; border-radius: 4px; }
     </style>
 </head>
@@ -20,6 +21,7 @@
 
     <h1>Tambola House</h1>
 
+    <!-- Auth Section -->
     <div id="auth-section" class="card">
         <h2>Login / Register</h2>
         <input type="email" id="auth-email" placeholder="Email Address">
@@ -28,22 +30,41 @@
         <button id="btn-register">Register Account</button>
     </div>
 
+    <!-- User Dashboard -->
     <div id="main-section" class="card hidden">
         <p>Logged in as: <strong id="user-display"></strong> (<span id="user-role">User</span>)</p>
+        
+        <div class="wallet-box">
+            <h3>Token Balance: <span id="user-balance">0</span> Tokens</h3>
+        </div>
+        
         <button id="btn-logout" style="background: #6c757d;">Logout</button>
         <hr>
 
+        <!-- Step 1: Request Tokens from Admin -->
         <div>
-            <h3>Request Game Tickets</h3>
+            <h3>1. Add Tokens to Wallet</h3>
+            <label for="token-req-count">Request Tokens from Admin:</label>
+            <input type="number" id="token-req-count" min="1" value="5" placeholder="Enter amount">
+            <button id="btn-request-tokens">Request Tokens</button>
+        </div>
+        <hr>
+
+        <!-- Step 2: Auto-Book Ticket using Balance -->
+        <div>
+            <h3>2. Book Tickets for Game</h3>
+            <p><small>(1 Ticket = 1 Token)</small></p>
             <label for="ticket-count">Number of Tickets:</label>
             <input type="number" id="ticket-count" min="1" max="6" value="1">
-            <button id="btn-request-token">Submit Token Request</button>
+            <button id="btn-autobook-ticket" style="background: #28a745;">Instant Auto-Book Ticket</button>
         </div>
     </div>
 
+    <!-- Admin Panel -->
     <div id="admin-section" class="card hidden">
         <h2>Admin Panel</h2>
 
+        <!-- Game Settings -->
         <div style="border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
             <h3>Create New Game</h3>
             <label>Game Start Time:</label>
@@ -58,19 +79,21 @@
             <button id="btn-create-game">Create Game & Auto-Prune Old Data</button>
         </div>
 
+        <!-- Token Top-Up Approvals -->
         <div>
-            <h3>Pending Ticket Requests</h3>
+            <h3>Pending Token Requests</h3>
             <div id="requests-list">Loading requests...</div>
         </div>
     </div>
 
+    <!-- Firebase Modular SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { 
             getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { 
-            getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, updateDoc, deleteDoc, orderBy 
+            getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, updateDoc, deleteDoc, orderBy, runTransaction 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Tambola House Firebase Config
@@ -88,6 +111,7 @@
         const db = getFirestore(app);
 
         let currentUser = null;
+        let userTokenBalance = 0;
 
         // Register User
         document.getElementById('btn-register').addEventListener('click', async () => {
@@ -99,6 +123,7 @@
                 await setDoc(doc(db, "users", cred.user.uid), { 
                     email: email, 
                     role: 'user',
+                    tokens: 0, // Initial token balance
                     createdAt: new Date().toISOString()
                 });
                 alert("Account created successfully!");
@@ -126,16 +151,9 @@
                 document.getElementById('main-section').classList.remove('hidden');
                 document.getElementById('user-display').innerText = user.email;
 
-                // Check Admin Status
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists() && userDoc.data().role === 'admin') {
-                    document.getElementById('user-role').innerText = "Admin";
-                    document.getElementById('admin-section').classList.remove('hidden');
-                    loadPendingRequests();
-                } else {
-                    document.getElementById('user-role').innerText = "User";
-                    document.getElementById('admin-section').classList.add('hidden');
-                }
+                // Load User Data & Balance
+                await fetchUserData(user.uid);
+
             } else {
                 currentUser = null;
                 document.getElementById('auth-section').classList.remove('hidden');
@@ -144,30 +162,96 @@
             }
         });
 
-        // User: Request Tickets
-        document.getElementById('btn-request-token').addEventListener('click', async () => {
-            const count = parseInt(document.getElementById('ticket-count').value);
+        async function fetchUserData(uid) {
+            const userDoc = await getDoc(doc(db, "users", uid));
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                userTokenBalance = data.tokens || 0;
+                document.getElementById('user-balance').innerText = userTokenBalance;
+
+                // Check Admin Status
+                if (data.role === 'admin') {
+                    document.getElementById('user-role').innerText = "Admin";
+                    document.getElementById('admin-section').classList.remove('hidden');
+                    loadPendingRequests();
+                } else {
+                    document.getElementById('user-role').innerText = "User";
+                    document.getElementById('admin-section').classList.add('hidden');
+                }
+            }
+        }
+
+        // USER: Request Tokens from Admin
+        document.getElementById('btn-request-tokens').addEventListener('click', async () => {
+            const amount = parseInt(document.getElementById('token-req-count').value);
+            if (!amount || amount <= 0) return alert("Enter a valid token amount.");
+
             try {
-                await addDoc(collection(db, "requests"), {
+                await addDoc(collection(db, "token_requests"), {
                     userId: currentUser.uid,
                     email: currentUser.email,
-                    ticketsRequested: count,
+                    tokensRequested: amount,
                     status: "pending",
                     createdAt: new Date().toISOString()
                 });
-                alert("Ticket request sent to admin!");
+                alert("Token request sent! Waiting for Admin approval.");
             } catch (err) { alert(err.message); }
         });
 
-        // Admin: Load Pending Requests
+        // USER: Instant Auto-Booking (Deducts tokens automatically)
+        document.getElementById('btn-autobook-ticket').addEventListener('click', async () => {
+            const ticketsToBook = parseInt(document.getElementById('ticket-count').value);
+            if (!ticketsToBook || ticketsToBook <= 0) return alert("Enter valid ticket count.");
+
+            const requiredTokens = ticketsToBook; // 1 Token per ticket
+
+            if (userTokenBalance < requiredTokens) {
+                return alert(`Insufficient Tokens! You need ${requiredTokens} tokens, but only have ${userTokenBalance}. Please request tokens from admin.`);
+            }
+
+            try {
+                // Transaction ensures accurate balance reduction even with multiple attempts
+                await runTransaction(db, async (transaction) => {
+                    const userRef = doc(db, "users", currentUser.uid);
+                    const userSnap = await transaction.get(userRef);
+
+                    if (!userSnap.exists()) throw "User does not exist!";
+                    const currentTokens = userSnap.data().tokens || 0;
+
+                    if (currentTokens < requiredTokens) {
+                        throw "Not enough tokens in wallet!";
+                    }
+
+                    // Deduct tokens from user
+                    transaction.update(userRef, { tokens: currentTokens - requiredTokens });
+
+                    // Create booked ticket entry
+                    const bookingRef = doc(collection(db, "booked_tickets"));
+                    transaction.set(bookingRef, {
+                        userId: currentUser.uid,
+                        email: currentUser.email,
+                        ticketsBooked: ticketsToBook,
+                        bookedAt: new Date().toISOString()
+                    });
+                });
+
+                alert(`Successfully booked ${ticketsToBook} ticket(s)! Tokens deducted.`);
+                await fetchUserData(currentUser.uid); // Refresh balance UI
+
+            } catch (err) {
+                alert("Booking failed: " + err);
+            }
+        });
+
+        // ADMIN: Load Pending Token Requests
         async function loadPendingRequests() {
-            const q = query(collection(db, "requests"), where("status", "==", "pending"));
+            const q = query(collection(db, "token_requests"), where("status", "==", "pending"));
             const snapshot = await getDocs(q);
             const container = document.getElementById('requests-list');
             container.innerHTML = "";
 
             if (snapshot.empty) {
-                container.innerHTML = "<p>No pending requests.</p>";
+                container.innerHTML = "<p>No pending token requests.</p>";
                 return;
             }
 
@@ -177,27 +261,39 @@
                 div.className = "request-item";
                 div.innerHTML = `
                     <p><strong>User:</strong> ${data.email}</p>
-                    <p><strong>Tickets Requested:</strong> ${data.ticketsRequested}</p>
-                    <button onclick="approveRequest('${reqDoc.id}')">Approve</button>
-                    <button class="reject" onclick="rejectRequest('${reqDoc.id}')">Reject</button>
+                    <p><strong>Tokens Requested:</strong> ${data.tokensRequested}</p>
+                    <button onclick="approveTokenRequest('${reqDoc.id}', '${data.userId}', ${data.tokensRequested})">Approve & Add Tokens</button>
+                    <button class="reject" onclick="rejectTokenRequest('${reqDoc.id}')">Reject</button>
                 `;
                 container.appendChild(div);
             });
         }
 
-        window.approveRequest = async (id) => {
-            await updateDoc(doc(db, "requests", id), { status: "approved" });
-            alert("Request Approved!");
-            loadPendingRequests();
+        // ADMIN: Approve Token Request
+        window.approveTokenRequest = async (requestId, userId, requestedTokens) => {
+            try {
+                // Add tokens to user's wallet
+                const userRef = doc(db, "users", userId);
+                const userSnap = await getDoc(userRef);
+                
+                if (userSnap.exists()) {
+                    const currentTokens = userSnap.data().tokens || 0;
+                    await updateDoc(userRef, { tokens: currentTokens + requestedTokens });
+                    await updateDoc(doc(db, "token_requests", requestId), { status: "approved" });
+                    alert("Tokens approved and added to user wallet!");
+                    loadPendingRequests();
+                }
+            } catch (err) { alert(err.message); }
         };
 
-        window.rejectRequest = async (id) => {
-            await updateDoc(doc(db, "requests", id), { status: "rejected" });
+        // ADMIN: Reject Token Request
+        window.rejectTokenRequest = async (requestId) => {
+            await updateDoc(doc(db, "token_requests", requestId), { status: "rejected" });
             alert("Request Rejected!");
             loadPendingRequests();
         };
 
-        // Admin: Create Game & Maintain Data Retention (Keep 1 Finished, Max 2 Upcoming)
+        // ADMIN: Create Game & Maintain Data Retention (Keep 1 Finished, Max 2 Upcoming)
         document.getElementById('btn-create-game').addEventListener('click', async () => {
             const time = document.getElementById('game-time').value;
             const prizes = document.getElementById('game-prizes').value;
@@ -217,9 +313,8 @@
             alert("New game scheduled! Old game data updated.");
         });
 
-        // Data Cleanup: Max 2 Upcoming Games & 1 Finished Game (Users collection untouched)
+        // Data Cleanup
         async function pruneGamesData() {
-            // Keep maximum 2 upcoming games
             const upcomingQ = query(collection(db, "games"), where("status", "==", "upcoming"), orderBy("createdAt", "desc"));
             const upcomingSnap = await getDocs(upcomingQ);
             if (upcomingSnap.docs.length > 2) {
@@ -228,7 +323,6 @@
                 }
             }
 
-            // Keep maximum 1 finished game
             const finishedQ = query(collection(db, "games"), where("status", "==", "finished"), orderBy("createdAt", "desc"));
             const finishedSnap = await getDocs(finishedQ);
             if (finishedSnap.docs.length > 1) {
