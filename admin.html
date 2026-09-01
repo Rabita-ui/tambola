@@ -264,45 +264,48 @@
                                  <button class="btn btn-success btn-sm" onclick="approveToken('${docSnap.id}', '${req.userId}', ${req.amount || 0})">Approve</button>`;
                 tokenContainer.appendChild(div);
             });
+        }, (error) => {
+            console.error("Error loading token requests:", error);
+            tokenContainer.innerHTML = `<p class='text-danger'>Error loading requests: ${error.message}</p>`;
         });
 
         window.approveToken = async function(reqId, userId, amount) {
-    console.log("Approving Request ID:", reqId);
-    console.log("Target User ID:", userId);
-    console.log("Requested Amount:", amount);
+            console.log("Approving Request ID:", reqId);
+            console.log("Target User ID:", userId);
+            console.log("Requested Amount:", amount);
 
-    try {
-        if (!userId || userId === 'undefined') {
-            alert("Error: User ID is missing from this request!");
-            return;
-        }
+            try {
+                if (!userId || userId === 'undefined') {
+                    alert("Error: User ID is missing from this request!");
+                    return;
+                }
 
-        const userRef = doc(db, "users", userId);
-        const userSnap = await getDoc(userRef);
+                const userRef = doc(db, "users", userId);
+                const userSnap = await getDoc(userRef);
 
-        let currentWallet = 0;
-        if (userSnap.exists()) {
-            console.log("User document found:", userSnap.data());
-            currentWallet = Number(userSnap.data().wallet) || 0;
-        } else {
-            console.warn("User document not found in 'users' collection for ID:", userId);
-        }
+                let currentWallet = 0;
+                if (userSnap.exists()) {
+                    console.log("User document found:", userSnap.data());
+                    currentWallet = Number(userSnap.data().wallet) || 0;
+                } else {
+                    console.warn("User document not found in 'users' collection for ID:", userId);
+                }
 
-        const newWalletBalance = currentWallet + Number(amount);
-        console.log("New calculated wallet balance:", newWalletBalance);
+                const newWalletBalance = currentWallet + Number(amount);
+                console.log("New calculated wallet balance:", newWalletBalance);
 
-        await setDoc(userRef, {
-            wallet: newWalletBalance
-        }, { merge: true });
+                await setDoc(userRef, {
+                    wallet: newWalletBalance
+                }, { merge: true });
 
-        await deleteDoc(doc(db, "token_requests", reqId));
+                await deleteDoc(doc(db, "token_requests", reqId));
 
-        alert(`Successfully approved and credited ${amount} tokens to user!`);
-    } catch (err) {
-        console.error("Approval & Credit Error:", err);
-        alert("Failed to credit tokens: " + err.message);
-    }
-};        };
+                alert(`Successfully approved and credited ${amount} tokens to user!`);
+            } catch (err) {
+                console.error("Approval & Credit Error:", err);
+                alert("Failed to credit tokens: " + err.message);
+            }
+        };
     </script>
 </body>
 </html>
