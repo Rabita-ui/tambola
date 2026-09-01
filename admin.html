@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: #f4ece1; color: #2d1f14; padding: 20px; }
+        body { background: #f4ece1; color: #2d1f14; padding: 20px; display: none; /* Hidden until admin verified */ }
         .container { max-width: 1000px; margin: auto; }
         .header { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
@@ -33,7 +33,6 @@
         </div>
     </div>
 
-    <!-- CONTROLLER CARD -->
     <div class="card">
         <h2>Game Control</h2>
         <p style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">Manage live number draws or cycle to an upcoming game while keeping history capped at 3 total games.</p>
@@ -48,7 +47,6 @@
         </div>
     </div>
 
-    <!-- CLAIMS CARD -->
     <div class="card">
         <h2>Pending Winner Claims</h2>
         <div id="claimsList" class="claims-list">
@@ -75,11 +73,21 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const gameRef = db.collection("games").doc("active_game");
 
+// CONFIGURE YOUR ADMIN EMAIL HERE
+const ADMIN_EMAIL = "your-admin-email@gmail.com";
+
 let activeDrawn = [];
 let activeClaims = [];
 
-window.addEventListener('DOMContentLoaded', () => {
-    listenToActiveGame();
+/* AUTHENTICATION ROUTE PROTECTION */
+firebase.auth().onAuthStateChanged((user) => {
+    if (user && user.email === ADMIN_EMAIL) {
+        document.body.style.display = "block"; // Reveal admin interface
+        listenToActiveGame();
+    } else {
+        alert("Access Denied: You must be logged in as an administrator.");
+        window.location.href = "game.html"; // Redirect non-admins away
+    }
 });
 
 /* LISTEN TO ACTIVE GAME */
@@ -167,7 +175,6 @@ async function archiveAndCreateNewGame() {
     if (!confirm("Save current game to history and set up an upcoming game?")) return;
 
     try {
-        // 1. Archive active game to games_history if numbers were drawn
         if (activeDrawn && activeDrawn.length > 0) {
             await db.collection("games_history").add({
                 drawnNumbers: activeDrawn,
@@ -177,7 +184,6 @@ async function archiveAndCreateNewGame() {
             });
         }
 
-        // 2. Clear active game for upcoming game
         await gameRef.set({
             drawnNumbers: [],
             lastDrawn: null,
@@ -185,7 +191,6 @@ async function archiveAndCreateNewGame() {
             claims: []
         });
 
-        // 3. Keep only 2 finished games in history (+ 1 active = 3 total)
         await pruneOldGamesHistory();
 
         alert("New upcoming game setup complete! Kept 1 active game and the 2 most recent completed games.");
