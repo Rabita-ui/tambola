@@ -3,100 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambola House</title>
+    <title>Welcome - Tambola House</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; color: #333; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; max-width: 600px; }
-        .hidden { display: none; }
-        input, button, select { padding: 10px; margin: 8px 0; display: block; width: 100%; box-sizing: border-box; }
-        button { background: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        body { font-family: Arial, sans-serif; background: #f4f4f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        input, button { padding: 12px; margin: 8px 0; display: block; width: 100%; box-sizing: border-box; border-radius: 4px; }
+        input { border: 1px solid #ccc; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
         button:hover { background: #0056b3; }
-        button.reject { background: #dc3545; }
-        button.reject:hover { background: #bd2130; }
-        .wallet-box { background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 15px; text-align: center; border: 2px solid #007bff; }
-        .request-item { background: #f9f9f9; padding: 10px; border: 1px solid #ddd; margin-bottom: 10px; border-radius: 4px; }
+        .register-btn { background: #28a745; }
+        .register-btn:hover { background: #218838; }
     </style>
 </head>
 <body>
 
-    <h1>Tambola House</h1>
+    <div class="card">
+        <h1>Welcome to Tambola House</h1>
+        <p>Your ultimate destination for live Housie games! Please log in or register to join the fun.</p>
+        <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
 
-    <!-- Auth Section -->
-    <div id="auth-section" class="card">
-        <h2>Login / Register</h2>
         <input type="email" id="auth-email" placeholder="Email Address">
         <input type="password" id="auth-password" placeholder="Password">
         <button id="btn-login">Login</button>
-        <button id="btn-register">Register Account</button>
+        <button id="btn-register" class="register-btn">Register New Account</button>
     </div>
 
-    <!-- User Dashboard -->
-    <div id="main-section" class="card hidden">
-        <p>Logged in as: <strong id="user-display"></strong> (<span id="user-role">User</span>)</p>
-        
-        <div class="wallet-box">
-            <h3 style="margin: 0;">Token Balance: <span id="user-balance" style="color: #007bff; font-size: 1.5em;">0</span> Tokens</h3>
-        </div>
-        
-        <button id="btn-logout" style="background: #6c757d;">Logout</button>
-        <hr>
-
-        <!-- Step 1: Request Tokens from Admin -->
-        <div>
-            <h3>1. Request Tokens</h3>
-            <label for="token-req-count">Amount to Request:</label>
-            <input type="number" id="token-req-count" min="1" value="5" placeholder="Enter amount">
-            <button id="btn-request-tokens">Request Tokens from Admin</button>
-        </div>
-        <hr>
-
-        <!-- Step 2: Auto-Book Ticket using Balance -->
-        <div>
-            <h3>2. Book Tickets for Game</h3>
-            <p><small>(1 Ticket = 1 Token)</small></p>
-            <label for="ticket-count">Number of Tickets:</label>
-            <input type="number" id="ticket-count" min="1" max="6" value="1">
-            <button id="btn-autobook-ticket" style="background: #28a745;">Instant Auto-Book Ticket</button>
-        </div>
-    </div>
-
-    <!-- Admin Panel -->
-    <div id="admin-section" class="card hidden">
-        <h2>Admin Panel</h2>
-
-        <!-- Game Settings -->
-        <div style="border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
-            <h3>Create New Game</h3>
-            <label>Game Start Time:</label>
-            <input type="datetime-local" id="game-time">
-            
-            <label>Prizes Info:</label>
-            <input type="text" id="game-prizes" placeholder="e.g. Early 5, Top Line, Full House">
-            
-            <label>First Drawn Number Pickup (1-90):</label>
-            <input type="number" id="first-number" min="1" max="90" placeholder="Optional starting number">
-            
-            <button id="btn-create-game">Create Game & Auto-Prune Old Data</button>
-        </div>
-
-        <!-- Token Top-Up Approvals -->
-        <div>
-            <h3>Pending Token Requests</h3>
-            <div id="requests-list">Loading requests...</div>
-        </div>
-    </div>
-
-    <!-- Firebase Modular SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { 
-            getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { 
-            getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, updateDoc, deleteDoc, orderBy, runTransaction, onSnapshot 
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Tambola House Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
             authDomain: "tambola-house-3dc56.firebaseapp.com",
@@ -110,11 +46,14 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let currentUser = null;
-        let userTokenBalance = 0;
-        let unsubscribeUserListener = null;
+        // Auto-redirect if already logged in
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = "user.html";
+            }
+        });
 
-        // Register User
+        // Register Action
         document.getElementById('btn-register').addEventListener('click', async () => {
             const email = document.getElementById('auth-email').value;
             const pass = document.getElementById('auth-password').value;
@@ -127,216 +66,20 @@
                     tokens: 0,
                     createdAt: new Date().toISOString()
                 });
-                alert("Account created successfully!");
+                window.location.href = "user.html";
             } catch (err) { alert(err.message); }
         });
 
-        // Login User
+        // Login Action
         document.getElementById('btn-login').addEventListener('click', async () => {
             const email = document.getElementById('auth-email').value;
             const pass = document.getElementById('auth-password').value;
             if(!email || !pass) return alert("Please enter email and password.");
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
+                window.location.href = "user.html";
             } catch (err) { alert(err.message); }
         });
-
-        // Logout User
-        document.getElementById('btn-logout').addEventListener('click', () => {
-            if (unsubscribeUserListener) unsubscribeUserListener();
-            signOut(auth);
-        });
-
-        // Auth State Listener
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('auth-section').classList.add('hidden');
-                document.getElementById('main-section').classList.remove('hidden');
-                document.getElementById('user-display').innerText = user.email;
-
-                // Listen for Real-Time Balance & Role Updates
-                listenToUserData(user.uid);
-
-            } else {
-                currentUser = null;
-                if (unsubscribeUserListener) unsubscribeUserListener();
-                document.getElementById('auth-section').classList.remove('hidden');
-                document.getElementById('main-section').classList.add('hidden');
-                document.getElementById('admin-section').classList.add('hidden');
-            }
-        });
-
-        // Real-Time Sync for Tokens and Admin status
-        function listenToUserData(uid) {
-            const userRef = doc(db, "users", uid);
-            
-            unsubscribeUserListener = onSnapshot(userRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    
-                    // Handle missing tokens field dynamically
-                    userTokenBalance = data.tokens !== undefined ? data.tokens : 0;
-                    document.getElementById('user-balance').innerText = userTokenBalance;
-
-                    // Check Admin Status
-                    if (data.role === 'admin') {
-                        document.getElementById('user-role').innerText = "Admin";
-                        document.getElementById('admin-section').classList.remove('hidden');
-                        loadPendingRequests();
-                    } else {
-                        document.getElementById('user-role').innerText = "User";
-                        document.getElementById('admin-section').classList.add('hidden');
-                    }
-                }
-            });
-        }
-
-        // USER: Request Tokens from Admin
-        document.getElementById('btn-request-tokens').addEventListener('click', async () => {
-            const amount = parseInt(document.getElementById('token-req-count').value);
-            if (!amount || amount <= 0) return alert("Enter a valid token amount.");
-
-            try {
-                await addDoc(collection(db, "token_requests"), {
-                    userId: currentUser.uid,
-                    email: currentUser.email,
-                    tokensRequested: amount,
-                    status: "pending",
-                    createdAt: new Date().toISOString()
-                });
-                alert("Token request sent! Waiting for Admin approval.");
-            } catch (err) { alert(err.message); }
-        });
-
-        // USER: Instant Auto-Booking
-        document.getElementById('btn-autobook-ticket').addEventListener('click', async () => {
-            const ticketsToBook = parseInt(document.getElementById('ticket-count').value);
-            if (!ticketsToBook || ticketsToBook <= 0) return alert("Enter valid ticket count.");
-
-            const requiredTokens = ticketsToBook;
-
-            if (userTokenBalance < requiredTokens) {
-                return alert(`Insufficient Tokens! You need ${requiredTokens} tokens, but only have ${userTokenBalance}. Please request tokens from admin.`);
-            }
-
-            try {
-                await runTransaction(db, async (transaction) => {
-                    const userRef = doc(db, "users", currentUser.uid);
-                    const userSnap = await transaction.get(userRef);
-
-                    if (!userSnap.exists()) throw "User does not exist!";
-                    const currentTokens = userSnap.data().tokens || 0;
-
-                    if (currentTokens < requiredTokens) {
-                        throw "Not enough tokens in wallet!";
-                    }
-
-                    transaction.update(userRef, { tokens: currentTokens - requiredTokens });
-
-                    const bookingRef = doc(collection(db, "booked_tickets"));
-                    transaction.set(bookingRef, {
-                        userId: currentUser.uid,
-                        email: currentUser.email,
-                        ticketsBooked: ticketsToBook,
-                        bookedAt: new Date().toISOString()
-                    });
-                });
-
-                alert(`Successfully booked ${ticketsToBook} ticket(s)! Tokens deducted.`);
-
-            } catch (err) {
-                alert("Booking failed: " + err);
-            }
-        });
-
-        // ADMIN: Load Pending Token Requests
-        async function loadPendingRequests() {
-            const q = query(collection(db, "token_requests"), where("status", "==", "pending"));
-            const snapshot = await getDocs(q);
-            const container = document.getElementById('requests-list');
-            container.innerHTML = "";
-
-            if (snapshot.empty) {
-                container.innerHTML = "<p>No pending token requests.</p>";
-                return;
-            }
-
-            snapshot.forEach((reqDoc) => {
-                const data = reqDoc.data();
-                const div = document.createElement('div');
-                div.className = "request-item";
-                div.innerHTML = `
-                    <p><strong>User:</strong> ${data.email}</p>
-                    <p><strong>Tokens Requested:</strong> ${data.tokensRequested}</p>
-                    <button onclick="approveTokenRequest('${reqDoc.id}', '${data.userId}', ${data.tokensRequested})">Approve & Add Tokens</button>
-                    <button class="reject" onclick="rejectTokenRequest('${reqDoc.id}')">Reject</button>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        // ADMIN: Approve Token Request
-        window.approveTokenRequest = async (requestId, userId, requestedTokens) => {
-            try {
-                const userRef = doc(db, "users", userId);
-                const userSnap = await getDoc(userRef);
-                
-                if (userSnap.exists()) {
-                    const currentTokens = userSnap.data().tokens || 0;
-                    await updateDoc(userRef, { tokens: currentTokens + requestedTokens });
-                    await updateDoc(doc(db, "token_requests", requestId), { status: "approved" });
-                    alert("Tokens approved and added to user wallet!");
-                    loadPendingRequests();
-                }
-            } catch (err) { alert(err.message); }
-        };
-
-        // ADMIN: Reject Token Request
-        window.rejectTokenRequest = async (requestId) => {
-            await updateDoc(doc(db, "token_requests", requestId), { status: "rejected" });
-            alert("Request Rejected!");
-            loadPendingRequests();
-        };
-
-        // ADMIN: Create Game & Maintain Data Rules
-        document.getElementById('btn-create-game').addEventListener('click', async () => {
-            const time = document.getElementById('game-time').value;
-            const prizes = document.getElementById('game-prizes').value;
-            const firstNumber = parseInt(document.getElementById('first-number').value) || null;
-
-            if (!time) return alert("Please select a valid game time.");
-
-            await addDoc(collection(db, "games"), {
-                startTime: time,
-                prizes: prizes,
-                firstNumber: firstNumber,
-                status: "upcoming",
-                createdAt: new Date().toISOString()
-            });
-
-            await pruneGamesData();
-            alert("New game scheduled! Old game data updated.");
-        });
-
-        // Data Cleanup
-        async function pruneGamesData() {
-            const upcomingQ = query(collection(db, "games"), where("status", "==", "upcoming"), orderBy("createdAt", "desc"));
-            const upcomingSnap = await getDocs(upcomingQ);
-            if (upcomingSnap.docs.length > 2) {
-                for (let i = 2; i < upcomingSnap.docs.length; i++) {
-                    await deleteDoc(doc(db, "games", upcomingSnap.docs[i].id));
-                }
-            }
-
-            const finishedQ = query(collection(db, "games"), where("status", "==", "finished"), orderBy("createdAt", "desc"));
-            const finishedSnap = await getDocs(finishedQ);
-            if (finishedSnap.docs.length > 1) {
-                for (let i = 1; i < finishedSnap.docs.length; i++) {
-                    await deleteDoc(doc(db, "games", finishedSnap.docs[i].id));
-                }
-            }
-        }
     </script>
 </body>
 </html>
