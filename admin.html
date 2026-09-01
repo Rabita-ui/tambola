@@ -390,7 +390,7 @@
                     id="firstNumber"
                     min="1"
                     max="90"
-                    placeholder="First number 1-90"
+                    placeholder="Pick 1st Number (Max 1m after draw)"
                 >
 
                 <button
@@ -579,6 +579,8 @@ const gameRef =
 
 
 let autoTimer = null;
+let scheduledTimeout = null;
+let cachedSequence = [];
 
 
 /* AUTH */
@@ -636,20 +638,30 @@ document.getElementById('drawSetupForm').addEventListener('submit', async (e) =>
 
 function listenToGame() {
 
-    gameRef.onSnapshot((doc) => {
+    gameRef.onSnapshot(async (doc) => {
 
         if (!doc.exists) {
-
-            showMessage(
-                "Game document does not exist.",
-                "error"
-            );
-
+            cachedSequence = generateFixedSequence();
+            await gameRef.set({
+                status: "ready",
+                drawSequence: cachedSequence,
+                drawnNumbers: [],
+                lastDrawn: null,
+                currentIndex: 0,
+                isFirstDrawDone: false,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
             return;
-
         }
 
         const data = doc.data();
+
+        if (!data.drawSequence || data.drawSequence.length !== 90) {
+            cachedSequence = generateFixedSequence();
+            await gameRef.set({ drawSequence: cachedSequence }, { merge: true });
+        } else {
+            cachedSequence = data.drawSequence;
+        }
 
         // Populate Form Inputs
         if (data.drawTime) document.getElementById("drawTime").value = data.drawTime;
@@ -669,10 +681,80 @@ function listenToGame() {
         document.getElementById("displayTotalTickets").textContent = data.totalTicketsAvailable || 0;
         document.getElementById("displayFullHouse").textContent = (data.prizes && data.prizes.fullHouse !== undefined) ? data.prizes.fullHouse + " Tokens" : "--";
 
+        // Schedule auto-start check if game hasn't started yet
+        checkAutoStartDeadline(data);
+
         updateAdminScreen(data);
 
     });
 
+}
+
+
+/* 1-MINUTE DEADLINE AUTO-START ENGINE */
+
+function checkAutoStartDeadline(data) {
+
+    if (scheduledTimeout) {
+        clearTimeout(scheduledTimeout);
+        scheduledTimeout = null;
+    }
+
+    if (data.isFirstDrawDone || !data.drawTime) return;
+
+    const scheduledTime = new Date(data.drawTime).getTime();
+    const deadline = scheduledTime + 60000; // 1 Minute after Draw Time
+    const now = Date.now();
+
+    if (now >= deadline) {
+        // Exceeded 1 minute limit: Trigger automatic start
+        triggerAutoStart();
+    } else {
+        // Set a timer to automatically start when 1 minute post-draw deadline hits
+        const timeRemaining = deadline - now;
+        scheduledTimeout = setTimeout(() => {
+            triggerAutoStart();
+        }, timeRemaining);
+    }
+}
+
+
+/* AUTOMATIC SYSTEM START (FALLBACK) */
+
+async function triggerAutoStart() {
+
+    try {
+        const doc = await gameRef.get();
+        if (!doc.exists) return;
+
+        const data = doc.data();
+
+        // Prevent duplicate execution if already started
+        if (data.isFirstDrawDone) return;
+
+        let sequence = data.drawSequence || cachedSequence;
+        if (sequence.length !== 90) sequence = generateFixedSequence();
+
+        const firstNumber = sequence[0];
+
+        await gameRef.set({
+            status: "running",
+            drawSequence: sequence,
+            drawnNumbers: [firstNumber],
+            lastDrawn: firstNumber,
+            currentIndex: 1,
+            isFirstDrawDone: true,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        showMessage(
+            "1-minute limit reached! Auto-started with first sequence number: " + firstNumber,
+            "success"
+        );
+
+    } catch (err) {
+        console.error("Auto-start error:", err);
+    }
 }
 
 
@@ -731,36 +813,15 @@ function updateAdminScreen(data) {
 }
 
 
-/* CREATE SHUFFLED SEQUENCE */
+/* CREATE SHUFFLED FIXED SEQUENCE */
 
-function shuffledNumbers() {
+function generateFixedSequence() {
 
-    const numbers =
-        Array.from(
-            { length: 90 },
-            (_, i) => i + 1
-        );
+    const numbers = Array.from({ length: 90 }, (_, i) => i + 1);
 
-
-    for (
-        let i = numbers.length - 1;
-        i > 0;
-        i--
-    ) {
-
-        const j =
-            Math.floor(
-                Math.random() * (i + 1)
-            );
-
-        [
-            numbers[i],
-            numbers[j]
-        ] = [
-            numbers[j],
-            numbers[i]
-        ];
-
+    for (let i = numbers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
     }
 
     return numbers;
@@ -768,103 +829,78 @@ function shuffledNumbers() {
 }
 
 
-/* START GAME */
+/* START GAME - MANUAL ADMIN PICK */
 
 async function startGame() {
 
-    const selected =
-        Number(
-            document.getElementById(
-                "firstNumber"
-            ).value
-        );
+    const doc = await gameRef.get();
+    const data = doc.data() || {};
 
-
-    if (
-        !selected ||
-        selected < 1 ||
-        selected > 90
-    ) {
-
-        showMessage(
-            "Enter a number from 1 to 90.",
-            "error"
-        );
-
-        return;
-
+    if (data.drawTime) {
+        const deadline = new Date(data.drawTime).getTime() + 60000;
+        if (Date.now() > deadline) {
+            showMessage("Time window expired! 1 minute has passed since the draw time.", "error");
+            triggerAutoStart();
+            return;
+        }
     }
 
+    const val = document.getElementById("firstNumber").value;
+    let sequence = [...cachedSequence];
+
+    if (sequence.length !== 90) {
+        sequence = generateFixedSequence();
+    }
+
+    if (val) {
+        const selected = Number(val);
+        if (selected < 1 || selected > 90) {
+            showMessage("Please enter a valid number between 1 and 90.", "error");
+            return;
+        }
+
+        const targetIdx = sequence.indexOf(selected);
+        if (targetIdx !== -1) {
+            [sequence[0], sequence[targetIdx]] = [sequence[targetIdx], sequence[0]];
+        }
+    }
+
+    const firstNumber = sequence[0];
 
     try {
-
-        const sequence =
-            shuffledNumbers();
-
-
-        const index =
-            sequence.indexOf(selected);
-
-
-        [
-            sequence[0],
-            sequence[index]
-        ] = [
-            sequence[index],
-            sequence[0]
-        ];
-
-
-        const first =
-            sequence[0];
-
 
         await gameRef.set({
 
             status: "running",
 
-            drawSequence:
-                sequence,
+            drawSequence: sequence,
 
-            drawnNumbers:
-                [first],
+            drawnNumbers: [firstNumber],
 
-            lastDrawn:
-                first,
+            lastDrawn: firstNumber,
 
-            currentIndex:
-                1,
+            currentIndex: 1,
 
-            isFirstDrawDone:
-                true,
+            isFirstDrawDone: true,
 
-            updatedAt:
-                firebase.firestore.FieldValue
-                    .serverTimestamp()
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
 
         }, { merge: true });
 
 
-        document.getElementById(
-            "firstNumber"
-        ).value = "";
-
+        document.getElementById("firstNumber").value = "";
 
         showMessage(
-            "Game started. First number: " +
-            first,
+            "Game started successfully! First drawn number: " + firstNumber,
             "success"
         );
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(error);
 
         showMessage(
-            "Unable to start game: " +
-            error.message,
+            "Unable to start game: " + error.message,
             "error"
         );
 
@@ -889,7 +925,7 @@ async function drawNext() {
                 if (!doc.exists) {
 
                     throw new Error(
-                        "Game has not been initialized."
+                        "Game document has not been created yet."
                     );
 
                 }
@@ -1060,13 +1096,15 @@ async function resetGame() {
 
     try {
 
+        const newFixedSequence = generateFixedSequence();
+
         await gameRef.set({
 
             status:
                 "ready",
 
             drawSequence:
-                shuffledNumbers(),
+                newFixedSequence,
 
             drawnNumbers:
                 [],
@@ -1088,7 +1126,7 @@ async function resetGame() {
 
 
         showMessage(
-            "Game reset successfully.",
+            "Game reset successfully. A new fixed sequence has been generated.",
             "success"
         );
 
