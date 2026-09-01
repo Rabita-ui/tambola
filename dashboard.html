@@ -8,155 +8,30 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+        body { background: linear-gradient(145deg, #f7f3ee, #e9e1d7); color: #2d1f14; min-height: 100vh; padding: 20px; }
+        .container { max-width: 1100px; margin: auto; }
+        .header { background: white; border-radius: 20px; padding: 20px 25px; margin-bottom: 20px; box-shadow: 0 5px 20px rgba(0,0,0,.08); display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .header h1 { font-size: 1.5rem; }
+        .header h1 i { color: #b35e2e; }
+        .nav a { text-decoration: none; color: #7b6856; font-weight: 600; margin-left: 15px; }
+        .nav a:hover { color: #b35e2e; }
+        .grid-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+        .card { background: white; border-radius: 20px; padding: 25px; margin-bottom: 20px; box-shadow: 0 5px 20px rgba(0,0,0,.07); }
+        .card h2 { margin-bottom: 15px; font-size: 1.2rem; color: #2d1f14; }
+        .status-badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.85rem; background: #e2d7ca; color: #7b6856; text-transform: uppercase; }
+        .status-badge.active { background: #d4edda; color: #155724; }
+        .btn-launch { display: inline-block; background: #b35e2e; color: white; text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; margin-top: 15px; transition: opacity 0.2s ease; }
+        .btn-launch:hover { opacity: 0.9; }
 
-        body {
-            background: linear-gradient(145deg, #f7f3ee, #e9e1d7);
-            color: #2d1f14;
-            min-height: 100vh;
-            padding: 20px;
-        }
+        .winner-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .winner-table th, .winner-table td { text-align: left; padding: 12px; border-bottom: 1px solid #ded4c9; font-size: 0.95rem; }
+        .winner-table th { color: #7b6856; font-weight: 700; background: #faf8f5; }
+        .winner-table td strong { color: #b35e2e; }
+        .badge-prize { background: #f6f1eb; color: #2d1f14; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; border: 1px solid #ded4c9; }
+        .empty-history { text-align: center; color: #a89a8c; padding: 25px; font-style: italic; }
 
-        .container {
-            max-width: 1100px;
-            margin: auto;
-        }
-
-        .header {
-            background: white;
-            border-radius: 20px;
-            padding: 20px 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,.08);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-        }
-
-        .header h1 i {
-            color: #b35e2e;
-        }
-
-        .nav a {
-            text-decoration: none;
-            color: #7b6856;
-            font-weight: 600;
-            margin-left: 15px;
-        }
-
-        .nav a:hover {
-            color: #b35e2e;
-        }
-
-        .grid-layout {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 20px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,.07);
-        }
-
-        .card h2 {
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-            color: #2d1f14;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-weight: 800;
-            font-size: 0.85rem;
-            background: #e2d7ca;
-            color: #7b6856;
-            text-transform: uppercase;
-        }
-
-        .status-badge.active {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .btn-launch {
-            display: inline-block;
-            background: #b35e2e;
-            color: white;
-            text-decoration: none;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-weight: 700;
-            margin-top: 15px;
-            transition: opacity 0.2s ease;
-        }
-
-        .btn-launch:hover {
-            opacity: 0.9;
-        }
-
-        /* WINNER LOG TABLE */
-        .winner-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        .winner-table th, .winner-table td {
-            text-align: left;
-            padding: 12px;
-            border-bottom: 1px solid #ded4c9;
-            font-size: 0.95rem;
-        }
-
-        .winner-table th {
-            color: #7b6856;
-            font-weight: 700;
-            background: #faf8f5;
-        }
-
-        .winner-table td strong {
-            color: #b35e2e;
-        }
-
-        .badge-prize {
-            background: #f6f1eb;
-            color: #2d1f14;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            border: 1px solid #ded4c9;
-        }
-
-        .empty-history {
-            text-align: center;
-            color: #a89a8c;
-            padding: 25px;
-            font-style: italic;
-        }
-
-        @media (max-width: 850px) {
-            .grid-layout {
-                grid-template-columns: 1fr;
-            }
-        }
+        @media (max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
     </style>
 </head>
 
@@ -165,24 +40,16 @@
 <div class="container">
 
     <div class="header">
-        <h1>
-            <i class="fas fa-home"></i>
-            Tambola House — Dashboard
-        </h1>
-
+        <h1><i class="fas fa-home"></i> Tambola House — Dashboard</h1>
         <div class="nav">
-            <a href="game.html">
-                <i class="fas fa-gamepad"></i> Game Room
-            </a>
-            <a href="admin.html">
-                <i class="fas fa-shield-alt"></i> Admin Panel
-            </a>
+            <a href="game.html"><i class="fas fa-gamepad"></i> Game Room</a>
+            <a href="admin.html"><i class="fas fa-shield-alt"></i> Admin Panel</a>
         </div>
     </div>
 
     <div class="grid-layout">
         
-        <!-- LEFT PANEL: GAME STATUS & QUICK ACCESS -->
+        <!-- LEFT PANEL: GAME STATUS -->
         <div>
             <div class="card">
                 <h2><i class="fas fa-signal"></i> Active Game Status</h2>
@@ -190,7 +57,7 @@
                     <span class="status-badge" id="gameStatusBadge">READY</span>
                 </div>
                 <p style="color: #7b6856; font-size: 0.95rem; line-height: 1.5;">
-                    Join the active game room to participate, check live draws, and claim your winning tickets!
+                    Join the active game room to participate, check live draws, and claim winning prizes!
                 </p>
                 <a href="game.html" class="btn-launch">
                     <i class="fas fa-play"></i> Enter Game Room
@@ -233,7 +100,6 @@ window.addEventListener('DOMContentLoaded', () => {
     listenToDashboard();
 });
 
-/* FIRESTORE REALTIME LISTENER */
 function listenToDashboard() {
     // 1. Listen to active game status
     db.collection("games").doc("active_game").onSnapshot((doc) => {
@@ -251,7 +117,7 @@ function listenToDashboard() {
         }
     });
 
-    // 2. Listen to Winner Log collection
+    // 2. Real-time listener for Winner History
     db.collection("winners").orderBy("timestamp", "desc").limit(20).onSnapshot((snapshot) => {
         const container = document.getElementById("winnerLogContainer");
 
