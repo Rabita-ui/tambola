@@ -44,11 +44,13 @@
     <div class="header">
         <h1><i class="fas fa-th"></i> Tambola House</h1>
         
+        <!-- LOGGED OUT VIEW -->
         <div id="authButtons">
             <button class="btn btn-outline" onclick="openModal('loginModal')">Log In</button>
             <button class="btn btn-primary" onclick="openModal('registerModal')">Register</button>
         </div>
 
+        <!-- LOGGED IN VIEW -->
         <div id="userProfile" class="user-info" style="display: none;">
             <span class="token-badge"><i class="fas fa-coins" style="color: #f39c12;"></i> Tokens: <strong id="tokenBalance">0</strong></span>
             <span id="userEmailDisplay" style="color: #2d1f14;">user@email.com</span>
@@ -74,6 +76,7 @@
     </div>
 </div>
 
+<!-- LOGIN MODAL -->
 <div class="modal-overlay" id="loginModal">
     <div class="modal">
         <h3>Login to Play</h3>
@@ -95,6 +98,7 @@
     </div>
 </div>
 
+<!-- REGISTER MODAL -->
 <div class="modal-overlay" id="registerModal">
     <div class="modal">
         <h3>Create an Account</h3>
@@ -144,7 +148,7 @@ auth.onAuthStateChanged((user) => {
     const userProfile = document.getElementById("userProfile");
     const adminBtn = document.getElementById("adminBtn");
 
-    // Clean up active snapshot listener on auth change
+    // Clean up active listener when user changes
     if (userUnsubscribe) {
         userUnsubscribe();
         userUnsubscribe = null;
@@ -155,15 +159,14 @@ auth.onAuthStateChanged((user) => {
         userProfile.style.display = "flex";
         document.getElementById("userEmailDisplay").textContent = user.email;
 
-        // Toggle Admin Button based on matching email
+        // Display Admin button if admin email matches
         adminBtn.style.display = (user.email === ADMIN_EMAIL) ? "inline-block" : "none";
 
-        // Realtime Firestore Listener for User Tokens
+        // Listen for live token changes in Firestore
         userUnsubscribe = db.collection("users").doc(user.uid).onSnapshot((doc) => {
             if (doc.exists) {
                 document.getElementById("tokenBalance").textContent = doc.data().tokens || 0;
             } else {
-                // Initialize default profile if document doesn't exist yet
                 db.collection("users").doc(user.uid).set({
                     email: user.email,
                     tokens: 100,
@@ -172,7 +175,7 @@ auth.onAuthStateChanged((user) => {
                 document.getElementById("tokenBalance").textContent = 100;
             }
         }, (err) => {
-            console.error("User token snapshot error:", err);
+            console.error("Token sync error:", err);
         });
 
     } else {
@@ -182,7 +185,7 @@ auth.onAuthStateChanged((user) => {
     }
 });
 
-/* REGISTER HANDLER */
+/* HANDLE REGISTER */
 async function handleRegister(e) {
     e.preventDefault();
     const email = document.getElementById("regEmail").value.trim();
@@ -196,13 +199,13 @@ async function handleRegister(e) {
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         closeModal("registerModal");
-        alert("Account created successfully! 100 starting tokens credited.");
+        alert("Account registered successfully! 100 starting tokens credited.");
     } catch (err) {
         alert("Registration failed: " + err.message);
     }
 }
 
-/* LOGIN HANDLER */
+/* HANDLE LOGIN */
 async function handleLogin(e) {
     e.preventDefault();
     const email = document.getElementById("loginEmail").value.trim();
@@ -216,12 +219,12 @@ async function handleLogin(e) {
     }
 }
 
-/* LOGOUT HANDLER */
+/* HANDLE LOGOUT */
 function logout() {
     auth.signOut();
 }
 
-/* MODAL TOGGLES */
+/* MODAL CONTROL HELPERS */
 function openModal(id) { document.getElementById(id).style.display = "flex"; }
 function closeModal(id) { document.getElementById(id).style.display = "none"; }
 function switchModal(closeId, openId) { closeModal(closeId); openModal(openId); }
