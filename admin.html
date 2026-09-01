@@ -269,35 +269,49 @@
             tokenContainer.innerHTML = `<p class='text-danger'>Error loading requests: ${error.message}</p>`;
         });
 
-        window.approveToken = async function(reqId, userId, amount) {
-            try {
-                if (!userId || userId === 'undefined') {
-                    alert("Error: User ID is missing from this request!");
-                    return;
-                }
+       window.approveToken = async function(reqId, userId, amount) {
+    console.log("Approving Request ID:", reqId);
+    console.log("Target User ID:", userId);
+    console.log("Requested Amount:", amount);
 
-                const userRef = doc(db, "users", userId);
-                const userSnap = await getDoc(userRef);
+    try {
+        if (!userId || userId === 'undefined' || userId === 'null') {
+            alert("Error: User ID is missing from this request!");
+            return;
+        }
 
-                let currentWallet = 0;
-                if (userSnap.exists()) {
-                    currentWallet = Number(userSnap.data().wallet) || 0;
-                }
+        const userRef = doc(db, "users", userId);
+        const userSnap = await getDoc(userRef);
 
-                const newWalletBalance = currentWallet + Number(amount);
+        let currentBalance = 0;
+        if (userSnap.exists()) {
+            const data = userSnap.data();
+            // Check whichever field name your user app uses
+            currentBalance = Number(data.wallet || data.balance || data.tokens) || 0;
+            console.log("Existing user data found:", data);
+        } else {
+            console.warn("No user document found with ID:", userId, "- Creating one now.");
+        }
 
-                await setDoc(userRef, {
-                    wallet: newWalletBalance
-                }, { merge: true });
+        const newBalance = currentBalance + Number(amount);
+        console.log("New calculated balance:", newBalance);
 
-                await deleteDoc(doc(db, "token_requests", reqId));
+        // Update wallet, balance, and tokens all at once to match your app's code
+        await setDoc(userRef, {
+            wallet: newBalance,
+            balance: newBalance,
+            tokens: newBalance
+        }, { merge: true });
 
-                alert(`Successfully approved and credited ${amount} tokens to user!`);
-            } catch (err) {
-                console.error("Approval & Credit Error:", err);
-                alert("Failed to credit tokens: " + err.message);
-            }
-        };
+        // Delete the pending request after successful credit
+        await deleteDoc(doc(db, "token_requests", reqId));
+
+        alert(`Successfully approved and credited ${amount} tokens to user!`);
+    } catch (err) {
+        console.error("Approval & Credit Error:", err);
+        alert("Failed to credit tokens: " + err.message);
+    }
+};
     </script>
 </body>
 </html>
