@@ -115,9 +115,10 @@
             return x - Math.floor(x);
         }
 
-        function generateTicketData(ticketNo) {
+        // Returns a flat 1D array of 27 elements (Firestore compatible)
+        function generateFlatTicketData(ticketNo) {
             let seed = ticketNo * 12345;
-            let grid = Array(3).fill(null).map(() => Array(9).fill(0));
+            let flatGrid = Array(27).fill(0);
             let colRanges = [[1,9],[10,19],[20,29],[30,39],[40,49],[50,59],[60,69],[70,79],[80,90]];
 
             for (let r = 0; r < 3; r++) {
@@ -132,10 +133,10 @@
                     let min = colRanges[colIdx][0];
                     let max = colRanges[colIdx][1];
                     let val = Math.floor(seededRandom(seed++) * (max - min + 1)) + min;
-                    grid[r][colIdx] = val;
+                    flatGrid[(r * 9) + colIdx] = val;
                 }
             }
-            return grid;
+            return flatGrid;
         }
 
         // Render Cards with Multi-Select Toggle
@@ -144,7 +145,7 @@
             container.innerHTML = "";
 
             for (let i = 1; i <= 600; i++) {
-                const ticketGrid = generateTicketData(i);
+                const flatGrid = generateFlatTicketData(i);
                 
                 const card = document.createElement('div');
                 card.className = "ticket-card";
@@ -159,11 +160,9 @@
                     <div class="ticket-grid">
                 `;
 
-                for (let r = 0; r < 3; r++) {
-                    for (let c = 0; c < 9; c++) {
-                        let val = ticketGrid[r][c];
-                        gridHtml += `<div class="cell ${val === 0 ? 'empty' : ''}">${val || ''}</div>`;
-                    }
+                for (let idx = 0; idx < 27; idx++) {
+                    let val = flatGrid[idx];
+                    gridHtml += `<div class="cell ${val === 0 ? 'empty' : ''}">${val || ''}</div>`;
                 }
                 gridHtml += `</div>`;
                 card.innerHTML = gridHtml;
@@ -237,14 +236,14 @@
                     // 1. Single Token Balance Deduction
                     transaction.update(userRef, { tokens: currentTokens - requiredTokens });
 
-                    // 2. Save all selected tickets in a batch entry
+                    // 2. Save all selected tickets using flat 1D arrays
                     ticketArray.forEach(tNo => {
                         const bookingRef = doc(collection(db, "booked_tickets"));
                         transaction.set(bookingRef, {
                             userId: currentUser.uid,
                             email: currentUser.email,
                             ticketNo: tNo,
-                            ticketData: generateTicketData(tNo),
+                            ticketData: generateFlatTicketData(tNo),
                             bookedAt: new Date().toISOString()
                         });
                     });
