@@ -3,38 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard & Host Control - Tambola House</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Tambola Admin - Game Operations</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body { background-color: #f8f9fa; padding: 20px; }
-        .card { box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .board-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; max-width: 100%; }
-        .board-cell { aspect-ratio: 1; background: #fff; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; border-radius: 3px; }
-        .board-cell.called { background: #28a745; color: white; }
-        .board-cell.current { background: #ffc107; color: black; font-size: 1.1rem; }
-        .current-call-box { font-size: 2.5rem; font-weight: bold; background: #343a40; color: #ffc107; text-align: center; border-radius: 8px; padding: 15px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: linear-gradient(145deg, #f7f3ee, #e9e1d7); color: #2d1f14; min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: auto; }
+        
+        .header { background: white; border-radius: 20px; padding: 20px 25px; margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,.08); display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.5rem; color: #b35e2e; }
+
+        .btn { padding: 12px 20px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.95rem; display: inline-block; text-decoration: none; }
+        .btn-primary { background: #b35e2e; color: white; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-secondary { background: #7b6856; color: white; }
+        .btn-danger { background: #c0392b; color: white; }
+
+        .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,.07); margin-bottom: 25px; }
+        .card h2 { font-size: 1.3rem; margin-bottom: 15px; color: #b35e2e; border-bottom: 2px solid #f6f1eb; padding-bottom: 10px; }
+
+        .current-number { font-size: 4rem; font-weight: 800; color: #b35e2e; text-align: center; margin: 15px 0; }
+        .drawn-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin-top: 15px; }
+        .num-cell { background: #f6f1eb; padding: 8px 0; border-radius: 6px; text-align: center; font-weight: bold; font-size: 0.85rem; color: #ded4c9; }
+        .num-cell.active { background: #27ae60; color: white; }
+        
+        #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f7f3ee; display: flex; justify-content: center; align-items: center; z-index: 2000; font-weight: bold; font-size: 1.2rem; color: #b35e2e; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Admin Dashboard & Host Panel</h2>
-            <button id="btn-logout" class="btn btn-outline-danger btn-sm">Logout</button>
+
+<div id="authOverlay">
+    <i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i> Verifying Admin Access...
+</div>
+
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-shield-alt"></i> Admin Game Operations</h1>
+        <div>
+            <a href="index.html" class="btn btn-secondary"><i class="fas fa-home"></i> Home</a>
+            <button class="btn btn-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </div>
+
+    <!-- GAME SESSION CREATION -->
+    <div class="card">
+        <h2><i class="fas fa-plus-circle"></i> Create New Game Session</h2>
+        <p style="margin-bottom: 15px; color: #7b6856;">Creates an active game and copies 600 tickets from masterTemplates.</p>
+        <button class="btn btn-primary" onclick="createNewGame()"><i class="fas fa-play"></i> Initialize Game & Copy 600 Tickets</button>
+        <span id="activeGameStatus" style="margin-left: 15px; font-weight: bold; color: #27ae60;"></span>
+    </div>
+
+    <!-- LIVE NUMBER CALLER -->
+    <div class="card">
+        <h2><i class="fas fa-bullhorn"></i> Live Caller Controls</h2>
+        <div class="current-number" id="displayCurrentNum">--</div>
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button class="btn btn-success" onclick="drawNextNumber()"><i class="fas fa-dice"></i> Draw Next Number</button>
         </div>
 
-        <div class="row">
-            <!-- Left Column: Game Creation & Requests -->
-            <div class="col-lg-5">
-                <!-- Game Creation Form -->
-                <div class="card p-3">
-                    <h4>Create New Game</h4>
-                    <div class="mb-3">
-                        <label for="game-start-time" class="form-label">Start Time</label>
-                        <input type="datetime-local" id="game-start-time" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label for="game-prizes" class="form-label">Prizes (e.g. 10,10,10,50)</label>
-                        <input type="text" id="game-prizes" placeholder="10,10,10,50" class="form-control">
+        <h3>Drawn Numbers Board (1-90)</h3>
+        <div class="drawn-grid" id="boardGrid"></div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
+    authDomain: "tambola-house-3dc56.firebaseapp.com",
+    projectId: "tambola-house-3dc56",
+    storageBucket: "tambola-house-3dc56.firebasestorage.app",
+    messagingSenderId: "267918174188",
+    appId: "1:267918174188:web:ec27684544c286c044c2c9"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const ADMIN_EMAIL = "your-admin-email@gmail.com";
+let currentActiveGameId = null;
+
+/* AUTH & ROLE CHECK */
+auth.onAuthStateChanged((user) => {
+    if (!user || user.email !== ADMIN_EMAIL) {
+        alert("Access Denied: Admin authorization required.");
+        window.location.href = "index.html";
+    } else {
+        document.getElementById("authOverlay").style.display = "none";
+        renderBoardGrid();
+        listenToActiveGame();
+    }
+});
+
+/* RENDER 1-90 BOARD STRUCTURE */
+function renderBoardGrid() {
+    const grid = document.getElementById("boardGrid");
+    grid.innerHTML = "";
+    for (let i = 1; i <= 90; i++) {
+        grid.innerHTML += `<div class="num-cell" id="num-${i}">${i}</div>`;
+    }
+}
+
+/* CREATE GAME SESSION & COPY 600 MASTER TICKETS */
+async function createNewGame() {
+    try {
+        const gameRef = await db.collection("games").add({
+            status: "active",
+            drawnNumbers: [],
+            currentNumber: null,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        currentActiveGameId = gameRef.id;
+
+        const masterSnapshot = await db.collection("masterTickets").get();
+        let batch = db.batch();
+        let count = 0;
+
+        masterSnapshot.forEach((doc) => {
+            const masterData = doc.data();
+            const gameTicketRef = db.collection("games").doc(currentActiveGameId).collection("gameTickets").doc(doc.id);
+
+            batch.set(gameTicketRef, {
+                masterTicketId: doc.id,
+                ticketNumber: masterData.ticketNumber,
+                grid: masterData.grid,
+                ownerUid: null,
+                ownerEmail: null,
+                isPurchased: false
+            });
+
+            count++;
+            if (count % 300 === 0) {
+                batch.commit();
+                batch = db.batch();
+            }
+        });
+
+        if (count % 300 !== 0) {
+            await batch.commit();
+        }
+
+        document.getElementById("activeGameStatus").textContent = `Active Game ID: ${currentActiveGameId}`;
+        alert(`Game Started! Session ID: ${currentActiveGameId} initialized with 600 ticket copies.`);
+    } catch (err) {
+        alert("Error initializing game: " + err.message);
+    }
+}
+
+/* LISTEN TO CURRENT ACTIVE GAME REAL-TIME */
+function listenToActiveGame() {
+    db.collection("games").where("status", "==", "active").limit(1).onSnapshot((snapshot) => {
+        if (!snapshot.empty) {
+            const gameDoc = snapshot.docs[0];
+            currentActiveGameId = gameDoc.id;
+            const data = gameDoc.data();
+
+            document.getElementById("activeGameStatus").textContent = `Active Game ID: ${currentActiveGameId}`;
+            document.getElementById("displayCurrentNum").textContent = data.currentNumber || "--";
+
+            // Highlight drawn numbers on board
+            for (let i = 1; i <= 90; i++) {
+                const cell = document.getElementById(`num-${i}`);
+                if (data.drawnNumbers.includes(i)) {
+                    cell.classList.add("active");
+                } else {
+                    cell.classList.remove("active");
+                }
+            }
+        }
+    });
+}
+
+/* DRAW NEXT RANDOM NUMBER */
+async function drawNextNumber() {
+    if (!currentActiveGameId) {
+        alert("Please create or select an active game session first!");
+        return;
+    }
+
+    const gameRef = db.collection("games").doc(currentActiveGameId);
+    const gameDoc = await gameRef.get();
+    const drawn = gameDoc.data().drawnNumbers || [];
+
+    if (drawn.length >= 90) {
+        alert("All 90 numbers have been drawn for this game!");
+        return;
+    }
+
+    let nextNum;
+    do {
+        nextNum = Math.floor(Math.random() * 90) + 1;
+    } while (drawn.includes(nextNum));
+
+    await gameRef.update({
+        currentNumber: nextNum,
+        drawnNumbers: firebase.firestore.FieldValue.arrayUnion(nextNum)
+    });
+}
+
+function logout() {
+    auth.signOut().then(() => window.location.href = "index.html");
+}
+</script>
+
+</body>
+</html>                        <input type="text" id="game-prizes" placeholder="10,10,10,50" class="form-control">
                     </div>
                     <button id="btn-create-game" class="btn btn-primary w-100">Create & Initialize Game</button>
                 </div>
