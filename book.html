@@ -8,16 +8,16 @@
     <style>
         body { background-color: #f8f9fa; padding: 20px; }
         .card { box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .ticket-preview { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; background: #333; border: 2px solid #333; max-width: 350px; margin-bottom: 15px; }
-        .cell { background: #fff; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; }
-        .cell.empty { background: #f0f0f0; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Book Game Tickets</h2>
-            <a href="user.html" class="btn btn-secondary btn-sm">Back to Dashboard</a>
+            <div class="d-flex gap-2">
+                <a href="ticketdata.html" class="btn btn-info btn-sm text-white">📊 View Game Ticket Data</a>
+                <a href="user.html" class="btn btn-secondary btn-sm">Back to Dashboard</a>
+            </div>
         </div>
 
         <div class="card p-3 mb-4">
@@ -55,7 +55,6 @@
                 for (const gameDoc of expiredSnap.docs) {
                     const gameId = gameDoc.id;
 
-                    // Delete ALL booked tickets linked to this expired game
                     const ticketsQuery = query(collection(db, "booked_tickets"), where("gameId", "==", gameId));
                     const ticketsSnap = await getDocs(ticketsQuery);
 
@@ -63,7 +62,6 @@
                         await deleteDoc(doc(db, "booked_tickets", ticketDoc.id));
                     }
 
-                    // Remove expired game record
                     await deleteDoc(doc(db, "games", gameId));
                 }
             } catch (error) {
@@ -91,11 +89,16 @@
                     if (game.startTime && game.startTime <= now) return;
 
                     const gameCard = document.createElement('div');
-                    gameCard.className = "border p-3 mb-3 rounded bg-white shadow-sm";
+                    gameCard.className = "border p-3 mb-3 rounded bg-white shadow-sm d-flex justify-content-between align-items-center flex-wrap gap-2";
                     gameCard.innerHTML = `
-                        <h5>Draw Time: ${new Date(game.startTime).toLocaleString()}</h5>
-                        <p class="mb-2"><strong>Prizes:</strong> ${game.prizes}</p>
-                        <button class="btn btn-success btn-sm" onclick="bookTicket('${gameId}')">Generate & Book Ticket</button>
+                        <div>
+                            <h5>Draw Time: ${new Date(game.startTime).toLocaleString()}</h5>
+                            <p class="mb-0 text-muted"><strong>Prizes:</strong> ${game.prizes}</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="ticketdata.html" class="btn btn-outline-primary btn-sm">View Tickets</a>
+                            <button class="btn btn-success btn-sm" onclick="bookTicket('${gameId}')">Generate & Book Ticket</button>
+                        </div>
                     `;
                     container.appendChild(gameCard);
                 });
@@ -105,7 +108,6 @@
             }
         }
 
-        // Helper to generate a valid Tambola ticket layout (27 cells: 9 cols x 3 rows)
         function generateTicketNumbers() {
             let nums = Array.from({length: 27}, () => Math.floor(Math.random() * 90) + 1);
             return nums.join(',');
