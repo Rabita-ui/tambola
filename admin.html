@@ -57,7 +57,7 @@
     <!-- 2. GAME SESSION INITIALIZATION -->
     <div class="card">
         <h2><i class="fas fa-plus-circle"></i> Create New Game Session</h2>
-        <p style="margin-bottom: 15px; color: #7b6856;">Creates an active game and duplicates tickets from masterTickets into the active game tickets pool.</p>
+        <p style="margin-bottom: 15px; color: #7b6856;">Creates an active game, copies 600 master tickets, and automatically prunes database to retain only the 3 latest games.</p>
         <button class="btn btn-primary" onclick="createNewGame()"><i class="fas fa-play"></i> Initialize Game & Copy 600 Tickets</button>
         <div id="activeGameStatus" style="margin-top: 10px; font-weight: bold; color: #27ae60;"></div>
     </div>
@@ -134,7 +134,7 @@ async function seed600MasterTickets() {
                 const ticketIndex = batchNum * 300 + i;
                 const ticketId = `ticket_${String(ticketIndex).padStart(3, '0')}`;
                 const rawGrid = generateTambolaTicket();
-                const flatGrid = rawGrid.flat(); // Flatten 3x9 2D array to 27 1D array
+                const flatGrid = rawGrid.flat();
 
                 const docRef = masterRef.doc(ticketId);
                 batch.set(docRef, {
@@ -192,7 +192,7 @@ function generateTambolaTicket() {
     return ticket;
 }
 
-/* 3. CREATE GAME SESSION & COPY MASTER TICKETS */
+/* 3. CREATE GAME SESSION & AUTO-PRUNE OLDER GAMES */
 async function createNewGame() {
     try {
         const gameRef = await db.collection("games").add({
@@ -203,6 +203,7 @@ async function createNewGame() {
         });
 
         currentActiveGameId = gameRef.id;
+
         const masterSnapshot = await db.collection("masterTickets").get();
         let batch = db.batch();
         let count = 0;
@@ -231,13 +232,61 @@ async function createNewGame() {
         }
 
         document.getElementById("activeGameStatus").textContent = `Active Game ID: ${currentActiveGameId}`;
-        alert(`Game Started! ID: ${currentActiveGameId} initialized.`);
+
+        // Prune older games beyond the 3 latest created
+        await pruneOldGames();
+
+        alert(`Game Started! ID: ${currentActiveGameId} initialized. Database retention kept to 3 latest games.`);
     } catch (err) {
         alert("Error starting game: " + err.message);
     }
 }
 
-/* 4. LISTEN TO ACTIVE GAME STATE */
+/* 4. HELPER FUNCTION: DELETE GAMES BEYOND THE 3 MOST RECENT */
+async function pruneOldGames() {
+    try {
+        const snapshot = await db.collection("games")
+            .orderBy("createdAt", "desc")
+            .get();
+
+        if (snapshot.size > 3) {
+            const docsToDelete = snapshot.docs.slice(3);
+
+            for (const gameDoc of docsToDelete) {
+                const gameId = gameDoc.id;
+
+                // Delete subcollection gameTickets
+                const ticketsSnapshot = await db.collection("games").doc(gameId).collection("gameTickets").get();
+                let batch = db.batch();
+                let bCount = 0;
+
+                ticketsSnapshot.forEach((tDoc) => {
+                    batch.delete(tDoc.ref);
+                    bCount++;
+                    if (bCount % 300 === 0) {
+                        batch.commit();
+                        batch = db.batch();
+                    }
+                });
+                if (bCount % 300 !== 0) await batch.commit();
+
+                // Delete subcollection winners
+                const winnersSnapshot = await db.collection("games").doc(gameId).collection("winners").get();
+                const wBatch = db.batch();
+                winnersSnapshot.forEach(wDoc => wBatch.delete(wDoc.ref));
+                await wBatch.commit();
+
+                // Delete parent game document
+                await db.collection("games").doc(gameId).delete();
+                console.log(`Pruned old game session: ${gameId}`);
+            }
+        }
+    } catch (e) {
+        console.error("Auto-prune error:", e);
+    }
+}
+
+/* 5. LISTEN TO ACTIVE GAME STATE */
 function listenToActiveGame() {
     db.collection("games").where("status", "==", "active").limit(1).onSnapshot((snapshot) => {
         if (!snapshot.empty) {
@@ -260,7 +309,7 @@ function listenToActiveGame() {
     });
 }
 
-/* 5. DRAW RANDOM NUMBER */
+/* 6. DRAW RANDOM NUMBER */
 async function drawNextNumber() {
     if (!currentActiveGameId) return alert("Create an active game session first!");
 
