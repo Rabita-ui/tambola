@@ -3,302 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Tambola House</title>
-
+    <title>Admin Control - Tambola House</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(145deg, #f7f3ee, #e9e1d7);
-            color: #2d1f14;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: auto;
-        }
-
-        .header {
-            background: white;
-            border-radius: 20px;
-            padding: 20px 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,.08);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-        }
-
-        .header h1 i {
-            color: #b35e2e;
-        }
-
-        .nav a {
-            text-decoration: none;
-            color: #7b6856;
-            font-weight: 600;
-            margin-left: 15px;
-        }
-
-        .nav a:hover {
-            color: #b35e2e;
-        }
-
-        .grid-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,.07);
-        }
-
-        .card h2 {
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-            color: #2d1f14;
-        }
-
-        .current-number {
-            font-size: 4rem;
-            font-weight: 800;
-            color: #b35e2e;
-            text-align: center;
-            padding: 10px;
-            background: #f6f1eb;
-            border-radius: 15px;
-            margin-bottom: 15px;
-        }
-
-        .nickname-display {
-            text-align: center;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #1f7a4b;
-            min-height: 1.5rem;
-            margin-top: -10px;
-            margin-bottom: 15px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        button {
-            border: none;
-            border-radius: 12px;
-            padding: 12px 18px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: .9rem;
-            background: #b35e2e;
-            color: white;
-            flex: 1;
-            transition: opacity 0.2s ease;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .btn-reset {
-            background: #c0392b;
-        }
-
-        .btn-auto {
-            background: #2b7a78;
-        }
-
-        .btn-auto.active {
-            background: #e67e22;
-        }
-
-        .btn-approve {
-            background: #1f7a4b;
-            padding: 6px 12px;
-            font-size: 0.8rem;
-        }
-
-        .btn-reject {
-            background: #c0392b;
-            padding: 6px 12px;
-            font-size: 0.8rem;
-        }
-
-        /* TOGGLES & CONTROLS */
-        .controls-row {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #7b6856;
-            background: #faf8f5;
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid #ded4c9;
-        }
-
-        .toggle-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .toggle-item input[type="checkbox"] {
-            cursor: pointer;
-            width: 16px;
-            height: 16px;
-        }
-
-        .timer-select {
-            padding: 4px 8px;
-            border-radius: 6px;
-            border: 1px solid #ded4c9;
-            font-weight: 700;
-            color: #2d1f14;
-        }
-
-        /* CLAIM LIST STYLES */
-        .claim-card {
-            background: #faf8f5;
-            border: 1px solid #ded4c9;
-            border-radius: 12px;
-            padding: 12px 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .claim-info {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .claim-title {
-            font-weight: 800;
-            color: #b35e2e;
-        }
-
-        .claim-user {
-            font-size: 0.85rem;
-            color: #7b6856;
-        }
-
-        .empty-claims {
-            text-align: center;
-            color: #a89a8c;
-            padding: 20px;
-            font-style: italic;
-        }
-
-        @media (max-width: 850px) {
-            .grid-layout {
-                grid-template-columns: 1fr;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: #f4ece1; color: #2d1f14; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; }
+        .header { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .btn { padding: 10px 18px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; color: white; margin-right: 8px; margin-bottom: 8px; }
+        .btn-draw { background: #b35e2e; }
+        .btn-new { background: #27ae60; }
+        .btn-reset { background: #c0392b; }
+        .btn-approve { background: #27ae60; padding: 5px 10px; }
+        .btn-reject { background: #c0392b; padding: 5px 10px; }
+        .claims-list { margin-top: 15px; }
+        .claim-item { background: #faf5ef; padding: 12px; border-radius: 8px; border: 1px solid #e2d7ca; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .drawn-box { background: #2d1f14; color: #fff; font-size: 2rem; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
-
 <body>
 
 <div class="container">
-
     <div class="header">
-        <h1>
-            <i class="fas fa-shield-alt"></i>
-            Tambola House — Admin Panel
-        </h1>
-
-        <div class="nav">
-            <a href="game.html">
-                <i class="fas fa-gamepad"></i> Game Room
-            </a>
-            <a href="dashboard.html">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
+        <h1><i class="fas fa-shield-alt"></i> Tambola Admin Panel</h1>
+        <div>
+            <a href="dashboard.html" style="margin-right: 15px; text-decoration: none; color: #7b6856; font-weight:600;">Dashboard</a>
+            <a href="game.html" style="text-decoration: none; color: #b35e2e; font-weight:600;">Game Room</a>
         </div>
     </div>
 
-    <div class="grid-layout">
+    <!-- CONTROLLER CARD -->
+    <div class="card">
+        <h2>Game Control</h2>
+        <p style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">Manage live number draws or cycle to an upcoming game while keeping history capped at 3 total games.</p>
         
-        <!-- LEFT PANEL: DRAW CONTROLS & AUDIO -->
-        <div>
-            <div class="card">
-                <h2><i class="fas fa-play-circle"></i> Live Controller</h2>
-                
-                <div class="current-number" id="lastDrawn">--</div>
-                <div class="nickname-display" id="nicknameDisplay"></div>
-
-                <div class="controls-row">
-                    <div class="toggle-item">
-                        <input type="checkbox" id="audioToggle" checked>
-                        <label for="audioToggle"><i class="fas fa-volume-up"></i> Announce voice with classic nicknames</label>
-                    </div>
-
-                    <div class="toggle-item">
-                        <label for="timerSelect"><i class="fas fa-clock"></i> Auto-Draw Speed:</label>
-                        <select id="timerSelect" class="timer-select">
-                            <option value="3">3 Seconds</option>
-                            <option value="5" selected>5 Seconds</option>
-                            <option value="8">8 Seconds</option>
-                            <option value="10">10 Seconds</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="btn-group">
-                    <button onclick="drawNextNumber()"><i class="fas fa-dice"></i> Draw</button>
-                    <button id="autoBtn" class="btn-auto" onclick="toggleAutoDraw()"><i class="fas fa-magic"></i> Auto Play</button>
-                    <button class="btn-reset" onclick="resetGame()"><i class="fas fa-redo"></i> Reset</button>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2><i class="fas fa-history"></i> Recent Drawn Numbers</h2>
-                <div id="drawnList" style="word-break: break-all; line-height: 1.6; font-weight: 600; color: #7b6856;">
-                    None yet.
-                </div>
-            </div>
+        <button class="btn btn-draw" onclick="drawNextNumber()"><i class="fas fa-random"></i> Draw Next Number</button>
+        <button class="btn btn-new" onclick="archiveAndCreateNewGame()"><i class="fas fa-plus-circle"></i> Save & Start Upcoming Game</button>
+        
+        <div style="margin-top: 15px;">
+            <h3>Last Drawn:</h3>
+            <div class="drawn-box" id="lastDrawnDisplay">-</div>
+            <p style="margin-top: 8px; color: #7b6856;" id="totalDrawnCount">Total Drawn: 0 / 90</p>
         </div>
-
-        <!-- RIGHT PANEL: CLAIM APPROVAL INBOX -->
-        <div>
-            <div class="card">
-                <h2><i class="fas fa-bell"></i> Live Player Claims (<span id="claimCount">0</span>)</h2>
-                <div id="claimsContainer">
-                    <div class="empty-claims">No pending claims.</div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
+    <!-- CLAIMS CARD -->
+    <div class="card">
+        <h2>Pending Winner Claims</h2>
+        <div id="claimsList" class="claims-list">
+            <p style="color: #888;">No pending claims.</p>
+        </div>
+    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -321,187 +77,71 @@ const gameRef = db.collection("games").doc("active_game");
 
 let activeDrawn = [];
 let activeClaims = [];
-let autoInterval = null;
-
-/* TRADITIONAL TAMBOLA NICKNAMES (LINGO) */
-const tambolaNicknames = {
-    1: "Kelly's Eye", 2: "One Small Duck", 3: "Cup of Tea", 4: "Knock at the Door", 5: "Symbol of Luck",
-    6: "Super Six", 7: "Lucky Seven", 8: "Garden Gate", 9: "Doctor's Time", 10: "A Big Fat Hen",
-    11: "Two Standing Sticks", 12: "One Dozen", 13: "Unlucky for Some", 14: "Valentine's Day", 15: "Young and Keen",
-    16: "Sweet Sixteen", 17: "Dancing Queen", 18: "Voting Age", 19: "Goodbye Teens", 20: "One Score",
-    21: "Royal Salute", 22: "Two Little Ducks", 23: "You and Me", 24: "Two Dozen", 25: "Silver Jubilee",
-    26: "Republic Day", 27: "Gateway to Heaven", 28: "Over Weight", 29: "Rise and Shine", 30: "Dirty Thirty",
-    31: "Time for Fun", 32: "Buckle My Shoe", 33: "All the Threes", 34: "Ask for More", 35: "Jump and Jive",
-    36: "Three Dozen", 37: "Mixed Feelings", 38: "Oversize", 39: "Watch the Line", 40: "Naughty Forty",
-    41: "Life Begins", 42: "Winnie the Pooh", 43: "Down on Your Knees", 44: "All the Fours", 45: "Halfway There",
-    46: "Up to Tricks", 47: "Four and Seven", 48: "Four Dozen", 49: "Rise and Shine", 50: "Half a Century",
-    51: "Tweak That Thumb", 52: "Pack of Cards", 53: "Stuck in a Tree", 54: "Clean the Floor", 55: "All the Fives",
-    56: "Shotgun Willie", 57: "Heinz Varieties", 58: "Make Them Wait", 59: "Bright Line", 60: "Five Dozen",
-    61: "Bakers Bun", 62: "Turn the Screw", 63: "Tickle Me", 64: "Red Raw", 65: "Old Age Pension",
-    66: "Clickety Click", 67: "Made in Heaven", 68: "Saving Grace", 69: "Either Way Up", 70: "Lucky Blind",
-    71: "Bang on the Drum", 72: "Six Dozen", 73: "Queen B", 74: "Candy Store", 75: "Diamond Jubilee",
-    76: "Trombones", 77: "Two Little Crutches", 78: "Heavens Gate", 79: "One More Time", 80: "Eight Blank",
-    81: "Stop and Run", 82: "Straight One", 83: "Time for Tea", 84: "Seven Dozen", 85: "Staying Alive",
-    86: "Between the Sticks", 87: "Torquay in Devon", 88: "Two Fat Ladies", 89: "Nearly There", 90: "Top of the Shop"
-};
 
 window.addEventListener('DOMContentLoaded', () => {
-    listenToGame();
+    listenToActiveGame();
 });
 
-/* FIRESTORE REALTIME LISTENER */
-function listenToGame() {
+/* LISTEN TO ACTIVE GAME */
+function listenToActiveGame() {
     gameRef.onSnapshot((doc) => {
-        if (!doc.exists) {
-            initGameDoc();
-            return;
-        }
-
-        const data = doc.data();
-        activeDrawn = data.drawnNumbers || [];
-        activeClaims = data.claims || [];
-
-        const last = data.lastDrawn;
-        document.getElementById("lastDrawn").textContent = last || "--";
-        document.getElementById("drawnList").textContent = activeDrawn.join(", ") || "None yet.";
-
-        if (last && tambolaNicknames[last]) {
-            document.getElementById("nicknameDisplay").textContent = `"${tambolaNicknames[last]}"`;
-        } else {
-            document.getElementById("nicknameDisplay").textContent = "";
-        }
-
-        renderClaims();
-    });
-}
-
-/* INITIALIZE GAME DOC IF MISSING */
-async function initGameDoc() {
-    await gameRef.set({
-        drawnNumbers: [],
-        lastDrawn: null,
-        status: "active",
-        claims: [],
-        prizes: {
-            fullHouse: 100,
-            topLine: 30,
-            middleLine: 30,
-            bottomLine: 30,
-            earlyFive: 20
+        if (doc.exists) {
+            const data = doc.data();
+            activeDrawn = data.drawnNumbers || [];
+            activeClaims = data.claims || [];
+            
+            document.getElementById("lastDrawnDisplay").textContent = data.lastDrawn || "-";
+            document.getElementById("totalDrawnCount").textContent = `Total Drawn: ${activeDrawn.length} / 90`;
+            
+            renderClaims();
         }
     });
 }
 
-/* AUDIO CALLING ENGINE WITH NICKNAMES */
-function speakNumber(num) {
-    if (!('speechSynthesis' in window)) return;
-    
-    window.speechSynthesis.cancel();
-
-    const nickname = tambolaNicknames[num] || "";
-    let textToSpeak = "";
-
-    if (num < 10) {
-        textToSpeak = `${nickname}. Single number ${num}`;
-    } else {
-        const digits = num.toString().split("").join(" ");
-        textToSpeak = `${nickname}. Number ${num}, ${digits}`;
-    }
-
-    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-    utterance.rate = 0.9;
-    utterance.pitch = 1.0;
-    window.speechSynthesis.speak(utterance);
-}
-
-/* DRAW RANDOM NUMBER (1-90) */
+/* DRAW NEXT NUMBER */
 async function drawNextNumber() {
     if (activeDrawn.length >= 90) {
-        stopAutoDraw();
         alert("All numbers have been drawn!");
         return;
     }
-
+    
     let next;
     do {
         next = Math.floor(Math.random() * 90) + 1;
     } while (activeDrawn.includes(next));
 
-    if (document.getElementById("audioToggle").checked) {
-        speakNumber(next);
-    }
+    activeDrawn.push(next);
 
-    await gameRef.update({
-        drawnNumbers: firebase.firestore.FieldValue.arrayUnion(next),
+    await gameRef.set({
+        drawnNumbers: activeDrawn,
         lastDrawn: next,
-        status: "active"
-    });
-}
-
-/* AUTO-DRAW INTERVAL ENGINE */
-function toggleAutoDraw() {
-    const autoBtn = document.getElementById("autoBtn");
-    if (autoInterval) {
-        stopAutoDraw();
-    } else {
-        const seconds = parseInt(document.getElementById("timerSelect").value) * 1000;
-        drawNextNumber();
-        autoInterval = setInterval(drawNextNumber, seconds);
-        autoBtn.classList.add("active");
-        autoBtn.innerHTML = '<i class="fas fa-pause"></i> Pause Auto';
-    }
-}
-
-function stopAutoDraw() {
-    if (autoInterval) {
-        clearInterval(autoInterval);
-        autoInterval = null;
-    }
-    const autoBtn = document.getElementById("autoBtn");
-    autoBtn.classList.remove("active");
-    autoBtn.innerHTML = '<i class="fas fa-magic"></i> Auto Play';
-}
-
-/* RESET GAME STATE */
-async function resetGame() {
-    if (confirm("Are you sure you want to reset the current game state?")) {
-        stopAutoDraw();
-        window.speechSynthesis.cancel();
-        await gameRef.update({
-            drawnNumbers: [],
-            lastDrawn: null,
-            status: "ready",
-            claims: []
-        });
-    }
+        status: "ACTIVE"
+    }, { merge: true });
 }
 
 /* RENDER PENDING CLAIMS */
 function renderClaims() {
-    const container = document.getElementById("claimsContainer");
-    document.getElementById("claimCount").textContent = activeClaims.length;
-
-    if (activeClaims.length === 0) {
-        container.innerHTML = '<div class="empty-claims">No pending claims.</div>';
+    const list = document.getElementById("claimsList");
+    if (!activeClaims || activeClaims.length === 0) {
+        list.innerHTML = '<p style="color: #888;">No pending claims.</p>';
         return;
     }
 
-    container.innerHTML = "";
-    activeClaims.forEach((claim, idx) => {
-        const div = document.createElement("div");
-        div.className = "claim-card";
-        div.innerHTML = `
-            <div class="claim-info">
-                <span class="claim-title">${claim.claimName}</span>
-                <span class="claim-user">${claim.userEmail}</span>
-            </div>
-            <div style="display: flex; gap: 5px;">
-                <button class="btn-approve" onclick="resolveClaim(${idx}, true)">Approve</button>
-                <button class="btn-reject" onclick="resolveClaim(${idx}, false)">Reject</button>
+    let html = "";
+    activeClaims.forEach((c, index) => {
+        html += `
+            <div class="claim-item">
+                <div>
+                    <strong>${c.userEmail}</strong> — <span style="color:#b35e2e;">${c.claimName}</span>
+                </div>
+                <div>
+                    <button class="btn btn-approve" onclick="resolveClaim(${index}, true)">Approve</button>
+                    <button class="btn btn-reject" onclick="resolveClaim(${index}, false)">Reject</button>
+                </div>
             </div>
         `;
-        container.appendChild(div);
     });
+    list.innerHTML = html;
 }
 
 /* APPROVE OR REJECT CLAIM */
@@ -513,9 +153,64 @@ async function resolveClaim(index, isApproved) {
     });
 
     if (isApproved) {
-        alert(`Claim approved for ${targetClaim.userEmail} (${targetClaim.claimName})!`);
-    } else {
-        alert(`Claim rejected for ${targetClaim.userEmail}.`);
+        await db.collection("winners").add({
+            userEmail: targetClaim.userEmail,
+            claimName: targetClaim.claimName,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert(`Approved ${targetClaim.userEmail}'s claim! Saved to Dashboard Winner Log.`);
+    }
+}
+
+/* ARCHIVE CURRENT GAME & START UPCOMING GAME (MAX 3 GAMES TOTAL) */
+async function archiveAndCreateNewGame() {
+    if (!confirm("Save current game to history and set up an upcoming game?")) return;
+
+    try {
+        // 1. Archive active game to games_history if numbers were drawn
+        if (activeDrawn && activeDrawn.length > 0) {
+            await db.collection("games_history").add({
+                drawnNumbers: activeDrawn,
+                totalDrawn: activeDrawn.length,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                status: "COMPLETED"
+            });
+        }
+
+        // 2. Clear active game for upcoming game
+        await gameRef.set({
+            drawnNumbers: [],
+            lastDrawn: null,
+            status: "READY",
+            claims: []
+        });
+
+        // 3. Keep only 2 finished games in history (+ 1 active = 3 total)
+        await pruneOldGamesHistory();
+
+        alert("New upcoming game setup complete! Kept 1 active game and the 2 most recent completed games.");
+
+    } catch (error) {
+        console.error("Error creating new game:", error);
+        alert("Error: " + error.message);
+    }
+}
+
+/* PRUNE OLD GAMES HISTORY */
+async function pruneOldGamesHistory() {
+    const snapshot = await db.collection("games_history")
+                              .orderBy("timestamp", "desc")
+                              .get();
+
+    if (snapshot.docs.length > 2) {
+        const docsToDelete = snapshot.docs.slice(2);
+        const batch = db.batch();
+
+        docsToDelete.forEach((doc) => {
+            batch.delete(doc.ref);
+        });
+
+        await batch.commit();
     }
 }
 </script>
