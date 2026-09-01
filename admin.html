@@ -93,7 +93,7 @@
     <script type="module">
         import { auth, db } from "./firebase-config.js";
         import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { collection, doc, setDoc, getDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         let callTimer = null;
 
@@ -261,17 +261,33 @@
                 const div = document.createElement('div');
                 div.className = "d-flex justify-content-between align-items-center border-bottom py-2";
                 div.innerHTML = `<span>User: ${req.userId || 'Unknown'} - Amt: ${req.amount || 0}</span>
-                                 <button class="btn btn-success btn-sm" onclick="approveToken('${docSnap.id}')">Approve</button>`;
+                                 <button class="btn btn-success btn-sm" onclick="approveToken('${docSnap.id}', '${req.userId}', ${req.amount || 0})">Approve</button>`;
                 tokenContainer.appendChild(div);
             });
         });
 
-        window.approveToken = async function(reqId) {
+        window.approveToken = async function(reqId, userId, amount) {
             try {
+                const userRef = doc(db, "users", userId);
+                const userSnap = await getDoc(userRef);
+
+                let currentWallet = 0;
+                if (userSnap.exists()) {
+                    currentWallet = Number(userSnap.data().wallet) || 0;
+                }
+
+                const newWalletBalance = currentWallet + Number(amount);
+
+                await setDoc(userRef, {
+                    wallet: newWalletBalance
+                }, { merge: true });
+
                 await deleteDoc(doc(db, "token_requests", reqId));
-                alert("Token request approved!");
+
+                alert(`Successfully approved and credited ${amount} tokens to user!`);
             } catch (err) {
-                alert("Failed: " + err.message);
+                console.error("Approval & Credit Error:", err);
+                alert("Failed to credit tokens: " + err.message);
             }
         };
     </script>
