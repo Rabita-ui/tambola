@@ -3,283 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambola House - Welcome</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Tambola House</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: linear-gradient(145deg, #f7f3ee, #e9e1d7); color: #2d1f14; min-height: 100vh; padding: 20px; }
-        .container { max-width: 900px; margin: auto; }
-        
-        .header { background: white; border-radius: 20px; padding: 20px 25px; margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
-        .header h1 { font-size: 1.5rem; color: #b35e2e; }
-        
-        .user-info { display: flex; align-items: center; gap: 12px; font-weight: 600; flex-wrap: wrap; }
-        .token-badge { background: #f6f1eb; border: 1px solid #ded4c9; padding: 6px 14px; border-radius: 12px; font-size: 0.9rem; }
-        
-        .btn { padding: 10px 18px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; text-decoration: none; font-size: 0.9rem; display: inline-block; }
-        .btn-primary { background: #b35e2e; color: white; }
-        .btn-secondary { background: #7b6856; color: white; }
-        .btn-outline { border: 2px solid #b35e2e; color: #b35e2e; background: transparent; }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-danger { background: #c0392b; color: white; }
-
-        .hero-card { background: white; border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,.07); margin-bottom: 20px; }
-        .hero-card h2 { font-size: 2rem; margin-bottom: 10px; }
-        .hero-card p { color: #7b6856; margin-bottom: 25px; line-height: 1.6; }
-
-        /* AUTH & ACTION MODALS */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal { background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .modal h3 { margin-bottom: 15px; color: #b35e2e; text-align: center; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #ded4c9; border-radius: 8px; font-size: 1rem; }
-        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .modal-actions button { flex: 1; }
-        .switch-auth { text-align: center; margin-top: 15px; font-size: 0.85rem; color: #7b6856; cursor: pointer; text-decoration: underline; }
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; color: #333; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; max-width: 600px; }
+        .hidden { display: none; }
+        input, button, select { padding: 10px; margin: 8px 0; display: block; width: 100%; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        button.reject { background: #dc3545; }
+        button.reject:hover { background: #bd2130; }
+        .request-item { background: #f9f9f9; padding: 10px; border: 1px solid #ddd; margin-bottom: 10px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1><i class="fas fa-th"></i> Tambola House</h1>
-        
-        <!-- LOGGED OUT VIEW -->
-        <div id="authButtons">
-            <button class="btn btn-outline" onclick="openModal('loginModal')">Log In</button>
-            <button class="btn btn-primary" onclick="openModal('registerModal')">Register</button>
-        </div>
+    <h1>Tambola House</h1>
 
-        <!-- LOGGED IN VIEW WITH TOKEN REQUEST OPTION -->
-        <div id="userProfile" class="user-info" style="display: none;">
-            <span class="token-badge"><i class="fas fa-coins" style="color: #f39c12;"></i> Tokens: <strong id="tokenBalance">0</strong></span>
+    <div id="auth-section" class="card">
+        <h2>Login / Register</h2>
+        <input type="email" id="auth-email" placeholder="Email Address">
+        <input type="password" id="auth-password" placeholder="Password">
+        <button id="btn-login">Login</button>
+        <button id="btn-register">Register Account</button>
+    </div>
+
+    <div id="main-section" class="card hidden">
+        <p>Logged in as: <strong id="user-display"></strong> (<span id="user-role">User</span>)</p>
+        <button id="btn-logout" style="background: #6c757d;">Logout</button>
+        <hr>
+
+        <div>
+            <h3>Request Game Tickets</h3>
+            <label for="ticket-count">Number of Tickets:</label>
+            <input type="number" id="ticket-count" min="1" max="6" value="1">
+            <button id="btn-request-token">Submit Token Request</button>
+        </div>
+    </div>
+
+    <div id="admin-section" class="card hidden">
+        <h2>Admin Panel</h2>
+
+        <div style="border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
+            <h3>Create New Game</h3>
+            <label>Game Start Time:</label>
+            <input type="datetime-local" id="game-time">
             
-            <!-- REQUEST TOKENS LINK/BUTTON -->
-            <button class="btn btn-success" onclick="openModal('tokenRequestModal')">
-                <i class="fas fa-plus-circle"></i> Request Tokens
-            </button>
+            <label>Prizes Info:</label>
+            <input type="text" id="game-prizes" placeholder="e.g. Early 5, Top Line, Full House">
+            
+            <label>First Drawn Number Pickup (1-90):</label>
+            <input type="number" id="first-number" min="1" max="90" placeholder="Optional starting number">
+            
+            <button id="btn-create-game">Create Game & Auto-Prune Old Data</button>
+        </div>
 
-            <span id="userEmailDisplay" style="color: #2d1f14;">user@email.com</span>
-            <button class="btn btn-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+        <div>
+            <h3>Pending Ticket Requests</h3>
+            <div id="requests-list">Loading requests...</div>
         </div>
     </div>
 
-    <div class="hero-card">
-        <h2>Welcome to Live Tambola!</h2>
-        <p>Join live games, claim full house prizes, and track win history in real time.</p>
-        
-        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-            <a href="game.html" class="btn btn-primary" style="padding: 14px 28px; font-size: 1.1rem;">
-                <i class="fas fa-play"></i> Enter Game Room
-            </a>
-            <a href="dashboard.html" class="btn btn-secondary" style="padding: 14px 28px; font-size: 1.1rem;">
-                <i class="fas fa-chart-line"></i> Dashboard
-            </a>
-            <a href="admin.html" id="adminBtn" class="btn btn-outline" style="display: none; padding: 14px 28px; font-size: 1.1rem;">
-                <i class="fas fa-shield-alt"></i> Admin Panel
-            </a>
-        </div>
-    </div>
-</div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, updateDoc, deleteDoc, orderBy 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-<!-- LOGIN MODAL -->
-<div class="modal-overlay" id="loginModal">
-    <div class="modal">
-        <h3>Login to Play</h3>
-        <form onsubmit="handleLogin(event)">
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="loginEmail" required placeholder="name@example.com">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="loginPassword" required placeholder="••••••••">
-            </div>
-            <div class="modal-actions">
-                <button type="submit" class="btn btn-primary">Log In</button>
-                <button type="button" class="btn btn-secondary" onclick="closeModal('loginModal')">Cancel</button>
-            </div>
-        </form>
-        <div class="switch-auth" onclick="switchModal('loginModal', 'registerModal')">Need an account? Register here</div>
-    </div>
-</div>
+        // Tambola House Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
+            authDomain: "tambola-house-3dc56.firebaseapp.com",
+            projectId: "tambola-house-3dc56",
+            storageBucket: "tambola-house-3dc56.firebasestorage.app",
+            messagingSenderId: "267918174188",
+            appId: "1:267918174188:web:0bf6b47282f1b14d44c2c9"
+        };
 
-<!-- REGISTER MODAL -->
-<div class="modal-overlay" id="registerModal">
-    <div class="modal">
-        <h3>Create an Account</h3>
-        <form onsubmit="handleRegister(event)">
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="regEmail" required placeholder="name@example.com">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="regPassword" required placeholder="At least 6 characters">
-            </div>
-            <div class="modal-actions">
-                <button type="submit" class="btn btn-primary">Register</button>
-                <button type="button" class="btn btn-secondary" onclick="closeModal('registerModal')">Cancel</button>
-            </div>
-        </form>
-        <div class="switch-auth" onclick="switchModal('registerModal', 'loginModal')">Already have an account? Log In</div>
-    </div>
-</div>
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-<!-- REQUEST TOKENS MODAL -->
-<div class="modal-overlay" id="tokenRequestModal">
-    <div class="modal">
-        <h3>Request Extra Tokens</h3>
-        <form onsubmit="handleTokenRequest(event)">
-            <div class="form-group">
-                <label>Amount of Tokens Requested</label>
-                <input type="number" id="requestAmount" min="10" max="1000" value="50" required>
-            </div>
-            <div class="form-group">
-                <label>Reason / Message (Optional)</label>
-                <input type="text" id="requestReason" placeholder="e.g. Need tokens for next game room">
-            </div>
-            <div class="modal-actions">
-                <button type="submit" class="btn btn-success">Submit Request</button>
-                <button type="button" class="btn btn-secondary" onclick="closeModal('tokenRequestModal')">Cancel</button>
-            </div>
-        </form>
-    </div>
-</div>
+        let currentUser = null;
 
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+        // Register User
+        document.getElementById('btn-register').addEventListener('click', async () => {
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-password').value;
+            if(!email || !pass) return alert("Please enter email and password.");
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                await setDoc(doc(db, "users", cred.user.uid), { 
+                    email: email, 
+                    role: 'user',
+                    createdAt: new Date().toISOString()
+                });
+                alert("Account created successfully!");
+            } catch (err) { alert(err.message); }
+        });
 
-<script>
-const firebaseConfig = {
-    apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-    authDomain: "tambola-house-3dc56.firebaseapp.com",
-    projectId: "tambola-house-3dc56",
-    storageBucket: "tambola-house-3dc56.firebasestorage.app",
-    messagingSenderId: "267918174188",
-    appId: "1:267918174188:web:ec27684544c286c044c2c9"
-};
+        // Login User
+        document.getElementById('btn-login').addEventListener('click', async () => {
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-password').value;
+            if(!email || !pass) return alert("Please enter email and password.");
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (err) { alert(err.message); }
+        });
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+        // Logout User
+        document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
-const ADMIN_EMAIL = "your-admin-email@gmail.com";
-let userUnsubscribe = null;
+        // State Listener
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('main-section').classList.remove('hidden');
+                document.getElementById('user-display').innerText = user.email;
 
-/* REALTIME AUTH & TOKEN LISTENER */
-auth.onAuthStateChanged((user) => {
-    const authButtons = document.getElementById("authButtons");
-    const userProfile = document.getElementById("userProfile");
-    const adminBtn = document.getElementById("adminBtn");
-
-    if (userUnsubscribe) {
-        userUnsubscribe();
-        userUnsubscribe = null;
-    }
-
-    if (user) {
-        authButtons.style.display = "none";
-        userProfile.style.display = "flex";
-        document.getElementById("userEmailDisplay").textContent = user.email;
-
-        adminBtn.style.display = (user.email === ADMIN_EMAIL) ? "inline-block" : "none";
-
-        userUnsubscribe = db.collection("users").doc(user.uid).onSnapshot((doc) => {
-            if (doc.exists) {
-                document.getElementById("tokenBalance").textContent = doc.data().tokens || 0;
+                // Check Admin Status
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists() && userDoc.data().role === 'admin') {
+                    document.getElementById('user-role').innerText = "Admin";
+                    document.getElementById('admin-section').classList.remove('hidden');
+                    loadPendingRequests();
+                } else {
+                    document.getElementById('user-role').innerText = "User";
+                    document.getElementById('admin-section').classList.add('hidden');
+                }
             } else {
-                db.collection("users").doc(user.uid).set({
-                    email: user.email,
-                    tokens: 100,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-                document.getElementById("tokenBalance").textContent = 100;
+                currentUser = null;
+                document.getElementById('auth-section').classList.remove('hidden');
+                document.getElementById('main-section').classList.add('hidden');
+                document.getElementById('admin-section').classList.add('hidden');
             }
-        }, (err) => {
-            console.error("Token sync error:", err);
         });
 
-    } else {
-        authButtons.style.display = "block";
-        userProfile.style.display = "none";
-        adminBtn.style.display = "none";
-    }
-});
-
-/* SUBMIT TOKEN REQUEST TO FIRESTORE */
-async function handleTokenRequest(e) {
-    e.preventDefault();
-    const currentUser = auth.currentUser;
-    if (!currentUser) return;
-
-    const amount = parseInt(document.getElementById("requestAmount").value);
-    const reason = document.getElementById("requestReason").value.trim();
-
-    try {
-        await db.collection("tokenRequests").add({
-            uid: currentUser.uid,
-            email: currentUser.email,
-            amount: amount,
-            reason: reason || "No reason specified",
-            status: "pending", // pending, approved, or rejected
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        // User: Request Tickets
+        document.getElementById('btn-request-token').addEventListener('click', async () => {
+            const count = parseInt(document.getElementById('ticket-count').value);
+            try {
+                await addDoc(collection(db, "requests"), {
+                    userId: currentUser.uid,
+                    email: currentUser.email,
+                    ticketsRequested: count,
+                    status: "pending",
+                    createdAt: new Date().toISOString()
+                });
+                alert("Ticket request sent to admin!");
+            } catch (err) { alert(err.message); }
         });
 
-        closeModal("tokenRequestModal");
-        document.getElementById("requestReason").value = "";
-        alert("Token request submitted successfully! An admin will review it shortly.");
-    } catch (err) {
-        alert("Failed to submit request: " + err.message);
-    }
-}
+        // Admin: Load Pending Requests
+        async function loadPendingRequests() {
+            const q = query(collection(db, "requests"), where("status", "==", "pending"));
+            const snapshot = await getDocs(q);
+            const container = document.getElementById('requests-list');
+            container.innerHTML = "";
 
-/* HANDLE REGISTER */
-async function handleRegister(e) {
-    e.preventDefault();
-    const email = document.getElementById("regEmail").value.trim();
-    const password = document.getElementById("regPassword").value;
+            if (snapshot.empty) {
+                container.innerHTML = "<p>No pending requests.</p>";
+                return;
+            }
 
-    try {
-        const res = await auth.createUserWithEmailAndPassword(email, password);
-        await db.collection("users").doc(res.user.uid).set({
-            email: email,
-            tokens: 100,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            snapshot.forEach((reqDoc) => {
+                const data = reqDoc.data();
+                const div = document.createElement('div');
+                div.className = "request-item";
+                div.innerHTML = `
+                    <p><strong>User:</strong> ${data.email}</p>
+                    <p><strong>Tickets Requested:</strong> ${data.ticketsRequested}</p>
+                    <button onclick="approveRequest('${reqDoc.id}')">Approve</button>
+                    <button class="reject" onclick="rejectRequest('${reqDoc.id}')">Reject</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.approveRequest = async (id) => {
+            await updateDoc(doc(db, "requests", id), { status: "approved" });
+            alert("Request Approved!");
+            loadPendingRequests();
+        };
+
+        window.rejectRequest = async (id) => {
+            await updateDoc(doc(db, "requests", id), { status: "rejected" });
+            alert("Request Rejected!");
+            loadPendingRequests();
+        };
+
+        // Admin: Create Game & Maintain Data Retention (Keep 1 Finished, Max 2 Upcoming)
+        document.getElementById('btn-create-game').addEventListener('click', async () => {
+            const time = document.getElementById('game-time').value;
+            const prizes = document.getElementById('game-prizes').value;
+            const firstNumber = parseInt(document.getElementById('first-number').value) || null;
+
+            if (!time) return alert("Please select a valid game time.");
+
+            await addDoc(collection(db, "games"), {
+                startTime: time,
+                prizes: prizes,
+                firstNumber: firstNumber,
+                status: "upcoming",
+                createdAt: new Date().toISOString()
+            });
+
+            await pruneGamesData();
+            alert("New game scheduled! Old game data updated.");
         });
-        closeModal("registerModal");
-        alert("Account registered successfully! 100 starting tokens credited.");
-    } catch (err) {
-        alert("Registration failed: " + err.message);
-    }
-}
 
-/* HANDLE LOGIN */
-async function handleLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value;
+        // Data Cleanup: Max 2 Upcoming Games & 1 Finished Game (Users collection untouched)
+        async function pruneGamesData() {
+            // Keep maximum 2 upcoming games
+            const upcomingQ = query(collection(db, "games"), where("status", "==", "upcoming"), orderBy("createdAt", "desc"));
+            const upcomingSnap = await getDocs(upcomingQ);
+            if (upcomingSnap.docs.length > 2) {
+                for (let i = 2; i < upcomingSnap.docs.length; i++) {
+                    await deleteDoc(doc(db, "games", upcomingSnap.docs[i].id));
+                }
+            }
 
-    try {
-        await auth.signInWithEmailAndPassword(email, password);
-        closeModal("loginModal");
-    } catch (err) {
-        alert("Login failed: " + err.message);
-    }
-}
-
-/* HANDLE LOGOUT */
-function logout() {
-    auth.signOut();
-}
-
-/* MODAL CONTROL HELPERS */
-function openModal(id) { document.getElementById(id).style.display = "flex"; }
-function closeModal(id) { document.getElementById(id).style.display = "none"; }
-function switchModal(closeId, openId) { closeModal(closeId); openModal(openId); }
-</script>
-
+            // Keep maximum 1 finished game
+            const finishedQ = query(collection(db, "games"), where("status", "==", "finished"), orderBy("createdAt", "desc"));
+            const finishedSnap = await getDocs(finishedQ);
+            if (finishedSnap.docs.length > 1) {
+                for (let i = 1; i < finishedSnap.docs.length; i++) {
+                    await deleteDoc(doc(db, "games", finishedSnap.docs[i].id));
+                }
+            }
+        }
+    </script>
 </body>
 </html>
