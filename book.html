@@ -23,6 +23,11 @@
         .ticket-card:hover { border-color: #007bff; }
         .ticket-card.selected { border-color: #28a745; background: #eef9f1; box-shadow: 0 0 8px rgba(40, 167, 69, 0.4); }
         
+        /* Booked / Disabled State */
+        .ticket-card.already-booked { border-color: #dc3545; background: #f8d7da; cursor: not-allowed; opacity: 0.7; }
+        .ticket-card.already-booked:hover { border-color: #dc3545; }
+        .booked-badge { background: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75em; font-weight: bold; }
+
         .ticket-header { font-weight: bold; text-align: center; margin-bottom: 8px; color: #d9534f; display: flex; justify-content: space-between; align-items: center; }
         .checkbox-indicator { width: 18px; height: 18px; border: 2px solid #888; border-radius: 3px; display: inline-block; background: white; }
         .ticket-card.selected .checkbox-indicator { background: #28a745; border-color: #28a745; position: relative; }
@@ -73,28 +78,44 @@
         let currentUser = null;
         let userTokenBalance = 0;
         let selectedTickets = new Set();
+        let alreadyBookedTickets = new Set();
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
+
+                // 1. Listen for user balance
                 onSnapshot(doc(db, "users", user.uid), (snap) => {
                     if (snap.exists()) {
                         userTokenBalance = snap.data().tokens || 0;
                         document.getElementById('user-balance').innerText = userTokenBalance;
                     }
                 });
-                render600Tickets();
+
+                // 2. Listen for overall booked tickets in real-time
+                listenToBookedTickets();
             } else {
                 window.location.href = "index.html";
             }
         });
+
+        // Real-time listener for booked tickets
+        function listenToBookedTickets() {
+            onSnapshot(collection(db, "booked_tickets"), (snapshot) => {
+                alreadyBookedTickets.clear();
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    alreadyBookedTickets.add(Number(data.ticketNo));
+                });
+                render600Tickets();
+            });
+        }
 
         function seededRandom(seed) {
             let x = Math.sin(seed++) * 10000;
             return x - Math.floor(x);
         }
 
-        // Returns a stringified array representation to completely prevent Firestore array type errors
         function getTicketNumbers(ticketNo) {
             let seed = ticketNo * 12345;
             let numbers = [];
@@ -126,16 +147,21 @@
 
             for (let i = 1; i <= 600; i++) {
                 const numbers = getTicketNumbers(i);
+                const isBooked = alreadyBookedTickets.has(i);
+                const isSelected = selectedTickets.has(i);
                 
                 const card = document.createElement('div');
-                card.className = "ticket-card";
+                card.className = `ticket-card ${isBooked ? 'already-booked' : ''} ${isSelected ? 'selected' : ''}`;
                 card.id = `ticket-card-${i}`;
-                card.onclick = () => toggleTicketSelection(i);
+                
+                if (!isBooked) {
+                    card.onclick = () => toggleTicketSelection(i);
+                }
                 
                 let gridHtml = `
                     <div class="ticket-header">
                         <span>Ticket #${i}</span>
-                        <span class="checkbox-indicator"></span>
+                        ${isBooked ? '<span class="booked-badge">BOOKED</span>' : '<span class="checkbox-indicator"></span>'}
                     </div>
                     <div class="ticket-grid">
                 `;
@@ -151,6 +177,8 @@
         }
 
         function toggleTicketSelection(ticketNo) {
+            if (alreadyBookedTickets.has(ticketNo)) return;
+
             const card = document.getElementById(`ticket-card-${ticketNo}`);
             if (selectedTickets.has(ticketNo)) {
                 selectedTickets.delete(ticketNo);
@@ -203,10 +231,10 @@
 
                     if (currentTokens < requiredTokens) throw "Not enough tokens in wallet!";
 
-                    // 1. Single Token Balance Deduction
+                    // Deduct tokens
                     transaction.update(userRef, { tokens: currentTokens - requiredTokens });
 
-                    // 2. Write ticket bookings directly using clean scalar types (no arrays stored inside Firestore document)
+                    // Store booked tickets
                     ticketArray.forEach(tNo => {
                         const bookingRef = doc(collection(db, "booked_tickets"));
                         const numbersArray = getTicketNumbers(tNo);
@@ -215,7 +243,7 @@
                             userId: currentUser.uid,
                             email: currentUser.email,
                             ticketNo: Number(tNo),
-                            numbersString: numbersArray.join(','), // Simple comma-separated numbers (100% safe for Firestore)
+                            numbersString: numbersArray.join(','),
                             bookedAt: new Date().toISOString()
                         });
                     });
@@ -223,7 +251,6 @@
 
                 alert(`Successfully booked ${count} ticket(s)!`);
                 selectedTickets.clear();
-                document.querySelectorAll('.ticket-card.selected').forEach(el => el.classList.remove('selected'));
                 updateCheckoutBar();
 
             } catch (err) {
