@@ -15,15 +15,15 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Book Game Tickets</h2>
             <div class="d-flex gap-2">
-                <a href="ticketdata.html" class="btn btn-info btn-sm text-white">📊 View Game Ticket Data</a>
+                <a href="ticketdata.html" class="btn btn-info btn-sm text-white">📊 View All Game Tickets</a>
                 <a href="user.html" class="btn btn-secondary btn-sm">Back to Dashboard</a>
             </div>
         </div>
 
         <div class="card p-3 mb-4">
-            <h4>Available Game Draws</h4>
+            <h4>All Game Draws & Status</h4>
             <div id="available-games-container">
-                <p class="text-muted">Loading available draws...</p>
+                <p class="text-muted">Loading game draws...</p>
             </div>
         </div>
     </div>
@@ -31,53 +31,28 @@
     <script type="module">
         import { auth, db } from "./firebase-config.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { collection, getDocs, query, where, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { collection, getDocs, query, orderBy, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         let currentUser = null;
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                await cleanupExpiredGamesAndTickets();
-                loadAvailableDraws();
+                loadAllGames();
             } else {
                 window.location.href = "index.html";
             }
         });
 
-        async function cleanupExpiredGamesAndTickets() {
-            try {
-                const now = new Date().toISOString();
-                const gamesRef = collection(db, "games");
-                const expiredQuery = query(gamesRef, where("status", "==", "upcoming"), where("startTime", "<=", now));
-                const expiredSnap = await getDocs(expiredQuery);
-
-                for (const gameDoc of expiredSnap.docs) {
-                    const gameId = gameDoc.id;
-
-                    const ticketsQuery = query(collection(db, "booked_tickets"), where("gameId", "==", gameId));
-                    const ticketsSnap = await getDocs(ticketsQuery);
-
-                    for (const ticketDoc of ticketsSnap.docs) {
-                        await deleteDoc(doc(db, "booked_tickets", ticketDoc.id));
-                    }
-
-                    await deleteDoc(doc(db, "games", gameId));
-                }
-            } catch (error) {
-                console.error("Cleanup Error:", error);
-            }
-        }
-
-        async function loadAvailableDraws() {
+        async function loadAllGames() {
             const container = document.getElementById('available-games-container');
             try {
-                const now = new Date().toISOString();
-                const q = query(collection(db, "games"), where("status", "==", "upcoming"));
+                const now = new Date();
+                const q = query(collection(db, "games"), orderBy("createdAt", "desc"));
                 const snapshot = await getDocs(q);
 
                 if (snapshot.empty) {
-                    container.innerHTML = "<p class='text-muted'>No upcoming game draws available right now.</p>";
+                    container.innerHTML = "<p class='text-muted'>No game draws available right now.</p>";
                     return;
                 }
 
@@ -85,25 +60,30 @@
                 snapshot.forEach((docSnap) => {
                     const game = docSnap.data();
                     const gameId = docSnap.id;
-
-                    if (game.startTime && game.startTime <= now) return;
+                    const startTime = new Date(game.startTime);
+                    
+                    const isPast = startTime <= now;
+                    const statusColor = isPast ? "border-danger text-danger bg-light" : "border-primary text-primary bg-white";
+                    const badgeText = isPast ? "<span class='badge bg-danger'>Past / Finished</span>" : "<span class='badge bg-primary'>Upcoming</span>";
 
                     const gameCard = document.createElement('div');
-                    gameCard.className = "border p-3 mb-3 rounded bg-white shadow-sm d-flex justify-content-between align-items-center flex-wrap gap-2";
+                    gameCard.className = `border p-3 mb-3 rounded shadow-sm ${statusColor}`;
                     gameCard.innerHTML = `
-                        <div>
-                            <h5>Draw Time: ${new Date(game.startTime).toLocaleString()}</h5>
-                            <p class="mb-0 text-muted"><strong>Prizes:</strong> ${game.prizes}</p>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a href="ticketdata.html" class="btn btn-outline-primary btn-sm">View Tickets</a>
-                            <button class="btn btn-success btn-sm" onclick="bookTicket('${gameId}')">Generate & Book Ticket</button>
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <h5 class="mb-1">Draw Time: ${startTime.toLocaleString()} ${badgeText}</h5>
+                                <p class="mb-0 text-muted"><strong>Prizes:</strong> ${game.prizes}</p>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="ticketdata.html?gameId=${gameId}" class="btn btn-outline-dark btn-sm">View Related Tickets</a>
+                                ${!isPast ? `<button class="btn btn-success btn-sm" onclick="bookTicket('${gameId}')">Generate & Book Ticket</button>` : ''}
+                            </div>
                         </div>
                     `;
                     container.appendChild(gameCard);
                 });
             } catch (err) {
-                console.error("Error loading draws:", err);
+                console.error("Error loading games:", err);
                 container.innerHTML = "<p class='text-danger'>Failed to load game draws.</p>";
             }
         }
@@ -130,7 +110,7 @@
                 });
 
                 alert(`Ticket #${ticketNo} successfully booked for this draw!`);
-                window.location.href = "user.html";
+                window.location.reload();
             } catch (err) {
                 console.error("Booking Error:", err);
                 alert("Failed to book ticket: " + err.message);
