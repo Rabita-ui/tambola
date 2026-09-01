@@ -3,425 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Room - Tambola House</title>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <title>Live Game - Tambola House</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; color: #333; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; max-width: 1000px; margin-left: auto; margin-right: auto; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        
+        /* Board Grid 1-90 */
+        .board-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin-top: 15px; }
+        .board-cell { background: #e9ecef; border: 1px solid #ccc; height: 38px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 4px; font-size: 0.95em; }
+        .board-cell.called { background: #28a745; color: white; border-color: #1e7e34; box-shadow: 0 0 6px rgba(40, 167, 69, 0.5); }
+        .board-cell.current { background: #ffc107; color: #000; border-color: #d39e00; animation: pulse 1s infinite alternate; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.08); }
         }
 
-        body {
-            background: linear-gradient(145deg, #f7f3ee, #e9e1d7);
-            color: #2d1f14;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: auto;
-        }
-
-        .header {
-            background: white;
-            border-radius: 20px;
-            padding: 20px 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,.08);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-        }
-
-        .header h1 i {
-            color: #b35e2e;
-        }
-
-        .nav a {
-            text-decoration: none;
-            color: #7b6856;
-            font-weight: 600;
-            margin-left: 15px;
-        }
-
-        .nav a:hover {
-            color: #b35e2e;
-        }
-
-        .grid-layout {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 20px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,.07);
-        }
-
-        .card h2 {
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-            color: #2d1f14;
-        }
-
-        .status-box {
-            background: #f6f1eb;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .status-box .label {
-            color: #7b6856;
-            font-size: .85rem;
-            margin-bottom: 5px;
-        }
-
-        .status-box .value {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #2d1f14;
-        }
-
-        .last-number {
-            font-size: 4.5rem !important;
-            color: #b35e2e !important;
-        }
-
-        /* 1-90 BOARD GRID STYLES */
-        .board-grid {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 6px;
-        }
-
-        .board-cell {
-            aspect-ratio: 1;
-            border-radius: 8px;
-            background: #faf8f5;
-            border: 1px solid #ded4c9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.9rem;
-            color: #a89a8c;
-            transition: all 0.2s ease;
-        }
-
-        .board-cell.drawn {
-            background: #b35e2e;
-            color: white;
-            border-color: #b35e2e;
-        }
-
-        .board-cell.latest {
-            background: #1f7a4b;
-            color: white;
-            border-color: #1f7a4b;
-            transform: scale(1.1);
-            box-shadow: 0 0 10px rgba(31, 122, 75, 0.4);
-        }
-
-        /* TAMBOLA TICKET STYLES */
-        .ticket-grid {
-            display: grid;
-            grid-template-columns: repeat(9, 1fr);
-            gap: 6px;
-            background: #f7f3ee;
-            padding: 10px;
-            border-radius: 12px;
-            border: 2px solid #ded4c9;
-            margin-top: 15px;
-        }
-
-        .ticket-cell {
-            aspect-ratio: 1;
-            background: white;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 1.1rem;
-            color: #2d1f14;
-            cursor: pointer;
-            user-select: none;
-            border: 1px solid #e2d7ca;
-        }
-
-        .ticket-cell.empty {
-            background: #eae3d9;
-            cursor: default;
-        }
-
-        .ticket-cell.marked {
-            background: #2b7a78;
-            color: white;
-            border-color: #205e5c;
-        }
-
-        .ticket-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        button {
-            border: none;
-            border-radius: 12px;
-            padding: 12px 18px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: .9rem;
-            background: #b35e2e;
-            color: white;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .prize-list {
-            list-style: none;
-        }
-
-        .prize-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-            font-size: 0.95rem;
-        }
-
-        @media (max-width: 850px) {
-            .grid-layout {
-                grid-template-columns: 1fr;
-            }
-        }
+        /* Call Display Box */
+        .caller-box { background: #212529; color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+        .current-number { font-size: 3.5em; font-weight: bold; color: #ffc107; margin: 10px 0; }
+        
+        /* User Tickets Section */
+        .tickets-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .ticket-card { background: #fff; border: 2px solid #007bff; border-radius: 6px; padding: 10px; }
+        .ticket-header { font-weight: bold; margin-bottom: 6px; color: #d9534f; display: flex; justify-content: space-between; }
+        .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; background: #333; border: 2px solid #333; }
+        .cell { background: #fff; height: 26px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85em; cursor: pointer; user-select: none; }
+        .cell.empty { background: #f0f0f0; cursor: default; }
+        .cell.marked { background: #ffc107; color: #000; }
+        
+        button { background: #007bff; color: white; border: none; padding: 10px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .btn-danger { background: #dc3545; }
+        .btn-danger:hover { background: #bd2130; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        
+        .nav-btn { background: #6c757d; text-decoration: none; color: white; padding: 8px 15px; border-radius: 4px; font-weight: bold; display: inline-block; }
+        select, input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
-
 <body>
 
-<div class="container">
+    <div class="card">
+        <div class="top-bar">
+            <div>
+                <a href="user.html" class="nav-btn">⬅️ Dashboard</a>
+                <h2 style="margin: 10px 0 0 0;">Live Tambola Game</h2>
+            </div>
+            <div>
+                <span id="player-role" style="font-weight: bold; background: #e0e0e0; padding: 5px 10px; border-radius: 4px;">Player</span>
+            </div>
+        </div>
 
-    <div class="header">
-        <h1>
-            <i class="fas fa-gamepad"></i>
-            Tambola House — Game Room
-        </h1>
+        <!-- Host Admin Controls (Only visible to admin) -->
+        <div id="admin-controls" class="card" style="display: none; background: #fff3cd; border: 1px solid #ffeeba;">
+            <h3 style="margin-top: 0; color: #856404;">⚙️ Host Game Controls</h3>
+            <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                <label><strong>Start From Number:</strong></label>
+                <select id="start-number-select"></select>
 
-        <div class="nav">
-            <a href="admin.html">
-                <i class="fas fa-shield-alt"></i> Admin Panel
-            </a>
-            <a href="dashboard.html">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
+                <label><strong>Call Interval (Sec):</strong></label>
+                <input type="number" id="call-interval" value="5" min="2" max="30" style="width: 60px;">
+
+                <button id="btn-start-game" class="btn-success">▶ Start Game</button>
+                <button id="btn-pause-game" class="btn-danger">⏸ Pause</button>
+                <button id="btn-reset-game" style="background: #6c757d;">🔄 Reset Game</button>
+            </div>
+        </div>
+
+        <!-- Call Board Display -->
+        <div class="caller-box">
+            <small style="text-transform: uppercase; letter-spacing: 1px; color: #aaa;">Current Called Number</small>
+            <div id="current-number-display" class="current-number">--</div>
+            <div id="game-status-text" style="color: #ffc107; font-weight: bold;">Waiting for host to start...</div>
+        </div>
+
+        <!-- Master Board 1-90 -->
+        <h3>Master Board (1-90)</h3>
+        <div class="board-grid" id="master-board"></div>
+    </div>
+
+    <!-- User Tickets Section -->
+    <div class="card">
+        <h3>My Live Tickets</h3>
+        <small style="color: #666;">Click numbers on your tickets to mark them off as they are called.</small>
+        <div class="tickets-container" id="my-game-tickets" style="margin-top: 15px;">
+            <p>Loading your tickets...</p>
         </div>
     </div>
 
-    <div class="grid-layout">
-        
-        <!-- LEFT SIDEBAR: LIVE CALL & PRIZES -->
-        <div>
-            <div class="card">
-                <h2><i class="fas fa-bullhorn"></i> Live Call</h2>
-                
-                <div class="status-box">
-                    <div class="label">Current Number</div>
-                    <div class="value last-number" id="liveLastNumber">--</div>
-                </div>
+    <script type="module">
+        import { auth, db } from "./firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { doc, setDoc, onSnapshot, collection, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div class="status-box" style="margin-bottom: 0;">
-                        <div class="label">Drawn</div>
-                        <div class="value" id="liveDrawnCount">0</div>
-                    </div>
-                    <div class="status-box" style="margin-bottom: 0;">
-                        <div class="label">Status</div>
-                        <div class="value" id="liveGameStatus" style="font-size: 1.1rem;">READY</div>
-                    </div>
-                </div>
-            </div>
+        let currentUser = null;
+        let isAdmin = false;
+        let callTimer = null;
 
-            <div class="card">
-                <h2><i class="fas fa-trophy"></i> Prize Pool</h2>
-                <ul class="prize-list">
-                    <li class="prize-item"><span>Full House</span><strong id="prizeFullHouse">--</strong></li>
-                    <li class="prize-item"><span>Top Line</span><strong id="prizeTopLine">--</strong></li>
-                    <li class="prize-item"><span>Middle Line</span><strong id="prizeMiddleLine">--</strong></li>
-                    <li class="prize-item"><span>Bottom Line</span><strong id="prizeBottomLine">--</strong></li>
-                    <li class="prize-item"><span>Early 5</span><strong id="prizeEarlyFive">--</strong></li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- RIGHT PANEL: BOARD & TICKET -->
-        <div>
-            <div class="card">
-                <h2><i class="fas fa-th"></i> Draw Board (1 - 90)</h2>
-                <div class="board-grid" id="boardGrid"></div>
-            </div>
-
-            <div class="card">
-                <h2><i class="fas fa-ticket-alt"></i> Your Live Ticket</h2>
-                <div class="ticket-grid" id="ticketGrid"></div>
-                
-                <div class="ticket-actions">
-                    <button onclick="generateNewTicket()"><i class="fas fa-sync-alt"></i> Get New Ticket</button>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-<script>
-const firebaseConfig = {
-    apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-    authDomain: "tambola-house-3dc56.firebaseapp.com",
-    projectId: "tambola-house-3dc56",
-    storageBucket: "tambola-house-3dc56.firebasestorage.app",
-    messagingSenderId: "267918174188",
-    appId: "1:267918174188:web:ec27684544c286c044c2c9"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const gameRef = db.collection("games").doc("active_game");
-
-let playerTicket = [];
-
-// Initialize Page
-window.addEventListener('DOMContentLoaded', () => {
-    buildBoardGrid();
-    generateNewTicket();
-    listenToGame();
-});
-
-/* BUILD 1-90 DISPLAY BOARD */
-function buildBoardGrid() {
-    const grid = document.getElementById("boardGrid");
-    grid.innerHTML = "";
-    for (let i = 1; i <= 90; i++) {
-        const cell = document.createElement("div");
-        cell.className = "board-cell";
-        cell.id = `board-cell-${i}`;
-        cell.textContent = i;
-        grid.appendChild(cell);
-    }
-}
-
-/* FIRESTORE REALTIME LISTENER */
-function listenToGame() {
-    gameRef.onSnapshot((doc) => {
-        if (!doc.exists) return;
-
-        const data = doc.data();
-        const drawn = data.drawnNumbers || [];
-        const last = data.lastDrawn || "--";
-
-        document.getElementById("liveLastNumber").textContent = last;
-        document.getElementById("liveDrawnCount").textContent = drawn.length;
-        document.getElementById("liveGameStatus").textContent = (data.status || "READY").toUpperCase();
-
-        // Update Prizes
-        if (data.prizes) {
-            document.getElementById("prizeFullHouse").textContent = (data.prizes.fullHouse || 0) + " Tokens";
-            document.getElementById("prizeTopLine").textContent = (data.prizes.topLine || 0) + " Tokens";
-            document.getElementById("prizeMiddleLine").textContent = (data.prizes.middleLine || 0) + " Tokens";
-            document.getElementById("prizeBottomLine").textContent = (data.prizes.bottomLine || 0) + " Tokens";
-            document.getElementById("prizeEarlyFive").textContent = (data.prizes.earlyFive || 0) + " Tokens";
-        }
-
-        // Update Board Visuals
-        for (let i = 1; i <= 90; i++) {
-            const el = document.getElementById(`board-cell-${i}`);
-            el.className = "board-cell";
-            if (drawn.includes(i)) {
-                el.classList.add("drawn");
-            }
-        }
-        if (last !== "--") {
-            const latestEl = document.getElementById(`board-cell-${last}`);
-            if (latestEl) latestEl.classList.add("latest");
-        }
-    });
-}
-
-/* GENERATE VALID 3x9 TAMBOLA TICKET */
-function generateNewTicket() {
-    playerTicket = Array.from({ length: 3 }, () => Array(9).fill(0));
-    
-    // Pick 5 numbers per row (total 15 numbers)
-    for (let r = 0; r < 3; r++) {
-        let cols = [];
-        while (cols.length < 5) {
-            let col = Math.floor(Math.random() * 9);
-            if (!cols.includes(col)) cols.push(col);
-        }
-        cols.sort((a, b) => a - b);
-        
-        for (let col of cols) {
-            let min = col * 10 + (col === 0 ? 1 : 0);
-            let max = col * 10 + 9 + (col === 8 ? 1 : 0);
-            let num;
-            do {
-                num = Math.floor(Math.random() * (max - min + 1)) + min;
-            } while (playerTicket.some(row => row[col] === num));
+        // Deterministic Pseudo-Random Generator to create a fixed sequence of numbers 1-90
+        function generateFixedSequence() {
+            let nums = Array.from({length: 90}, (_, i) => i + 1);
+            let seed = 987654321; // Constant seed guarantees identical sequence everywhere
             
-            playerTicket[r][col] = num;
-        }
-    }
-
-    renderTicket();
-}
-
-/* RENDER PLAYER TICKET */
-function renderTicket() {
-    const grid = document.getElementById("ticketGrid");
-    grid.innerHTML = "";
-
-    for (let r = 0; r < 3; r++) {
-        for (let c = 0; c < 9; c++) {
-            const cell = document.createElement("div");
-            const val = playerTicket[r][c];
-
-            if (val === 0) {
-                cell.className = "ticket-cell empty";
-            } else {
-                cell.className = "ticket-cell";
-                cell.textContent = val;
-                cell.onclick = () => cell.classList.toggle("marked");
+            for (let i = nums.length - 1; i > 0; i--) {
+                let x = Math.sin(seed++) * 10000;
+                let j = Math.floor((x - Math.floor(x)) * (i + 1));
+                [nums[i], nums[j]] = [nums[j], nums[i]];
             }
-            grid.appendChild(cell);
+            return nums;
         }
-    }
-}
-</script>
 
+        const FIXED_SEQUENCE = generateFixedSequence();
+
+        // Populate Master Board 1-90 UI
+        const boardEl = document.getElementById('master-board');
+        for (let i = 1; i <= 90; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'board-cell';
+            cell.id = `board-${i}`;
+            cell.innerText = i;
+            boardEl.appendChild(cell);
+        }
+
+        // Populate Start Dropdown with the sequence
+        const selectEl = document.getElementById('start-number-select');
+        FIXED_SEQUENCE.forEach((num, index) => {
+            const opt = document.createElement('option');
+            opt.value = index;
+            opt.innerText = `${num} (Seq Pos #${index + 1})`;
+            selectEl.appendChild(opt);
+        });
+
+        // Auth check & state load
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                // Simple admin check based on email (Adjust to your admin email)
+                isAdmin = user.email.includes("admin"); 
+
+                if (isAdmin) {
+                    document.getElementById('player-role').innerText = "HOST / ADMIN";
+                    document.getElementById('admin-controls').style.display = "block";
+                }
+
+                loadUserTickets(user.uid);
+                listenToGameState();
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+
+        // Live Game State Listener
+        function listenToGameState() {
+            onSnapshot(doc(db, "game_session", "active_game"), (snap) => {
+                if (!snap.exists()) return;
+
+                const data = snap.data();
+                const calledNumbers = data.calledNumbers || [];
+                const currentNum = data.currentNumber || "--";
+                const isRunning = data.isRunning || false;
+
+                // Update Caller Display
+                document.getElementById('current-number-display').innerText = currentNum;
+                document.getElementById('game-status-text').innerText = isRunning ? "🔴 GAME IN PROGRESS" : "⏸ GAME PAUSED / STOPPED";
+
+                // Highlight Board Cells
+                for (let i = 1; i <= 90; i++) {
+                    const el = document.getElementById(`board-${i}`);
+                    el.classList.remove('called', 'current');
+                    
+                    if (calledNumbers.includes(i)) {
+                        el.classList.add('called');
+                    }
+                }
+
+                if (currentNum !== "--") {
+                    document.getElementById(`board-${currentNum}`).classList.add('current');
+                }
+            });
+        }
+
+        // Host Control Actions
+        document.getElementById('btn-start-game').addEventListener('click', () => {
+            if (!isAdmin) return;
+            const startIndex = parseInt(selectEl.value);
+            const intervalSec = parseInt(document.getElementById('call-interval').value) || 5;
+
+            let currentIndex = startIndex;
+            let calledNumbers = [];
+
+            // Resume or start clean sequence
+            clearInterval(callTimer);
+            
+            setDoc(doc(db, "game_session", "active_game"), {
+                isRunning: true,
+                startIndex: startIndex,
+                intervalSec: intervalSec,
+                lastUpdated: new Date().toISOString()
+            }, { merge: true });
+
+            callTimer = setInterval(async () => {
+                if (currentIndex >= FIXED_SEQUENCE.length) {
+                    clearInterval(callTimer);
+                    alert("All 90 numbers called!");
+                    return;
+                }
+
+                const numToCall = FIXED_SEQUENCE[currentIndex];
+                calledNumbers.push(numToCall);
+
+                await setDoc(doc(db, "game_session", "active_game"), {
+                    currentNumber: numToCall,
+                    calledNumbers: calledNumbers,
+                    isRunning: true
+                }, { merge: true });
+
+                currentIndex++;
+            }, intervalSec * 1000);
+        });
+
+        document.getElementById('btn-pause-game').addEventListener('click', async () => {
+            clearInterval(callTimer);
+            await setDoc(doc(db, "game_session", "active_game"), { isRunning: false }, { merge: true });
+        });
+
+        document.getElementById('btn-reset-game').addEventListener('click', async () => {
+            if (!confirm("Reset game board for everyone?")) return;
+            clearInterval(callTimer);
+            await setDoc(doc(db, "game_session", "active_game"), {
+                currentNumber: "--",
+                calledNumbers: [],
+                isRunning: false
+            });
+        });
+
+        // Load Booked Tickets for Player Interactive Marking
+        function loadUserTickets(uid) {
+            const container = document.getElementById('my-game-tickets');
+            const ticketsQuery = query(collection(db, "booked_tickets"), where("userId", "==", uid));
+
+            onSnapshot(ticketsQuery, (snapshot) => {
+                if (snapshot.empty) {
+                    container.innerHTML = "<p>No booked tickets found for live game.</p>";
+                    return;
+                }
+
+                container.innerHTML = "";
+                snapshot.forEach((docSnap) => {
+                    const ticket = docSnap.data();
+                    const numbersArray = ticket.numbersString ? ticket.numbersString.split(',') : Array(27).fill(0);
+
+                    const card = document.createElement('div');
+                    card.className = "ticket-card";
+
+                    let gridHtml = `
+                        <div class="ticket-header">
+                            <span>Ticket #${ticket.ticketNo}</span>
+                        </div>
+                        <div class="ticket-grid">
+                    `;
+
+                    for (let idx = 0; idx < 27; idx++) {
+                        let val = numbersArray[idx];
+                        let displayVal = (val === "0" || !val) ? "" : val;
+                        gridHtml += `<div class="cell ${displayVal === "" ? "empty" : ""}" onclick="this.classList.toggle('marked')">${displayVal}</div>`;
+                    }
+
+                    gridHtml += `</div>`;
+                    card.innerHTML = gridHtml;
+                    container.appendChild(card);
+                });
+            });
+        }
+    </script>
 </body>
 </html>
