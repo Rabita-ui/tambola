@@ -134,36 +134,47 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// CONFIGURE YOUR ADMIN EMAIL HERE
+// Set target admin email
 const ADMIN_EMAIL = "your-admin-email@gmail.com";
+let userUnsubscribe = null;
 
-/* AUTH STATE LISTENER */
-auth.onAuthStateChanged(async (user) => {
+/* REALTIME AUTH & TOKEN LISTENER */
+auth.onAuthStateChanged((user) => {
     const authButtons = document.getElementById("authButtons");
     const userProfile = document.getElementById("userProfile");
     const adminBtn = document.getElementById("adminBtn");
+
+    // Clean up active snapshot listener on auth change
+    if (userUnsubscribe) {
+        userUnsubscribe();
+        userUnsubscribe = null;
+    }
 
     if (user) {
         authButtons.style.display = "none";
         userProfile.style.display = "flex";
         document.getElementById("userEmailDisplay").textContent = user.email;
 
-        // Display Admin button if admin
-        if (user.email === ADMIN_EMAIL) {
-            adminBtn.style.display = "inline-block";
-        } else {
-            adminBtn.style.display = "none";
-        }
+        // Toggle Admin Button based on matching email
+        adminBtn.style.display = (user.email === ADMIN_EMAIL) ? "inline-block" : "none";
 
-        // Fetch or create user document in Firestore to load tokens
-        const userRef = db.collection("users").doc(user.uid);
-        const doc = await userRef.get();
-        if (doc.exists) {
-            document.getElementById("tokenBalance").textContent = doc.data().tokens || 0;
-        } else {
-            await userRef.set({ email: user.email, tokens: 100 }); // Default starting tokens
-            document.getElementById("tokenBalance").textContent = 100;
-        }
+        // Realtime Firestore Listener for User Tokens
+        userUnsubscribe = db.collection("users").doc(user.uid).onSnapshot((doc) => {
+            if (doc.exists) {
+                document.getElementById("tokenBalance").textContent = doc.data().tokens || 0;
+            } else {
+                // Initialize default profile if document doesn't exist yet
+                db.collection("users").doc(user.uid).set({
+                    email: user.email,
+                    tokens: 100,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                document.getElementById("tokenBalance").textContent = 100;
+            }
+        }, (err) => {
+            console.error("User token snapshot error:", err);
+        });
+
     } else {
         authButtons.style.display = "block";
         userProfile.style.display = "none";
@@ -171,31 +182,30 @@ auth.onAuthStateChanged(async (user) => {
     }
 });
 
-/* HANDLE REGISTER */
+/* REGISTER HANDLER */
 async function handleRegister(e) {
     e.preventDefault();
-    const email = document.getElementById("regEmail").value;
+    const email = document.getElementById("regEmail").value.trim();
     const password = document.getElementById("regPassword").value;
 
     try {
         const res = await auth.createUserWithEmailAndPassword(email, password);
-        // Create user record in Firestore
         await db.collection("users").doc(res.user.uid).set({
             email: email,
-            tokens: 100, // Welcome bonus
+            tokens: 100,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         closeModal("registerModal");
-        alert("Account registered successfully! You have received 100 starting tokens.");
+        alert("Account created successfully! 100 starting tokens credited.");
     } catch (err) {
         alert("Registration failed: " + err.message);
     }
 }
 
-/* HANDLE LOGIN */
+/* LOGIN HANDLER */
 async function handleLogin(e) {
     e.preventDefault();
-    const email = document.getElementById("loginEmail").value;
+    const email = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value;
 
     try {
@@ -206,12 +216,12 @@ async function handleLogin(e) {
     }
 }
 
-/* HANDLE LOGOUT */
+/* LOGOUT HANDLER */
 function logout() {
     auth.signOut();
 }
 
-/* MODAL CONTROL HELPERS */
+/* MODAL TOGGLES */
 function openModal(id) { document.getElementById(id).style.display = "flex"; }
 function closeModal(id) { document.getElementById(id).style.display = "none"; }
 function switchModal(closeId, openId) { closeModal(closeId); openModal(openId); }
