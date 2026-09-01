@@ -10,7 +10,6 @@
         .top-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         .wallet-box { background: #e9ecef; padding: 10px 20px; border-radius: 5px; border: 2px solid #007bff; text-align: center; }
         
-        /* Fixed Bottom Checkout Bar */
         .checkout-bar { position: sticky; bottom: 10px; z-index: 100; background: #333; color: white; padding: 15px 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); margin-top: 15px; }
         .offer-badge { background: #ff9800; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; margin-left: 8px; }
 
@@ -19,7 +18,6 @@
         button.book-bulk-btn { background: #28a745; font-size: 1.1em; }
         button.book-bulk-btn:hover { background: #218838; }
 
-        /* Tickets Grid & Selection States */
         .tickets-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 20px; max-height: 65vh; overflow-y: auto; padding: 10px; background: #fafafa; border: 1px solid #ddd; border-radius: 6px; }
         .ticket-card { background: #fff; border: 2px solid #ccc; border-radius: 6px; padding: 10px; cursor: pointer; transition: all 0.2s ease; position: relative; user-select: none; }
         .ticket-card:hover { border-color: #007bff; }
@@ -30,7 +28,6 @@
         .ticket-card.selected .checkbox-indicator { background: #28a745; border-color: #28a745; position: relative; }
         .ticket-card.selected .checkbox-indicator::after { content: '✓'; color: white; position: absolute; top: -3px; left: 3px; font-size: 14px; font-weight: bold; }
 
-        /* 3x9 Grid Layout */
         .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; background: #333; border: 2px solid #333; }
         .cell { background: #fff; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8em; }
         .cell.empty { background: #f0f0f0; }
@@ -53,12 +50,10 @@
             </div>
         </div>
 
-        <!-- Scrollable Grid Displaying All 600 Tickets -->
         <div class="tickets-container" id="tickets-container">
             <p>Loading 600 fixed tickets...</p>
         </div>
 
-        <!-- Sticky Bottom Checkout Bar -->
         <div class="checkout-bar">
             <div>
                 <span style="font-size: 1.1em;">Selected: <strong id="selected-count" style="color: #28a745;">0</strong> Tickets</span>
@@ -70,12 +65,8 @@
         </div>
     </div>
 
-    <!-- Firebase Modular Setup -->
     <script type="module">
-        // Import shared auth and db instances from firebase-config.js
         import { auth, db } from "./firebase-config.js";
-        
-        // Import Firebase Firestore & Auth methods
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { doc, collection, runTransaction, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -83,7 +74,6 @@
         let userTokenBalance = 0;
         let selectedTickets = new Set();
 
-        // Check authentication state & load live token balance
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
@@ -99,19 +89,19 @@
             }
         });
 
-        // Seeded Pseudo-Random Generator (Guarantees identical 600 ticket set across games)
         function seededRandom(seed) {
             let x = Math.sin(seed++) * 10000;
             return x - Math.floor(x);
         }
 
-        // Generates a 27-element flat array for 3x9 layout compatibility with Firestore
-        function generateTicketGrid(ticketNo) {
+        // Returns a stringified array representation to completely prevent Firestore array type errors
+        function getTicketNumbers(ticketNo) {
             let seed = ticketNo * 12345;
-            let flatGrid = Array(27).fill(0);
+            let numbers = [];
             let colRanges = [[1,9],[10,19],[20,29],[30,39],[40,49],[50,59],[60,69],[70,79],[80,90]];
 
             for (let r = 0; r < 3; r++) {
+                let row = Array(9).fill(0);
                 let colsSelected = [];
                 while (colsSelected.length < 5) {
                     let colIdx = Math.floor(seededRandom(seed++) * 9);
@@ -123,19 +113,19 @@
                     let min = colRanges[colIdx][0];
                     let max = colRanges[colIdx][1];
                     let val = Math.floor(seededRandom(seed++) * (max - min + 1)) + min;
-                    flatGrid[(r * 9) + colIdx] = val;
+                    row[colIdx] = val;
                 }
+                numbers.push(...row);
             }
-            return flatGrid;
+            return numbers;
         }
 
-        // Render all 600 ticket cards into the container
         function render600Tickets() {
             const container = document.getElementById('tickets-container');
             container.innerHTML = "";
 
             for (let i = 1; i <= 600; i++) {
-                const flatGrid = generateTicketGrid(i);
+                const numbers = getTicketNumbers(i);
                 
                 const card = document.createElement('div');
                 card.className = "ticket-card";
@@ -151,7 +141,7 @@
                 `;
 
                 for (let idx = 0; idx < 27; idx++) {
-                    let val = flatGrid[idx];
+                    let val = numbers[idx];
                     gridHtml += `<div class="cell ${val === 0 ? 'empty' : ''}">${val || ''}</div>`;
                 }
                 gridHtml += `</div>`;
@@ -160,10 +150,8 @@
             }
         }
 
-        // Toggle ticket card selection state
         function toggleTicketSelection(ticketNo) {
             const card = document.getElementById(`ticket-card-${ticketNo}`);
-            
             if (selectedTickets.has(ticketNo)) {
                 selectedTickets.delete(ticketNo);
                 card.classList.remove('selected');
@@ -174,13 +162,11 @@
             updateCheckoutBar();
         }
 
-        // Calculate checkout pricing & discounts
         function updateCheckoutBar() {
             const count = selectedTickets.size;
             const btn = document.getElementById('btn-book-selected');
             const offerTag = document.getElementById('offer-tag');
             
-            // "Buy 6 Pay for 5" offer calculation
             const setsOfSix = Math.floor(count / 6);
             const remainingTickets = count % 6;
             const totalPrice = (setsOfSix * 5) + remainingTickets;
@@ -192,7 +178,6 @@
             btn.disabled = count === 0;
         }
 
-        // Process single token deduction transaction for all selected tickets
         document.getElementById('btn-book-selected').addEventListener('click', async () => {
             const count = selectedTickets.size;
             if (count === 0) return;
@@ -206,7 +191,7 @@
             }
 
             const ticketArray = Array.from(selectedTickets);
-            if (!confirm(`Book ${count} ticket(s) [Tickets: ${ticketArray.join(', ')}] for ${requiredTokens} tokens?`)) return;
+            if (!confirm(`Book ${count} ticket(s) for ${requiredTokens} tokens?`)) return;
 
             try {
                 await runTransaction(db, async (transaction) => {
@@ -221,20 +206,22 @@
                     // 1. Single Token Balance Deduction
                     transaction.update(userRef, { tokens: currentTokens - requiredTokens });
 
-                    // 2. Save ticket data as JSON strings to safely pass through Firestore
+                    // 2. Write ticket bookings directly using clean scalar types (no arrays stored inside Firestore document)
                     ticketArray.forEach(tNo => {
                         const bookingRef = doc(collection(db, "booked_tickets"));
+                        const numbersArray = getTicketNumbers(tNo);
+                        
                         transaction.set(bookingRef, {
                             userId: currentUser.uid,
                             email: currentUser.email,
-                            ticketNo: tNo,
-                            ticketDataJson: JSON.stringify(generateTicketGrid(tNo)),
+                            ticketNo: Number(tNo),
+                            numbersString: numbersArray.join(','), // Simple comma-separated numbers (100% safe for Firestore)
                             bookedAt: new Date().toISOString()
                         });
                     });
                 });
 
-                alert(`Successfully booked ${count} tickets for ${requiredTokens} tokens!`);
+                alert(`Successfully booked ${count} ticket(s)!`);
                 selectedTickets.clear();
                 document.querySelectorAll('.ticket-card.selected').forEach(el => el.classList.remove('selected'));
                 updateCheckoutBar();
