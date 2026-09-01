@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Tambola House</title>
+    <title>Admin Panel - Tambola House</title>
 
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
         * {
@@ -34,7 +33,6 @@
             padding: 20px 25px;
             margin-bottom: 20px;
             box-shadow: 0 5px 20px rgba(0,0,0,.08);
-
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -61,6 +59,12 @@
             color: #b35e2e;
         }
 
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
         .card {
             background: white;
             border-radius: 20px;
@@ -70,193 +74,99 @@
         }
 
         .card h2 {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-size: 1.2rem;
+            color: #2d1f14;
         }
 
-        .controls {
+        .current-number {
+            font-size: 4rem;
+            font-weight: 800;
+            color: #b35e2e;
+            text-align: center;
+            padding: 10px;
+            background: #f6f1eb;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn-group {
             display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        /* FORM STYLES FOR DRAW SETUP */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            color: #7b6856;
-            margin-bottom: 6px;
-            font-size: 0.9rem;
-        }
-
-        input {
-            padding: 13px 15px;
-            border: 2px solid #ded4c9;
-            border-radius: 12px;
-            font-size: 1rem;
-            background: #faf8f5;
-            outline: none;
-        }
-
-        input:focus {
-            border-color: #b35e2e;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         button {
             border: none;
             border-radius: 12px;
-            padding: 13px 18px;
+            padding: 12px 18px;
             font-weight: 700;
             cursor: pointer;
-            font-size: .95rem;
-        }
-
-        .btn-save {
-            background: #2b7a78;
-            color: white;
-        }
-
-        .btn-save:hover {
-            background: #205e5c;
-        }
-
-        .btn-start {
-            background: #1f7a4b;
-            color: white;
-        }
-
-        .btn-next {
+            font-size: .9rem;
             background: #b35e2e;
             color: white;
+            flex: 1;
+            transition: opacity 0.2s ease;
         }
 
-        .btn-auto {
-            background: #3878c7;
-            color: white;
-        }
-
-        .btn-stop {
-            background: #d29922;
-            color: white;
+        button:hover {
+            opacity: 0.9;
         }
 
         .btn-reset {
-            background: #b13e3e;
-            color: white;
+            background: #c0392b;
         }
 
-        button:disabled {
-            opacity: .55;
-            cursor: not-allowed;
-        }
-
-        .status {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .status-box {
-            background: #f6f1eb;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .status-box .label {
-            color: #7b6856;
-            font-size: .85rem;
-            margin-bottom: 5px;
-        }
-
-        .status-box .value {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #2d1f14;
-        }
-
-        .last-number {
-            font-size: 4rem !important;
-            color: #b35e2e !important;
-        }
-
-        .message {
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 10px;
-            display: none;
-        }
-
-        .message.show {
-            display: block;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .drawn-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .number {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: #b35e2e;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-        }
-
-        .number.latest {
+        .btn-approve {
             background: #1f7a4b;
-            transform: scale(1.08);
+            padding: 6px 12px;
+            font-size: 0.8rem;
         }
 
-        .info {
+        .btn-reject {
+            background: #c0392b;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        /* CLAIM LIST STYLES */
+        .claim-card {
+            background: #faf8f5;
+            border: 1px solid #ded4c9;
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .claim-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .claim-title {
+            font-weight: 800;
+            color: #b35e2e;
+        }
+
+        .claim-user {
+            font-size: 0.85rem;
             color: #7b6856;
-            line-height: 1.6;
         }
 
-        @media (max-width: 700px) {
-            .status {
+        .empty-claims {
+            text-align: center;
+            color: #a89a8c;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        @media (max-width: 850px) {
+            .grid-layout {
                 grid-template-columns: 1fr;
-            }
-
-            .nav {
-                width: 100%;
-            }
-
-            .nav a {
-                margin-left: 0;
-                margin-right: 12px;
-            }
-
-            .last-number {
-                font-size: 3rem !important;
             }
         }
     </style>
@@ -269,946 +179,191 @@
     <div class="header">
         <h1>
             <i class="fas fa-shield-alt"></i>
-            Tambola House — Admin
+            Tambola House — Admin Panel
         </h1>
 
         <div class="nav">
             <a href="game.html">
                 <i class="fas fa-gamepad"></i> Game Room
             </a>
-
             <a href="dashboard.html">
                 <i class="fas fa-home"></i> Dashboard
             </a>
         </div>
     </div>
 
+    <div class="grid-layout">
+        
+        <!-- LEFT PANEL: DRAW CONTROLS -->
+        <div>
+            <div class="card">
+                <h2><i class="fas fa-play-circle"></i> Live Controller</h2>
+                
+                <div class="current-number" id="lastDrawn">--</div>
 
-    <div class="card">
-        <h2>
-            <i class="fas fa-cog"></i>
-            Draw Setup & Ticket Rules
-        </h2>
-
-        <form id="drawSetupForm">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="drawTime">Draw Date & Time:</label>
-                    <input type="datetime-local" id="drawTime" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="ticketPrice">Ticket Price (Tokens):</label>
-                    <input type="number" id="ticketPrice" min="1" value="10" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="totalTickets">Total Available Tickets:</label>
-                    <input type="number" id="totalTickets" min="1" max="600" value="100" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="prizeFullHouse">Full House Prize:</label>
-                    <input type="number" id="prizeFullHouse" min="0" value="500" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="prizeTopLine">Top Line Prize:</label>
-                    <input type="number" id="prizeTopLine" min="0" value="100" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="prizeMiddleLine">Middle Line Prize:</label>
-                    <input type="number" id="prizeMiddleLine" min="0" value="100" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="prizeBottomLine">Bottom Line Prize:</label>
-                    <input type="number" id="prizeBottomLine" min="0" value="100" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="prizeEarlyFive">Early 5 Prize:</label>
-                    <input type="number" id="prizeEarlyFive" min="0" value="50" required>
+                <div class="btn-group">
+                    <button onclick="drawNextNumber()"><i class="fas fa-dice"></i> Draw Number</button>
+                    <button class="btn-reset" onclick="resetGame()"><i class="fas fa-redo"></i> Reset Game</button>
                 </div>
             </div>
 
-            <button type="submit" class="btn-save">
-                <i class="fas fa-save"></i> Save Configuration
-            </button>
-        </form>
-    </div>
-
-
-    <div class="card">
-        <h2>
-            <i class="fas fa-info-circle"></i>
-            Active Draw Settings
-        </h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
-            <div class="status-box">
-                <div class="label">Draw Date & Time</div>
-                <div class="value" id="displayDrawTime" style="font-size: 1.1rem; color: #2d1f14;">--</div>
-            </div>
-            <div class="status-box">
-                <div class="label">Ticket Price</div>
-                <div class="value" id="displayTicketPrice" style="font-size: 1.3rem;">--</div>
-            </div>
-            <div class="status-box">
-                <div class="label">Available Tickets</div>
-                <div class="value" id="displayTotalTickets" style="font-size: 1.3rem;">--</div>
-            </div>
-            <div class="status-box">
-                <div class="label">Full House Prize</div>
-                <div class="value" id="displayFullHouse" style="font-size: 1.3rem;">--</div>
+            <div class="card">
+                <h2><i class="fas fa-history"></i> Recent Drawn Numbers</h2>
+                <div id="drawnList" style="word-break: break-all; line-height: 1.6; font-weight: 600; color: #7b6856;">
+                    None yet.
+                </div>
             </div>
         </div>
-    </div>
 
-
-    <div class="card">
-
-        <h2>
-            <i class="fas fa-dice"></i>
-            Draw Control
-        </h2>
-
-        <p class="info">
-            The game state is stored in
-            <strong>games / active_game</strong>.
-            Both Admin and Game Room read the same document.
-        </p>
-
-        <br>
-
-        <div id="firstPickControls">
-
-            <div class="controls">
-
-                <input
-                    type="number"
-                    id="firstNumber"
-                    min="1"
-                    max="90"
-                    placeholder="Pick 1st Number (Max 1m after draw)"
-                >
-
-                <button
-                    class="btn-start"
-                    onclick="startGame()"
-                >
-                    <i class="fas fa-play"></i>
-                    Start Game
-                </button>
-
+        <!-- RIGHT PANEL: CLAIM APPROVAL INBOX -->
+        <div>
+            <div class="card">
+                <h2><i class="fas fa-bell"></i> Live Player Claims (<span id="claimCount">0</span>)</h2>
+                <div id="claimsContainer">
+                    <div class="empty-claims">No pending claims.</div>
+                </div>
             </div>
-
-        </div>
-
-
-        <div
-            id="drawControls"
-            style="display:none;"
-        >
-
-            <div class="controls">
-
-                <button
-                    class="btn-next"
-                    onclick="drawNext()"
-                >
-                    <i class="fas fa-bullhorn"></i>
-                    Draw Next
-                </button>
-
-                <button
-                    id="autoButton"
-                    class="btn-auto"
-                    onclick="startAutoDraw()"
-                >
-                    <i class="fas fa-forward"></i>
-                    Auto Draw — 4s
-                </button>
-
-                <button
-                    id="stopButton"
-                    class="btn-stop"
-                    onclick="stopAutoDraw()"
-                    style="display:none;"
-                >
-                    <i class="fas fa-pause"></i>
-                    Stop
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <div class="status">
-
-            <div class="status-box">
-
-                <div class="label">
-                    Last Drawn
-                </div>
-
-                <div
-                    class="value last-number"
-                    id="lastNumber"
-                >
-                    --
-                </div>
-
-            </div>
-
-
-            <div class="status-box">
-
-                <div class="label">
-                    Numbers Drawn
-                </div>
-
-                <div
-                    class="value"
-                    id="drawnCount"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <div class="status-box">
-
-                <div class="label">
-                    Game Status
-                </div>
-
-                <div
-                    class="value"
-                    id="gameStatus"
-                    style="font-size:1.3rem;"
-                >
-                    READY
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div
-            id="message"
-            class="message"
-        ></div>
-
-        <br>
-
-        <button
-            class="btn-reset"
-            onclick="resetGame()"
-        >
-            <i class="fas fa-undo"></i>
-            Reset Game
-        </button>
-
-    </div>
-
-
-    <div class="card">
-
-        <h2>
-            <i class="fas fa-list-ol"></i>
-            Numbers Already Drawn
-        </h2>
-
-        <div
-            id="drawnNumbers"
-            class="drawn-list"
-        >
-            <span class="info">
-                No numbers drawn yet.
-            </span>
         </div>
 
     </div>
 
 </div>
 
-
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-
 <script>
-
 const firebaseConfig = {
-
     apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-
-    authDomain:
-        "tambola-house-3dc56.firebaseapp.com",
-
-    projectId:
-        "tambola-house-3dc56",
-
-    storageBucket:
-        "tambola-house-3dc56.firebasestorage.app",
-
-    messagingSenderId:
-        "267918174188",
-
-    appId:
-        "1:267918174188:web:ec27684544c286c044c2c9"
-
+    authDomain: "tambola-house-3dc56.firebaseapp.com",
+    projectId: "tambola-house-3dc56",
+    storageBucket: "tambola-house-3dc56.firebasestorage.app",
+    messagingSenderId: "267918174188",
+    appId: "1:267918174188:web:ec27684544c286c044c2c9"
 };
 
-
 firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-
 const db = firebase.firestore();
+const gameRef = db.collection("games").doc("active_game");
 
-const gameRef =
-    db.collection("games").doc("active_game");
+let activeDrawn = [];
+let activeClaims = [];
 
-
-let autoTimer = null;
-let scheduledTimeout = null;
-let cachedSequence = [];
-
-
-/* AUTH */
-
-auth.onAuthStateChanged(async (user) => {
-
-    if (!user) {
-
-        window.location.href = "login.html";
-
-        return;
-
-    }
-
+window.addEventListener('DOMContentLoaded', () => {
     listenToGame();
-
 });
 
-
-/* SAVE DRAW & TICKET SETUP */
-
-document.getElementById('drawSetupForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const drawTime = document.getElementById('drawTime').value;
-    const price = Number(document.getElementById('ticketPrice').value);
-    const total = Number(document.getElementById('totalTickets').value);
-
-    const prizes = {
-        fullHouse: Number(document.getElementById('prizeFullHouse').value),
-        topLine: Number(document.getElementById('prizeTopLine').value),
-        middleLine: Number(document.getElementById('prizeMiddleLine').value),
-        bottomLine: Number(document.getElementById('prizeBottomLine').value),
-        earlyFive: Number(document.getElementById('prizeEarlyFive').value)
-    };
-
-    try {
-        await gameRef.set({
-            drawTime: drawTime,
-            ticketPrice: price,
-            totalTicketsAvailable: total,
-            prizes: prizes,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        showMessage("Draw configuration saved successfully!", "success");
-    } catch (error) {
-        console.error("Error saving setup:", error);
-        showMessage("Failed to save configuration: " + error.message, "error");
-    }
-});
-
-
-/* GAME LISTENER */
-
+/* FIRESTORE REALTIME LISTENER */
 function listenToGame() {
-
-    gameRef.onSnapshot(async (doc) => {
-
+    gameRef.onSnapshot((doc) => {
         if (!doc.exists) {
-            cachedSequence = generateFixedSequence();
-            await gameRef.set({
-                status: "ready",
-                drawSequence: cachedSequence,
-                drawnNumbers: [],
-                lastDrawn: null,
-                currentIndex: 0,
-                isFirstDrawDone: false,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            initGameDoc();
             return;
         }
 
         const data = doc.data();
+        activeDrawn = data.drawnNumbers || [];
+        activeClaims = data.claims || [];
 
-        if (!data.drawSequence || data.drawSequence.length !== 90) {
-            cachedSequence = generateFixedSequence();
-            await gameRef.set({ drawSequence: cachedSequence }, { merge: true });
-        } else {
-            cachedSequence = data.drawSequence;
+        document.getElementById("lastDrawn").textContent = data.lastDrawn || "--";
+        document.getElementById("drawnList").textContent = activeDrawn.join(", ") || "None yet.";
+
+        renderClaims();
+    });
+}
+
+/* INITIALIZE GAME DOC IF MISSING */
+async function initGameDoc() {
+    await gameRef.set({
+        drawnNumbers: [],
+        lastDrawn: null,
+        status: "active",
+        claims: [],
+        prizes: {
+            fullHouse: 100,
+            topLine: 30,
+            middleLine: 30,
+            bottomLine: 30,
+            earlyFive: 20
         }
+    });
+}
 
-        // Populate Form Inputs
-        if (data.drawTime) document.getElementById("drawTime").value = data.drawTime;
-        if (data.ticketPrice) document.getElementById("ticketPrice").value = data.ticketPrice;
-        if (data.totalTicketsAvailable) document.getElementById("totalTickets").value = data.totalTicketsAvailable;
-        if (data.prizes) {
-            if (data.prizes.fullHouse !== undefined) document.getElementById("prizeFullHouse").value = data.prizes.fullHouse;
-            if (data.prizes.topLine !== undefined) document.getElementById("prizeTopLine").value = data.prizes.topLine;
-            if (data.prizes.middleLine !== undefined) document.getElementById("prizeMiddleLine").value = data.prizes.middleLine;
-            if (data.prizes.bottomLine !== undefined) document.getElementById("prizeBottomLine").value = data.prizes.bottomLine;
-            if (data.prizes.earlyFive !== undefined) document.getElementById("prizeEarlyFive").value = data.prizes.earlyFive;
-        }
+/* DRAW RANDOM NUMBER (1-90) */
+async function drawNextNumber() {
+    if (activeDrawn.length >= 90) {
+        alert("All numbers have been drawn!");
+        return;
+    }
 
-        // Display Active Settings
-        document.getElementById("displayDrawTime").textContent = data.drawTime ? new Date(data.drawTime).toLocaleString() : "Not Set";
-        document.getElementById("displayTicketPrice").textContent = (data.ticketPrice || 0) + " Tokens";
-        document.getElementById("displayTotalTickets").textContent = data.totalTicketsAvailable || 0;
-        document.getElementById("displayFullHouse").textContent = (data.prizes && data.prizes.fullHouse !== undefined) ? data.prizes.fullHouse + " Tokens" : "--";
+    let next;
+    do {
+        next = Math.floor(Math.random() * 90) + 1;
+    } while (activeDrawn.includes(next));
 
-        // Schedule auto-start check if game hasn't started yet
-        checkAutoStartDeadline(data);
+    await gameRef.update({
+        drawnNumbers: firebase.firestore.FieldValue.arrayUnion(next),
+        lastDrawn: next,
+        status: "active"
+    });
+}
 
-        updateAdminScreen(data);
+/* RESET GAME STATE */
+async function resetGame() {
+    if (confirm("Are you sure you want to reset the current game state?")) {
+        await gameRef.update({
+            drawnNumbers: [],
+            lastDrawn: null,
+            status: "ready",
+            claims: []
+        });
+    }
+}
 
+/* RENDER PENDING CLAIMS */
+function renderClaims() {
+    const container = document.getElementById("claimsContainer");
+    document.getElementById("claimCount").textContent = activeClaims.length;
+
+    if (activeClaims.length === 0) {
+        container.innerHTML = '<div class="empty-claims">No pending claims.</div>';
+        return;
+    }
+
+    container.innerHTML = "";
+    activeClaims.forEach((claim, idx) => {
+        const div = document.createElement("div");
+        div.className = "claim-card";
+        div.innerHTML = `
+            <div class="claim-info">
+                <span class="claim-title">${claim.claimName}</span>
+                <span class="claim-user">${claim.userEmail}</span>
+            </div>
+            <div style="display: flex; gap: 5px;">
+                <button class="btn-approve" onclick="resolveClaim(${idx}, true)">Approve</button>
+                <button class="btn-reject" onclick="resolveClaim(${idx}, false)">Reject</button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+/* APPROVE OR REJECT CLAIM */
+async function resolveClaim(index, isApproved) {
+    const targetClaim = activeClaims[index];
+    
+    // Remove claim from array
+    await gameRef.update({
+        claims: firebase.firestore.FieldValue.arrayRemove(targetClaim)
     });
 
-}
-
-
-/* 1-MINUTE DEADLINE AUTO-START ENGINE */
-
-function checkAutoStartDeadline(data) {
-
-    if (scheduledTimeout) {
-        clearTimeout(scheduledTimeout);
-        scheduledTimeout = null;
-    }
-
-    if (data.isFirstDrawDone || !data.drawTime) return;
-
-    const scheduledTime = new Date(data.drawTime).getTime();
-    const deadline = scheduledTime + 60000; // 1 Minute after Draw Time
-    const now = Date.now();
-
-    if (now >= deadline) {
-        // Exceeded 1 minute limit: Trigger automatic start
-        triggerAutoStart();
+    if (isApproved) {
+        alert(`Claim approved for ${targetClaim.userEmail} (${targetClaim.claimName})!`);
     } else {
-        // Set a timer to automatically start when 1 minute post-draw deadline hits
-        const timeRemaining = deadline - now;
-        scheduledTimeout = setTimeout(() => {
-            triggerAutoStart();
-        }, timeRemaining);
+        alert(`Claim rejected for ${targetClaim.userEmail}.`);
     }
 }
-
-
-/* AUTOMATIC SYSTEM START (FALLBACK) */
-
-async function triggerAutoStart() {
-
-    try {
-        const doc = await gameRef.get();
-        if (!doc.exists) return;
-
-        const data = doc.data();
-
-        // Prevent duplicate execution if already started
-        if (data.isFirstDrawDone) return;
-
-        let sequence = data.drawSequence || cachedSequence;
-        if (sequence.length !== 90) sequence = generateFixedSequence();
-
-        const firstNumber = sequence[0];
-
-        await gameRef.set({
-            status: "running",
-            drawSequence: sequence,
-            drawnNumbers: [firstNumber],
-            lastDrawn: firstNumber,
-            currentIndex: 1,
-            isFirstDrawDone: true,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        showMessage(
-            "1-minute limit reached! Auto-started with first sequence number: " + firstNumber,
-            "success"
-        );
-
-    } catch (err) {
-        console.error("Auto-start error:", err);
-    }
-}
-
-
-/* UPDATE ADMIN SCREEN */
-
-function updateAdminScreen(data) {
-
-    const drawn =
-        data.drawnNumbers || [];
-
-    document.getElementById("lastNumber")
-        .textContent =
-        data.lastDrawn || "--";
-
-    document.getElementById("drawnCount")
-        .textContent =
-        drawn.length;
-
-    document.getElementById("gameStatus")
-        .textContent =
-        (data.status || "ready").toUpperCase();
-
-
-    if (data.isFirstDrawDone) {
-
-        document.getElementById(
-            "firstPickControls"
-        ).style.display = "none";
-
-        document.getElementById(
-            "drawControls"
-        ).style.display = "block";
-
-    } else {
-
-        document.getElementById(
-            "firstPickControls"
-        ).style.display = "block";
-
-        document.getElementById(
-            "drawControls"
-        ).style.display = "none";
-
-    }
-
-
-    renderDrawnNumbers(drawn);
-
-
-    if (drawn.length >= 90) {
-
-        stopAutoDraw();
-
-    }
-
-}
-
-
-/* CREATE SHUFFLED FIXED SEQUENCE */
-
-function generateFixedSequence() {
-
-    const numbers = Array.from({ length: 90 }, (_, i) => i + 1);
-
-    for (let i = numbers.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
-    }
-
-    return numbers;
-
-}
-
-
-/* START GAME - MANUAL ADMIN PICK */
-
-async function startGame() {
-
-    const doc = await gameRef.get();
-    const data = doc.data() || {};
-
-    if (data.drawTime) {
-        const deadline = new Date(data.drawTime).getTime() + 60000;
-        if (Date.now() > deadline) {
-            showMessage("Time window expired! 1 minute has passed since the draw time.", "error");
-            triggerAutoStart();
-            return;
-        }
-    }
-
-    const val = document.getElementById("firstNumber").value;
-    let sequence = [...cachedSequence];
-
-    if (sequence.length !== 90) {
-        sequence = generateFixedSequence();
-    }
-
-    if (val) {
-        const selected = Number(val);
-        if (selected < 1 || selected > 90) {
-            showMessage("Please enter a valid number between 1 and 90.", "error");
-            return;
-        }
-
-        const targetIdx = sequence.indexOf(selected);
-        if (targetIdx !== -1) {
-            [sequence[0], sequence[targetIdx]] = [sequence[targetIdx], sequence[0]];
-        }
-    }
-
-    const firstNumber = sequence[0];
-
-    try {
-
-        await gameRef.set({
-
-            status: "running",
-
-            drawSequence: sequence,
-
-            drawnNumbers: [firstNumber],
-
-            lastDrawn: firstNumber,
-
-            currentIndex: 1,
-
-            isFirstDrawDone: true,
-
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-
-        }, { merge: true });
-
-
-        document.getElementById("firstNumber").value = "";
-
-        showMessage(
-            "Game started successfully! First drawn number: " + firstNumber,
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(error);
-
-        showMessage(
-            "Unable to start game: " + error.message,
-            "error"
-        );
-
-    }
-
-}
-
-
-/* DRAW NEXT */
-
-async function drawNext() {
-
-    try {
-
-        await db.runTransaction(
-            async (transaction) => {
-
-                const doc =
-                    await transaction.get(gameRef);
-
-
-                if (!doc.exists) {
-
-                    throw new Error(
-                        "Game document has not been created yet."
-                    );
-
-                }
-
-
-                const data =
-                    doc.data();
-
-
-                if (!data.isFirstDrawDone) {
-
-                    throw new Error(
-                        "Start the game first."
-                    );
-
-                }
-
-
-                const sequence =
-                    data.drawSequence || [];
-
-
-                const drawn =
-                    data.drawnNumbers || [];
-
-
-                const index =
-                    data.currentIndex || 0;
-
-
-                if (
-                    index >= 90 ||
-                    drawn.length >= 90
-                ) {
-
-                    throw new Error(
-                        "All 90 numbers have been drawn."
-                    );
-
-                }
-
-
-                const nextNumber =
-                    sequence[index];
-
-
-                const updatedDrawn =
-                    [...drawn, nextNumber];
-
-
-                transaction.update(
-                    gameRef,
-                    {
-
-                        drawnNumbers:
-                            updatedDrawn,
-
-                        lastDrawn:
-                            nextNumber,
-
-                        currentIndex:
-                            index + 1,
-
-                        status:
-                            updatedDrawn.length >= 90
-                                ? "completed"
-                                : "running",
-
-                        updatedAt:
-                            firebase.firestore.FieldValue
-                                .serverTimestamp()
-
-                    }
-                );
-
-            }
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-        stopAutoDraw();
-
-        showMessage(
-            error.message,
-            "error"
-        );
-
-    }
-
-}
-
-
-/* AUTO DRAW */
-
-function startAutoDraw() {
-
-    if (autoTimer) return;
-
-
-    document.getElementById(
-        "autoButton"
-    ).style.display = "none";
-
-
-    document.getElementById(
-        "stopButton"
-    ).style.display = "inline-block";
-
-
-    drawNext();
-
-
-    autoTimer =
-        setInterval(
-            drawNext,
-            4000
-        );
-
-}
-
-
-/* STOP */
-
-function stopAutoDraw() {
-
-    if (autoTimer) {
-
-        clearInterval(autoTimer);
-
-        autoTimer = null;
-
-    }
-
-
-    document.getElementById(
-        "autoButton"
-    ).style.display = "inline-block";
-
-
-    document.getElementById(
-        "stopButton"
-    ).style.display = "none";
-
-}
-
-
-/* RESET */
-
-async function resetGame() {
-
-    if (
-        !confirm(
-            "Reset the current game?"
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    stopAutoDraw();
-
-
-    try {
-
-        const newFixedSequence = generateFixedSequence();
-
-        await gameRef.set({
-
-            status:
-                "ready",
-
-            drawSequence:
-                newFixedSequence,
-
-            drawnNumbers:
-                [],
-
-            lastDrawn:
-                null,
-
-            currentIndex:
-                0,
-
-            isFirstDrawDone:
-                false,
-
-            updatedAt:
-                firebase.firestore.FieldValue
-                    .serverTimestamp()
-
-        }, { merge: true });
-
-
-        showMessage(
-            "Game reset successfully. A new fixed sequence has been generated.",
-            "success"
-        );
-
-    }
-
-    catch (error) {
-
-        showMessage(
-            error.message,
-            "error"
-        );
-
-    }
-
-}
-
-
-/* DRAWN NUMBERS */
-
-function renderDrawnNumbers(numbers) {
-
-    const container =
-        document.getElementById(
-            "drawnNumbers"
-        );
-
-
-    if (!numbers.length) {
-
-        container.innerHTML =
-            '<span class="info">No numbers drawn yet.</span>';
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        numbers.map(
-            (number, index) => {
-
-                const latest =
-                    index === numbers.length - 1
-                        ? "latest"
-                        : "";
-
-                return `
-                    <span class="number ${latest}">
-                        ${number}
-                    </span>
-                `;
-
-            }
-        ).join("");
-
-}
-
-
-/* MESSAGE */
-
-function showMessage(text, type) {
-
-    const element =
-        document.getElementById(
-            "message"
-        );
-
-
-    element.textContent = text;
-
-    element.className =
-        "message show " + type;
-
-
-    setTimeout(() => {
-
-        element.classList.remove("show");
-
-    }, 4000);
-
-}
-
 </script>
 
 </body>
