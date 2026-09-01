@@ -3,130 +3,355 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambola Admin - Seed Master Tickets</title>
+    <title>Admin Dashboard & Host Control - Tambola House</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: system-ui, sans-serif; padding: 40px; text-align: center; background: #f7f3ee; color: #2d1f14; }
-        .card { background: white; max-width: 500px; margin: 0 auto; padding: 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        button { background: #b35e2e; color: white; border: none; padding: 14px 28px; font-size: 1rem; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        button:hover { background: #8e4722; }
-        #status { margin-top: 20px; font-weight: bold; color: #7b6856; }
+        body { background-color: #f8f9fa; padding: 20px; }
+        .card { box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .board-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; max-width: 100%; }
+        .board-cell { aspect-ratio: 1; background: #fff; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; border-radius: 3px; }
+        .board-cell.called { background: #28a745; color: white; }
+        .board-cell.current { background: #ffc107; color: black; font-size: 1.1rem; }
+        .current-call-box { font-size: 2.5rem; font-weight: bold; background: #343a40; color: #ffc107; text-align: center; border-radius: 8px; padding: 15px; }
     </style>
 </head>
 <body>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Admin Dashboard & Host Panel</h2>
+            <button id="btn-logout" class="btn btn-outline-danger btn-sm">Logout</button>
+        </div>
 
-<div class="card">
-    <h2>Master Ticket Generator</h2>
-    <p>Click below to populate 600 permanent 3x9 Tambola tickets into Firestore.</p>
-    <br>
-    <button onclick="seed600MasterTickets()">Seed 600 Master Tickets</button>
-    <div id="status">Status: Ready</div>
-</div>
+        <div class="row">
+            <!-- Left Column: Game Creation & Requests -->
+            <div class="col-lg-5">
+                <!-- Game Creation Form -->
+                <div class="card p-3">
+                    <h4>Create New Game</h4>
+                    <div class="mb-3">
+                        <label for="game-start-time" class="form-label">Start Time</label>
+                        <input type="datetime-local" id="game-start-time" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="game-prizes" class="form-label">Prizes (e.g. 10,10,10,50)</label>
+                        <input type="text" id="game-prizes" placeholder="10,10,10,50" class="form-control">
+                    </div>
+                    <button id="btn-create-game" class="btn btn-primary w-100">Create & Initialize Game</button>
+                </div>
 
-<!-- FIREBASE SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+                <!-- Approvals Section -->
+                <div class="card p-3">
+                    <h4>Token Requests Approval</h4>
+                    <div id="token-requests-container">
+                        <p class="text-muted">Loading requests...</p>
+                    </div>
+                </div>
 
-<script>
-const firebaseConfig = {
-    apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-    authDomain: "tambola-house-3dc56.firebaseapp.com",
-    projectId: "tambola-house-3dc56",
-    storageBucket: "tambola-house-3dc56.firebasestorage.app",
-    messagingSenderId: "267918174188",
-    appId: "1:267918174188:web:ec27684544c286c044c2c9"
-};
+                <div class="card p-3">
+                    <h4>Withdrawal Requests Approval</h4>
+                    <div id="withdrawal-requests-container">
+                        <p class="text-muted">Loading requests...</p>
+                    </div>
+                </div>
+            </div>
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+            <!-- Right Column: Live Host Controls & Master Board -->
+            <div class="col-lg-7">
+                <div class="card p-3 border-danger">
+                    <h4 class="text-danger">Live Game Host Controls</h4>
+                    
+                    <div class="current-call-box mb-3">
+                        <div style="font-size: 0.9rem; color: #fff;">CURRENT NUMBER</div>
+                        <div id="current-number-display">--</div>
+                    </div>
 
-// 1. MASTER TICKET SEEDING FUNCTION
-async function seed600MasterTickets() {
-    const statusDiv = document.getElementById("status");
-    
-    const user = auth.currentUser;
-    if (!user) {
-        alert("Please log in on index.html first before running the seed script!");
-        statusDiv.textContent = "Error: User not authenticated.";
-        return;
-    }
+                    <div id="game-status-text" class="fw-bold mb-3 text-center text-muted">GAME PAUSED / STOPPED</div>
 
-    const confirmAction = confirm("This will upload 600 Master Tickets to Firestore. Proceed?");
-    if (!confirmAction) return;
+                    <div class="mb-3">
+                        <label for="start-number-select" class="form-label">Start Position in Sequence</label>
+                        <select id="start-number-select" class="form-control"></select>
+                    </div>
 
-    statusDiv.style.color = "#7b6856";
-    statusDiv.textContent = "Status: Generating tickets & writing batch 1/2...";
-    const masterRef = db.collection("masterTickets");
+                    <div class="mb-3">
+                        <label for="call-interval" class="form-label">Call Interval (Seconds)</label>
+                        <input type="number" id="call-interval" value="5" min="1" max="30" class="form-control">
+                    </div>
 
-    try {
-        for (let batchNum = 0; batchNum < 2; batchNum++) {
-            const batch = db.batch();
-            for (let i = 1; i <= 300; i++) {
-                const ticketIndex = batchNum * 300 + i;
-                const ticketId = `ticket_${String(ticketIndex).padStart(3, '0')}`;
-                
-                // Generate 2D grid and convert to 1D flat array for Firestore compatibility
-                const rawGrid = generateTambolaTicket();
-                const flatGrid = rawGrid.flat(); 
+                    <div class="d-grid gap-2 mb-4">
+                        <button id="btn-start-game" class="btn btn-success">▶ Start Draw</button>
+                        <button id="btn-pause-game" class="btn btn-warning">⏸ Pause Draw</button>
+                        <button id="btn-reset-game" class="btn btn-danger">🔄 Reset Board</button>
+                    </div>
 
-                const docRef = masterRef.doc(ticketId);
-                batch.set(docRef, {
-                    ticketNumber: ticketIndex,
-                    grid: flatGrid, // Saved as a 1D array of 27 numbers
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                    <h5 class="text-center">Master Board (1-90)</h5>
+                    <div id="master-board" class="board-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from "./firebase-config.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { collection, doc, setDoc, addDoc, getDocs, getDoc, deleteDoc, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        let callTimer = null;
+
+        function generateFixedSequence() {
+            let nums = Array.from({length: 90}, (_, i) => i + 1);
+            let seed = 987654321;
+            for (let i = nums.length - 1; i > 0; i--) {
+                let x = Math.sin(seed++) * 10000;
+                let j = Math.floor((x - Math.floor(x)) * (i + 1));
+                [nums[i], nums[j]] = [nums[j], nums[i]];
             }
-            await batch.commit();
-            statusDiv.textContent = `Status: Batch ${batchNum + 1}/2 uploaded (300 tickets)...`;
+            return nums;
         }
 
-        statusDiv.style.color = "#27ae60";
-        statusDiv.textContent = "Status: SUCCESS! 600 Master Tickets saved to Firestore.";
-        alert("Success! 600 Master Tickets permanently added to Firestore.");
-    } catch (err) {
-        console.error("Seeding Error:", err);
-        statusDiv.style.color = "#c0392b";
-        statusDiv.textContent = "Status: Error - " + err.message;
-        alert("Seeding failed: " + err.message);
-    }
-}
+        const FIXED_SEQUENCE = generateFixedSequence();
 
-// 2. 3x9 TAMBOLA TICKET ALGORITHM
-function generateTambolaTicket() {
-    let ticket = Array.from({ length: 3 }, () => Array(9).fill(0));
-    let colRanges = [[1, 9], [10, 19], [20, 29], [30, 39], [40, 49], [50, 59], [60, 69], [70, 79], [80, 90]];
+        // Build Master Board UI
+        const boardEl = document.getElementById('master-board');
+        for (let i = 1; i <= 90; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'board-cell';
+            cell.id = `board-${i}`;
+            cell.innerText = i;
+            boardEl.appendChild(cell);
+        }
 
-    for (let r = 0; r < 3; r++) {
-        let cols = [];
-        while (cols.length < 5) {
-            let col = Math.floor(Math.random() * 9);
-            if (!cols.includes(col)) cols.push(col);
-        }
-        cols.sort((a, b) => a - b);
-        for (let col of cols) {
-            let [min, max] = colRanges[col];
-            let num;
-            do {
-                num = Math.floor(Math.random() * (max - min + 1)) + min;
-            } while (ticket.some(row => row[col] === num));
-            ticket[r][col] = num;
-        }
-    }
-    for (let c = 0; c < 9; c++) {
-        let colNums = [];
-        for (let r = 0; r < 3; r++) {
-            if (ticket[r][c] !== 0) colNums.push(ticket[r][c]);
-        }
-        colNums.sort((a, b) => a - b);
-        let idx = 0;
-        for (let r = 0; r < 3; r++) {
-            if (ticket[r][c] !== 0) ticket[r][c] = colNums[idx++];
-        }
-    }
-    return ticket;
-}
-</script>
+        // Populate Sequence Select Dropdown
+        const selectEl = document.getElementById('start-number-select');
+        FIXED_SEQUENCE.forEach((num, index) => {
+            const opt = document.createElement('option');
+            opt.value = index;
+            opt.innerText = `Number ${num} (Position #${index + 1})`;
+            selectEl.appendChild(opt);
+        });
 
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "index.html";
+            } else {
+                listenToGameState();
+            }
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            signOut(auth).then(() => { window.location.href = "index.html"; });
+        });
+
+        document.getElementById('btn-create-game').addEventListener('click', async () => {
+            const startTime = document.getElementById('game-start-time').value;
+            const prizes = document.getElementById('game-prizes').value;
+
+            if (!startTime || !prizes) {
+                alert("Please fill out all game fields.");
+                return;
+            }
+
+            try {
+                // 1. Create a new entry in the 'games' collection (or active_game)
+                const gameRef = await addDoc(collection(db, "games"), {
+                    startTime: startTime,
+                    prizes: prizes,
+                    status: "upcoming",
+                    createdAt: new Date().toISOString(),
+                    currentNumber: "--",
+                    calledNumbers: [],
+                    isRunning: false
+                });
+                
+                const gameId = gameRef.id;
+
+                // Also keep/update active_game reference if needed by your host panel controls
+                await setDoc(doc(db, "games", "active_game"), {
+                    gameId: gameId,
+                    startTime: startTime,
+                    prizes: prizes,
+                    status: "upcoming",
+                    createdAt: new Date().toISOString(),
+                    currentNumber: "--",
+                    calledNumbers: [],
+                    isRunning: false
+                }, { merge: true });
+
+                // 2. Fetch master tickets pool (e.g., your 600 master tickets) and generate permanent copies for this game
+                const masterSnap = await getDocs(collection(db, "master_tickets"));
+                
+                if (masterSnap.empty) {
+                    alert("Game created, but no master tickets were found in the database to clone!");
+                    return;
+                }
+
+                let batch = writeBatch(db);
+                let operationCount = 0;
+
+                for (const masterDoc of masterSnap.docs) {
+                    const masterData = masterDoc.data();
+                    const gameTicketRef = doc(collection(db, "booked_tickets")); // or a designated game_tickets collection depending on setup
+                    
+                    batch.set(gameTicketRef, {
+                        gameId: gameId,
+                        ticketNo: masterData.ticketNo,
+                        numbersString: masterData.numbersString,
+                        status: "available",
+                        bookedBy: null,
+                        bookedAt: null
+                    });
+
+                    operationCount++;
+                    if (operationCount >= 400) {
+                        await batch.commit();
+                        batch = writeBatch(db);
+                        operationCount = 0;
+                    }
+                }
+
+                if (operationCount > 0) {
+                    await batch.commit();
+                }
+
+                alert("Game created and master ticket copies successfully generated for this game!");
+            } catch (err) {
+                console.error("Error creating game and tickets:", err);
+                alert("Failed to create game: " + err.message);
+            }
+        });
+
+        function listenToGameState() {
+            onSnapshot(doc(db, "games", "active_game"), (snap) => {
+                if (!snap.exists()) return;
+                const data = snap.data();
+                const calledNumbers = data.calledNumbers || [];
+                const currentNum = data.currentNumber || "--";
+                const isRunning = data.isRunning || false;
+
+                document.getElementById('current-number-display').innerText = currentNum;
+                document.getElementById('game-status-text').innerText = isRunning ? "🔴 GAME IN PROGRESS" : "⏸ GAME PAUSED / STOPPED";
+
+                for (let i = 1; i <= 90; i++) {
+                    const el = document.getElementById(`board-${i}`);
+                    el.classList.remove('called', 'current');
+                    if (calledNumbers.includes(i)) {
+                        el.classList.add('called');
+                    }
+                }
+
+                if (currentNum !== "--" && document.getElementById(`board-${currentNum}`)) {
+                    document.getElementById(`board-${currentNum}`).classList.add('current');
+                }
+            });
+        }
+
+        document.getElementById('btn-start-game').addEventListener('click', async () => {
+            try {
+                const startIndex = parseInt(selectEl.value) || 0;
+                const intervalSec = parseInt(document.getElementById('call-interval').value) || 5;
+                let currentIndex = startIndex;
+                let calledNumbers = [];
+
+                clearInterval(callTimer);
+                
+                await setDoc(doc(db, "games", "active_game"), {
+                    isRunning: true,
+                    startIndex: startIndex,
+                    intervalSec: intervalSec,
+                    lastUpdated: new Date().toISOString()
+                }, { merge: true });
+
+                callTimer = setInterval(async () => {
+                    if (currentIndex >= FIXED_SEQUENCE.length) {
+                        clearInterval(callTimer);
+                        alert("All 90 numbers called!");
+                        return;
+                    }
+
+                    const numToCall = FIXED_SEQUENCE[currentIndex];
+                    calledNumbers.push(numToCall);
+
+                    await setDoc(doc(db, "games", "active_game"), {
+                        currentNumber: numToCall,
+                        calledNumbers: calledNumbers,
+                        isRunning: true
+                    }, { merge: true });
+
+                    currentIndex++;
+                }, intervalSec * 1000);
+            } catch (error) {
+                console.error("Start Game Error:", error);
+                alert("Failed to start game: " + error.message);
+            }
+        });
+
+        document.getElementById('btn-pause-game').addEventListener('click', async () => {
+            clearInterval(callTimer);
+            await setDoc(doc(db, "games", "active_game"), { isRunning: false }, { merge: true });
+        });
+
+        document.getElementById('btn-reset-game').addEventListener('click', async () => {
+            if (!confirm("Reset game board for everyone?")) return;
+            clearInterval(callTimer);
+            await setDoc(doc(db, "games", "active_game"), {
+                currentNumber: "--",
+                calledNumbers: [],
+                isRunning: false
+            }, { merge: true });
+        });
+
+        // Load Token Requests
+        const tokenContainer = document.getElementById('token-requests-container');
+        onSnapshot(collection(db, "token_requests"), (snapshot) => {
+            if (snapshot.empty) {
+                tokenContainer.innerHTML = "<p class='text-muted'>No pending token requests.</p>";
+                return;
+            }
+            tokenContainer.innerHTML = "";
+            snapshot.forEach((docSnap) => {
+                const req = docSnap.data();
+                const div = document.createElement('div');
+                div.className = "d-flex justify-content-between align-items-center border-bottom py-2";
+                div.innerHTML = `<span>User: ${req.userId || 'Unknown'} - Amt: ${req.amount || 0}</span>
+                                 <button class="btn btn-success btn-sm" onclick="approveToken('${docSnap.id}', '${req.userId}', ${req.amount || 0})">Approve</button>`;
+                tokenContainer.appendChild(div);
+            });
+        }, (error) => {
+            console.error("Error loading token requests:", error);
+            tokenContainer.innerHTML = `<p class='text-danger'>Error loading requests: ${error.message}</p>`;
+        });
+
+        window.approveToken = async function(reqId, userId, amount) {
+            try {
+                if (!userId || userId === 'undefined' || userId === 'null') {
+                    alert("Error: User ID is missing from this request!");
+                    return;
+                }
+
+                const userRef = doc(db, "users", userId);
+                const userSnap = await getDoc(userRef);
+
+                let currentBalance = 0;
+                if (userSnap.exists()) {
+                    const data = userSnap.data();
+                    currentBalance = Number(data.wallet || data.balance || data.tokens) || 0;
+                }
+
+                const newBalance = currentBalance + Number(amount);
+
+                await setDoc(userRef, {
+                    wallet: newBalance,
+                    balance: newBalance,
+                    tokens: newBalance
+                }, { merge: true });
+
+                await deleteDoc(doc(db, "token_requests", reqId));
+
+                alert(`Successfully approved and credited ${amount} tokens to user!`);
+            } catch (err) {
+                console.error("Approval & Credit Error:", err);
+                alert("Failed to credit tokens: " + err.message);
+            }
+        };
+    </script>
 </body>
 </html>
