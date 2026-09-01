@@ -17,6 +17,7 @@
         .btn-secondary { background: #7b6856; color: white; }
         .btn-success { background: #27ae60; color: white; }
         .btn-claim { background: #f39c12; color: white; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; border: none; }
+        .btn-claim:disabled { background: #27ae60; cursor: not-allowed; opacity: 0.8; }
 
         .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,.07); margin-bottom: 25px; }
         .card h2 { font-size: 1.3rem; margin-bottom: 15px; color: #b35e2e; border-bottom: 2px solid #f6f1eb; padding-bottom: 10px; }
@@ -24,7 +25,7 @@
         .caller-box { text-align: center; background: #f6f1eb; padding: 20px; border-radius: 16px; margin-bottom: 20px; }
         .current-num { font-size: 3.5rem; font-weight: 800; color: #b35e2e; }
 
-        /* AUTO BOT CONTROLS */
+        /* AUTOMATION TOGGLES */
         .auto-controls { display: flex; justify-content: center; gap: 20px; margin: 15px 0; background: #fff8f0; padding: 12px; border-radius: 12px; border: 1px dashed #b35e2e; }
         .toggle-container { display: flex; align-items: center; gap: 8px; font-weight: bold; font-size: 0.9rem; color: #2d1f14; cursor: pointer; }
         .toggle-container input { display: none; }
@@ -58,18 +59,18 @@
         </div>
     </div>
 
-    <!-- CALLER PANEL -->
     <div class="card">
         <div class="caller-box">
             <div style="font-size: 0.9rem; font-weight: bold; color: #7b6856;">CURRENT NUMBER</div>
             <div class="current-num" id="liveNum">--</div>
         </div>
 
-        <div style="text-align: center;">
-            <button class="btn btn-success" id="buyBtn" onclick="buyTicket()"><i class="fas fa-ticket-alt"></i> Buy Ticket (10 Tokens)</button>
+        <div style="text-align: center;" id="buyBtnContainer">
+            <a href="book-ticket.html" class="btn btn-success" id="buyBtn">
+                <i class="fas fa-ticket-alt"></i> Buy Ticket (10 Tokens)
+            </a>
         </div>
 
-        <!-- TICKET VIEW & AUTOMATION CONTROLS -->
         <div id="ticketWrapper" style="display: none;">
             <div class="auto-controls">
                 <label class="toggle-container">
@@ -87,7 +88,7 @@
             <h3 style="text-align: center; color: #7b6856;" id="ticketNumLabel">Your Ticket</h3>
             <div class="ticket-container" id="ticketGrid"></div>
 
-            <h4 style="text-align: center; color: #b35e2e; margin-top: 15px;">Manual Claims</h4>
+            <h4 style="text-align: center; color: #b35e2e; margin-top: 15px;">Claims</h4>
             <div class="claims-grid">
                 <button class="btn-claim" id="claim-Early-5" onclick="claimPrize('Early 5')">Early 5</button>
                 <button class="btn-claim" id="claim-Top-Line" onclick="claimPrize('Top Line')">Top Line</button>
@@ -98,7 +99,6 @@
         </div>
     </div>
 
-    <!-- 1-90 BOARD -->
     <div class="card">
         <h2><i class="fas fa-th"></i> Drawn Numbers Board</h2>
         <div class="board-grid" id="mainBoard"></div>
@@ -129,7 +129,7 @@ let drawnNumbersList = [];
 let userTicketFlatGrid = [];
 let claimedTypes = new Set();
 
-// Generate 1-90 Board
+// Render 1-90 Board
 const mainBoard = document.getElementById("mainBoard");
 for (let i = 1; i <= 90; i++) {
     mainBoard.innerHTML += `<div class="board-cell" id="b-${i}">${i}</div>`;
@@ -171,45 +171,9 @@ function listenToActiveGame() {
         }
 
         checkUserTicket();
-
-        // Run automation routines on number draw update
         handleAutoTick();
         handleAutoClaim();
     });
-}
-
-async function buyTicket() {
-    if (!activeGameId) return alert("No active game found!");
-
-    const availableRef = db.collection("games").doc(activeGameId).collection("gameTickets");
-    const snapshot = await availableRef.where("isPurchased", "==", false).limit(1).get();
-
-    if (snapshot.empty) return alert("All tickets are sold out!");
-
-    const ticketDoc = snapshot.docs[0];
-
-    try {
-        await db.runTransaction(async (transaction) => {
-            const userRef = db.collection("users").doc(currentUserId);
-            const userDoc = await transaction.get(userRef);
-            const tokens = userDoc.data().tokens || 0;
-
-            if (tokens < 10) throw new Error("Not enough tokens!");
-
-            transaction.update(userRef, { tokens: tokens - 10 });
-            transaction.update(ticketDoc.ref, {
-                ownerUid: currentUserId,
-                isPurchased: true,
-                purchasedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        });
-
-        alert(`Ticket #${ticketDoc.data().ticketNumber} purchased!`);
-        userTicketFlatGrid = ticketDoc.data().grid;
-        renderTicket(userTicketFlatGrid, ticketDoc.data().ticketNumber);
-    } catch (err) {
-        alert("Error: " + err.message);
-    }
 }
 
 async function checkUserTicket() {
@@ -225,7 +189,9 @@ async function checkUserTicket() {
         const tData = snapshot.docs[0].data();
         userTicketFlatGrid = tData.grid;
         renderTicket(userTicketFlatGrid, tData.ticketNumber);
-        document.getElementById("buyBtn").style.display = "none";
+        document.getElementById("buyBtnContainer").style.display = "none";
+    } else {
+        document.getElementById("buyBtnContainer").style.display = "block";
     }
 }
 
@@ -235,7 +201,7 @@ function renderTicket(flatGrid, ticketNum) {
     const gridDiv = document.getElementById("ticketGrid");
     gridDiv.innerHTML = "";
 
-    flatGrid.forEach((val, idx) => {
+    flatGrid.forEach((val) => {
         if (val === 0) {
             gridDiv.innerHTML += `<div class="ticket-cell empty"></div>`;
         } else {
@@ -244,7 +210,6 @@ function renderTicket(flatGrid, ticketNum) {
     });
 }
 
-/* AUTOMATED FEATURE 1: AUTO-TICK */
 function handleAutoTick() {
     const isAutoTickOn = document.getElementById("autoTickToggle").checked;
     if (!isAutoTickOn || !userTicketFlatGrid.length) return;
@@ -259,7 +224,6 @@ function handleAutoTick() {
     });
 }
 
-/* AUTOMATED FEATURE 2: AUTO-CLAIM */
 function handleAutoClaim() {
     const isAutoClaimOn = document.getElementById("autoClaimToggle").checked;
     if (!isAutoClaimOn || !userTicketFlatGrid.length) return;
@@ -272,7 +236,6 @@ function handleAutoClaim() {
     });
 }
 
-/* WINNING CLAIM CHECKER HELPER */
 function checkClaimValidity(claimType) {
     const row1 = userTicketFlatGrid.slice(0, 9).filter(n => n !== 0);
     const row2 = userTicketFlatGrid.slice(9, 18).filter(n => n !== 0);
@@ -293,7 +256,6 @@ function checkClaimValidity(claimType) {
     return false;
 }
 
-/* PROCESS PRIZE CLAIM */
 async function claimPrize(claimType, isAutomated = false) {
     if (!userTicketFlatGrid.length || claimedTypes.has(claimType)) return;
 
@@ -302,16 +264,13 @@ async function claimPrize(claimType, isAutomated = false) {
     if (isValid) {
         claimedTypes.add(claimType);
         
-        // Disable button visually
         const btnId = `claim-${claimType.replace(' ', '-')}`;
         const btn = document.getElementById(btnId);
         if (btn) {
             btn.disabled = true;
-            btn.style.background = "#27ae60";
             btn.textContent = `${claimType} ✓`;
         }
 
-        // Save winning record in Firestore
         await db.collection("games").doc(activeGameId).collection("winners").add({
             claimType: claimType,
             winnerUid: currentUserId,
@@ -319,9 +278,9 @@ async function claimPrize(claimType, isAutomated = false) {
             claimedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        alert(`🎉 WINNER! ${isAutomated ? '[Auto-Claim]' : ''} Your claim for "${claimType}" was verified!`);
+        alert(`🎉 WINNER! ${isAutomated ? '[Auto-Claim]' : ''} Claim for "${claimType}" validated!`);
     } else if (!isAutomated) {
-        alert(`INVALID CLAIM! Conditions for ${claimType} are not met yet.`);
+        alert(`INVALID CLAIM! Requirements for ${claimType} are not met.`);
     }
 }
 </script>
