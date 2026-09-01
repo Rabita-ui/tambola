@@ -60,7 +60,7 @@
         <h2><i class="fas fa-cogs"></i> Setup & Game Session</h2>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
             <button class="btn btn-primary" onclick="seed600MasterTickets()"><i class="fas fa-seedling"></i> Seed 600 Master Tickets</button>
-            <button class="btn btn-success" onclick="createNewGame()"><i class="fas fa-play"></i> Start Game Session & Copy Tickets</button>
+            <button class="btn btn-success" onclick="createNewGame()"><i class="fas fa-play"></i> Start New Game Session</button>
         </div>
         <div id="activeGameStatus" style="margin-top: 10px; font-weight: bold; color: #27ae60;"></div>
     </div>
@@ -73,7 +73,8 @@
         <!-- CALLER CONTROL BUTTONS -->
         <div class="controls-row">
             <button class="btn btn-success" onclick="drawNextNumber()"><i class="fas fa-dice"></i> Draw Single Number</button>
-            <button class="btn btn-warning" onclick="drawRemainingNumbers()"><i class="fas fa-fast-forward"></i> Draw All Remaining Numbers</button>
+            <button class="btn btn-warning" onclick="drawRemainingNumbers()"><i class="fas fa-fast-forward"></i> Draw All Remaining</button>
+            <button class="btn btn-danger" onclick="resetDrawnNumbers()"><i class="fas fa-redo-alt"></i> Reset Drawn Numbers</button>
         </div>
 
         <div class="controls-row" style="background: #f6f1eb; padding: 12px; border-radius: 12px;">
@@ -271,7 +272,7 @@ function listenToActiveGame() {
     });
 }
 
-/* 4. NUMBER CALLING LOGIC */
+/* 4. NUMBER CALLING & RESET LOGIC */
 async function drawNextNumber() {
     if (!currentActiveGameId) return alert("No active game!");
     const gameRef = db.collection("games").doc(currentActiveGameId);
@@ -290,6 +291,24 @@ async function drawNextNumber() {
         currentNumber: nextNum,
         drawnNumbers: firebase.firestore.FieldValue.arrayUnion(nextNum)
     });
+}
+
+// RESET DRAWN NUMBERS FOR CURRENT GAME
+async function resetDrawnNumbers() {
+    if (!currentActiveGameId) return alert("No active game session found!");
+    if (!confirm("Are you sure you want to RESET all drawn numbers for this game?")) return;
+
+    if (autoCallerInterval) toggleAutoCaller(); // Pause auto caller if active
+
+    try {
+        await db.collection("games").doc(currentActiveGameId).update({
+            currentNumber: null,
+            drawnNumbers: []
+        });
+        alert("Drawn numbers have been reset successfully!");
+    } catch (err) {
+        alert("Error resetting numbers: " + err.message);
+    }
 }
 
 // Draw specific first number
