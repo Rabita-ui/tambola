@@ -90,6 +90,16 @@
             margin-bottom: 15px;
         }
 
+        .nickname-display {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1f7a4b;
+            min-height: 1.5rem;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+
         .btn-group {
             display: flex;
             gap: 10px;
@@ -117,6 +127,14 @@
             background: #c0392b;
         }
 
+        .btn-auto {
+            background: #2b7a78;
+        }
+
+        .btn-auto.active {
+            background: #e67e22;
+        }
+
         .btn-approve {
             background: #1f7a4b;
             padding: 6px 12px;
@@ -127,6 +145,41 @@
             background: #c0392b;
             padding: 6px 12px;
             font-size: 0.8rem;
+        }
+
+        /* TOGGLES & CONTROLS */
+        .controls-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #7b6856;
+            background: #faf8f5;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #ded4c9;
+        }
+
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-item input[type="checkbox"] {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        .timer-select {
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #ded4c9;
+            font-weight: 700;
+            color: #2d1f14;
         }
 
         /* CLAIM LIST STYLES */
@@ -194,16 +247,35 @@
 
     <div class="grid-layout">
         
-        <!-- LEFT PANEL: DRAW CONTROLS -->
+        <!-- LEFT PANEL: DRAW CONTROLS & AUDIO -->
         <div>
             <div class="card">
                 <h2><i class="fas fa-play-circle"></i> Live Controller</h2>
                 
                 <div class="current-number" id="lastDrawn">--</div>
+                <div class="nickname-display" id="nicknameDisplay"></div>
+
+                <div class="controls-row">
+                    <div class="toggle-item">
+                        <input type="checkbox" id="audioToggle" checked>
+                        <label for="audioToggle"><i class="fas fa-volume-up"></i> Announce voice with classic nicknames</label>
+                    </div>
+
+                    <div class="toggle-item">
+                        <label for="timerSelect"><i class="fas fa-clock"></i> Auto-Draw Speed:</label>
+                        <select id="timerSelect" class="timer-select">
+                            <option value="3">3 Seconds</option>
+                            <option value="5" selected>5 Seconds</option>
+                            <option value="8">8 Seconds</option>
+                            <option value="10">10 Seconds</option>
+                        </select>
+                    </div>
+                </div>
 
                 <div class="btn-group">
-                    <button onclick="drawNextNumber()"><i class="fas fa-dice"></i> Draw Number</button>
-                    <button class="btn-reset" onclick="resetGame()"><i class="fas fa-redo"></i> Reset Game</button>
+                    <button onclick="drawNextNumber()"><i class="fas fa-dice"></i> Draw</button>
+                    <button id="autoBtn" class="btn-auto" onclick="toggleAutoDraw()"><i class="fas fa-magic"></i> Auto Play</button>
+                    <button class="btn-reset" onclick="resetGame()"><i class="fas fa-redo"></i> Reset</button>
                 </div>
             </div>
 
@@ -249,6 +321,29 @@ const gameRef = db.collection("games").doc("active_game");
 
 let activeDrawn = [];
 let activeClaims = [];
+let autoInterval = null;
+
+/* TRADITIONAL TAMBOLA NICKNAMES (LINGO) */
+const tambolaNicknames = {
+    1: "Kelly's Eye", 2: "One Small Duck", 3: "Cup of Tea", 4: "Knock at the Door", 5: "Symbol of Luck",
+    6: "Super Six", 7: "Lucky Seven", 8: "Garden Gate", 9: "Doctor's Time", 10: "A Big Fat Hen",
+    11: "Two Standing Sticks", 12: "One Dozen", 13: "Unlucky for Some", 14: "Valentine's Day", 15: "Young and Keen",
+    16: "Sweet Sixteen", 17: "Dancing Queen", 18: "Voting Age", 19: "Goodbye Teens", 20: "One Score",
+    21: "Royal Salute", 22: "Two Little Ducks", 23: "You and Me", 24: "Two Dozen", 25: "Silver Jubilee",
+    26: "Republic Day", 27: "Gateway to Heaven", 28: "Over Weight", 29: "Rise and Shine", 30: "Dirty Thirty",
+    31: "Time for Fun", 32: "Buckle My Shoe", 33: "All the Threes", 34: "Ask for More", 35: "Jump and Jive",
+    36: "Three Dozen", 37: "Mixed Feelings", 38: "Oversize", 39: "Watch the Line", 40: "Naughty Forty",
+    41: "Life Begins", 42: "Winnie the Pooh", 43: "Down on Your Knees", 44: "All the Fours", 45: "Halfway There",
+    46: "Up to Tricks", 47: "Four and Seven", 48: "Four Dozen", 49: "Rise and Shine", 50: "Half a Century",
+    51: "Tweak That Thumb", 52: "Pack of Cards", 53: "Stuck in a Tree", 54: "Clean the Floor", 55: "All the Fives",
+    56: "Shotgun Willie", 57: "Heinz Varieties", 58: "Make Them Wait", 59: "Bright Line", 60: "Five Dozen",
+    61: "Bakers Bun", 62: "Turn the Screw", 63: "Tickle Me", 64: "Red Raw", 65: "Old Age Pension",
+    66: "Clickety Click", 67: "Made in Heaven", 68: "Saving Grace", 69: "Either Way Up", 70: "Lucky Blind",
+    71: "Bang on the Drum", 72: "Six Dozen", 73: "Queen B", 74: "Candy Store", 75: "Diamond Jubilee",
+    76: "Trombones", 77: "Two Little Crutches", 78: "Heavens Gate", 79: "One More Time", 80: "Eight Blank",
+    81: "Stop and Run", 82: "Straight One", 83: "Time for Tea", 84: "Seven Dozen", 85: "Staying Alive",
+    86: "Between the Sticks", 87: "Torquay in Devon", 88: "Two Fat Ladies", 89: "Nearly There", 90: "Top of the Shop"
+};
 
 window.addEventListener('DOMContentLoaded', () => {
     listenToGame();
@@ -266,8 +361,15 @@ function listenToGame() {
         activeDrawn = data.drawnNumbers || [];
         activeClaims = data.claims || [];
 
-        document.getElementById("lastDrawn").textContent = data.lastDrawn || "--";
+        const last = data.lastDrawn;
+        document.getElementById("lastDrawn").textContent = last || "--";
         document.getElementById("drawnList").textContent = activeDrawn.join(", ") || "None yet.";
+
+        if (last && tambolaNicknames[last]) {
+            document.getElementById("nicknameDisplay").textContent = `"${tambolaNicknames[last]}"`;
+        } else {
+            document.getElementById("nicknameDisplay").textContent = "";
+        }
 
         renderClaims();
     });
@@ -290,9 +392,32 @@ async function initGameDoc() {
     });
 }
 
+/* AUDIO CALLING ENGINE WITH NICKNAMES */
+function speakNumber(num) {
+    if (!('speechSynthesis' in window)) return;
+    
+    window.speechSynthesis.cancel();
+
+    const nickname = tambolaNicknames[num] || "";
+    let textToSpeak = "";
+
+    if (num < 10) {
+        textToSpeak = `${nickname}. Single number ${num}`;
+    } else {
+        const digits = num.toString().split("").join(" ");
+        textToSpeak = `${nickname}. Number ${num}, ${digits}`;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.rate = 0.9;
+    utterance.pitch = 1.0;
+    window.speechSynthesis.speak(utterance);
+}
+
 /* DRAW RANDOM NUMBER (1-90) */
 async function drawNextNumber() {
     if (activeDrawn.length >= 90) {
+        stopAutoDraw();
         alert("All numbers have been drawn!");
         return;
     }
@@ -302,6 +427,10 @@ async function drawNextNumber() {
         next = Math.floor(Math.random() * 90) + 1;
     } while (activeDrawn.includes(next));
 
+    if (document.getElementById("audioToggle").checked) {
+        speakNumber(next);
+    }
+
     await gameRef.update({
         drawnNumbers: firebase.firestore.FieldValue.arrayUnion(next),
         lastDrawn: next,
@@ -309,9 +438,35 @@ async function drawNextNumber() {
     });
 }
 
+/* AUTO-DRAW INTERVAL ENGINE */
+function toggleAutoDraw() {
+    const autoBtn = document.getElementById("autoBtn");
+    if (autoInterval) {
+        stopAutoDraw();
+    } else {
+        const seconds = parseInt(document.getElementById("timerSelect").value) * 1000;
+        drawNextNumber();
+        autoInterval = setInterval(drawNextNumber, seconds);
+        autoBtn.classList.add("active");
+        autoBtn.innerHTML = '<i class="fas fa-pause"></i> Pause Auto';
+    }
+}
+
+function stopAutoDraw() {
+    if (autoInterval) {
+        clearInterval(autoInterval);
+        autoInterval = null;
+    }
+    const autoBtn = document.getElementById("autoBtn");
+    autoBtn.classList.remove("active");
+    autoBtn.innerHTML = '<i class="fas fa-magic"></i> Auto Play';
+}
+
 /* RESET GAME STATE */
 async function resetGame() {
     if (confirm("Are you sure you want to reset the current game state?")) {
+        stopAutoDraw();
+        window.speechSynthesis.cancel();
         await gameRef.update({
             drawnNumbers: [],
             lastDrawn: null,
@@ -353,7 +508,6 @@ function renderClaims() {
 async function resolveClaim(index, isApproved) {
     const targetClaim = activeClaims[index];
     
-    // Remove claim from array
     await gameRef.update({
         claims: firebase.firestore.FieldValue.arrayRemove(targetClaim)
     });
