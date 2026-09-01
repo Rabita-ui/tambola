@@ -13,7 +13,7 @@
         button:hover { background: #0056b3; }
         button.reject { background: #dc3545; }
         button.reject:hover { background: #bd2130; }
-        .wallet-box { background: #e9ecef; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; }
+        .wallet-box { background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 15px; text-align: center; border: 2px solid #007bff; }
         .request-item { background: #f9f9f9; padding: 10px; border: 1px solid #ddd; margin-bottom: 10px; border-radius: 4px; }
     </style>
 </head>
@@ -35,7 +35,7 @@
         <p>Logged in as: <strong id="user-display"></strong> (<span id="user-role">User</span>)</p>
         
         <div class="wallet-box">
-            <h3>Token Balance: <span id="user-balance">0</span> Tokens</h3>
+            <h3 style="margin: 0;">Token Balance: <span id="user-balance" style="color: #007bff; font-size: 1.5em;">0</span> Tokens</h3>
         </div>
         
         <button id="btn-logout" style="background: #6c757d;">Logout</button>
@@ -43,10 +43,10 @@
 
         <!-- Step 1: Request Tokens from Admin -->
         <div>
-            <h3>1. Add Tokens to Wallet</h3>
-            <label for="token-req-count">Request Tokens from Admin:</label>
+            <h3>1. Request Tokens</h3>
+            <label for="token-req-count">Amount to Request:</label>
             <input type="number" id="token-req-count" min="1" value="5" placeholder="Enter amount">
-            <button id="btn-request-tokens">Request Tokens</button>
+            <button id="btn-request-tokens">Request Tokens from Admin</button>
         </div>
         <hr>
 
@@ -93,7 +93,7 @@
             getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { 
-            getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, updateDoc, deleteDoc, orderBy, runTransaction 
+            getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, updateDoc, deleteDoc, orderBy, runTransaction, onSnapshot 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Tambola House Firebase Config
@@ -112,6 +112,7 @@
 
         let currentUser = null;
         let userTokenBalance = 0;
+        let unsubscribeUserListener = null;
 
         // Register User
         document.getElementById('btn-register').addEventListener('click', async () => {
@@ -123,7 +124,7 @@
                 await setDoc(doc(db, "users", cred.user.uid), { 
                     email: email, 
                     role: 'user',
-                    tokens: 0, // Initial token balance
+                    tokens: 0,
                     createdAt: new Date().toISOString()
                 });
                 alert("Account created successfully!");
@@ -141,44 +142,54 @@
         });
 
         // Logout User
-        document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            if (unsubscribeUserListener) unsubscribeUserListener();
+            signOut(auth);
+        });
 
-        // State Listener
-        onAuthStateChanged(auth, async (user) => {
+        // Auth State Listener
+        onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
                 document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('main-section').classList.remove('hidden');
                 document.getElementById('user-display').innerText = user.email;
 
-                // Load User Data & Balance
-                await fetchUserData(user.uid);
+                // Listen for Real-Time Balance & Role Updates
+                listenToUserData(user.uid);
 
             } else {
                 currentUser = null;
+                if (unsubscribeUserListener) unsubscribeUserListener();
                 document.getElementById('auth-section').classList.remove('hidden');
                 document.getElementById('main-section').classList.add('hidden');
                 document.getElementById('admin-section').classList.add('hidden');
             }
         });
 
-        async function fetchUserData(uid) {
-            const userDoc = await getDoc(doc(db, "users", uid));
-            if (userDoc.exists()) {
-                const data = userDoc.data();
-                userTokenBalance = data.tokens || 0;
-                document.getElementById('user-balance').innerText = userTokenBalance;
+        // Real-Time Sync for Tokens and Admin status
+        function listenToUserData(uid) {
+            const userRef = doc(db, "users", uid);
+            
+            unsubscribeUserListener = onSnapshot(userRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    // Handle missing tokens field dynamically
+                    userTokenBalance = data.tokens !== undefined ? data.tokens : 0;
+                    document.getElementById('user-balance').innerText = userTokenBalance;
 
-                // Check Admin Status
-                if (data.role === 'admin') {
-                    document.getElementById('user-role').innerText = "Admin";
-                    document.getElementById('admin-section').classList.remove('hidden');
-                    loadPendingRequests();
-                } else {
-                    document.getElementById('user-role').innerText = "User";
-                    document.getElementById('admin-section').classList.add('hidden');
+                    // Check Admin Status
+                    if (data.role === 'admin') {
+                        document.getElementById('user-role').innerText = "Admin";
+                        document.getElementById('admin-section').classList.remove('hidden');
+                        loadPendingRequests();
+                    } else {
+                        document.getElementById('user-role').innerText = "User";
+                        document.getElementById('admin-section').classList.add('hidden');
+                    }
                 }
-            }
+            });
         }
 
         // USER: Request Tokens from Admin
@@ -198,19 +209,18 @@
             } catch (err) { alert(err.message); }
         });
 
-        // USER: Instant Auto-Booking (Deducts tokens automatically)
+        // USER: Instant Auto-Booking
         document.getElementById('btn-autobook-ticket').addEventListener('click', async () => {
             const ticketsToBook = parseInt(document.getElementById('ticket-count').value);
             if (!ticketsToBook || ticketsToBook <= 0) return alert("Enter valid ticket count.");
 
-            const requiredTokens = ticketsToBook; // 1 Token per ticket
+            const requiredTokens = ticketsToBook;
 
             if (userTokenBalance < requiredTokens) {
                 return alert(`Insufficient Tokens! You need ${requiredTokens} tokens, but only have ${userTokenBalance}. Please request tokens from admin.`);
             }
 
             try {
-                // Transaction ensures accurate balance reduction even with multiple attempts
                 await runTransaction(db, async (transaction) => {
                     const userRef = doc(db, "users", currentUser.uid);
                     const userSnap = await transaction.get(userRef);
@@ -222,10 +232,8 @@
                         throw "Not enough tokens in wallet!";
                     }
 
-                    // Deduct tokens from user
                     transaction.update(userRef, { tokens: currentTokens - requiredTokens });
 
-                    // Create booked ticket entry
                     const bookingRef = doc(collection(db, "booked_tickets"));
                     transaction.set(bookingRef, {
                         userId: currentUser.uid,
@@ -236,7 +244,6 @@
                 });
 
                 alert(`Successfully booked ${ticketsToBook} ticket(s)! Tokens deducted.`);
-                await fetchUserData(currentUser.uid); // Refresh balance UI
 
             } catch (err) {
                 alert("Booking failed: " + err);
@@ -272,7 +279,6 @@
         // ADMIN: Approve Token Request
         window.approveTokenRequest = async (requestId, userId, requestedTokens) => {
             try {
-                // Add tokens to user's wallet
                 const userRef = doc(db, "users", userId);
                 const userSnap = await getDoc(userRef);
                 
@@ -293,7 +299,7 @@
             loadPendingRequests();
         };
 
-        // ADMIN: Create Game & Maintain Data Retention (Keep 1 Finished, Max 2 Upcoming)
+        // ADMIN: Create Game & Maintain Data Rules
         document.getElementById('btn-create-game').addEventListener('click', async () => {
             const time = document.getElementById('game-time').value;
             const prizes = document.getElementById('game-prizes').value;
