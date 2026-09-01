@@ -62,6 +62,7 @@
                     const gameId = docSnap.id;
                     const startTime = new Date(game.startTime);
                     
+                    // Automatically determine if the game is past or upcoming based on the current time
                     const isPast = startTime <= now;
                     const statusColor = isPast ? "border-danger text-danger bg-light" : "border-primary text-primary bg-white";
                     const badgeText = isPast ? "<span class='badge bg-danger'>Past / Finished</span>" : "<span class='badge bg-primary'>Upcoming</span>";
