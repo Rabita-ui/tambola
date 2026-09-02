@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambola House - Admin Panel</title>
     <style>
+        /* Same styles as before */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -47,30 +48,22 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             margin-bottom: 20px;
         }
-        .admin-card h2 {
-            color: #333;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
+        .admin-card h2 { color: #333; margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
         .form-group label {
             display: block;
             margin-bottom: 5px;
             color: #555;
             font-weight: 500;
         }
-        .form-group input, .form-group select {
+        .form-group input {
             width: 100%;
             padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 16px;
         }
-        .form-group input:focus, .form-group select:focus {
+        .form-group input:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -91,9 +84,7 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
-        .game-list {
-            margin-top: 20px;
-        }
+        .game-list { margin-top: 20px; }
         .game-item {
             background: #f8f9fa;
             padding: 15px;
@@ -173,11 +164,7 @@
             border-left: 4px solid #667eea;
         }
         .info-box strong { color: #667eea; }
-        .ticket-count {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: 5px;
-        }
+        .ticket-count { font-size: 0.9em; color: #666; margin-top: 5px; }
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -190,15 +177,8 @@
             border-radius: 10px;
             text-align: center;
         }
-        .stat-number {
-            font-size: 2em;
-            font-weight: bold;
-            color: #667eea;
-        }
-        .stat-label {
-            color: #666;
-            font-size: 0.9em;
-        }
+        .stat-number { font-size: 2em; font-weight: bold; color: #667eea; }
+        .stat-label { color: #666; font-size: 0.9em; }
         .refresh-btn {
             background: #667eea;
             color: white;
@@ -208,6 +188,23 @@
             cursor: pointer;
         }
         .refresh-btn:hover { background: #5a67d8; }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 9999;
+            animation: slideIn 0.5s ease;
+        }
+        .toast-success { background: #27ae60; }
+        .toast-error { background: #e74c3c; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -285,6 +282,8 @@
         <button class="back-btn" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
     </div>
 
+    <div id="toastContainer"></div>
+
     <script type="module">
         import { 
             auth, 
@@ -300,10 +299,24 @@
             onSnapshot, 
             Timestamp, 
             writeBatch,
-            getDoc
+            getDoc,
+            runTransaction
         } from './firebase-config.js';
 
         let masterTickets = [];
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s';
+                setTimeout(() => toast.remove(), 500);
+            }, 5000);
+        }
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
@@ -329,22 +342,18 @@
 
         async function loadStats() {
             try {
-                // Master tickets count
                 const masterSnapshot = await getDocs(collection(db, 'masterTickets'));
                 document.getElementById('statMasterTickets').textContent = masterSnapshot.size;
 
-                // Active games count
                 const gamesSnapshot = await getDocs(query(
                     collection(db, 'game_session'),
                     where('status', 'in', ['waiting', 'active'])
                 ));
                 document.getElementById('statActiveGames').textContent = gamesSnapshot.size;
 
-                // Total users
                 const usersSnapshot = await getDocs(collection(db, 'users'));
                 document.getElementById('statTotalUsers').textContent = usersSnapshot.size;
 
-                // Booked tickets
                 const ticketsSnapshot = await getDocs(collection(db, 'booked_tickets'));
                 document.getElementById('statTotalTickets').textContent = ticketsSnapshot.size;
 
@@ -379,12 +388,12 @@
             const prizePool = parseInt(document.getElementById('prizePool').value);
 
             if (!name || !ticketPrice || !prizePool) {
-                alert('Please fill in all fields');
+                showToast('Please fill in all fields', 'error');
                 return;
             }
 
             if (masterTickets.length === 0) {
-                alert('No master tickets found! Please generate master tickets first.');
+                showToast('No master tickets found! Generate them first.', 'error');
                 return;
             }
 
@@ -427,7 +436,7 @@
 
                 await batch.commit();
 
-                alert(`✅ Game created successfully! Copied ${copiedCount} tickets.`);
+                showToast(`✅ Game created! Copied ${copiedCount} tickets.`, 'success');
                 createBtn.textContent = '🚀 Create Game & Copy Tickets';
                 createBtn.disabled = false;
                 
@@ -440,7 +449,7 @@
 
             } catch (error) {
                 console.error('Error creating game:', error);
-                alert('Error creating game: ' + error.message);
+                showToast('Error creating game: ' + error.message, 'error');
                 document.getElementById('createGameBtn').textContent = '🚀 Create Game & Copy Tickets';
                 document.getElementById('createGameBtn').disabled = false;
             }
@@ -463,7 +472,6 @@
                     const game = docSnapshot.data();
                     const gameId = docSnapshot.id;
                     
-                    // Get ticket count for this game
                     const ticketsRef = collection(db, `game_${gameId}_tickets`);
                     const ticketsSnapshot = await getDocs(ticketsRef);
                     const totalTickets = ticketsSnapshot.size;
@@ -497,7 +505,6 @@
                     gameList.appendChild(item);
                 }
 
-                // Add event listeners
                 document.querySelectorAll('.btn-start').forEach(btn => {
                     btn.addEventListener('click', async () => {
                         const gameId = btn.dataset.gameid;
@@ -508,6 +515,7 @@
                             });
                             await loadStats();
                             loadGames();
+                            showToast('✅ Game started!', 'success');
                         }
                     });
                 });
@@ -522,14 +530,14 @@
                             });
                             await loadStats();
                             loadGames();
+                            showToast('Game ended', 'success');
                         }
                     });
                 });
             });
         }
 
-        // Refresh stats periodically
-        setInterval(loadStats, 30000);
+        window.loadStats = loadStats;
     </script>
 </body>
 </html>
