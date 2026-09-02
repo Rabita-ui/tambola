@@ -46,7 +46,9 @@
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             margin-bottom: 20px;
+            transition: transform 0.3s;
         }
+        .ticket-card:hover { transform: translateY(-3px); }
         .ticket-grid {
             display: grid;
             grid-template-columns: repeat(9, 1fr);
@@ -63,6 +65,7 @@
             font-size: 0.85em;
         }
         .ticket-cell.has-number { background: #667eea; color: white; }
+        .ticket-cell.claimed { background: #27ae60; color: white; }
         .ticket-header {
             display: flex;
             justify-content: space-between;
@@ -73,13 +76,19 @@
         }
         .ticket-id { font-weight: 600; color: #333; }
         .claimed-badge {
-            background: #e74c3c;
-            color: white;
             padding: 3px 12px;
             border-radius: 20px;
             font-size: 0.8em;
+            font-weight: 600;
         }
-        .claimed-badge.claimed { background: #27ae60; }
+        .claimed-badge.pending { background: #f39c12; color: white; }
+        .claimed-badge.claimed { background: #27ae60; color: white; }
+        .claimed-badge.winning { background: #e74c3c; color: white; animation: pulse 1s infinite; }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
         .no-books {
             text-align: center;
             padding: 50px;
@@ -94,6 +103,30 @@
             border-radius: 8px;
             cursor: pointer;
             margin-top: 20px;
+        }
+        .filter-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 8px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .filter-btn:hover { border-color: #667eea; }
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .game-name {
+            color: #667eea;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -110,12 +143,21 @@
 
     <div class="container">
         <h2>📖 My Tickets</h2>
+        
+        <div class="filter-section">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="pending">⏳ Pending</button>
+            <button class="filter-btn" data-filter="claimed">✅ Claimed</button>
+        </div>
+
         <div id="ticketsList"></div>
         <button class="back-btn" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
     </div>
 
     <script type="module">
         import { auth, onAuthStateChanged, db, collection, query, where, onSnapshot, doc, getDoc } from './firebase-config.js';
+
+        let currentFilter = 'all';
 
         onAuthStateChanged(auth, (user) => {
             if (!user) {
@@ -125,11 +167,21 @@
             loadTickets(user.uid);
         });
 
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                loadTickets(auth.currentUser.uid);
+            });
+        });
+
         function loadTickets(userId) {
             const ticketsRef = collection(db, 'booked_tickets');
             const q = query(ticketsRef, where('userId', '==', userId));
             
-            onSnapshot(q, (snapshot) => {
+            onSnapshot(q, async (snapshot) => {
                 const ticketsList = document.getElementById('ticketsList');
                 ticketsList.innerHTML = '';
 
@@ -143,10 +195,45 @@
                     return;
                 }
 
-                snapshot.forEach((doc) => {
-                    const ticket = doc.data();
-                    const ticketId = doc.id;
+                let tickets = [];
+                for (const docSnapshot of snapshot.docs) {
+                    const ticket = docSnapshot.data();
+                    const ticketId = docSnapshot.id;
                     
+                    // Get game details
+                    let gameName = 'Unknown Game';
+                    if (ticket.gameId) {
+                        const gameDoc = await getDoc(doc(db, 'game_session', ticket.gameId));
+                        if (gameDoc.exists()) {
+                            gameName = gameDoc.data().name || gameName;
+                        }
+                    }
+                    
+                    tickets.push({
+                        id: ticketId,
+                        ...ticket,
+                        gameName: gameName
+                    });
+                }
+
+                // Filter tickets
+                if (currentFilter === 'pending') {
+                    tickets = tickets.filter(t => !t.claimed);
+                } else if (currentFilter === 'claimed') {
+                    tickets = tickets.filter(t => t.claimed);
+                }
+
+                if (tickets.length === 0) {
+                    ticketsList.innerHTML = `
+                        <div class="no-books">
+                            <h2>${currentFilter === 'all' ? '📚 No Tickets' : 'No ' + currentFilter + ' tickets'}</h2>
+                            <p>${currentFilter === 'all' ? 'Join a game to purchase tickets!' : 'No tickets in this category'}</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                tickets.forEach((ticket) => {
                     const numbers = ticket.numbersString ? ticket.numbersString.split(',').map(Number) : [];
                     
                     const card = document.createElement('div');
@@ -156,20 +243,25 @@
                     if (numbers.length === 27) {
                         gridHtml = '<div class="ticket-grid">';
                         numbers.forEach(num => {
-                            gridHtml += `<div class="ticket-cell ${num !== 0 ? 'has-number' : ''}">${num || ''}</div>`;
+                            const cellClass = num !== 0 ? 'has-number' : '';
+                            gridHtml += `<div class="ticket-cell ${cellClass}">${num || ''}</div>`;
                         });
                         gridHtml += '</div>';
                     }
 
+                    const statusClass = ticket.claimed ? 'claimed' : 'pending';
+                    const statusText = ticket.claimed ? '✅ Claimed' : '⏳ Pending';
+
                     card.innerHTML = `
                         <div class="ticket-header">
-                            <span class="ticket-id">🎫 Ticket #${ticketId.slice(0, 8)}</span>
-                            <span class="claimed-badge ${ticket.claimed ? 'claimed' : ''}">
-                                ${ticket.claimed ? '✅ Claimed' : '⏳ Pending'}
-                            </span>
+                            <div>
+                                <span class="ticket-id">🎫 Ticket #${ticket.id.slice(0, 8)}</span>
+                                <span style="margin-left:10px;font-size:0.9em;color:#666;">#${ticket.ticketNo || 1}</span>
+                            </div>
+                            <span class="claimed-badge ${statusClass}">${statusText}</span>
                         </div>
-                        <p>📅 Booked: ${new Date(ticket.bookedAt).toLocaleString()}</p>
-                        <p>🎮 Game: ${ticket.gameId ? ticket.gameId.slice(0, 8) : 'N/A'}</p>
+                        <p>🎮 Game: <span class="game-name">${ticket.gameName}</span></p>
+                        <p>📅 Booked: ${ticket.bookedAt ? new Date(ticket.bookedAt).toLocaleString() : 'N/A'}</p>
                         ${gridHtml}
                     `;
                     ticketsList.appendChild(card);
