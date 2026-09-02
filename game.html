@@ -105,8 +105,10 @@
             background: white;
             padding: 30px;
             border-radius: 15px;
-            max-width: 400px;
+            max-width: 450px;
             width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
         }
         .modal-content h2 { margin-bottom: 20px; color: #333; }
         .modal-content input {
@@ -144,9 +146,57 @@
         }
         .price-detail {
             background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        .price-detail p { margin: 5px 0; }
+        .available-tickets {
+            color: #667eea;
+            font-weight: 600;
+        }
+        .wallet-info {
+            background: #e8f4fd;
             padding: 10px;
             border-radius: 8px;
             margin: 10px 0;
+            border-left: 4px solid #667eea;
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 9999;
+            animation: slideIn 0.5s ease;
+            max-width: 400px;
+        }
+        .toast-success { background: #27ae60; }
+        .toast-error { background: #e74c3c; }
+        .toast-warning { background: #f39c12; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #e0e0e0;
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -170,38 +220,100 @@
     <div id="joinModal" class="modal">
         <div class="modal-content">
             <h2>🎯 Join Game</h2>
-            <p>How many tickets would you like to buy?</p>
+            <p id="gameNameDisplay" style="color:#667eea;font-weight:600;"></p>
+            
+            <div class="wallet-info">
+                💰 Your Wallet Balance: <strong id="walletDisplay">₹0</strong>
+            </div>
+
+            <label>How many tickets would you like to buy?</label>
             <input type="number" id="ticketCount" min="1" max="10" value="1">
+            
             <div class="price-detail">
                 <p>Price per ticket: ₹<span id="ticketPrice">10</span></p>
                 <p><strong>Total: ₹<span id="totalPrice">10</span></strong></p>
+                <p class="available-tickets">🎫 Available tickets: <span id="availableTickets">0</span></p>
             </div>
+
+            <div style="margin:10px 0;padding:10px;background:#f8f9fa;border-radius:8px;max-height:150px;overflow-y:auto;" id="ticketPreview">
+                <p style="font-weight:600;color:#333;">Ticket Preview:</p>
+                <div id="previewNumbers" style="font-size:12px;color:#666;"></div>
+            </div>
+
             <div class="modal-actions">
                 <button class="cancel-btn" onclick="closeModal()">Cancel</button>
-                <button class="confirm-btn" id="confirmJoin">Confirm Purchase</button>
+                <button class="confirm-btn" id="confirmJoin">✅ Confirm Purchase</button>
             </div>
         </div>
     </div>
 
+    <div id="toastContainer"></div>
+
     <script type="module">
-        import { auth, onAuthStateChanged, db, collection, getDocs, doc, getDoc, updateDoc, addDoc, Timestamp, query, where, onSnapshot } from './firebase-config.js';
+        import { 
+            auth, 
+            onAuthStateChanged, 
+            db, 
+            collection, 
+            getDocs, 
+            doc, 
+            getDoc, 
+            updateDoc, 
+            addDoc, 
+            Timestamp, 
+            query, 
+            where, 
+            onSnapshot,
+            writeBatch,
+            increment,
+            runTransaction
+        } from './firebase-config.js';
 
         let currentGameId = null;
         let currentGameData = null;
+        let currentGameTickets = [];
+        let userWallet = 0;
+        let currentUser = null;
 
-        onAuthStateChanged(auth, (user) => {
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s';
+                setTimeout(() => toast.remove(), 500);
+            }, 5000);
+        }
+
+        onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = 'index.html';
                 return;
             }
+            currentUser = user;
+            await loadUserWallet(user.uid);
             loadGames();
         });
+
+        async function loadUserWallet(userId) {
+            try {
+                const userDoc = await getDoc(doc(db, 'users', userId));
+                if (userDoc.exists()) {
+                    userWallet = userDoc.data().wallet || 0;
+                }
+            } catch (error) {
+                console.error('Error loading wallet:', error);
+            }
+        }
 
         function loadGames() {
             const gamesRef = collection(db, 'game_session');
             const q = query(gamesRef, where('status', 'in', ['waiting', 'active']));
             
-            onSnapshot(q, (snapshot) => {
+            onSnapshot(q, async (snapshot) => {
                 const gamesList = document.getElementById('gamesList');
                 gamesList.innerHTML = '';
                 
@@ -215,45 +327,87 @@
                     return;
                 }
 
-                snapshot.forEach((doc) => {
-                    const game = doc.data();
-                    const gameId = doc.id;
+                for (const docSnapshot of snapshot.docs) {
+                    const game = docSnapshot.data();
+                    const gameId = docSnapshot.id;
+                    
+                    // Get available tickets count
+                    const ticketsRef = collection(db, `game_${gameId}_tickets`);
+                    const ticketsSnapshot = await getDocs(query(ticketsRef, where('isBooked', '==', false)));
+                    const availableTickets = ticketsSnapshot.size;
+                    
                     const card = document.createElement('div');
                     card.className = 'game-card';
                     card.innerHTML = `
                         <div class="game-header">
-                            <span class="game-title">Game #${gameId.slice(0, 8)}</span>
+                            <span class="game-title">${game.name}</span>
                             <span class="game-status status-${game.status}">${game.status.toUpperCase()}</span>
                         </div>
                         <div class="game-details">
                             <p>👥 Players: ${game.players || 0}</p>
                             <p>💰 Prize Pool: ₹${game.prizePool || 0}</p>
+                            <p>🎫 Available Tickets: ${availableTickets}</p>
                             <p>📅 Created: ${game.createdAt ? new Date(game.createdAt.seconds * 1000).toLocaleString() : 'N/A'}</p>
                         </div>
-                        <button class="join-btn" data-gameid="${gameId}" ${game.status === 'active' ? '' : 'disabled'}>
-                            ${game.status === 'active' ? 'Join Game' : '⏳ Waiting to start'}
+                        <button class="join-btn" data-gameid="${gameId}" ${game.status === 'active' && availableTickets > 0 ? '' : 'disabled'}>
+                            ${game.status === 'active' ? (availableTickets > 0 ? '🎯 Join Game' : 'No Tickets Available') : '⏳ Waiting to start'}
                         </button>
                     `;
                     gamesList.appendChild(card);
-                });
+                }
 
                 document.querySelectorAll('.join-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
+                    btn.addEventListener('click', async (e) => {
                         const gameId = e.target.dataset.gameid;
-                        openJoinModal(gameId);
+                        await openJoinModal(gameId);
                     });
                 });
             });
         }
 
         async function openJoinModal(gameId) {
-            currentGameId = gameId;
-            const gameDoc = await getDoc(doc(db, 'game_session', gameId));
-            if (gameDoc.exists()) {
+            try {
+                currentGameId = gameId;
+                const gameDoc = await getDoc(doc(db, 'game_session', gameId));
+                if (!gameDoc.exists()) {
+                    showToast('Game not found!', 'error');
+                    return;
+                }
+                
                 currentGameData = gameDoc.data();
+                document.getElementById('gameNameDisplay').textContent = `📌 ${currentGameData.name}`;
                 document.getElementById('ticketPrice').textContent = currentGameData.ticketPrice || 10;
                 document.getElementById('totalPrice').textContent = currentGameData.ticketPrice || 10;
+                document.getElementById('walletDisplay').textContent = `₹${userWallet}`;
+
+                // Get available tickets
+                const ticketsRef = collection(db, `game_${gameId}_tickets`);
+                const ticketsSnapshot = await getDocs(query(ticketsRef, where('isBooked', '==', false)));
+                currentGameTickets = [];
+                ticketsSnapshot.forEach(doc => {
+                    currentGameTickets.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                document.getElementById('availableTickets').textContent = currentGameTickets.length;
+
+                // Show preview of first ticket
+                if (currentGameTickets.length > 0) {
+                    const previewTicket = currentGameTickets[0];
+                    const numbers = previewTicket.numbers || [];
+                    document.getElementById('previewNumbers').innerHTML = 
+                        `Ticket #${previewTicket.ticketNumber}: ${numbers.slice(0, 9).join(', ')}...`;
+                } else {
+                    document.getElementById('previewNumbers').textContent = 'No tickets available!';
+                }
+
                 document.getElementById('joinModal').style.display = 'flex';
+                document.getElementById('ticketCount').max = Math.min(10, currentGameTickets.length);
+
+            } catch (error) {
+                console.error('Error opening modal:', error);
+                showToast('Error loading game: ' + error.message, 'error');
             }
         }
 
@@ -270,103 +424,116 @@
         document.getElementById('confirmJoin').addEventListener('click', async () => {
             const user = auth.currentUser;
             if (!user) {
-                alert('Please login first');
+                showToast('Please login first', 'error');
                 return;
             }
 
             const ticketCount = parseInt(document.getElementById('ticketCount').value);
             const totalPrice = ticketCount * (currentGameData.ticketPrice || 10);
 
+            if (ticketCount > currentGameTickets.length) {
+                showToast('Not enough tickets available!', 'warning');
+                return;
+            }
+
+            if (userWallet < totalPrice) {
+                showToast(`Insufficient balance! You need ₹${totalPrice}. Current: ₹${userWallet}`, 'error');
+                return;
+            }
+
             try {
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                if (!userDoc.exists()) {
-                    alert('User data not found');
-                    return;
-                }
+                const confirmBtn = document.getElementById('confirmJoin');
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = '⏳ Processing...';
 
-                const userData = userDoc.data();
-                if (userData.wallet < totalPrice) {
-                    alert(`Insufficient balance! You need ₹${totalPrice}. Current balance: ₹${userData.wallet}`);
-                    return;
-                }
+                // Use transaction for atomic operation
+                await runTransaction(db, async (transaction) => {
+                    // 1. Update user wallet
+                    const userRef = doc(db, 'users', user.uid);
+                    const userDoc = await transaction.get(userRef);
+                    if (!userDoc.exists()) {
+                        throw new Error('User not found');
+                    }
+                    const currentWallet = userDoc.data().wallet || 0;
+                    if (currentWallet < totalPrice) {
+                        throw new Error('Insufficient balance');
+                    }
+                    transaction.update(userRef, { wallet: currentWallet - totalPrice });
 
-                await updateDoc(doc(db, 'users', user.uid), {
-                    wallet: userData.wallet - totalPrice
+                    // 2. Book tickets
+                    const bookedTickets = [];
+                    for (let i = 0; i < ticketCount && i < currentGameTickets.length; i++) {
+                        const ticket = currentGameTickets[i];
+                        const ticketRef = doc(db, `game_${currentGameId}_tickets`, ticket.id);
+                        transaction.update(ticketRef, {
+                            isBooked: true,
+                            bookedBy: user.uid,
+                            bookedAt: Timestamp.now(),
+                            bookedEmail: user.email
+                        });
+                        bookedTickets.push(ticket);
+                    }
+
+                    // 3. Create booked ticket records
+                    for (const ticket of bookedTickets) {
+                        const bookedRef = doc(collection(db, 'booked_tickets'));
+                        transaction.set(bookedRef, {
+                            userId: user.uid,
+                            email: user.email,
+                            gameId: currentGameId,
+                            ticketNo: ticket.ticketNumber,
+                            numbersString: ticket.numbersString || '',
+                            numbers: ticket.numbers || [],
+                            bookedAt: new Date().toISOString(),
+                            claimed: false,
+                            gameName: currentGameData.name,
+                            ticketPrice: currentGameData.ticketPrice
+                        });
+                    }
+
+                    // 4. Update game players count
+                    const gameRef = doc(db, 'game_session', currentGameId);
+                    const gameDoc = await transaction.get(gameRef);
+                    if (gameDoc.exists()) {
+                        transaction.update(gameRef, {
+                            players: (gameDoc.data().players || 0) + 1,
+                            prizePool: (gameDoc.data().prizePool || 0) + totalPrice
+                        });
+                    }
                 });
 
-                const ticketNumbers = [];
-                for (let i = 0; i < ticketCount; i++) {
-                    const numbers = generateTicketNumbers();
-                    const ticketData = {
-                        bookedAt: new Date().toISOString(),
-                        email: user.email,
-                        numbersString: numbers.join(','),
-                        ticketNo: i + 1,
-                        userId: user.uid,
-                        gameId: currentGameId,
-                        claimed: false
-                    };
-                    
-                    const ticketRef = await addDoc(collection(db, 'booked_tickets'), ticketData);
-                    ticketNumbers.push(ticketRef.id);
-                }
-
-                await updateDoc(doc(db, 'game_session', currentGameId), {
-                    players: (currentGameData.players || 0) + 1,
-                    prizePool: (currentGameData.prizePool || 0) + totalPrice
-                });
-
-                alert(`✅ Successfully joined the game! Purchased ${ticketCount} ticket(s).`);
+                // Success!
+                userWallet -= totalPrice;
+                showToast(`✅ Successfully purchased ${ticketCount} ticket(s)!`, 'success');
                 closeModal();
+                document.getElementById('walletDisplay').textContent = `₹${userWallet}`;
+                
+                // Refresh games
                 loadGames();
 
             } catch (error) {
                 console.error('Error joining game:', error);
-                alert('Error joining game: ' + error.message);
+                showToast('Error: ' + error.message, 'error');
+            } finally {
+                const confirmBtn = document.getElementById('confirmJoin');
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = '✅ Confirm Purchase';
             }
         });
 
-        function generateTicketNumbers() {
-            const ticket = [];
-            const columns = Array.from({length: 9}, () => []);
-            
-            for (let col = 0; col < 9; col++) {
-                const min = col * 10 + 1;
-                const max = col === 8 ? 90 : (col + 1) * 10;
-                const nums = [];
-                while (nums.length < 3) {
-                    const num = Math.floor(Math.random() * (max - min + 1)) + min;
-                    if (!nums.includes(num)) {
-                        nums.push(num);
-                    }
-                }
-                columns[col] = nums.sort((a, b) => a - b);
-            }
-
-            const rows = [[], [], []];
-            for (let col = 0; col < 9; col++) {
-                const colNums = columns[col];
-                const positions = [0, 1, 2];
-                for (let i = 0; i < 3; i++) {
-                    const idx = Math.floor(Math.random() * positions.length);
-                    const row = positions.splice(idx, 1)[0];
-                    rows[row].push(colNums[i]);
-                }
-                for (let i = 0; i < 3; i++) {
-                    if (rows[i].length <= col) {
-                        rows[i].push(0);
-                    }
-                }
-            }
-
-            return rows.flat();
-        }
-
+        // Close modal on click outside
         document.getElementById('joinModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('joinModal')) {
                 closeModal();
             }
         });
+
+        // Refresh wallet periodically
+        setInterval(() => {
+            if (currentUser) {
+                loadUserWallet(currentUser.uid);
+            }
+        }, 30000);
     </script>
 </body>
 </html>
