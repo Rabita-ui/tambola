@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambola Admin - Master Operations & Scheduling</title>
+    <title>Tambola Admin - Operations & Scheduler</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
@@ -46,27 +46,27 @@
 
 <div class="container">
     <div class="header">
-        <h1><i class="fas fa-user-shield"></i> Master Control & Scheduling Panel</h1>
+        <h1><i class="fas fa-user-shield"></i> Control & Scheduling Hub</h1>
         <div>
             <a href="index.html" class="btn btn-secondary"><i class="fas fa-home"></i> Home</a>
             <button class="btn btn-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
     </div>
 
-    <!-- 1. MASTER SEEDER -->
+    <!-- 1. MASTER TICKET SEEDING -->
     <div class="card">
         <h2><i class="fas fa-database"></i> Master Tickets Initialization</h2>
         <button class="btn btn-primary" onclick="seed600MasterTickets()"><i class="fas fa-seedling"></i> Seed 600 Master Templates</button>
     </div>
 
-    <!-- 2. GAME SCHEDULER & SESSION SETUP -->
+    <!-- 2. GAME SCHEDULER & LIST -->
     <div class="card">
         <h2><i class="fas fa-calendar-alt"></i> Schedule & Initialize Game Session</h2>
         <div class="controls-row" style="justify-content: flex-start; background: #f6f1eb; padding: 15px; border-radius: 12px;">
             <label style="font-weight: bold;">Scheduled Start Time: 
                 <input type="datetime-local" id="gameStartTime">
             </label>
-            <button class="btn btn-success" onclick="createNewGame()"><i class="fas fa-plus-circle"></i> Create Game Session</button>
+            <button class="btn btn-success" onclick="createNewGame()"><i class="fas fa-plus-circle"></i> Create Scheduled Game</button>
         </div>
         
         <h3 style="margin-top: 20px; color: #7b6856;">Recent Games Status</h3>
@@ -173,7 +173,6 @@ function renderBoardGrid() {
     }
 }
 
-/* SEED MASTER TICKETS */
 async function seed600MasterTickets() {
     if (!confirm("Upload 600 Master Tickets to Firestore?")) return;
     const masterRef = db.collection("masterTickets");
@@ -226,7 +225,6 @@ function generateTambolaTicket() {
     return ticket;
 }
 
-/* CREATE & SCHEDULE GAME */
 async function createNewGame() {
     const startTimeInput = document.getElementById("gameStartTime").value;
     if (!startTimeInput) return alert("Please set a scheduled start time first!");
@@ -268,9 +266,8 @@ async function createNewGame() {
     }
 }
 
-/* LISTEN TO RECENT 3 GAMES & STATUS MANAGEMENT */
 function listenToGames() {
-    db.collection("games").orderBy("createdAt", "desc").limit(3).onSnapshot(snapshot => {
+    db.collection("games").orderBy("createdAt", "desc").limit(5).onSnapshot(snapshot => {
         const tbody = document.getElementById("gamesTableBody");
         tbody.innerHTML = "";
 
@@ -282,7 +279,6 @@ function listenToGames() {
         snapshot.forEach(doc => {
             const game = doc.data();
             const schedTime = game.scheduledAt ? new Date(game.scheduledAt.toDate()).toLocaleString() : "Immediate";
-            
             let statusColor = game.status === 'active' ? '#27ae60' : (game.status === 'upcoming' ? '#f39c12' : '#7b6856');
 
             tbody.innerHTML += `
@@ -300,6 +296,34 @@ function listenToGames() {
     });
 }
 
+// Auto-Activator Task: Runs background check for scheduled games
+setInterval(async () => {
+    try {
+        const now = firebase.firestore.Timestamp.now();
+        const snapshot = await db.collection("games")
+            .where("status", "==", "upcoming")
+            .where("scheduledAt", "<=", now)
+            .orderBy("scheduledAt", "asc")
+            .limit(1)
+            .get();
+
+        if (!snapshot.empty) {
+            const nearestGame = snapshot.docs[0];
+            const activeSnapshot = await db.collection("games").where("status", "==", "active").get();
+
+            let batch = db.batch();
+            activeSnapshot.forEach(doc => {
+                batch.update(doc.ref, { status: "completed" });
+            });
+
+            batch.update(nearestGame.ref, { status: "active" });
+            await batch.commit();
+        }
+    } catch (err) {
+        console.error("Auto-activation error:", err);
+    }
+}, 5000);
+
 async function updateGameStatus(gameId, status) {
     await db.collection("games").doc(gameId).update({ status: status });
     alert(`Game status changed to ${status.toUpperCase()}`);
@@ -307,15 +331,14 @@ async function updateGameStatus(gameId, status) {
 
 async function pruneOldGames() {
     const snapshot = await db.collection("games").orderBy("createdAt", "desc").get();
-    if (snapshot.size > 3) {
-        const docsToDelete = snapshot.docs.slice(3);
+    if (snapshot.size > 5) {
+        const docsToDelete = snapshot.docs.slice(5);
         for (const gameDoc of docsToDelete) {
             await db.collection("games").doc(gameDoc.id).delete();
         }
     }
 }
 
-/* LISTEN TO ACTIVE GAME FOR CALLER */
 function listenToActiveGame() {
     db.collection("games").where("status", "==", "active").limit(1).onSnapshot((snapshot) => {
         if (!snapshot.empty) {
@@ -337,9 +360,8 @@ function listenToActiveGame() {
     });
 }
 
-/* CALLER CONTROLS */
 async function drawNextNumber() {
-    if (!currentActiveGameId) return alert("No ACTIVE game! Start an upcoming game first.");
+    if (!currentActiveGameId) return alert("No ACTIVE game!");
     const gameRef = db.collection("games").doc(currentActiveGameId);
     const gameDoc = await gameRef.get();
     const drawn = gameDoc.data().drawnNumbers || [];
@@ -426,7 +448,6 @@ function toggleAutoCaller() {
     }
 }
 
-/* TOKEN REQUESTS */
 function listenToTokenRequests() {
     db.collection("tokenRequests").where("status", "==", "pending").onSnapshot(snapshot => {
         const tbody = document.getElementById("requestsTableBody");
