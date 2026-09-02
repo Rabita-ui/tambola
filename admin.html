@@ -3,509 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambola Admin - Operations & Scheduler</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Tambola House - Admin Panel</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: linear-gradient(145deg, #f7f3ee, #e9e1d7); color: #2d1f14; min-height: 100vh; padding: 20px; }
-        .container { max-width: 950px; margin: auto; }
-        
-        .header { background: white; border-radius: 20px; padding: 20px 25px; margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .header h1 { font-size: 1.5rem; color: #b35e2e; }
-
-        .btn { padding: 10px 16px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.9rem; display: inline-block; text-decoration: none; margin: 2px; }
-        .btn-primary { background: #b35e2e; color: white; }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-warning { background: #f39c12; color: white; }
-        .btn-secondary { background: #7b6856; color: white; }
-        .btn-danger { background: #c0392b; color: white; }
-
-        .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,.07); margin-bottom: 25px; }
-        .card h2 { font-size: 1.3rem; margin-bottom: 15px; color: #b35e2e; border-bottom: 2px solid #f6f1eb; padding-bottom: 10px; }
-
-        .current-number { font-size: 4rem; font-weight: 800; color: #b35e2e; text-align: center; margin: 10px 0; }
-        .drawn-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin-top: 15px; }
-        .num-cell { background: #f6f1eb; padding: 8px 0; border-radius: 6px; text-align: center; font-weight: bold; font-size: 0.85rem; color: #ded4c9; }
-        .num-cell.active { background: #27ae60; color: white; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #f6f1eb; }
-        th { background: #f6f1eb; color: #7b6856; font-weight: bold; }
-
-        .controls-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; margin-bottom: 15px; }
-        input[type="number"], input[type="datetime-local"] { padding: 8px 12px; border: 1px solid #ded4c9; border-radius: 8px; font-weight: bold; }
-        
-        #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f7f3ee; display: flex; justify-content: center; align-items: center; z-index: 2000; font-weight: bold; font-size: 1.2rem; color: #b35e2e; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .navbar h1 { font-size: 1.8em; }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .admin-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .admin-card h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .create-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .create-btn:hover { transform: scale(1.02); }
+        .game-list {
+            margin-top: 20px;
+        }
+        .game-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .game-item .status {
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .status-active { background: #27ae60; color: white; }
+        .status-waiting { background: #f39c12; color: white; }
+        .status-ended { background: #95a5a6; color: white; }
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+        .action-btn:hover { transform: scale(1.05); }
+        .btn-start { background: #27ae60; color: white; }
+        .btn-end { background: #e74c3c; color: white; }
+        .back-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .no-access {
+            text-align: center;
+            padding: 50px;
+            color: #e74c3c;
+        }
+        .no-access h2 { font-size: 2em; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-
-<div id="authOverlay">
-    <i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i> Accessing Admin Portal...
-</div>
-
-<div class="container">
-    <div class="header">
-        <h1><i class="fas fa-user-shield"></i> Control & Scheduling Hub</h1>
-        <div>
-            <a href="index.html" class="btn btn-secondary"><i class="fas fa-home"></i> Home</a>
-            <button class="btn btn-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    <nav class="navbar">
+        <h1>🎯 Tambola House</h1>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="game.html">Join Game</a>
+            <a href="book.html">My Books</a>
+            <a href="deposit.html">Deposit</a>
+            <a href="admin.html">Admin</a>
         </div>
+    </nav>
+
+    <div class="container">
+        <div id="adminContent">
+            <div class="admin-card">
+                <h2>🎮 Create New Game</h2>
+                <div class="form-group">
+                    <label>Game Name</label>
+                    <input type="text" id="gameName" placeholder="Enter game name" value="Tambola Game">
+                </div>
+                <div class="form-group">
+                    <label>Ticket Price (₹)</label>
+                    <input type="number" id="ticketPrice" value="10" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Prize Pool (₹)</label>
+                    <input type="number" id="prizePool" value="100" min="10">
+                </div>
+                <button class="create-btn" id="createGameBtn">🚀 Create Game</button>
+            </div>
+
+            <div class="admin-card">
+                <h2>📋 Active Games</h2>
+                <div id="gameList" class="game-list"></div>
+            </div>
+        </div>
+        <button class="back-btn" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
     </div>
 
-    <!-- 1. MASTER TICKET SEEDING -->
-    <div class="card">
-        <h2><i class="fas fa-database"></i> Master Tickets Initialization</h2>
-        <button class="btn btn-primary" onclick="seed600MasterTickets()"><i class="fas fa-seedling"></i> Seed 600 Master Templates</button>
-    </div>
+    <script type="module">
+        import { auth, onAuthStateChanged, db, collection, addDoc, getDocs, updateDoc, doc, query, where, onSnapshot, Timestamp } from './firebase-config.js';
 
-    <!-- 2. GAME SCHEDULER & LIST -->
-    <div class="card">
-        <h2><i class="fas fa-calendar-alt"></i> Schedule & Initialize Game Session</h2>
-        <div class="controls-row" style="justify-content: flex-start; background: #f6f1eb; padding: 15px; border-radius: 12px;">
-            <label style="font-weight: bold;">Scheduled Start Time: 
-                <input type="datetime-local" id="gameStartTime">
-            </label>
-            <button class="btn btn-success" onclick="createNewGame()"><i class="fas fa-plus-circle"></i> Create Scheduled Game</button>
-        </div>
-        
-        <h3 style="margin-top: 20px; color: #7b6856;">Recent Games Status</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Game ID</th>
-                    <th>Scheduled Time</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="gamesTableBody">
-                <tr><td colspan="4">Loading game list...</td></tr>
-            </tbody>
-        </table>
-    </div>
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
 
-    <!-- 3. LIVE CALLER CONTROLS -->
-    <div class="card">
-        <h2><i class="fas fa-bullhorn"></i> Live Caller Controls</h2>
-        <div class="current-number" id="displayCurrentNum">--</div>
+            // Check if user is admin
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (!userDoc.exists() || userDoc.data().role !== 'admin') {
+                document.getElementById('adminContent').innerHTML = `
+                    <div class="no-access">
+                        <h2>⛔ Access Denied</h2>
+                        <p>You don't have admin privileges.</p>
+                    </div>
+                `;
+                return;
+            }
 
-        <div class="controls-row">
-            <button class="btn btn-success" onclick="drawNextNumber()"><i class="fas fa-dice"></i> Draw Single Number</button>
-            <button class="btn btn-warning" onclick="drawRemainingNumbers()"><i class="fas fa-fast-forward"></i> Draw All Remaining</button>
-            <button class="btn btn-danger" onclick="resetDrawnNumbers()"><i class="fas fa-redo-alt"></i> Reset Drawn Numbers</button>
-        </div>
+            loadGames();
+        });
 
-        <div class="controls-row" style="background: #f6f1eb; padding: 12px; border-radius: 12px;">
-            <span style="font-weight: bold;"><i class="fas fa-play-circle"></i> Auto-Caller:</span>
-            <label>Speed (s): <input type="number" id="autoSpeed" value="3" min="1" max="10" style="width: 70px;"></label>
-            <button class="btn btn-primary" id="autoBtn" onclick="toggleAutoCaller()"><i class="fas fa-robot"></i> Start Auto Call</button>
-        </div>
+        document.getElementById('createGameBtn').addEventListener('click', async () => {
+            const name = document.getElementById('gameName').value;
+            const ticketPrice = parseInt(document.getElementById('ticketPrice').value);
+            const prizePool = parseInt(document.getElementById('prizePool').value);
 
-        <div class="controls-row" style="background: #f6f1eb; padding: 12px; border-radius: 12px;">
-            <span style="font-weight: bold;"><i class="fas fa-bullseye"></i> Select First Number:</span>
-            <input type="number" id="firstNumInput" placeholder="1-90" min="1" max="90" style="width: 80px;">
-            <button class="btn btn-secondary" onclick="drawFirstSelectedNumber()"><i class="fas fa-check"></i> Set & Draw</button>
-        </div>
+            if (!name || !ticketPrice || !prizePool) {
+                alert('Please fill in all fields');
+                return;
+            }
 
-        <h3 style="margin-top: 15px;">Drawn Numbers Board (1-90)</h3>
-        <div class="drawn-grid" id="boardGrid"></div>
-    </div>
-
-    <!-- 4. TOKEN REQUESTS -->
-    <div class="card">
-        <h2><i class="fas fa-hand-holding-usd"></i> Token Top-Up & Withdrawal Requests</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>User UID</th>
-                    <th>Type</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="requestsTableBody">
-                <tr><td colspan="5" style="text-align:center;">No pending requests.</td></tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-<script>
-const firebaseConfig = {
-    apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-    authDomain: "tambola-house-3dc56.firebaseapp.com",
-    projectId: "tambola-house-3dc56",
-    storageBucket: "tambola-house-3dc56.firebasestorage.app",
-    messagingSenderId: "267918174188",
-    appId: "1:267918174188:web:ec27684544c286c044c2c9"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-let currentActiveGameId = null;
-let autoCallerInterval = null;
-
-auth.onAuthStateChanged((user) => {
-    if (!user) {
-        window.location.href = "index.html";
-    } else {
-        document.getElementById("authOverlay").style.display = "none";
-        renderBoardGrid();
-        listenToGames();
-        listenToActiveGame();
-        listenToTokenRequests();
-    }
-});
-
-function renderBoardGrid() {
-    const grid = document.getElementById("boardGrid");
-    grid.innerHTML = "";
-    for (let i = 1; i <= 90; i++) {
-        grid.innerHTML += `<div class="num-cell" id="num-${i}">${i}</div>`;
-    }
-}
-
-async function seed600MasterTickets() {
-    if (!confirm("Upload 600 Master Tickets to Firestore?")) return;
-    const masterRef = db.collection("masterTickets");
-
-    try {
-        for (let batchNum = 0; batchNum < 2; batchNum++) {
-            const batch = db.batch();
-            for (let i = 1; i <= 300; i++) {
-                const ticketIndex = batchNum * 300 + i;
-                const ticketId = `ticket_${String(ticketIndex).padStart(3, '0')}`;
-                const rawGrid = generateTambolaTicket();
-                batch.set(masterRef.doc(ticketId), {
-                    ticketNumber: ticketIndex,
-                    grid: rawGrid.flat(),
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            try {
+                await addDoc(collection(db, 'game_session'), {
+                    name: name,
+                    ticketPrice: ticketPrice,
+                    prizePool: prizePool,
+                    status: 'waiting',
+                    players: 0,
+                    createdAt: Timestamp.now(),
+                    createdBy: auth.currentUser.uid
                 });
+
+                alert('✅ Game created successfully!');
+                document.getElementById('gameName').value = 'Tambola Game';
+                document.getElementById('ticketPrice').value = '10';
+                document.getElementById('prizePool').value = '100';
+                loadGames();
+
+            } catch (error) {
+                console.error('Error creating game:', error);
+                alert('Error creating game: ' + error.message);
             }
-            await batch.commit();
-        }
-        alert("600 Master Tickets seeded successfully!");
-    } catch (err) {
-        alert("Error: " + err.message);
-    }
-}
-
-function generateTambolaTicket() {
-    let ticket = Array.from({ length: 3 }, () => Array(9).fill(0));
-    let colRanges = [[1, 9], [10, 19], [20, 29], [30, 39], [40, 49], [50, 59], [60, 69], [70, 79], [80, 90]];
-    for (let r = 0; r < 3; r++) {
-        let cols = [];
-        while (cols.length < 5) {
-            let col = Math.floor(Math.random() * 9);
-            if (!cols.includes(col)) cols.push(col);
-        }
-        cols.sort((a, b) => a - b);
-        for (let col of cols) {
-            let [min, max] = colRanges[col];
-            let num;
-            do { num = Math.floor(Math.random() * (max - min + 1)) + min; } while (ticket.some(row => row[col] === num));
-            ticket[r][col] = num;
-        }
-    }
-    for (let c = 0; c < 9; c++) {
-        let colNums = [];
-        for (let r = 0; r < 3; r++) { if (ticket[r][c] !== 0) colNums.push(ticket[r][c]); }
-        colNums.sort((a, b) => a - b);
-        let idx = 0;
-        for (let r = 0; r < 3; r++) { if (ticket[r][c] !== 0) ticket[r][c] = colNums[idx++]; }
-    }
-    return ticket;
-}
-
-async function createNewGame() {
-    const startTimeInput = document.getElementById("gameStartTime").value;
-    if (!startTimeInput) return alert("Please set a scheduled start time first!");
-
-    try {
-        const scheduledTimestamp = firebase.firestore.Timestamp.fromDate(new Date(startTimeInput));
-
-        const gameRef = await db.collection("games").add({
-            status: "upcoming",
-            scheduledAt: scheduledTimestamp,
-            drawnNumbers: [],
-            currentNumber: null,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        const newGameId = gameRef.id;
-        const masterSnapshot = await db.collection("masterTickets").get();
-        let batch = db.batch();
-        let count = 0;
+        function loadGames() {
+            const gamesRef = collection(db, 'game_session');
+            const q = query(gamesRef, where('status', 'in', ['waiting', 'active']));
+            
+            onSnapshot(q, (snapshot) => {
+                const gameList = document.getElementById('gameList');
+                gameList.innerHTML = '';
 
-        masterSnapshot.forEach((doc) => {
-            const gameTicketRef = db.collection("games").doc(newGameId).collection("gameTickets").doc(doc.id);
-            batch.set(gameTicketRef, {
-                masterTicketId: doc.id,
-                ticketNumber: doc.data().ticketNumber,
-                grid: doc.data().grid,
-                ownerUid: null,
-                isPurchased: false
+                if (snapshot.empty) {
+                    gameList.innerHTML = '<p style="color:#666;text-align:center;">No active games</p>';
+                    return;
+                }
+
+                snapshot.forEach((doc) => {
+                    const game = doc.data();
+                    const gameId = doc.id;
+                    
+                    const item = document.createElement('div');
+                    item.className = 'game-item';
+                    item.innerHTML = `
+                        <div>
+                            <strong>${game.name}</strong>
+                            <span class="status status-${game.status}">${game.status.toUpperCase()}</span>
+                            <div style="font-size:0.9em;color:#666;margin-top:5px;">
+                                👥 ${game.players || 0} players | 💰 ₹${game.prizePool || 0}
+                            </div>
+                        </div>
+                        <div>
+                            ${game.status === 'waiting' ? `
+                                <button class="action-btn btn-start" data-gameid="${gameId}">▶ Start</button>
+                            ` : ''}
+                            ${game.status === 'active' ? `
+                                <button class="action-btn btn-end" data-gameid="${gameId}">⏹ End</button>
+                            ` : ''}
+                        </div>
+                    `;
+                    gameList.appendChild(item);
+                });
+
+                // Add event listeners
+                document.querySelectorAll('.btn-start').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const gameId = btn.dataset.gameid;
+                        if (confirm('Start this game?')) {
+                            await updateDoc(doc(db, 'game_session', gameId), {
+                                status: 'active',
+                                startedAt: Timestamp.now()
+                            });
+                            loadGames();
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.btn-end').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const gameId = btn.dataset.gameid;
+                        if (confirm('End this game?')) {
+                            await updateDoc(doc(db, 'game_session', gameId), {
+                                status: 'ended',
+                                endedAt: Timestamp.now()
+                            });
+                            loadGames();
+                        }
+                    });
+                });
             });
-            count++;
-            if (count % 300 === 0) { batch.commit(); batch = db.batch(); }
-        });
-        if (count % 300 !== 0) await batch.commit();
-
-        await pruneOldGames();
-        alert(`Game Scheduled Successfully! ID: ${newGameId}`);
-    } catch (err) {
-        alert("Error creating game: " + err.message);
-    }
-}
-
-function listenToGames() {
-    db.collection("games").orderBy("createdAt", "desc").limit(5).onSnapshot(snapshot => {
-        const tbody = document.getElementById("gamesTableBody");
-        tbody.innerHTML = "";
-
-        if (snapshot.empty) {
-            tbody.innerHTML = `<tr><td colspan="4">No games created yet.</td></tr>`;
-            return;
         }
-
-        snapshot.forEach(doc => {
-            const game = doc.data();
-            const schedTime = game.scheduledAt ? new Date(game.scheduledAt.toDate()).toLocaleString() : "Immediate";
-            let statusColor = game.status === 'active' ? '#27ae60' : (game.status === 'upcoming' ? '#f39c12' : '#7b6856');
-
-            tbody.innerHTML += `
-                <tr>
-                    <td>${doc.id.substring(0, 8)}...</td>
-                    <td>${schedTime}</td>
-                    <td><strong style="color: ${statusColor};">${game.status.toUpperCase()}</strong></td>
-                    <td>
-                        ${game.status === 'upcoming' ? `<button class="btn btn-success" onclick="updateGameStatus('${doc.id}', 'active')">Start Game</button>` : ''}
-                        ${game.status === 'active' ? `<button class="btn btn-danger" onclick="updateGameStatus('${doc.id}', 'completed')">End Game</button>` : ''}
-                    </td>
-                </tr>
-            `;
-        });
-    });
-}
-
-// Auto-Activator Task: Runs background check for scheduled games
-setInterval(async () => {
-    try {
-        const now = firebase.firestore.Timestamp.now();
-        const snapshot = await db.collection("games")
-            .where("status", "==", "upcoming")
-            .where("scheduledAt", "<=", now)
-            .orderBy("scheduledAt", "asc")
-            .limit(1)
-            .get();
-
-        if (!snapshot.empty) {
-            const nearestGame = snapshot.docs[0];
-            const activeSnapshot = await db.collection("games").where("status", "==", "active").get();
-
-            let batch = db.batch();
-            activeSnapshot.forEach(doc => {
-                batch.update(doc.ref, { status: "completed" });
-            });
-
-            batch.update(nearestGame.ref, { status: "active" });
-            await batch.commit();
-        }
-    } catch (err) {
-        console.error("Auto-activation error:", err);
-    }
-}, 5000);
-
-async function updateGameStatus(gameId, status) {
-    await db.collection("games").doc(gameId).update({ status: status });
-    alert(`Game status changed to ${status.toUpperCase()}`);
-}
-
-async function pruneOldGames() {
-    const snapshot = await db.collection("games").orderBy("createdAt", "desc").get();
-    if (snapshot.size > 5) {
-        const docsToDelete = snapshot.docs.slice(5);
-        for (const gameDoc of docsToDelete) {
-            await db.collection("games").doc(gameDoc.id).delete();
-        }
-    }
-}
-
-function listenToActiveGame() {
-    db.collection("games").where("status", "==", "active").limit(1).onSnapshot((snapshot) => {
-        if (!snapshot.empty) {
-            const gameDoc = snapshot.docs[0];
-            currentActiveGameId = gameDoc.id;
-            const data = gameDoc.data();
-
-            document.getElementById("displayCurrentNum").textContent = data.currentNumber || "--";
-
-            for (let i = 1; i <= 90; i++) {
-                const cell = document.getElementById(`num-${i}`);
-                if (data.drawnNumbers && data.drawnNumbers.includes(i)) cell.classList.add("active");
-                else cell.classList.remove("active");
-            }
-        } else {
-            currentActiveGameId = null;
-            document.getElementById("displayCurrentNum").textContent = "--";
-        }
-    });
-}
-
-async function drawNextNumber() {
-    if (!currentActiveGameId) return alert("No ACTIVE game!");
-    const gameRef = db.collection("games").doc(currentActiveGameId);
-    const gameDoc = await gameRef.get();
-    const drawn = gameDoc.data().drawnNumbers || [];
-
-    if (drawn.length >= 90) {
-        if (autoCallerInterval) toggleAutoCaller();
-        return alert("All 90 numbers drawn!");
-    }
-
-    let nextNum;
-    do { nextNum = Math.floor(Math.random() * 90) + 1; } while (drawn.includes(nextNum));
-
-    await gameRef.update({
-        currentNumber: nextNum,
-        drawnNumbers: firebase.firestore.FieldValue.arrayUnion(nextNum)
-    });
-}
-
-async function resetDrawnNumbers() {
-    if (!currentActiveGameId) return alert("No active game session found!");
-    if (!confirm("Are you sure you want to RESET all drawn numbers for this game?")) return;
-
-    if (autoCallerInterval) toggleAutoCaller();
-
-    try {
-        await db.collection("games").doc(currentActiveGameId).update({
-            currentNumber: null,
-            drawnNumbers: []
-        });
-        alert("Drawn numbers reset!");
-    } catch (err) {
-        alert("Error resetting numbers: " + err.message);
-    }
-}
-
-async function drawFirstSelectedNumber() {
-    const inputVal = parseInt(document.getElementById("firstNumInput").value);
-    if (!inputVal || inputVal < 1 || inputVal > 90) return alert("Enter valid number (1-90)");
-    if (!currentActiveGameId) return alert("No active game!");
-
-    const gameRef = db.collection("games").doc(currentActiveGameId);
-    const gameDoc = await gameRef.get();
-    const drawn = gameDoc.data().drawnNumbers || [];
-
-    if (drawn.includes(inputVal)) return alert("Number already drawn!");
-
-    await gameRef.update({
-        currentNumber: inputVal,
-        drawnNumbers: firebase.firestore.FieldValue.arrayUnion(inputVal)
-    });
-    document.getElementById("firstNumInput").value = "";
-}
-
-async function drawRemainingNumbers() {
-    if (!currentActiveGameId) return alert("No active game!");
-    if (!confirm("Draw ALL remaining numbers now?")) return;
-
-    const gameRef = db.collection("games").doc(currentActiveGameId);
-    const gameDoc = await gameRef.get();
-    let drawn = gameDoc.data().drawnNumbers || [];
-
-    for (let i = 1; i <= 90; i++) {
-        if (!drawn.includes(i)) drawn.push(i);
-    }
-
-    await gameRef.update({
-        currentNumber: drawn[drawn.length - 1],
-        drawnNumbers: drawn
-    });
-}
-
-function toggleAutoCaller() {
-    const autoBtn = document.getElementById("autoBtn");
-    if (autoCallerInterval) {
-        clearInterval(autoCallerInterval);
-        autoCallerInterval = null;
-        autoBtn.innerHTML = `<i class="fas fa-robot"></i> Start Auto Call`;
-        autoBtn.className = "btn btn-primary";
-    } else {
-        const speed = (parseInt(document.getElementById("autoSpeed").value) || 3) * 1000;
-        autoCallerInterval = setInterval(drawNextNumber, speed);
-        autoBtn.innerHTML = `<i class="fas fa-pause"></i> Pause Auto Call`;
-        autoBtn.className = "btn btn-danger";
-    }
-}
-
-function listenToTokenRequests() {
-    db.collection("tokenRequests").where("status", "==", "pending").onSnapshot(snapshot => {
-        const tbody = document.getElementById("requestsTableBody");
-        tbody.innerHTML = "";
-
-        if (snapshot.empty) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No pending requests.</td></tr>`;
-            return;
-        }
-
-        snapshot.forEach(doc => {
-            const req = doc.data();
-            tbody.innerHTML += `
-                <tr>
-                    <td>${req.userUid.substring(0, 8)}...</td>
-                    <td><strong>${req.type.toUpperCase()}</strong></td>
-                    <td>${req.amount} Tokens</td>
-                    <td><span style="color:#f39c12;">Pending</span></td>
-                    <td>
-                        <button class="btn btn-success" onclick="processRequest('${doc.id}', '${req.userUid}', ${req.amount}, '${req.type}', true)">Approve</button>
-                        <button class="btn btn-danger" onclick="processRequest('${doc.id}', '${req.userUid}', ${req.amount}, '${req.type}', false)">Reject</button>
-                    </td>
-                </tr>
-            `;
-        });
-    });
-}
-
-async function processRequest(reqId, uid, amount, type, isApproved) {
-    try {
-        if (isApproved) {
-            const userRef = db.collection("users").doc(uid);
-            const userDoc = await userRef.get();
-            const currentTokens = userDoc.data()?.tokens || 0;
-
-            if (type === "deposit") {
-                await userRef.update({ tokens: currentTokens + amount });
-            } else if (type === "withdraw") {
-                if (currentTokens < amount) return alert("User balance insufficient!");
-                await userRef.update({ tokens: currentTokens - amount });
-            }
-        }
-
-        await db.collection("tokenRequests").doc(reqId).update({
-            status: isApproved ? "approved" : "rejected",
-            processedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        alert(`Request ${isApproved ? 'Approved' : 'Rejected'}!`);
-    } catch (e) {
-        alert("Error: " + e.message);
-    }
-}
-
-function logout() {
-    auth.signOut().then(() => window.location.href = "index.html");
-}
-</script>
-
+    </script>
 </body>
 </html>
