@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambola Admin - Master Operations Control</title>
+    <title>Tambola Admin - Master Operations & Scheduling</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
@@ -28,14 +28,12 @@
         .num-cell { background: #f6f1eb; padding: 8px 0; border-radius: 6px; text-align: center; font-weight: bold; font-size: 0.85rem; color: #ded4c9; }
         .num-cell.active { background: #27ae60; color: white; }
         
-        /* TABLES */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
         th, td { padding: 10px; text-align: left; border-bottom: 1px solid #f6f1eb; }
         th { background: #f6f1eb; color: #7b6856; font-weight: bold; }
 
-        /* INPUTS & TOGGLES */
         .controls-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; margin-bottom: 15px; }
-        input[type="number"] { padding: 8px 12px; border: 1px solid #ded4c9; border-radius: 8px; width: 80px; text-align: center; font-weight: bold; }
+        input[type="number"], input[type="datetime-local"] { padding: 8px 12px; border: 1px solid #ded4c9; border-radius: 8px; font-weight: bold; }
         
         #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f7f3ee; display: flex; justify-content: center; align-items: center; z-index: 2000; font-weight: bold; font-size: 1.2rem; color: #b35e2e; }
     </style>
@@ -48,29 +46,50 @@
 
 <div class="container">
     <div class="header">
-        <h1><i class="fas fa-user-shield"></i> Master Control Panel</h1>
+        <h1><i class="fas fa-user-shield"></i> Master Control & Scheduling Panel</h1>
         <div>
             <a href="index.html" class="btn btn-secondary"><i class="fas fa-home"></i> Home</a>
             <button class="btn btn-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
     </div>
 
-    <!-- 1. MASTER TICKET & GAME INITIALIZATION -->
+    <!-- 1. MASTER SEEDER -->
     <div class="card">
-        <h2><i class="fas fa-cogs"></i> Setup & Game Session</h2>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-            <button class="btn btn-primary" onclick="seed600MasterTickets()"><i class="fas fa-seedling"></i> Seed 600 Master Tickets</button>
-            <button class="btn btn-success" onclick="createNewGame()"><i class="fas fa-play"></i> Start New Game Session</button>
-        </div>
-        <div id="activeGameStatus" style="margin-top: 10px; font-weight: bold; color: #27ae60;"></div>
+        <h2><i class="fas fa-database"></i> Master Tickets Initialization</h2>
+        <button class="btn btn-primary" onclick="seed600MasterTickets()"><i class="fas fa-seedling"></i> Seed 600 Master Templates</button>
     </div>
 
-    <!-- 2. ADVANCED LIVE CALLER CONTROLS -->
+    <!-- 2. GAME SCHEDULER & SESSION SETUP -->
+    <div class="card">
+        <h2><i class="fas fa-calendar-alt"></i> Schedule & Initialize Game Session</h2>
+        <div class="controls-row" style="justify-content: flex-start; background: #f6f1eb; padding: 15px; border-radius: 12px;">
+            <label style="font-weight: bold;">Scheduled Start Time: 
+                <input type="datetime-local" id="gameStartTime">
+            </label>
+            <button class="btn btn-success" onclick="createNewGame()"><i class="fas fa-plus-circle"></i> Create Game Session</button>
+        </div>
+        
+        <h3 style="margin-top: 20px; color: #7b6856;">Recent Games Status</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Game ID</th>
+                    <th>Scheduled Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="gamesTableBody">
+                <tr><td colspan="4">Loading game list...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 3. LIVE CALLER CONTROLS -->
     <div class="card">
         <h2><i class="fas fa-bullhorn"></i> Live Caller Controls</h2>
         <div class="current-number" id="displayCurrentNum">--</div>
 
-        <!-- CALLER CONTROL BUTTONS -->
         <div class="controls-row">
             <button class="btn btn-success" onclick="drawNextNumber()"><i class="fas fa-dice"></i> Draw Single Number</button>
             <button class="btn btn-warning" onclick="drawRemainingNumbers()"><i class="fas fa-fast-forward"></i> Draw All Remaining</button>
@@ -79,21 +98,21 @@
 
         <div class="controls-row" style="background: #f6f1eb; padding: 12px; border-radius: 12px;">
             <span style="font-weight: bold;"><i class="fas fa-play-circle"></i> Auto-Caller:</span>
-            <label>Speed (s): <input type="number" id="autoSpeed" value="3" min="1" max="10"></label>
+            <label>Speed (s): <input type="number" id="autoSpeed" value="3" min="1" max="10" style="width: 70px;"></label>
             <button class="btn btn-primary" id="autoBtn" onclick="toggleAutoCaller()"><i class="fas fa-robot"></i> Start Auto Call</button>
         </div>
 
         <div class="controls-row" style="background: #f6f1eb; padding: 12px; border-radius: 12px;">
-            <span style="font-weight: bold;"><i class="fas fa-bullseye"></i> Select Specific First Number:</span>
-            <input type="number" id="firstNumInput" placeholder="1-90" min="1" max="90">
+            <span style="font-weight: bold;"><i class="fas fa-bullseye"></i> Select First Number:</span>
+            <input type="number" id="firstNumInput" placeholder="1-90" min="1" max="90" style="width: 80px;">
             <button class="btn btn-secondary" onclick="drawFirstSelectedNumber()"><i class="fas fa-check"></i> Set & Draw</button>
         </div>
 
-        <h3 style="margin-top: 15px;">Drawn Numbers (1-90)</h3>
+        <h3 style="margin-top: 15px;">Drawn Numbers Board (1-90)</h3>
         <div class="drawn-grid" id="boardGrid"></div>
     </div>
 
-    <!-- 3. TOKEN REQUESTS & WITHDRAWALS APPROVAL PANEL -->
+    <!-- 4. TOKEN REQUESTS -->
     <div class="card">
         <h2><i class="fas fa-hand-holding-usd"></i> Token Top-Up & Withdrawal Requests</h2>
         <table>
@@ -140,6 +159,7 @@ auth.onAuthStateChanged((user) => {
     } else {
         document.getElementById("authOverlay").style.display = "none";
         renderBoardGrid();
+        listenToGames();
         listenToActiveGame();
         listenToTokenRequests();
     }
@@ -153,7 +173,7 @@ function renderBoardGrid() {
     }
 }
 
-/* 1. SEED 600 MASTER TICKETS */
+/* SEED MASTER TICKETS */
 async function seed600MasterTickets() {
     if (!confirm("Upload 600 Master Tickets to Firestore?")) return;
     const masterRef = db.collection("masterTickets");
@@ -206,23 +226,29 @@ function generateTambolaTicket() {
     return ticket;
 }
 
-/* 2. CREATE ACTIVE GAME & CLEAN UP OLDER GAMES */
+/* CREATE & SCHEDULE GAME */
 async function createNewGame() {
+    const startTimeInput = document.getElementById("gameStartTime").value;
+    if (!startTimeInput) return alert("Please set a scheduled start time first!");
+
     try {
+        const scheduledTimestamp = firebase.firestore.Timestamp.fromDate(new Date(startTimeInput));
+
         const gameRef = await db.collection("games").add({
-            status: "active",
+            status: "upcoming",
+            scheduledAt: scheduledTimestamp,
             drawnNumbers: [],
             currentNumber: null,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        currentActiveGameId = gameRef.id;
+        const newGameId = gameRef.id;
         const masterSnapshot = await db.collection("masterTickets").get();
         let batch = db.batch();
         let count = 0;
 
         masterSnapshot.forEach((doc) => {
-            const gameTicketRef = db.collection("games").doc(currentActiveGameId).collection("gameTickets").doc(doc.id);
+            const gameTicketRef = db.collection("games").doc(newGameId).collection("gameTickets").doc(doc.id);
             batch.set(gameTicketRef, {
                 masterTicketId: doc.id,
                 ticketNumber: doc.data().ticketNumber,
@@ -236,10 +262,47 @@ async function createNewGame() {
         if (count % 300 !== 0) await batch.commit();
 
         await pruneOldGames();
-        alert(`New Game Initialized (${currentActiveGameId})! Databases pruned to keep 3 latest games.`);
+        alert(`Game Scheduled Successfully! ID: ${newGameId}`);
     } catch (err) {
-        alert("Error starting game: " + err.message);
+        alert("Error creating game: " + err.message);
     }
+}
+
+/* LISTEN TO RECENT 3 GAMES & STATUS MANAGEMENT */
+function listenToGames() {
+    db.collection("games").orderBy("createdAt", "desc").limit(3).onSnapshot(snapshot => {
+        const tbody = document.getElementById("gamesTableBody");
+        tbody.innerHTML = "";
+
+        if (snapshot.empty) {
+            tbody.innerHTML = `<tr><td colspan="4">No games created yet.</td></tr>`;
+            return;
+        }
+
+        snapshot.forEach(doc => {
+            const game = doc.data();
+            const schedTime = game.scheduledAt ? new Date(game.scheduledAt.toDate()).toLocaleString() : "Immediate";
+            
+            let statusColor = game.status === 'active' ? '#27ae60' : (game.status === 'upcoming' ? '#f39c12' : '#7b6856');
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${doc.id.substring(0, 8)}...</td>
+                    <td>${schedTime}</td>
+                    <td><strong style="color: ${statusColor};">${game.status.toUpperCase()}</strong></td>
+                    <td>
+                        ${game.status === 'upcoming' ? `<button class="btn btn-success" onclick="updateGameStatus('${doc.id}', 'active')">Start Game</button>` : ''}
+                        ${game.status === 'active' ? `<button class="btn btn-danger" onclick="updateGameStatus('${doc.id}', 'completed')">End Game</button>` : ''}
+                    </td>
+                </tr>
+            `;
+        });
+    });
+}
+
+async function updateGameStatus(gameId, status) {
+    await db.collection("games").doc(gameId).update({ status: status });
+    alert(`Game status changed to ${status.toUpperCase()}`);
 }
 
 async function pruneOldGames() {
@@ -252,7 +315,7 @@ async function pruneOldGames() {
     }
 }
 
-/* 3. LISTEN TO ACTIVE GAME */
+/* LISTEN TO ACTIVE GAME FOR CALLER */
 function listenToActiveGame() {
     db.collection("games").where("status", "==", "active").limit(1).onSnapshot((snapshot) => {
         if (!snapshot.empty) {
@@ -260,7 +323,6 @@ function listenToActiveGame() {
             currentActiveGameId = gameDoc.id;
             const data = gameDoc.data();
 
-            document.getElementById("activeGameStatus").textContent = `Active Game ID: ${currentActiveGameId}`;
             document.getElementById("displayCurrentNum").textContent = data.currentNumber || "--";
 
             for (let i = 1; i <= 90; i++) {
@@ -268,13 +330,16 @@ function listenToActiveGame() {
                 if (data.drawnNumbers && data.drawnNumbers.includes(i)) cell.classList.add("active");
                 else cell.classList.remove("active");
             }
+        } else {
+            currentActiveGameId = null;
+            document.getElementById("displayCurrentNum").textContent = "--";
         }
     });
 }
 
-/* 4. NUMBER CALLING & RESET LOGIC */
+/* CALLER CONTROLS */
 async function drawNextNumber() {
-    if (!currentActiveGameId) return alert("No active game!");
+    if (!currentActiveGameId) return alert("No ACTIVE game! Start an upcoming game first.");
     const gameRef = db.collection("games").doc(currentActiveGameId);
     const gameDoc = await gameRef.get();
     const drawn = gameDoc.data().drawnNumbers || [];
@@ -293,30 +358,28 @@ async function drawNextNumber() {
     });
 }
 
-// RESET DRAWN NUMBERS FOR CURRENT GAME
 async function resetDrawnNumbers() {
     if (!currentActiveGameId) return alert("No active game session found!");
     if (!confirm("Are you sure you want to RESET all drawn numbers for this game?")) return;
 
-    if (autoCallerInterval) toggleAutoCaller(); // Pause auto caller if active
+    if (autoCallerInterval) toggleAutoCaller();
 
     try {
         await db.collection("games").doc(currentActiveGameId).update({
             currentNumber: null,
             drawnNumbers: []
         });
-        alert("Drawn numbers have been reset successfully!");
+        alert("Drawn numbers reset!");
     } catch (err) {
         alert("Error resetting numbers: " + err.message);
     }
 }
 
-// Draw specific first number
 async function drawFirstSelectedNumber() {
     const inputVal = parseInt(document.getElementById("firstNumInput").value);
     if (!inputVal || inputVal < 1 || inputVal > 90) return alert("Enter valid number (1-90)");
-
     if (!currentActiveGameId) return alert("No active game!");
+
     const gameRef = db.collection("games").doc(currentActiveGameId);
     const gameDoc = await gameRef.get();
     const drawn = gameDoc.data().drawnNumbers || [];
@@ -330,10 +393,9 @@ async function drawFirstSelectedNumber() {
     document.getElementById("firstNumInput").value = "";
 }
 
-// Draw remaining numbers automatically in rapid batch
 async function drawRemainingNumbers() {
     if (!currentActiveGameId) return alert("No active game!");
-    if (!confirm("Are you sure you want to draw ALL remaining numbers now?")) return;
+    if (!confirm("Draw ALL remaining numbers now?")) return;
 
     const gameRef = db.collection("games").doc(currentActiveGameId);
     const gameDoc = await gameRef.get();
@@ -349,7 +411,6 @@ async function drawRemainingNumbers() {
     });
 }
 
-// Auto-pickup caller toggle
 function toggleAutoCaller() {
     const autoBtn = document.getElementById("autoBtn");
     if (autoCallerInterval) {
@@ -365,7 +426,7 @@ function toggleAutoCaller() {
     }
 }
 
-/* 5. TOKEN APPROVAL & WITHDRAWAL MANAGEMENT */
+/* TOKEN REQUESTS */
 function listenToTokenRequests() {
     db.collection("tokenRequests").where("status", "==", "pending").onSnapshot(snapshot => {
         const tbody = document.getElementById("requestsTableBody");
@@ -404,7 +465,7 @@ async function processRequest(reqId, uid, amount, type, isApproved) {
             if (type === "deposit") {
                 await userRef.update({ tokens: currentTokens + amount });
             } else if (type === "withdraw") {
-                if (currentTokens < amount) return alert("User balance is insufficient for withdrawal!");
+                if (currentTokens < amount) return alert("User balance insufficient!");
                 await userRef.update({ tokens: currentTokens - amount });
             }
         }
@@ -416,7 +477,7 @@ async function processRequest(reqId, uid, amount, type, isApproved) {
 
         alert(`Request ${isApproved ? 'Approved' : 'Rejected'}!`);
     } catch (e) {
-        alert("Error processing request: " + e.message);
+        alert("Error: " + e.message);
     }
 }
 
