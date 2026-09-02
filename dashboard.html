@@ -3,213 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Tambola House</title>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <title>Tambola House - Dashboard</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-        body { background: linear-gradient(145deg, #f7f3ee, #e9e1d7); color: #2d1f14; min-height: 100vh; padding: 20px; }
-        .container { max-width: 1100px; margin: auto; }
-        .header { background: white; border-radius: 20px; padding: 20px 25px; margin-bottom: 20px; box-shadow: 0 5px 20px rgba(0,0,0,.08); display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .header h1 { font-size: 1.5rem; }
-        .header h1 i { color: #b35e2e; }
-        .nav a { text-decoration: none; color: #7b6856; font-weight: 600; margin-left: 15px; }
-        .nav a:hover { color: #b35e2e; }
-        .grid-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
-        .card { background: white; border-radius: 20px; padding: 25px; margin-bottom: 20px; box-shadow: 0 5px 20px rgba(0,0,0,.07); }
-        .card h2 { margin-bottom: 15px; font-size: 1.2rem; color: #2d1f14; }
-        .status-badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.85rem; background: #e2d7ca; color: #7b6856; text-transform: uppercase; }
-        .status-badge.active { background: #d4edda; color: #155724; }
-        .btn-launch { display: inline-block; background: #b35e2e; color: white; text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; margin-top: 15px; transition: opacity 0.2s ease; }
-        .btn-launch:hover { opacity: 0.9; }
-
-        .winner-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .winner-table th, .winner-table td { text-align: left; padding: 12px; border-bottom: 1px solid #ded4c9; font-size: 0.95rem; }
-        .winner-table th { color: #7b6856; font-weight: 700; background: #faf8f5; }
-        .winner-table td strong { color: #b35e2e; }
-        .badge-prize { background: #f6f1eb; color: #2d1f14; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; border: 1px solid #ded4c9; }
-        .empty-history { text-align: center; color: #a89a8c; padding: 25px; font-style: italic; }
-
-        .history-card { background: #faf5ef; border: 1px solid #e2d7ca; border-radius: 12px; padding: 15px; margin-bottom: 12px; }
-        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .history-title { font-weight: 700; color: #b35e2e; font-size: 0.95rem; }
-        .history-date { font-size: 0.8rem; color: #7b6856; }
-        .numbers-pill-container { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; max-height: 100px; overflow-y: auto; }
-        .number-pill { background: #2d1f14; color: #fff; font-size: 0.75rem; font-weight: bold; padding: 3px 7px; border-radius: 6px; }
-
-        @media (max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .navbar h1 { font-size: 1.8em; }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .nav-links a, .nav-links button {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background 0.3s;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .nav-links a:hover, .nav-links button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .username-display {
+            font-weight: 600;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .wallet-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .wallet-balance {
+            font-size: 2.5em;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .wallet-label {
+            color: #666;
+            font-size: 1.1em;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            text-align: center;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        }
+        .card-icon { font-size: 3em; margin-bottom: 15px; }
+        .card h3 { color: #333; margin-bottom: 10px; }
+        .card p { color: #666; font-size: 0.95em; }
+        .admin-badge {
+            background: #e74c3c;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.7em;
+            margin-left: 10px;
+        }
+        .deposit-btn {
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+        .deposit-btn:hover { transform: scale(1.05); }
+        @media (max-width: 768px) {
+            .navbar { flex-direction: column; align-items: stretch; }
+            .nav-links { justify-content: center; }
+            .wallet-balance { font-size: 2em; }
+        }
     </style>
 </head>
-
 <body>
+    <nav class="navbar">
+        <h1>🎯 Tambola House</h1>
+        <div class="nav-links">
+            <span class="username-display" id="usernameDisplay">👤 User</span>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="game.html">Join Game</a>
+            <a href="book.html">My Books</a>
+            <a href="deposit.html">Deposit</a>
+            <a href="admin.html" id="adminLink" style="display:none;">Admin</a>
+            <button id="logoutBtn">Logout</button>
+        </div>
+    </nav>
 
-<div class="container">
+    <div class="container">
+        <div class="wallet-section">
+            <div>
+                <div class="wallet-label">💰 Wallet Balance</div>
+                <div class="wallet-balance" id="walletBalance">₹0.00</div>
+            </div>
+            <button class="deposit-btn" onclick="window.location.href='deposit.html'">Add Funds</button>
+        </div>
 
-    <div class="header">
-        <h1><i class="fas fa-home"></i> Tambola House — Dashboard</h1>
-        <div class="nav">
-            <a href="game.html"><i class="fas fa-gamepad"></i> Game Room</a>
-            <a href="admin.html" id="adminNavLink" style="display: none;"><i class="fas fa-shield-alt"></i> Admin Panel</a>
+        <h2>Quick Actions</h2>
+        <div class="card-grid">
+            <div class="card" onclick="window.location.href='game.html'">
+                <div class="card-icon">🎮</div>
+                <h3>Join Game</h3>
+                <p>Join an active Tambola game</p>
+            </div>
+            <div class="card" onclick="window.location.href='book.html'">
+                <div class="card-icon">📖</div>
+                <h3>My Books</h3>
+                <p>View your purchased tickets</p>
+            </div>
+            <div class="card" onclick="window.location.href='deposit.html'">
+                <div class="card-icon">💳</div>
+                <h3>Add Funds</h3>
+                <p>Deposit money to your wallet</p>
+            </div>
+            <div class="card" onclick="window.location.href='admin.html'" id="adminCard" style="display:none;">
+                <div class="card-icon">👑</div>
+                <h3>Admin Panel <span class="admin-badge">Admin</span></h3>
+                <p>Manage games and users</p>
+            </div>
         </div>
     </div>
 
-    <div class="grid-layout">
-        
-        <div>
-            <div class="card">
-                <h2><i class="fas fa-signal"></i> Active Game Status</h2>
-                <div style="margin-bottom: 15px;">
-                    <span class="status-badge" id="gameStatusBadge">READY</span>
-                </div>
-                <p style="color: #7b6856; font-size: 0.95rem; line-height: 1.5;">
-                    Join the active game room to participate, check live draws, and claim winning prizes!
-                </p>
-                <a href="game.html" class="btn-launch">
-                    <i class="fas fa-play"></i> Enter Game Room
-                </a>
-            </div>
-        </div>
+    <script type="module">
+        import { auth, onAuthStateChanged, signOut, db, doc, getDoc, onSnapshot } from './firebase-config.js';
 
-        <div>
-            <div class="card">
-                <h2><i class="fas fa-history"></i> Recent Finished Games (Winning Numbers)</h2>
-                <div id="pastGamesContainer">
-                    <div class="empty-history">Loading finished games history...</div>
-                </div>
-            </div>
+        const usernameDisplay = document.getElementById('usernameDisplay');
+        const walletBalance = document.getElementById('walletBalance');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const adminLink = document.getElementById('adminLink');
+        const adminCard = document.getElementById('adminCard');
 
-            <div class="card">
-                <h2><i class="fas fa-trophy"></i> Winner History Log</h2>
-                <div id="winnerLogContainer">
-                    <div class="empty-history">No approved winners recorded yet.</div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-<script>
-const firebaseConfig = {
-    apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-    authDomain: "tambola-house-3dc56.firebaseapp.com",
-    projectId: "tambola-house-3dc56",
-    storageBucket: "tambola-house-3dc56.firebasestorage.app",
-    messagingSenderId: "267918174188",
-    appId: "1:267918174188:web:ec27684544c286c044c2c9"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// CONFIGURE YOUR ADMIN EMAIL HERE
-const ADMIN_EMAIL = "your-admin-email@gmail.com";
-
-window.addEventListener('DOMContentLoaded', () => {
-    // Show Admin Link only if current user is Admin
-    firebase.auth().onAuthStateChanged((user) => {
-        if (user && user.email === ADMIN_EMAIL) {
-            document.getElementById("adminNavLink").style.display = "inline-block";
-        }
-    });
-
-    listenToDashboard();
-});
-
-function listenToDashboard() {
-    db.collection("games").doc("active_game").onSnapshot((doc) => {
-        if (doc.exists) {
-            const data = doc.data();
-            const badge = document.getElementById("gameStatusBadge");
-            const status = (data.status || "READY").toUpperCase();
-            
-            badge.textContent = status;
-            if (status === "ACTIVE") {
-                badge.classList.add("active");
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    usernameDisplay.textContent = `👤 ${data.name || 'User'}`;
+                    walletBalance.textContent = `₹${(data.wallet || 0).toFixed(2)}`;
+                    
+                    if (data.role === 'admin') {
+                        adminLink.style.display = 'inline';
+                        adminCard.style.display = 'block';
+                    }
+                    
+                    onSnapshot(doc(db, 'users', user.uid), (doc) => {
+                        if (doc.exists()) {
+                            walletBalance.textContent = `₹${(doc.data().wallet || 0).toFixed(2)}`;
+                        }
+                    });
+                }
             } else {
-                badge.classList.remove("active");
+                window.location.href = 'index.html';
             }
-        }
-    });
-
-    db.collection("games_history").orderBy("timestamp", "desc").limit(2).onSnapshot((snapshot) => {
-        const container = document.getElementById("pastGamesContainer");
-
-        if (snapshot.empty) {
-            container.innerHTML = '<div class="empty-history">No finished game history available.</div>';
-            return;
-        }
-
-        let html = "";
-        snapshot.docs.forEach((doc, index) => {
-            const game = doc.data();
-            const timeStr = game.timestamp ? new Date(game.timestamp.toDate()).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : "Recently";
-            const drawn = game.drawnNumbers || [];
-
-            html += `
-                <div class="history-card">
-                    <div class="history-header">
-                        <span class="history-title"><i class="fas fa-check-circle"></i> Completed Game #${snapshot.docs.length - index}</span>
-                        <span class="history-date">${timeStr}</span>
-                    </div>
-                    <p style="font-size: 0.85rem; color: #7b6856; margin-bottom: 6px;">
-                        <strong>Total Numbers Drawn:</strong> ${game.totalDrawn || drawn.length}
-                    </p>
-                    <div style="font-size: 0.8rem; font-weight: bold; color: #2d1f14;">Winning Ticket Numbers Drawn:</div>
-                    <div class="numbers-pill-container">
-                        ${drawn.map(num => `<span class="number-pill">${num}</span>`).join('')}
-                    </div>
-                </div>
-            `;
         });
 
-        container.innerHTML = html;
-    });
-
-    db.collection("winners").orderBy("timestamp", "desc").limit(20).onSnapshot((snapshot) => {
-        const container = document.getElementById("winnerLogContainer");
-
-        if (snapshot.empty) {
-            container.innerHTML = '<div class="empty-history">No approved winners recorded yet.</div>';
-            return;
-        }
-
-        let tableHtml = `
-            <table class="winner-table">
-                <thead>
-                    <tr>
-                        <th>Player</th>
-                        <th>Prize Won</th>
-                        <th>Time</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        snapshot.forEach((doc) => {
-            const winner = doc.data();
-            const timeStr = winner.timestamp ? new Date(winner.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Just now";
-            
-            tableHtml += `
-                <tr>
-                    <td><strong>${winner.userEmail}</strong></td>
-                    <td><span class="badge-prize">${winner.claimName}</span></td>
-                    <td style="color: #7b6856; font-size: 0.85rem;">${timeStr}</td>
-                </tr>
-            `;
+        logoutBtn.addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'index.html';
         });
-
-        tableHtml += '</tbody></table>';
-        container.innerHTML = tableHtml;
-    });
-}
-</script>
-
+    </script>
 </body>
 </html>
