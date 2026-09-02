@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Master Tickets - Tambola House</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        .logo {
+            margin-bottom: 20px;
+        }
+        .logo h1 {
+            font-size: 2.5em;
+            color: #333;
+        }
+        .logo p {
+            color: #666;
+            margin-top: 5px;
+        }
+        .info-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+            border-left: 4px solid #667eea;
+        }
+        .info-box h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        .info-box ul li {
+            padding: 5px 0;
+            color: #555;
+        }
+        .info-box ul li:before {
+            content: "✓ ";
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .warning {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #f39c12;
+            color: #856404;
+        }
+        .btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            width: 100%;
+            margin: 10px 0;
+        }
+        .btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s;
+            width: 0%;
+            border-radius: 12px;
+        }
+        .status-text {
+            font-size: 14px;
+            color: #666;
+        }
+        .success {
+            color: #27ae60;
+        }
+        .error {
+            color: #e74c3c;
+        }
+        .ticket-count {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .stat-box {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .stat-box .number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-box .label {
+            font-size: 0.8em;
+            color: #666;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @media (max-width: 600px) {
+            .container { padding: 20px; }
+            .logo h1 { font-size: 1.8em; }
+            .stats { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>🎯 Tambola House</h1>
+            <p>Generate Master Tickets</p>
+        </div>
+
+        <div class="info-box">
+            <h3>ℹ️ What this does:</h3>
+            <ul>
+                <li>Generates 600 unique Tambola tickets</li>
+                <li>Stores them in Firebase as master tickets</li>
+                <li>These tickets will be copied for each new game</li>
+                <li>Each ticket has 27 numbers (3 rows × 9 columns)</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            ⚠️ <strong>Important:</strong> Only run this once! Running again will create duplicate tickets.
+        </div>
+
+        <div id="statusSection">
+            <div class="stats" id="statsSection">
+                <div class="stat-box">
+                    <div class="number" id="masterCount">0</div>
+                    <div class="label">Master Tickets</div>
+                </div>
+                <div class="stat-box">
+                    <div class="number" id="gameCount">0</div>
+                    <div class="label">Active Games</div>
+                </div>
+            </div>
+
+            <button class="btn" id="generateBtn">🚀 Generate 600 Master Tickets</button>
+            
+            <div class="status" id="statusContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="status-text" id="statusText">Ready to generate tickets</div>
+            </div>
+        </div>
+
+        <a href="admin.html" class="back-link">← Back to Admin Panel</a>
+        <br>
+        <a href="dashboard.html" class="back-link" style="margin-top:5px;">← Back to Dashboard</a>
+    </div>
+
+    <script type="module">
+        import { 
+            auth, 
+            onAuthStateChanged, 
+            db, 
+            collection, 
+            doc, 
+            getDoc, 
+            getDocs, 
+            addDoc, 
+            writeBatch,
+            query,
+            where,
+            limit
+        } from './firebase-config.js';
+
+        const generateBtn = document.getElementById('generateBtn');
+        const statusText = document.getElementById('statusText');
+        const progressFill = document.getElementById('progressFill');
+        const masterCount = document.getElementById('masterCount');
+        const gameCount = document.getElementById('gameCount');
+
+        // Check authentication and admin status
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                alert('Please login first');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Check if user is admin
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (!userDoc.exists() || userDoc.data().role !== 'admin') {
+                alert('Admin access required');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            // Load stats
+            await loadStats();
+        });
+
+        async function loadStats() {
+            try {
+                // Count master tickets
+                const masterSnapshot = await getDocs(collection(db, 'masterTickets'));
+                masterCount.textContent = masterSnapshot.size;
+
+                // Count active games
+                const gamesSnapshot = await getDocs(query(
+                    collection(db, 'game_session'),
+                    where('status', 'in', ['waiting', 'active'])
+                ));
+                gameCount.textContent = gamesSnapshot.size;
+
+                // If tickets already exist, disable generate button
+                if (masterSnapshot.size >= 600) {
+                    generateBtn.disabled = true;
+                    statusText.innerHTML = '✅ <span class="success">Master tickets already exist! Total: ' + masterSnapshot.size + ' tickets</span>';
+                    progressFill.style.width = '100%';
+                } else if (masterSnapshot.size > 0) {
+                    statusText.innerHTML = `⚠️ Found ${masterSnapshot.size} tickets. Need 600 total.`;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        generateBtn.addEventListener('click', async () => {
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<span class="spinner"></span> Generating...';
+            statusText.textContent = 'Generating 600 unique tickets...';
+            progressFill.style.width = '0%';
+
+            try {
+                const tickets = generateAllTickets(600);
+                
+                // Use batch write for efficiency
+                const batch = writeBatch(db);
+                let count = 0;
+
+                for (const ticket of tickets) {
+                    const docRef = doc(collection(db, 'masterTickets'));
+                    batch.set(docRef, {
+                        ticketNumber: ticket.ticketNumber,
+                        numbers: ticket.numbers,
+                        numbersString: ticket.numbers.join(','),
+                        createdAt: new Date().toISOString(),
+                        used: false,
+                        version: 1
+                    });
+                    count++;
+
+                    // Update progress every 10 tickets
+                    if (count % 10 === 0) {
+                        const progress = (count / tickets.length) * 100;
+                        progressFill.style.width = progress + '%';
+                        statusText.textContent = `Generating tickets... ${count}/${tickets.length}`;
+                        // Allow UI to update
+                        await new Promise(resolve => setTimeout(resolve, 0));
+                    }
+                }
+
+                await batch.commit();
+                progressFill.style.width = '100%';
+                statusText.innerHTML = `✅ <span class="success">Successfully generated ${tickets.length} master tickets!</span>`;
+                generateBtn.innerHTML = '✅ Complete!';
+                
+                // Update stats
+                await loadStats();
+
+            } catch (error) {
+                console.error('Error generating tickets:', error);
+                statusText.innerHTML = `❌ <span class="error">Error: ${error.message}</span>`;
+                generateBtn.innerHTML = '🚀 Generate 600 Master Tickets';
+                generateBtn.disabled = false;
+            }
+        });
+
+        function generateAllTickets(total) {
+            const tickets = [];
+            let ticketCounter = 1;
+            let attempts = 0;
+            const maxAttempts = total * 10;
+
+            while (tickets.length < total && attempts < maxAttempts) {
+                attempts++;
+                const numbers = generateSingleTicket();
+                
+                // Check if ticket already exists (simple uniqueness check)
+                const exists = tickets.some(t => 
+                    t.numbers.join(',') === numbers.join(',')
+                );
+                
+                if (!exists) {
+                    tickets.push({
+                        ticketNumber: ticketCounter++,
+                        numbers: numbers
+                    });
+                }
+            }
+
+            if (tickets.length < total) {
+                console.warn(`Only generated ${tickets.length} unique tickets out of ${total}`);
+            }
+
+            return tickets;
+        }
+
+        function generateSingleTicket() {
+            const ticket = [];
+            const columns = Array.from({length: 9}, () => []);
+            
+            // Generate numbers for each column
+            for (let col = 0; col < 9; col++) {
+                const min = col * 10 + 1;
+                const max = col === 8 ? 90 : (col + 1) * 10;
+                const nums = [];
+                // Get 3 unique numbers per column
+                while (nums.length < 3) {
+                    const num = Math.floor(Math.random() * (max - min + 1)) + min;
+                    if (!nums.includes(num)) {
+                        nums.push(num);
+                    }
+                }
+                columns[col] = nums.sort((a, b) => a - b);
+            }
+
+            // Format as 3 rows (some cells will be 0)
+            const rows = [[], [], []];
+            for (let col = 0; col < 9; col++) {
+                const colNums = columns[col];
+                // Randomly assign numbers to rows (ensure each row has some numbers)
+                let rowIndices = [0, 1, 2];
+                const shuffledRows = shuffle([0, 1, 2]);
+                
+                for (let i = 0; i < colNums.length; i++) {
+                    const row = shuffledRows[i];
+                    rows[row].push(colNums[i]);
+                }
+                
+                // Fill remaining rows with 0
+                for (let i = 0; i < 3; i++) {
+                    if (rows[i].length <= col) {
+                        rows[i].push(0);
+                    }
+                }
+            }
+
+            return rows.flat();
+        }
+
+        function shuffle(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Refresh stats every 30 seconds
+        setInterval(loadStats, 30000);
+    </script>
+</body>
+</html>
