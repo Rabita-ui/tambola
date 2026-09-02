@@ -36,7 +36,7 @@
         }
         .nav-links a:hover { background: rgba(255,255,255,0.2); }
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 30px auto;
             padding: 0 20px;
         }
@@ -50,6 +50,9 @@
         .admin-card h2 {
             color: #333;
             margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         .form-group {
             margin-bottom: 20px;
@@ -84,6 +87,10 @@
             transition: transform 0.3s;
         }
         .create-btn:hover { transform: scale(1.02); }
+        .create-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
         .game-list {
             margin-top: 20px;
         }
@@ -118,6 +125,31 @@
         .action-btn:hover { transform: scale(1.05); }
         .btn-start { background: #27ae60; color: white; }
         .btn-end { background: #e74c3c; color: white; }
+        .btn-generate {
+            background: #f39c12;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-generate:hover { background: #e67e22; }
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .btn-delete:hover { background: #c0392b; }
         .back-btn {
             background: #667eea;
             color: white;
@@ -133,6 +165,49 @@
             color: #e74c3c;
         }
         .no-access h2 { font-size: 2em; margin-bottom: 10px; }
+        .info-box {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .info-box strong { color: #667eea; }
+        .ticket-count {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .refresh-btn:hover { background: #5a67d8; }
     </style>
 </head>
 <body>
@@ -150,7 +225,43 @@
     <div class="container">
         <div id="adminContent">
             <div class="admin-card">
+                <h2>📊 Dashboard Stats</h2>
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="statMasterTickets">0</div>
+                        <div class="stat-label">Master Tickets</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="statActiveGames">0</div>
+                        <div class="stat-label">Active Games</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="statTotalUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="statTotalTickets">0</div>
+                        <div class="stat-label">Booked Tickets</div>
+                    </div>
+                </div>
+                <button class="refresh-btn" onclick="loadStats()">🔄 Refresh Stats</button>
+            </div>
+
+            <div class="admin-card">
                 <h2>🎮 Create New Game</h2>
+                <div class="info-box">
+                    <strong>ℹ️ How it works:</strong><br>
+                    1. Generate master tickets first (600 unique tickets)<br>
+                    2. When you create a game, it copies tickets from master collection<br>
+                    3. Each game gets its own set of tickets
+                </div>
+                
+                <div style="margin-bottom:20px;display:flex;flex-wrap:wrap;gap:10px;">
+                    <a href="generate-master-tickets.html" class="btn-generate">🎯 Generate Master Tickets</a>
+                    <a href="delete-all-data.html" class="btn-delete">🗑️ Delete All Data</a>
+                    <span id="masterTicketStatus" style="margin-left:15px;color:#666;display:flex;align-items:center;"></span>
+                </div>
+
                 <div class="form-group">
                     <label>Game Name</label>
                     <input type="text" id="gameName" placeholder="Enter game name" value="Tambola Game">
@@ -163,11 +274,11 @@
                     <label>Prize Pool (₹)</label>
                     <input type="number" id="prizePool" value="100" min="10">
                 </div>
-                <button class="create-btn" id="createGameBtn">🚀 Create Game</button>
+                <button class="create-btn" id="createGameBtn">🚀 Create Game & Copy Tickets</button>
             </div>
 
             <div class="admin-card">
-                <h2>📋 Active Games</h2>
+                <h2>📋 All Games</h2>
                 <div id="gameList" class="game-list"></div>
             </div>
         </div>
@@ -175,7 +286,24 @@
     </div>
 
     <script type="module">
-        import { auth, onAuthStateChanged, db, collection, addDoc, getDocs, updateDoc, doc, query, where, onSnapshot, Timestamp } from './firebase-config.js';
+        import { 
+            auth, 
+            onAuthStateChanged, 
+            db, 
+            collection, 
+            addDoc, 
+            getDocs, 
+            updateDoc, 
+            doc, 
+            query, 
+            where, 
+            onSnapshot, 
+            Timestamp, 
+            writeBatch,
+            getDoc
+        } from './firebase-config.js';
+
+        let masterTickets = [];
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
@@ -183,7 +311,6 @@
                 return;
             }
 
-            // Check if user is admin
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             if (!userDoc.exists() || userDoc.data().role !== 'admin') {
                 document.getElementById('adminContent').innerHTML = `
@@ -195,8 +322,56 @@
                 return;
             }
 
+            await loadStats();
+            await checkMasterTickets();
             loadGames();
         });
+
+        async function loadStats() {
+            try {
+                // Master tickets count
+                const masterSnapshot = await getDocs(collection(db, 'masterTickets'));
+                document.getElementById('statMasterTickets').textContent = masterSnapshot.size;
+
+                // Active games count
+                const gamesSnapshot = await getDocs(query(
+                    collection(db, 'game_session'),
+                    where('status', 'in', ['waiting', 'active'])
+                ));
+                document.getElementById('statActiveGames').textContent = gamesSnapshot.size;
+
+                // Total users
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                document.getElementById('statTotalUsers').textContent = usersSnapshot.size;
+
+                // Booked tickets
+                const ticketsSnapshot = await getDocs(collection(db, 'booked_tickets'));
+                document.getElementById('statTotalTickets').textContent = ticketsSnapshot.size;
+
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function checkMasterTickets() {
+            const ticketsSnapshot = await getDocs(collection(db, 'masterTickets'));
+            const statusEl = document.getElementById('masterTicketStatus');
+            
+            if (ticketsSnapshot.empty) {
+                statusEl.innerHTML = '❌ No master tickets found. Please generate them first!';
+                document.getElementById('createGameBtn').disabled = true;
+            } else {
+                statusEl.innerHTML = `✅ ${ticketsSnapshot.size} master tickets available`;
+                document.getElementById('createGameBtn').disabled = false;
+                masterTickets = [];
+                ticketsSnapshot.forEach(doc => {
+                    masterTickets.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+            }
+        }
 
         document.getElementById('createGameBtn').addEventListener('click', async () => {
             const name = document.getElementById('gameName').value;
@@ -208,26 +383,66 @@
                 return;
             }
 
+            if (masterTickets.length === 0) {
+                alert('No master tickets found! Please generate master tickets first.');
+                return;
+            }
+
             try {
-                await addDoc(collection(db, 'game_session'), {
+                const createBtn = document.getElementById('createGameBtn');
+                createBtn.disabled = true;
+                createBtn.textContent = '⏳ Creating Game...';
+
+                // Create game document
+                const gameRef = await addDoc(collection(db, 'game_session'), {
                     name: name,
                     ticketPrice: ticketPrice,
                     prizePool: prizePool,
                     status: 'waiting',
                     players: 0,
                     createdAt: Timestamp.now(),
-                    createdBy: auth.currentUser.uid
+                    createdBy: auth.currentUser.uid,
+                    totalTickets: masterTickets.length,
+                    availableTickets: masterTickets.length
                 });
 
-                alert('✅ Game created successfully!');
+                // Copy tickets from master to game-specific collection
+                const batch = writeBatch(db);
+                let copiedCount = 0;
+
+                for (const masterTicket of masterTickets) {
+                    const ticketRef = doc(collection(db, `game_${gameRef.id}_tickets`));
+                    batch.set(ticketRef, {
+                        ticketNumber: masterTicket.ticketNumber || masterTicket.id,
+                        numbers: masterTicket.numbers || masterTicket.numbersString?.split(',').map(Number) || [],
+                        numbersString: masterTicket.numbersString || masterTicket.numbers?.join(',') || '',
+                        gameId: gameRef.id,
+                        isBooked: false,
+                        bookedBy: null,
+                        bookedAt: null,
+                        copiedFrom: masterTicket.id
+                    });
+                    copiedCount++;
+                }
+
+                await batch.commit();
+
+                alert(`✅ Game created successfully! Copied ${copiedCount} tickets.`);
+                createBtn.textContent = '🚀 Create Game & Copy Tickets';
+                createBtn.disabled = false;
+                
                 document.getElementById('gameName').value = 'Tambola Game';
                 document.getElementById('ticketPrice').value = '10';
                 document.getElementById('prizePool').value = '100';
+                
+                await loadStats();
                 loadGames();
 
             } catch (error) {
                 console.error('Error creating game:', error);
                 alert('Error creating game: ' + error.message);
+                document.getElementById('createGameBtn').textContent = '🚀 Create Game & Copy Tickets';
+                document.getElementById('createGameBtn').disabled = false;
             }
         });
 
@@ -235,7 +450,7 @@
             const gamesRef = collection(db, 'game_session');
             const q = query(gamesRef, where('status', 'in', ['waiting', 'active']));
             
-            onSnapshot(q, (snapshot) => {
+            onSnapshot(q, async (snapshot) => {
                 const gameList = document.getElementById('gameList');
                 gameList.innerHTML = '';
 
@@ -244,9 +459,15 @@
                     return;
                 }
 
-                snapshot.forEach((doc) => {
-                    const game = doc.data();
-                    const gameId = doc.id;
+                for (const docSnapshot of snapshot.docs) {
+                    const game = docSnapshot.data();
+                    const gameId = docSnapshot.id;
+                    
+                    // Get ticket count for this game
+                    const ticketsRef = collection(db, `game_${gameId}_tickets`);
+                    const ticketsSnapshot = await getDocs(ticketsRef);
+                    const totalTickets = ticketsSnapshot.size;
+                    const bookedTickets = ticketsSnapshot.docs.filter(d => d.data().isBooked).length;
                     
                     const item = document.createElement('div');
                     item.className = 'game-item';
@@ -256,6 +477,12 @@
                             <span class="status status-${game.status}">${game.status.toUpperCase()}</span>
                             <div style="font-size:0.9em;color:#666;margin-top:5px;">
                                 👥 ${game.players || 0} players | 💰 ₹${game.prizePool || 0}
+                            </div>
+                            <div class="ticket-count">
+                                🎫 Tickets: ${bookedTickets}/${totalTickets} booked
+                            </div>
+                            <div style="font-size:0.8em;color:#999;margin-top:3px;">
+                                💰 Ticket Price: ₹${game.ticketPrice || 10}
                             </div>
                         </div>
                         <div>
@@ -268,7 +495,7 @@
                         </div>
                     `;
                     gameList.appendChild(item);
-                });
+                }
 
                 // Add event listeners
                 document.querySelectorAll('.btn-start').forEach(btn => {
@@ -279,6 +506,7 @@
                                 status: 'active',
                                 startedAt: Timestamp.now()
                             });
+                            await loadStats();
                             loadGames();
                         }
                     });
@@ -292,12 +520,16 @@
                                 status: 'ended',
                                 endedAt: Timestamp.now()
                             });
+                            await loadStats();
                             loadGames();
                         }
                     });
                 });
             });
         }
+
+        // Refresh stats periodically
+        setInterval(loadStats, 30000);
     </script>
 </body>
 </html>
