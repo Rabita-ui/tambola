@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambola House - Deposit</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .navbar h1 { font-size: 1.8em; }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+        .deposit-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        .deposit-card h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .amount-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .amount-btn {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .amount-btn:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        .amount-btn.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        .custom-amount {
+            margin: 20px 0;
+        }
+        .custom-amount input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .custom-amount input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .deposit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .deposit-btn:hover {
+            transform: scale(1.02);
+        }
+        .back-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .current-balance {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        .current-balance strong {
+            color: #667eea;
+            font-size: 1.3em;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>🎯 Tambola House</h1>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="game.html">Join Game</a>
+            <a href="book.html">My Books</a>
+            <a href="deposit.html">Deposit</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="deposit-card">
+            <h2>💰 Add Funds</h2>
+            <div class="current-balance">
+                Current Balance: <strong id="currentBalance">₹0.00</strong>
+            </div>
+            <p style="color:#666;text-align:center;margin-bottom:15px;">Select an amount or enter custom:</p>
+            
+            <div class="amount-options">
+                <button class="amount-btn" data-amount="100">₹100</button>
+                <button class="amount-btn" data-amount="200">₹200</button>
+                <button class="amount-btn" data-amount="500">₹500</button>
+                <button class="amount-btn" data-amount="1000">₹1000</button>
+                <button class="amount-btn" data-amount="2000">₹2000</button>
+                <button class="amount-btn" data-amount="5000">₹5000</button>
+            </div>
+
+            <div class="custom-amount">
+                <input type="number" id="customAmount" placeholder="Enter custom amount" min="1">
+            </div>
+
+            <button class="deposit-btn" id="depositBtn">💳 Add Funds</button>
+            <button class="back-btn" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, onAuthStateChanged, db, doc, getDoc, updateDoc, increment } from './firebase-config.js';
+
+        let selectedAmount = null;
+        let currentWallet = 0;
+
+        document.querySelectorAll('.amount-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedAmount = parseInt(btn.dataset.amount);
+                document.getElementById('customAmount').value = '';
+            });
+        });
+
+        document.getElementById('customAmount').addEventListener('input', function() {
+            document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+            if (this.value) {
+                selectedAmount = parseInt(this.value);
+            } else {
+                selectedAmount = null;
+            }
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                currentWallet = userDoc.data().wallet || 0;
+                document.getElementById('currentBalance').textContent = `₹${currentWallet.toFixed(2)}`;
+            }
+        });
+
+        document.getElementById('depositBtn').addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) {
+                alert('Please login first');
+                return;
+            }
+
+            if (!selectedAmount || selectedAmount <= 0) {
+                alert('Please select or enter a valid amount');
+                return;
+            }
+
+            if (selectedAmount < 10) {
+                alert('Minimum deposit is ₹10');
+                return;
+            }
+
+            try {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (!userDoc.exists()) {
+                    alert('User data not found');
+                    return;
+                }
+
+                await updateDoc(doc(db, 'users', user.uid), {
+                    wallet: increment(selectedAmount)
+                });
+
+                alert(`✅ Successfully added ₹${selectedAmount} to your wallet!`);
+                
+                const updatedDoc = await getDoc(doc(db, 'users', user.uid));
+                if (updatedDoc.exists()) {
+                    currentWallet = updatedDoc.data().wallet || 0;
+                    document.getElementById('currentBalance').textContent = `₹${currentWallet.toFixed(2)}`;
+                }
+
+                selectedAmount = null;
+                document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+                document.getElementById('customAmount').value = '';
+
+            } catch (error) {
+                console.error('Error depositing funds:', error);
+                alert('Error depositing funds: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
