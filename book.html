@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambola House - My Books</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .navbar h1 { font-size: 1.8em; }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .ticket-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .ticket-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 3px;
+            margin: 10px 0;
+            max-width: 500px;
+        }
+        .ticket-cell {
+            background: #f8f9fa;
+            padding: 6px;
+            text-align: center;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        .ticket-cell.has-number { background: #667eea; color: white; }
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .ticket-id { font-weight: 600; color: #333; }
+        .claimed-badge {
+            background: #e74c3c;
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+        }
+        .claimed-badge.claimed { background: #27ae60; }
+        .no-books {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        .no-books h2 { font-size: 2em; margin-bottom: 10px; }
+        .back-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>🎯 Tambola House</h1>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="game.html">Join Game</a>
+            <a href="book.html">My Books</a>
+            <a href="deposit.html">Deposit</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>📖 My Tickets</h2>
+        <div id="ticketsList"></div>
+        <button class="back-btn" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+    </div>
+
+    <script type="module">
+        import { auth, onAuthStateChanged, db, collection, query, where, onSnapshot, doc, getDoc } from './firebase-config.js';
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            loadTickets(user.uid);
+        });
+
+        function loadTickets(userId) {
+            const ticketsRef = collection(db, 'booked_tickets');
+            const q = query(ticketsRef, where('userId', '==', userId));
+            
+            onSnapshot(q, (snapshot) => {
+                const ticketsList = document.getElementById('ticketsList');
+                ticketsList.innerHTML = '';
+
+                if (snapshot.empty) {
+                    ticketsList.innerHTML = `
+                        <div class="no-books">
+                            <h2>📚 No Tickets Yet</h2>
+                            <p>Join a game to purchase tickets!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                snapshot.forEach((doc) => {
+                    const ticket = doc.data();
+                    const ticketId = doc.id;
+                    
+                    const numbers = ticket.numbersString ? ticket.numbersString.split(',').map(Number) : [];
+                    
+                    const card = document.createElement('div');
+                    card.className = 'ticket-card';
+                    
+                    let gridHtml = '';
+                    if (numbers.length === 27) {
+                        gridHtml = '<div class="ticket-grid">';
+                        numbers.forEach(num => {
+                            gridHtml += `<div class="ticket-cell ${num !== 0 ? 'has-number' : ''}">${num || ''}</div>`;
+                        });
+                        gridHtml += '</div>';
+                    }
+
+                    card.innerHTML = `
+                        <div class="ticket-header">
+                            <span class="ticket-id">🎫 Ticket #${ticketId.slice(0, 8)}</span>
+                            <span class="claimed-badge ${ticket.claimed ? 'claimed' : ''}">
+                                ${ticket.claimed ? '✅ Claimed' : '⏳ Pending'}
+                            </span>
+                        </div>
+                        <p>📅 Booked: ${new Date(ticket.bookedAt).toLocaleString()}</p>
+                        <p>🎮 Game: ${ticket.gameId ? ticket.gameId.slice(0, 8) : 'N/A'}</p>
+                        ${gridHtml}
+                    `;
+                    ticketsList.appendChild(card);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
