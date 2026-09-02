@@ -3,82 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome - Tambola House</title>
+    <title>Tambola House - Login</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        input, button { padding: 12px; margin: 8px 0; display: block; width: 100%; box-sizing: border-box; border-radius: 4px; }
-        input { border: 1px solid #ccc; }
-        button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background: #0056b3; }
-        .register-btn { background: #28a745; }
-        .register-btn:hover { background: #218838; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo h1 {
+            font-size: 2.5em;
+            color: #333;
+        }
+        .logo p {
+            color: #666;
+            margin-top: 5px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .toggle-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        .toggle-link a {
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .hidden { display: none; }
+        .success-message {
+            color: #27ae60;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
-
-    <div class="card">
-        <h1>Welcome to Tambola House</h1>
-        <p>Your ultimate destination for live Housie games! Please log in or register to join the fun.</p>
-        <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
-
-        <input type="email" id="auth-email" placeholder="Email Address">
-        <input type="password" id="auth-password" placeholder="Password">
-        <button id="btn-login">Login</button>
-        <button id="btn-register" class="register-btn">Register New Account</button>
+    <div class="login-container">
+        <div class="logo">
+            <h1>🎯 Tambola House</h1>
+            <p>Welcome to the game!</p>
+        </div>
+        
+        <div id="loginForm">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter your password">
+            </div>
+            <button id="loginBtn">Login</button>
+            <div class="toggle-link">
+                Don't have an account? <a id="showRegister">Register</a>
+            </div>
+            <div id="loginError" class="error-message"></div>
+        </div>
+        
+        <div id="registerForm" class="hidden">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="regName" placeholder="Enter your full name">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="regEmail" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="regPassword" placeholder="Create a password (min 6 chars)">
+            </div>
+            <button id="registerBtn">Register</button>
+            <div class="toggle-link">
+                Already have an account? <a id="showLogin">Login</a>
+            </div>
+            <div id="registerError" class="error-message"></div>
+            <div id="registerSuccess" class="success-message"></div>
+        </div>
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, db, doc, setDoc } from './firebase-config.js';
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
-            authDomain: "tambola-house-3dc56.firebaseapp.com",
-            projectId: "tambola-house-3dc56",
-            storageBucket: "tambola-house-3dc56.firebasestorage.app",
-            messagingSenderId: "267918174188",
-            appId: "1:267918174188:web:0bf6b47282f1b14d44c2c9"
-        };
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const showRegister = document.getElementById('showRegister');
+        const showLogin = document.getElementById('showLogin');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        showRegister.addEventListener('click', () => {
+            loginForm.classList.add('hidden');
+            registerForm.classList.remove('hidden');
+            document.getElementById('registerError').textContent = '';
+            document.getElementById('registerSuccess').textContent = '';
+        });
 
-        // Auto-redirect if already logged in
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                window.location.href = "user.html";
+        showLogin.addEventListener('click', () => {
+            registerForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+            document.getElementById('loginError').textContent = '';
+        });
+
+        loginBtn.addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            if (!email || !password) {
+                errorDiv.textContent = 'Please fill in all fields';
+                return;
+            }
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                errorDiv.textContent = error.message;
             }
         });
 
-        // Register Action
-        document.getElementById('btn-register').addEventListener('click', async () => {
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-password').value;
-            if(!email || !pass) return alert("Please enter email and password.");
+        registerBtn.addEventListener('click', async () => {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const errorDiv = document.getElementById('registerError');
+            const successDiv = document.getElementById('registerSuccess');
+
+            if (!name || !email || !password) {
+                errorDiv.textContent = 'Please fill in all fields';
+                return;
+            }
+
+            if (password.length < 6) {
+                errorDiv.textContent = 'Password must be at least 6 characters';
+                return;
+            }
+
             try {
-                const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                await setDoc(doc(db, "users", cred.user.uid), { 
-                    email: email, 
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await setDoc(doc(db, 'users', userCredential.user.uid), {
+                    name: name,
+                    email: email,
                     role: 'user',
-                    tokens: 0,
+                    wallet: 0,
                     createdAt: new Date().toISOString()
                 });
-                window.location.href = "user.html";
-            } catch (err) { alert(err.message); }
+                successDiv.textContent = 'Registration successful! Redirecting...';
+                errorDiv.textContent = '';
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                successDiv.textContent = '';
+            }
         });
 
-        // Login Action
-        document.getElementById('btn-login').addEventListener('click', async () => {
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-password').value;
-            if(!email || !pass) return alert("Please enter email and password.");
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-                window.location.href = "user.html";
-            } catch (err) { alert(err.message); }
+        onAuthStateChanged(auth, (user) => {
+            if (user && !window.location.pathname.includes('dashboard.html')) {
+                window.location.href = 'dashboard.html';
+            }
         });
     </script>
 </body>
