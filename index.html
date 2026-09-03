@@ -1,229 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambola House - Login</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 400px;
-        }
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .logo h1 {
-            font-size: 2.5em;
-            color: #333;
-        }
-        .logo p {
-            color: #666;
-            margin-top: 5px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: 500;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        .toggle-link {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-        }
-        .toggle-link a {
-            color: #667eea;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-        .error-message {
-            color: #e74c3c;
-            text-align: center;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-        .hidden { display: none; }
-        .success-message {
-            color: #27ae60;
-            text-align: center;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Tambola / Housie Platform</title>
+  <link rel="stylesheet" href="styles.css">
+  
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-functions-compat.js"></script>
 </head>
 <body>
-    <div class="login-container">
-        <div class="logo">
-            <h1>🎯 Tambola House</h1>
-            <p>Welcome to the game!</p>
-        </div>
-        
-        <div id="loginForm">
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="email" placeholder="Enter your email">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="password" placeholder="Enter your password">
-            </div>
-            <button id="loginBtn">Login</button>
-            <div class="toggle-link">
-                Don't have an account? <a id="showRegister">Register</a>
-            </div>
-            <div id="loginError" class="error-message"></div>
-        </div>
-        
-        <div id="registerForm" class="hidden">
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" id="regName" placeholder="Enter your full name">
-            </div>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="regEmail" placeholder="Enter your email">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="regPassword" placeholder="Create a password (min 6 chars)">
-            </div>
-            <button id="registerBtn">Register</button>
-            <div class="toggle-link">
-                Already have an account? <a id="showLogin">Login</a>
-            </div>
-            <div id="registerError" class="error-message"></div>
-            <div id="registerSuccess" class="success-message"></div>
-        </div>
+
+  <nav class="navbar">
+    <div class="logo">🎯 Tambola Live</div>
+    <div id="nav-user-info" class="user-info">
+      <span id="user-email-display">Guest</span>
+      <span id="user-wallet-display" class="wallet-badge">Wallet: -- Tokens</span>
+      <button id="logout-btn" onclick="handleLogout()" style="display:none;" class="btn-secondary">Logout</button>
     </div>
+  </nav>
 
-    <script type="module">
-        import { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, db, doc, setDoc } from './firebase-config.js';
+  <div class="container">
 
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        const showRegister = document.getElementById('showRegister');
-        const showLogin = document.getElementById('showLogin');
-        const loginBtn = document.getElementById('loginBtn');
-        const registerBtn = document.getElementById('registerBtn');
+    <section id="auth-section" class="card auth-card">
+      <h2>Welcome Player</h2>
+      <p class="subtitle">Sign in or create an account to start playing</p>
+      
+      <div class="form-group">
+        <label for="auth-email">Email Address</label>
+        <input type="email" id="auth-email" placeholder="name@example.com">
+      </div>
+      
+      <div class="form-group">
+        <label for="auth-pass">Password</label>
+        <input type="password" id="auth-pass" placeholder="••••••••">
+      </div>
+      
+      <div class="btn-group">
+        <button onclick="handleLogin()" class="btn-primary">Login</button>
+        <button onclick="handleRegister()" class="btn-outline">Register</button>
+      </div>
+    </section>
 
-        showRegister.addEventListener('click', () => {
-            loginForm.classList.add('hidden');
-            registerForm.classList.remove('hidden');
-            document.getElementById('registerError').textContent = '';
-            document.getElementById('registerSuccess').textContent = '';
-        });
+    <section id="dashboard-section" style="display:none;">
+      
+      <div class="card live-game-card">
+        <h3>Live Game Board</h3>
+        <div class="live-board-grid">
+          <div class="current-number-box">
+            <span class="label">CURRENT NUMBER</span>
+            <h1 id="current-number-val">--</h1>
+          </div>
+          <div class="called-history-box">
+            <h4>Called Sequence History</h4>
+            <div id="called-history-list" class="flex-wrap"></div>
+          </div>
+        </div>
+      </div>
 
-        showLogin.addEventListener('click', () => {
-            registerForm.classList.add('hidden');
-            loginForm.classList.remove('hidden');
-            document.getElementById('loginError').textContent = '';
-        });
+      <div class="card booking-card">
+        <h3>Select & Book Master Tickets</h3>
+        
+        <div id="booking-calculator" class="calc-box">
+          <div class="calc-row">
+            <span>Selected Tickets:</span>
+            <strong id="calc-selected">0</strong>
+          </div>
+          <div class="calc-row">
+            <span>Free Discount Units (Book 6, Pay 5):</span>
+            <strong id="calc-free">0</strong>
+          </div>
+          <div class="calc-row">
+            <span>Normal Total:</span>
+            <span><strong id="calc-normal">0</strong> Tokens</span>
+          </div>
+          <div class="calc-row discount-row">
+            <span>Promotion Discount:</span>
+            <span>-<strong id="calc-discount">0</strong> Tokens</span>
+          </div>
+          <hr>
+          <div class="calc-row total-row">
+            <span>YOU PAY:</span>
+            <strong id="calc-final" class="highlight">0 TOKENS</strong>
+          </div>
+          <button id="confirm-booking-btn" onclick="executeBooking()" class="btn-success" disabled>Confirm Booking</button>
+        </div>
 
-        loginBtn.addEventListener('click', async () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('loginError');
-            
-            if (!email || !password) {
-                errorDiv.textContent = 'Please fill in all fields';
-                return;
-            }
+        <div id="master-tickets-grid" class="tickets-grid">
+          </div>
+      </div>
 
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                window.location.href = 'dashboard.html';
-            } catch (error) {
-                errorDiv.textContent = error.message;
-            }
-        });
+      <div class="card my-tickets-card">
+        <h3>My Live Booked Tickets</h3>
+        <p class="subtitle">Numbers are marked automatically in real-time as they are called.</p>
+        <div id="my-tickets-container" class="my-tickets-grid"></div>
+      </div>
 
-        registerBtn.addEventListener('click', async () => {
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            const errorDiv = document.getElementById('registerError');
-            const successDiv = document.getElementById('registerSuccess');
+      <div class="card wallet-card">
+        <h3>Token Wallet Operations</h3>
+        <div class="wallet-actions">
+          <div class="withdraw-box">
+            <h4>Request Token Withdrawal</h4>
+            <div class="form-group inline-form">
+              <input type="number" id="withdraw-tokens" placeholder="Tokens (e.g. 50)">
+              <input type="text" id="withdraw-details" placeholder="UPI ID / Bank Details">
+              <button onclick="handleWithdrawal()" class="btn-secondary">Withdraw</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-            if (!name || !email || !password) {
-                errorDiv.textContent = 'Please fill in all fields';
-                return;
-            }
+    </section>
+  </div>
 
-            if (password.length < 6) {
-                errorDiv.textContent = 'Password must be at least 6 characters';
-                return;
-            }
-
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                await setDoc(doc(db, 'users', userCredential.user.uid), {
-                    name: name,
-                    email: email,
-                    role: 'user',
-                    wallet: 0,
-                    createdAt: new Date().toISOString()
-                });
-                successDiv.textContent = 'Registration successful! Redirecting...';
-                errorDiv.textContent = '';
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1500);
-            } catch (error) {
-                errorDiv.textContent = error.message;
-                successDiv.textContent = '';
-            }
-        });
-
-        onAuthStateChanged(auth, (user) => {
-            if (user && !window.location.pathname.includes('dashboard.html')) {
-                window.location.href = 'dashboard.html';
-            }
-        });
-    </script>
+  <script src="app.js"></script>
 </body>
 </html>
