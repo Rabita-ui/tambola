@@ -3,271 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambola House - My Books</title>
+    <title>Tambola - Book Tickets</title>
+    <link rel="stylesheet" href="css/styles.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
-        }
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .navbar h1 { font-size: 1.8em; }
-        .nav-links {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: background 0.3s;
-        }
-        .nav-links a:hover { background: rgba(255,255,255,0.2); }
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        .ticket-card {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            margin-bottom: 20px;
-            transition: transform 0.3s;
-        }
-        .ticket-card:hover { transform: translateY(-3px); }
-        .ticket-grid {
+        .ticket-grid-selector {
             display: grid;
-            grid-template-columns: repeat(9, 1fr);
-            gap: 3px;
-            margin: 10px 0;
-            max-width: 500px;
-        }
-        .ticket-cell {
-            background: #f8f9fa;
-            padding: 6px;
-            text-align: center;
-            border-radius: 3px;
-            font-weight: 600;
-            font-size: 0.85em;
-        }
-        .ticket-cell.has-number { background: #667eea; color: white; }
-        .ticket-cell.claimed { background: #27ae60; color: white; }
-        .ticket-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             gap: 10px;
-        }
-        .ticket-id { font-weight: 600; color: #333; }
-        .claimed-badge {
-            padding: 3px 12px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: 600;
-        }
-        .claimed-badge.pending { background: #f39c12; color: white; }
-        .claimed-badge.claimed { background: #27ae60; color: white; }
-        .claimed-badge.winning { background: #e74c3c; color: white; animation: pulse 1s infinite; }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        .no-books {
-            text-align: center;
-            padding: 50px;
-            color: #666;
-        }
-        .no-books h2 { font-size: 2em; margin-bottom: 10px; }
-        .back-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 10px 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ccc;
             border-radius: 8px;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        .filter-section {
             margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
         }
-        .filter-btn {
-            padding: 8px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            background: white;
+        .ticket-chip {
+            padding: 10px;
+            text-align: center;
+            border: 2px solid #3498db;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.3s;
+            font-weight: bold;
+            background: #fff;
         }
-        .filter-btn:hover { border-color: #667eea; }
-        .filter-btn.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
+        .ticket-chip.selected {
+            background: #3498db;
+            color: #fff;
         }
-        .game-name {
-            color: #667eea;
-            font-weight: 600;
+        .ticket-chip.disabled {
+            background: #e0e0e0;
+            border-color: #ccc;
+            color: #888;
+            cursor: not-allowed;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <h1>🎯 Tambola House</h1>
-        <div class="nav-links">
-            <a href="dashboard.html">Dashboard</a>
-            <a href="game.html">Join Game</a>
-            <a href="book.html">My Books</a>
-            <a href="deposit.html">Deposit</a>
-        </div>
-    </nav>
 
-    <div class="container">
-        <h2>📖 My Tickets</h2>
-        
-        <div class="filter-section">
-            <button class="filter-btn active" data-filter="all">All</button>
-            <button class="filter-btn" data-filter="pending">⏳ Pending</button>
-            <button class="filter-btn" data-filter="claimed">✅ Claimed</button>
+<div class="container">
+    <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Ticket Booking Portal</h2>
+        <div>
+            <span style="margin-right: 15px; font-weight: bold;">Wallet: <span id="balanceDisplay" style="color: #2ecc71;">0</span> Tokens</span>
+            <a href="dashboard.html" class="btn btn-primary">Dashboard</a>
         </div>
-
-        <div id="ticketsList"></div>
-        <button class="back-btn" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
     </div>
 
-    <script type="module">
-        import { auth, onAuthStateChanged, db, collection, query, where, onSnapshot, doc, getDoc } from './firebase-config.js';
+    <div class="card">
+        <h3>Select Active Game</h3>
+        <div class="form-group" style="margin-top: 10px;">
+            <select id="gameSelect">
+                <option value="">-- Select an Upcoming Game --</option>
+            </select>
+        </div>
+    </div>
 
-        let currentFilter = 'all';
+    <div class="card" id="bookingArea" style="display: none;">
+        <h3>Select Master Tickets (T001 - T600)</h3>
+        <p style="margin-bottom: 10px; font-size: 0.9rem; color: #666;">
+            <strong>Offer Active:</strong> Buy 6 Tickets for the price of 5! Price per ticket: <span id="ticketPriceDisplay">0</span> Tokens.
+        </p>
 
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                window.location.href = 'index.html';
-                return;
-            }
-            loadTickets(user.uid);
-        });
+        <div class="ticket-grid-selector" id="ticketContainer">
+            <!-- Dynamically populated -->
+        </div>
 
-        // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentFilter = btn.dataset.filter;
-                loadTickets(auth.currentUser.uid);
-            });
-        });
-
-        function loadTickets(userId) {
-            const ticketsRef = collection(db, 'booked_tickets');
-            const q = query(ticketsRef, where('userId', '==', userId));
+        <div style="border-top: 1px solid #eee; padding-top: 15px;">
+            <p>Selected Tickets (<span id="selectedCount">0</span>): <span id="selectedList">None</span></p>
+            <p>Base Price: <span id="basePrice">0</span> Tokens</p>
+            <p style="color: green; font-weight: bold;">Discount (Book 6 Pay 5): -<span id="discountPrice">0</span> Tokens</p>
+            <h3 style="margin: 10px 0;">Total Payable: <span id="totalPayable" style="color: #2ecc71;">0</span> Tokens</h3>
             
-            onSnapshot(q, async (snapshot) => {
-                const ticketsList = document.getElementById('ticketsList');
-                ticketsList.innerHTML = '';
+            <button id="checkoutBtn" class="btn btn-success" disabled>Confirm & Pay Tokens</button>
+        </div>
+    </div>
+</div>
 
-                if (snapshot.empty) {
-                    ticketsList.innerHTML = `
-                        <div class="no-books">
-                            <h2>📚 No Tickets Yet</h2>
-                            <p>Join a game to purchase tickets!</p>
-                        </div>
-                    `;
-                    return;
-                }
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/wallet.js"></script>
 
-                let tickets = [];
-                for (const docSnapshot of snapshot.docs) {
-                    const ticket = docSnapshot.data();
-                    const ticketId = docSnapshot.id;
-                    
-                    // Get game details
-                    let gameName = 'Unknown Game';
-                    if (ticket.gameId) {
-                        const gameDoc = await getDoc(doc(db, 'game_session', ticket.gameId));
-                        if (gameDoc.exists()) {
-                            gameName = gameDoc.data().name || gameName;
-                        }
-                    }
-                    
-                    tickets.push({
-                        id: ticketId,
-                        ...ticket,
-                        gameName: gameName
-                    });
-                }
+<script>
+let selectedTickets = [];
+let currentTicketPrice = 0;
+let activeGameId = null;
 
-                // Filter tickets
-                if (currentFilter === 'pending') {
-                    tickets = tickets.filter(t => !t.claimed);
-                } else if (currentFilter === 'claimed') {
-                    tickets = tickets.filter(t => t.claimed);
-                }
+auth.onAuthStateChanged(user => {
+    if (!user) {
+        window.location.href = "index.html";
+        return;
+    }
 
-                if (tickets.length === 0) {
-                    ticketsList.innerHTML = `
-                        <div class="no-books">
-                            <h2>${currentFilter === 'all' ? '📚 No Tickets' : 'No ' + currentFilter + ' tickets'}</h2>
-                            <p>${currentFilter === 'all' ? 'Join a game to purchase tickets!' : 'No tickets in this category'}</p>
-                        </div>
-                    `;
-                    return;
-                }
+    listenToWalletBalance(user.uid, (bal) => {
+        document.getElementById("balanceDisplay").textContent = bal;
+    });
 
-                tickets.forEach((ticket) => {
-                    const numbers = ticket.numbersString ? ticket.numbersString.split(',').map(Number) : [];
-                    
-                    const card = document.createElement('div');
-                    card.className = 'ticket-card';
-                    
-                    let gridHtml = '';
-                    if (numbers.length === 27) {
-                        gridHtml = '<div class="ticket-grid">';
-                        numbers.forEach(num => {
-                            const cellClass = num !== 0 ? 'has-number' : '';
-                            gridHtml += `<div class="ticket-cell ${cellClass}">${num || ''}</div>`;
-                        });
-                        gridHtml += '</div>';
-                    }
+    loadUpcomingGames();
+});
 
-                    const statusClass = ticket.claimed ? 'claimed' : 'pending';
-                    const statusText = ticket.claimed ? '✅ Claimed' : '⏳ Pending';
+// Load active games from Firestore
+async function loadUpcomingGames() {
+    const select = document.getElementById("gameSelect");
+    const snap = await db.collection("games").where("status", "==", "OPEN").get();
 
-                    card.innerHTML = `
-                        <div class="ticket-header">
-                            <div>
-                                <span class="ticket-id">🎫 Ticket #${ticket.id.slice(0, 8)}</span>
-                                <span style="margin-left:10px;font-size:0.9em;color:#666;">#${ticket.ticketNo || 1}</span>
-                            </div>
-                            <span class="claimed-badge ${statusClass}">${statusText}</span>
-                        </div>
-                        <p>🎮 Game: <span class="game-name">${ticket.gameName}</span></p>
-                        <p>📅 Booked: ${ticket.bookedAt ? new Date(ticket.bookedAt).toLocaleString() : 'N/A'}</p>
-                        ${gridHtml}
-                    `;
-                    ticketsList.appendChild(card);
-                });
-            });
+    select.innerHTML = `<option value="">-- Select an Upcoming Game --</option>`;
+    snap.forEach(doc => {
+        const game = doc.data();
+        select.innerHTML += `<option value="${doc.id}" data-price="${game.ticketPrice}">${game.title} - ${game.ticketPrice} Tokens/ticket</option>`;
+    });
+}
+
+document.getElementById("gameSelect").addEventListener("change", async (e) => {
+    activeGameId = e.target.value;
+    if (!activeGameId) {
+        document.getElementById("bookingArea").style.display = "none";
+        return;
+    }
+
+    const selectedOption = e.target.options[e.target.selectedIndex];
+    currentTicketPrice = Number(selectedOption.getAttribute("data-price"));
+    document.getElementById("ticketPriceDisplay").textContent = currentTicketPrice;
+
+    await renderTicketSelector(activeGameId);
+    document.getElementById("bookingArea").style.display = "block";
+});
+
+// Render 600 Master Tickets and mark booked ones as disabled
+async function renderTicketSelector(gameId) {
+    const container = document.getElementById("ticketContainer");
+    container.innerHTML = "Loading available tickets...";
+
+    // Get already booked ticket IDs for this game
+    const bookedSnap = await db.collection("bookings").where("gameId", "==", gameId).get();
+    const bookedTicketIds = new Set();
+    bookedSnap.forEach(doc => {
+        doc.data().ticketIds.forEach(id => bookedTicketIds.add(id));
+    });
+
+    selectedTickets = [];
+    updatePricing();
+
+    container.innerHTML = "";
+    for (let i = 1; i <= 600; i++) {
+        const tId = `T${String(i).padStart(3, '0')}`;
+        const chip = document.createElement("div");
+        chip.className = "ticket-chip";
+        chip.textContent = tId;
+
+        if (bookedTicketIds.has(tId)) {
+            chip.classList.add("disabled");
+        } else {
+            chip.addEventListener("click", () => toggleTicketSelection(tId, chip));
         }
-    </script>
+        container.appendChild(chip);
+    }
+}
+
+function toggleTicketSelection(tId, element) {
+    if (selectedTickets.includes(tId)) {
+        selectedTickets = selectedTickets.filter(id => id !== tId);
+        element.classList.remove("selected");
+    } else {
+        selectedTickets.push(tId);
+        element.classList.add("selected");
+    }
+    updatePricing();
+}
+
+// Calculate "Book 6 Pay 5" Pricing Logic
+function updatePricing() {
+    const count = selectedTickets.length;
+    const setsOfSix = Math.floor(count / 6);
+    const freeTickets = setsOfSix; // 1 free ticket for every 6 selected
+    
+    const basePrice = count * currentTicketPrice;
+    const discount = freeTickets * currentTicketPrice;
+    const finalPrice = basePrice - discount;
+
+    document.getElementById("selectedCount").textContent = count;
+    document.getElementById("selectedList").textContent = selectedTickets.join(", ") || "None";
+    document.getElementById("basePrice").textContent = basePrice;
+    document.getElementById("discountPrice").textContent = discount;
+    document.getElementById("totalPayable").textContent = finalPrice;
+
+    document.getElementById("checkoutBtn").disabled = count === 0;
+}
+
+// Transaction Checkout Handler
+document.getElementById("checkoutBtn").addEventListener("click", async () => {
+    const user = auth.currentUser;
+    const count = selectedTickets.length;
+    const setsOfSix = Math.floor(count / 6);
+    const payableAmount = (count - setsOfSix) * currentTicketPrice;
+
+    if (!confirm(`Confirm booking of ${count} ticket(s) for ${payableAmount} Tokens?`)) return;
+
+    try {
+        await db.runTransaction(async (transaction) => {
+            const userRef = db.collection("users").doc(user.uid);
+            const userDoc = await transaction.get(userRef);
+            const balance = userDoc.data().walletBalance || 0;
+
+            if (balance < payableAmount) {
+                throw new Error("Insufficient token balance. Please deposit tokens first.");
+            }
+
+            // Deduct Tokens
+            transaction.update(userRef, { walletBalance: balance - payableAmount });
+
+            // Create Booking Document
+            const bookingRef = db.collection("bookings").doc();
+            transaction.set(bookingRef, {
+                bookingId: bookingRef.id,
+                gameId: activeGameId,
+                userId: user.uid,
+                userEmail: user.email,
+                ticketIds: selectedTickets,
+                ticketsBooked: count,
+                amountPaid: payableAmount,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // Write Ledger Transaction Entry
+            const txRef = db.collection("transactions").doc();
+            transaction.set(txRef, {
+                userId: user.uid,
+                type: "TICKET_BOOKING",
+                tokens: -payableAmount,
+                details: { gameId: activeGameId, tickets: selectedTickets },
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        });
+
+        alert("Booking successful! Tickets assigned to your account.");
+        window.location.href = "dashboard.html";
+    } catch (err) {
+        alert("Booking Failed: " + err.message);
+    }
+});
+</script>
+
 </body>
 </html>
