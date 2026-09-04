@@ -1,34 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Firebase Test</title>
-</head>
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
 
-<body>
-
-  <h1>Tambola House</h1>
-  <p id="status">Checking Firebase connection...</p>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { firebaseConfig } from "./firebase-config.js";
-
-    try {
-      const app = initializeApp(firebaseConfig);
-
-      document.getElementById("status").textContent =
-        "Firebase connected successfully!";
-
-      console.log("Firebase initialized:", app);
-    } catch (error) {
-      document.getElementById("status").textContent =
-        "Firebase connection failed: " + error.message;
-
-      console.error("Firebase error:", error);
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
     }
-  </script>
 
-</body>
-</html>
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // --- Users Collection ---
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      // Users can only initialize their account; they cannot modify walletBalance or role directly
+      allow create: if isAuthenticated() 
+                    && request.resource.data.walletBalance == 0 
+                    && request.resource.data.role == 'player';
+      allow update: if isAdmin() || (
+        isOwner(userId) && 
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['walletBalance', 'role', 'status'])
+      );
+    }
+
+    // --- Master Tickets (Read-only for players, Admin managed) ---
+    match /masterTickets/{ticketId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // --- Games Collection ---
+    match /games/{gameId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // --- Game Tickets (Game-specific instances) ---
+    match /gameTickets/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // --- Bookings ---
+    match /bookings/{bookingId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // --- Transactions Ledger ---
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // --- Deposit Requests ---
+    match /depositRequests/{requestId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // --- Withdrawal Requests ---
+    match /withdrawalRequests/{requestId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // --- Winners ---
+    match /winners/{winnerId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+  }
+}
