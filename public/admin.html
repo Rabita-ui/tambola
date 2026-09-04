@@ -1,543 +1,88 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambola House - Admin Panel</title>
-    <style>
-        /* Same styles as before */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
-        }
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .navbar h1 { font-size: 1.8em; }
-        .nav-links {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: background 0.3s;
-        }
-        .nav-links a:hover { background: rgba(255,255,255,0.2); }
-        .container {
-            max-width: 1000px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        .admin-card {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            margin-bottom: 20px;
-        }
-        .admin-card h2 { color: #333; margin-bottom: 20px; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: 500;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        .create-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-        .create-btn:hover { transform: scale(1.02); }
-        .create-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .game-list { margin-top: 20px; }
-        .game-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .game-item .status {
-            padding: 3px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-        .status-active { background: #27ae60; color: white; }
-        .status-waiting { background: #f39c12; color: white; }
-        .status-ended { background: #95a5a6; color: white; }
-        .action-btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: transform 0.3s;
-        }
-        .action-btn:hover { transform: scale(1.05); }
-        .btn-start { background: #27ae60; color: white; }
-        .btn-end { background: #e74c3c; color: white; }
-        .btn-generate {
-            background: #f39c12;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-generate:hover { background: #e67e22; }
-        .btn-delete {
-            background: #e74c3c;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-            margin-left: 10px;
-        }
-        .btn-delete:hover { background: #c0392b; }
-        .back-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        .no-access {
-            text-align: center;
-            padding: 50px;
-            color: #e74c3c;
-        }
-        .no-access h2 { font-size: 2em; margin-bottom: 10px; }
-        .info-box {
-            background: #e8f4fd;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border-left: 4px solid #667eea;
-        }
-        .info-box strong { color: #667eea; }
-        .ticket-count { font-size: 0.9em; color: #666; margin-top: 5px; }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 15px 0;
-        }
-        .stat-card {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-        }
-        .stat-number { font-size: 2em; font-weight: bold; color: #667eea; }
-        .stat-label { color: #666; font-size: 0.9em; }
-        .refresh-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .refresh-btn:hover { background: #5a67d8; }
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: 10px;
-            color: white;
-            font-weight: 600;
-            z-index: 9999;
-            animation: slideIn 0.5s ease;
-        }
-        .toast-success { background: #27ae60; }
-        .toast-error { background: #e74c3c; }
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar">
-        <h1>🎯 Tambola House</h1>
-        <div class="nav-links">
-            <a href="dashboard.html">Dashboard</a>
-            <a href="game.html">Join Game</a>
-            <a href="book.html">My Books</a>
-            <a href="deposit.html">Deposit</a>
-            <a href="admin.html">Admin</a>
-        </div>
-    </nav>
+<!-- Add this card into public/admin.html -->
+<div class="card">
+    <h3>Game Management</h3>
+    <form id="createGameForm" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; margin-top: 10px;">
+        <input type="text" id="gameTitle" placeholder="Game Title (e.g., Evening Bumper)" required>
+        <input type="number" id="ticketPrice" placeholder="Price / Ticket" required min="1">
+        <select id="gameStatusSelect">
+            <option value="OPEN">OPEN</option>
+            <option value="LIVE">LIVE</option>
+            <option value="COMPLETED">COMPLETED</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Create Game</button>
+    </form>
+</div>
 
-    <div class="container">
-        <div id="adminContent">
-            <div class="admin-card">
-                <h2>📊 Dashboard Stats</h2>
-                <div class="stats-grid" id="statsGrid">
-                    <div class="stat-card">
-                        <div class="stat-number" id="statMasterTickets">0</div>
-                        <div class="stat-label">Master Tickets</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="statActiveGames">0</div>
-                        <div class="stat-label">Active Games</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="statTotalUsers">0</div>
-                        <div class="stat-label">Total Users</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="statTotalTickets">0</div>
-                        <div class="stat-label">Booked Tickets</div>
-                    </div>
-                </div>
-                <button class="refresh-btn" onclick="loadStats()">🔄 Refresh Stats</button>
-            </div>
-
-            <div class="admin-card">
-                <h2>🎮 Create New Game</h2>
-                <div class="info-box">
-                    <strong>ℹ️ How it works:</strong><br>
-                    1. Generate master tickets first (600 unique tickets)<br>
-                    2. When you create a game, it copies tickets from master collection<br>
-                    3. Each game gets its own set of tickets
-                </div>
-                
-                <div style="margin-bottom:20px;display:flex;flex-wrap:wrap;gap:10px;">
-                    <a href="generate-master-tickets.html" class="btn-generate">🎯 Generate Master Tickets</a>
-                    <a href="delete-all-data.html" class="btn-delete">🗑️ Delete All Data</a>
-                    <span id="masterTicketStatus" style="margin-left:15px;color:#666;display:flex;align-items:center;"></span>
-                </div>
-
-                <div class="form-group">
-                    <label>Game Name</label>
-                    <input type="text" id="gameName" placeholder="Enter game name" value="Tambola Game">
-                </div>
-                <div class="form-group">
-                    <label>Ticket Price (₹)</label>
-                    <input type="number" id="ticketPrice" value="10" min="1">
-                </div>
-                <div class="form-group">
-                    <label>Prize Pool (₹)</label>
-                    <input type="number" id="prizePool" value="100" min="10">
-                </div>
-                <button class="create-btn" id="createGameBtn">🚀 Create Game & Copy Tickets</button>
-            </div>
-
-            <div class="admin-card">
-                <h2>📋 All Games</h2>
-                <div id="gameList" class="game-list"></div>
-            </div>
-        </div>
-        <button class="back-btn" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+<div class="card" id="liveControlCard">
+    <h3>Live Number Board Controller</h3>
+    <div style="margin: 15px 0;">
+        <button id="drawNumberBtn" class="btn btn-success" style="font-size: 1.2rem; padding: 12px 24px;">Draw Next Number</button>
+        <span style="font-size: 1.5rem; font-weight: bold; margin-left: 20px;">Last Drawn: <span id="lastDrawnDisplay" style="color: #e74c3c;">None</span></span>
     </div>
 
-    <div id="toastContainer"></div>
+    <div>
+        <h4>Drawn Numbers (<span id="drawnCount">0</span>/90):</h4>
+        <div id="drawnNumbersGrid" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;"></div>
+    </div>
+</div>
 
-    <script type="module">
-        import { 
-            auth, 
-            onAuthStateChanged, 
-            db, 
-            collection, 
-            addDoc, 
-            getDocs, 
-            updateDoc, 
-            doc, 
-            query, 
-            where, 
-            onSnapshot, 
-            Timestamp, 
-            writeBatch,
-            getDoc,
-            runTransaction
-        } from './firebase-config.js';
+<script>
+let currentActiveGameId = null;
 
-        let masterTickets = [];
+// Handle Game Creation
+document.getElementById("createGameForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const title = document.getElementById("gameTitle").value;
+    const price = Number(document.getElementById("ticketPrice").value);
+    const status = document.getElementById("gameStatusSelect").value;
 
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-            toast.textContent = message;
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transition = 'opacity 0.5s';
-                setTimeout(() => toast.remove(), 500);
-            }, 5000);
-        }
+    const gameRef = db.collection("games").doc();
+    await gameRef.set({
+        gameId: gameRef.id,
+        title: title,
+        ticketPrice: price,
+        status: status,
+        drawnNumbers: [],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
 
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = 'index.html';
-                return;
-            }
+    alert("Game Created Successfully!");
+    currentActiveGameId = gameRef.id;
+    listenToLiveGame(currentActiveGameId);
+    document.getElementById("createGameForm").reset();
+});
 
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-                document.getElementById('adminContent').innerHTML = `
-                    <div class="no-access">
-                        <h2>⛔ Access Denied</h2>
-                        <p>You don't have admin privileges.</p>
-                    </div>
-                `;
-                return;
-            }
+// Real-time Number Drawing Logic
+function listenToLiveGame(gameId) {
+    db.collection("games").doc(gameId).onSnapshot(doc => {
+        if (!doc.exists) return;
+        const game = doc.data();
+        const drawn = game.drawnNumbers || [];
 
-            await loadStats();
-            await checkMasterTickets();
-            loadGames();
-        });
+        document.getElementById("drawnCount").textContent = drawn.length;
+        document.getElementById("lastDrawnDisplay").textContent = drawn.length > 0 ? drawn[drawn.length - 1] : "None";
 
-        async function loadStats() {
-            try {
-                const masterSnapshot = await getDocs(collection(db, 'masterTickets'));
-                document.getElementById('statMasterTickets').textContent = masterSnapshot.size;
+        const grid = document.getElementById("drawnNumbersGrid");
+        grid.innerHTML = drawn.map(n => `<span style="background: #3498db; color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold;">${n}</span>`).join('');
+    });
+}
 
-                const gamesSnapshot = await getDocs(query(
-                    collection(db, 'game_session'),
-                    where('status', 'in', ['waiting', 'active'])
-                ));
-                document.getElementById('statActiveGames').textContent = gamesSnapshot.size;
+document.getElementById("drawNumberBtn").addEventListener("click", async () => {
+    if (!currentActiveGameId) return alert("Select or create a game first.");
 
-                const usersSnapshot = await getDocs(collection(db, 'users'));
-                document.getElementById('statTotalUsers').textContent = usersSnapshot.size;
+    const gameRef = db.collection("games").doc(currentActiveGameId);
+    const doc = await gameRef.get();
+    const drawn = doc.data().drawnNumbers || [];
 
-                const ticketsSnapshot = await getDocs(collection(db, 'booked_tickets'));
-                document.getElementById('statTotalTickets').textContent = ticketsSnapshot.size;
+    if (drawn.length >= 90) return alert("All 90 numbers have been drawn!");
 
-            } catch (error) {
-                console.error('Error loading stats:', error);
-            }
-        }
+    let nextNum;
+    do {
+        nextNum = Math.floor(Math.random() * 90) + 1;
+    } while (drawn.includes(nextNum));
 
-        async function checkMasterTickets() {
-            const ticketsSnapshot = await getDocs(collection(db, 'masterTickets'));
-            const statusEl = document.getElementById('masterTicketStatus');
-            
-            if (ticketsSnapshot.empty) {
-                statusEl.innerHTML = '❌ No master tickets found. Please generate them first!';
-                document.getElementById('createGameBtn').disabled = true;
-            } else {
-                statusEl.innerHTML = `✅ ${ticketsSnapshot.size} master tickets available`;
-                document.getElementById('createGameBtn').disabled = false;
-                masterTickets = [];
-                ticketsSnapshot.forEach(doc => {
-                    masterTickets.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
-            }
-        }
-
-        document.getElementById('createGameBtn').addEventListener('click', async () => {
-            const name = document.getElementById('gameName').value;
-            const ticketPrice = parseInt(document.getElementById('ticketPrice').value);
-            const prizePool = parseInt(document.getElementById('prizePool').value);
-
-            if (!name || !ticketPrice || !prizePool) {
-                showToast('Please fill in all fields', 'error');
-                return;
-            }
-
-            if (masterTickets.length === 0) {
-                showToast('No master tickets found! Generate them first.', 'error');
-                return;
-            }
-
-            try {
-                const createBtn = document.getElementById('createGameBtn');
-                createBtn.disabled = true;
-                createBtn.textContent = '⏳ Creating Game...';
-
-                // Create game document
-                const gameRef = await addDoc(collection(db, 'game_session'), {
-                    name: name,
-                    ticketPrice: ticketPrice,
-                    prizePool: prizePool,
-                    status: 'waiting',
-                    players: 0,
-                    createdAt: Timestamp.now(),
-                    createdBy: auth.currentUser.uid,
-                    totalTickets: masterTickets.length,
-                    availableTickets: masterTickets.length
-                });
-
-                // Copy tickets from master to game-specific collection
-                const batch = writeBatch(db);
-                let copiedCount = 0;
-
-                for (const masterTicket of masterTickets) {
-                    const ticketRef = doc(collection(db, `game_${gameRef.id}_tickets`));
-                    batch.set(ticketRef, {
-                        ticketNumber: masterTicket.ticketNumber || masterTicket.id,
-                        numbers: masterTicket.numbers || masterTicket.numbersString?.split(',').map(Number) || [],
-                        numbersString: masterTicket.numbersString || masterTicket.numbers?.join(',') || '',
-                        gameId: gameRef.id,
-                        isBooked: false,
-                        bookedBy: null,
-                        bookedAt: null,
-                        copiedFrom: masterTicket.id
-                    });
-                    copiedCount++;
-                }
-
-                await batch.commit();
-
-                showToast(`✅ Game created! Copied ${copiedCount} tickets.`, 'success');
-                createBtn.textContent = '🚀 Create Game & Copy Tickets';
-                createBtn.disabled = false;
-                
-                document.getElementById('gameName').value = 'Tambola Game';
-                document.getElementById('ticketPrice').value = '10';
-                document.getElementById('prizePool').value = '100';
-                
-                await loadStats();
-                loadGames();
-
-            } catch (error) {
-                console.error('Error creating game:', error);
-                showToast('Error creating game: ' + error.message, 'error');
-                document.getElementById('createGameBtn').textContent = '🚀 Create Game & Copy Tickets';
-                document.getElementById('createGameBtn').disabled = false;
-            }
-        });
-
-        function loadGames() {
-            const gamesRef = collection(db, 'game_session');
-            const q = query(gamesRef, where('status', 'in', ['waiting', 'active']));
-            
-            onSnapshot(q, async (snapshot) => {
-                const gameList = document.getElementById('gameList');
-                gameList.innerHTML = '';
-
-                if (snapshot.empty) {
-                    gameList.innerHTML = '<p style="color:#666;text-align:center;">No active games</p>';
-                    return;
-                }
-
-                for (const docSnapshot of snapshot.docs) {
-                    const game = docSnapshot.data();
-                    const gameId = docSnapshot.id;
-                    
-                    const ticketsRef = collection(db, `game_${gameId}_tickets`);
-                    const ticketsSnapshot = await getDocs(ticketsRef);
-                    const totalTickets = ticketsSnapshot.size;
-                    const bookedTickets = ticketsSnapshot.docs.filter(d => d.data().isBooked).length;
-                    
-                    const item = document.createElement('div');
-                    item.className = 'game-item';
-                    item.innerHTML = `
-                        <div>
-                            <strong>${game.name}</strong>
-                            <span class="status status-${game.status}">${game.status.toUpperCase()}</span>
-                            <div style="font-size:0.9em;color:#666;margin-top:5px;">
-                                👥 ${game.players || 0} players | 💰 ₹${game.prizePool || 0}
-                            </div>
-                            <div class="ticket-count">
-                                🎫 Tickets: ${bookedTickets}/${totalTickets} booked
-                            </div>
-                            <div style="font-size:0.8em;color:#999;margin-top:3px;">
-                                💰 Ticket Price: ₹${game.ticketPrice || 10}
-                            </div>
-                        </div>
-                        <div>
-                            ${game.status === 'waiting' ? `
-                                <button class="action-btn btn-start" data-gameid="${gameId}">▶ Start</button>
-                            ` : ''}
-                            ${game.status === 'active' ? `
-                                <button class="action-btn btn-end" data-gameid="${gameId}">⏹ End</button>
-                            ` : ''}
-                        </div>
-                    `;
-                    gameList.appendChild(item);
-                }
-
-                document.querySelectorAll('.btn-start').forEach(btn => {
-                    btn.addEventListener('click', async () => {
-                        const gameId = btn.dataset.gameid;
-                        if (confirm('Start this game?')) {
-                            await updateDoc(doc(db, 'game_session', gameId), {
-                                status: 'active',
-                                startedAt: Timestamp.now()
-                            });
-                            await loadStats();
-                            loadGames();
-                            showToast('✅ Game started!', 'success');
-                        }
-                    });
-                });
-
-                document.querySelectorAll('.btn-end').forEach(btn => {
-                    btn.addEventListener('click', async () => {
-                        const gameId = btn.dataset.gameid;
-                        if (confirm('End this game?')) {
-                            await updateDoc(doc(db, 'game_session', gameId), {
-                                status: 'ended',
-                                endedAt: Timestamp.now()
-                            });
-                            await loadStats();
-                            loadGames();
-                            showToast('Game ended', 'success');
-                        }
-                    });
-                });
-            });
-        }
-
-        window.loadStats = loadStats;
-    </script>
-</body>
-</html>
+    await gameRef.update({
+        drawnNumbers: firebase.firestore.FieldValue.arrayUnion(nextNum)
+    });
+});
+</script>
