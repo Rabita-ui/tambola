@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Tambola House</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background: #121417;
+            color: #e1e3e6;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #1c1f24;
+            border-radius: 12px;
+            border: 1px solid #2d3239;
+        }
+
+        .header h2 {
+            font-size: 1.3rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-logout {
+            background: #da3633;
+            color: #ffffff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .btn-logout:hover {
+            background: #b82d2a;
+        }
+
+        /* HERO LIVE GAME BANNER */
+        .live-game-banner {
+            background: linear-gradient(135deg, #1f6feb 0%, #1a4fba 100%);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 24px rgba(31, 111, 235, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .banner-content h1 {
+            color: #ffffff;
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .banner-content p {
+            color: #d0d7de;
+            font-size: 0.95rem;
+        }
+
+        .btn-live-game {
+            background: #238636;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(35, 134, 54, 0.4);
+            transition: transform 0.15s ease, background 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .btn-live-game:hover {
+            background: #2ea043;
+            transform: translateY(-2px);
+        }
+
+        /* CARD GRID */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: #1c1f24;
+            border: 1px solid #2d3239;
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            color: #8b949e;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 16px;
+        }
+
+        .card-btn {
+            background: #23272e;
+            color: #58a6ff;
+            border: 1px solid #30363d;
+            padding: 10px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+            transition: background 0.2s, border-color 0.2s;
+            display: inline-block;
+        }
+
+        .card-btn:hover {
+            background: #30363d;
+            border-color: #8b949e;
+            color: #ffffff;
+        }
+
+        @media (max-width: 600px) {
+            .live-game-banner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .btn-live-game {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- HEADER -->
+    <div class="header">
+        <h2><i class="fas fa-cubes" style="color: #388bfd;"></i> Tambola House</h2>
+        <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+
+    <!-- LIVE GAME HERO BANNER -->
+    <div class="live-game-banner">
+        <div class="banner-content">
+            <h1><i class="fas fa-dice" style="color: #58a6ff;"></i> Live Game is Ready!</h1>
+            <p>Join the live room to track drawn numbers and check your tickets in real time.</p>
+        </div>
+        <a href="game.html" class="btn-live-game">
+            <i class="fas fa-gamepad"></i> GO TO GAME
+        </a>
+    </div>
+
+    <!-- DASHBOARD NAVIGATION GRID -->
+    <div class="grid">
+        <!-- MY TOKENS -->
+        <div class="card">
+            <div>
+                <div class="card-title"><i class="fas fa-coins" style="color: #e3b341;"></i> Available Balance</div>
+                <div class="card-value" id="userTokens">0 Tokens</div>
+            </div>
+            <a href="deposit-request.html" class="card-btn"><i class="fas fa-plus-circle"></i> Add Tokens</a>
+        </div>
+
+        <!-- TICKET BOOKING -->
+        <div class="card">
+            <div>
+                <div class="card-title"><i class="fas fa-ticket-alt" style="color: #388bfd;"></i> My Tickets</div>
+                <div class="card-value" id="userTicketCount">0 Tickets</div>
+            </div>
+            <a href="book-tickets.html" class="card-btn"><i class="fas fa-shopping-cart"></i> Book Tickets</a>
+        </div>
+
+        <!-- ADMIN ACCESS -->
+        <div class="card">
+            <div>
+                <div class="card-title"><i class="fas fa-user-shield" style="color: #f85149;"></i> Host & Admin</div>
+                <div class="card-value" style="font-size: 1.2rem; margin-top: 10px;">Admin Portal</div>
+            </div>
+            <a href="admin.html" class="card-btn"><i class="fas fa-cog"></i> Open Admin</a>
+        </div>
+    </div>
+</div>
+
+<!-- FIREBASE SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDV5yQ1F18vYtaaEy4ac31LXplCkTr2U6A",
+        authDomain: "tambola-house-3dc56.firebaseapp.com",
+        projectId: "tambola-house-3dc56",
+        storageBucket: "tambola-house-3dc56.firebasestorage.app",
+        messagingSenderId: "267918174188",
+        appId: "1:267918174188:web:ec27684544c286c044c2c9"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    auth.onAuthStateChanged((user) => {
+        if (!user) {
+            window.location.href = "login.html";
+            return;
+        }
+        loadUserData(user.uid);
+    });
+
+    /* REALTIME USER BALANCE & TICKET COUNT STREAM */
+    function loadUserData(uid) {
+        // Stream Tokens Balance
+        db.collection("users").doc(uid).onSnapshot((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                document.getElementById("userTokens").textContent = `${data.tokens || 0} Tokens`;
+            }
+        });
+
+        // Stream Purchased Tickets Count
+        db.collection("tickets").where("userId", "==", uid).onSnapshot((snapshot) => {
+            document.getElementById("userTicketCount").textContent = `${snapshot.size} Tickets`;
+        });
+    }
+
+    /* LOGOUT */
+    function logout() {
+        auth.signOut().then(() => {
+            window.location.href = "login.html";
+        });
+    }
+</script>
+</body>
+</html>
