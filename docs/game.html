@@ -1,288 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Tambola House</title>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    :root {
-      --bg-color: #f3efea;
-      --card-bg: #ffffff;
-      --text-dark: #3a2e2b;
-      --text-muted: #8c7b75;
-      --accent-orange: #d96b27;
-      --accent-hover: #c45a1c;
-      --badge-booked-bg: #fce8e6;
-      --badge-booked-text: #e5534b;
-      --badge-token-bg: #fbf3eb;
-      --badge-token-text: #d96b27;
-      --btn-gray: #6e7275;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-dark);
-      padding: 30px;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    /* Grid Layouts */
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      margin-bottom: 25px;
-    }
-
-    /* Stats & Action Cards */
-    .card {
-      background: var(--card-bg);
-      border-radius: 20px;
-      padding: 24px 16px;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .card-icon {
-      color: var(--accent-orange);
-      margin-bottom: 12px;
-    }
-
-    .card-stat {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .card-subtitle {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    .badge-pending {
-      background-color: var(--accent-orange);
-      color: white;
-      font-size: 0.75rem;
-      padding: 3px 12px;
-      border-radius: 12px;
-      margin-top: 8px;
-      font-weight: 600;
-    }
-
-    /* Section Title */
-    .section-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin: 35px 0 20px 0;
-      color: var(--text-dark);
-    }
-
-    .section-title::before {
-      content: '';
-      display: inline-block;
-      width: 6px;
-      height: 22px;
-      background-color: var(--accent-orange);
-      border-radius: 4px;
-    }
-
-    .play-icon {
-      color: var(--text-dark);
-      fill: var(--text-dark);
-    }
-
-    /* Ticket Card */
-    .ticket-card {
-      background: var(--card-bg);
-      border-radius: 20px;
-      padding: 20px;
-      width: 260px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-    }
-
-    .ticket-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .ticket-id {
-      font-weight: 700;
-      font-size: 1rem;
-    }
-
-    .token-badge {
-      background: var(--badge-token-bg);
-      color: var(--badge-token-text);
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 12px;
-    }
-
-    .status-badge {
-      display: inline-block;
-      background: var(--badge-booked-bg);
-      color: var(--badge-booked-text);
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 4px 12px;
-      border-radius: 12px;
-      margin-bottom: 16px;
-    }
-
-    /* Buttons */
-    .btn-group {
-      display: flex;
-      gap: 8px;
-    }
-
-    .btn {
-      flex: 1;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 10px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      color: white;
-      text-decoration: none;
-    }
-
-    .btn-orange {
-      background-color: var(--accent-orange);
-    }
-
-    .btn-orange:hover {
-      background-color: var(--accent-hover);
-    }
-
-    .btn-gray {
-      background-color: var(--btn-gray);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambola - Live Game Room</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .tambola-ticket {
+            display: inline-block;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 8px;
+            background: #fff;
+            margin-bottom: 20px;
+        }
+        .ticket-row {
+            display: flex;
+        }
+        .ticket-cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .ticket-cell.marked {
+            background-color: #2ecc71;
+            color: #fff;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container">
-  
-  <!-- Top Stat Cards -->
-  <div class="grid-4">
+    <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Live Game Room</h2>
+        <div>
+            <a href="dashboard.html" class="btn btn-primary">Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Live Board -->
     <div class="card">
-      <i data-lucide="ticket" class="card-icon" size="32"></i>
-      <div class="card-stat">1</div>
-      <div class="card-subtitle">Total Tickets</div>
+        <h3>Live Call Board</h3>
+        <p style="font-size: 1.5rem; margin: 10px 0;">Last Call: <span id="lastCallDisplay" style="color: #e74c3c; font-weight: bold;">--</span></p>
+        <div id="drawnNumbersList" style="word-break: break-all; font-weight: bold;"></div>
     </div>
 
+    <!-- My Tickets & Claim Actions -->
     <div class="card">
-      <i data-lucide="check-circle-2" class="card-icon" size="32"></i>
-      <div class="card-stat">0</div>
-      <div class="card-subtitle">Available</div>
+        <h3>My Tickets</h3>
+        <div style="margin-bottom: 15px;">
+            <button onclick="claimWin('EARLY_FIVE')" class="btn btn-primary">Claim Early 5</button>
+            <button onclick="claimWin('TOP_LINE')" class="btn btn-primary">Claim Top Line</button>
+            <button onclick="claimWin('MIDDLE_LINE')" class="btn btn-primary">Claim Middle Line</button>
+            <button onclick="claimWin('BOTTOM_LINE')" class="btn btn-primary">Claim Bottom Line</button>
+            <button onclick="claimWin('FULL_HOUSE')" class="btn btn-success">Claim Full House</button>
+        </div>
+        <div id="ticketsContainer">Loading tickets...</div>
     </div>
-
-    <div class="card">
-      <i data-lucide="bookmark" class="card-icon" size="32"></i>
-      <div class="card-stat">0</div>
-      <div class="card-subtitle">My Tickets</div>
-    </div>
-
-    <div class="card">
-      <i data-lucide="trophy" class="card-icon" size="32"></i>
-      <div class="card-stat">0</div>
-      <div class="card-subtitle">Wins</div>
-    </div>
-  </div>
-
-  <!-- Action Navigation Cards -->
-  <div class="grid-4">
-    <a href="#" class="card">
-      <i data-lucide="ticket" class="card-icon" size="32"></i>
-      <div class="card-title">Book Tickets</div>
-      <div class="card-subtitle">Buy tickets for current draw</div>
-    </a>
-
-    <a href="#" class="card">
-      <i data-lucide="coins" class="card-icon" size="32"></i>
-      <div class="card-title">Request Deposit</div>
-      <div class="card-subtitle">Request token deposit</div>
-      <span class="badge-pending">0 Pending</span>
-    </a>
-
-    <a href="#" class="card">
-      <i data-lucide="list-ordered" class="card-icon" size="32"></i>
-      <div class="card-title">My Tickets</div>
-      <div class="card-subtitle">View your tickets</div>
-    </a>
-
-    <a href="#" class="card">
-      <i data-lucide="calendar-days" class="card-icon" size="32"></i>
-      <div class="card-title">Draw Schedule</div>
-      <div class="card-subtitle">View upcoming draws</div>
-    </a>
-  </div>
-
-  <!-- Section Title -->
-  <div class="section-title">
-    <i data-lucide="play-circle" class="play-icon" size="22"></i>
-    <span>Current Draw Tickets</span>
-  </div>
-
-  <!-- Ticket Item -->
-  <div class="ticket-card">
-    <div class="ticket-header">
-      <span class="ticket-id">TICK-001</span>
-      <span class="token-badge">10 Tokens</span>
-    </div>
-    <div>
-      <span class="status-badge">Booked</span>
-    </div>
-    <div class="btn-group">
-      <button class="btn btn-orange">
-        <i data-lucide="eye" size="14"></i> Preview
-      </button>
-      <button class="btn btn-gray">
-        <i data-lucide="shopping-cart" size="14"></i> Booked
-      </button>
-    </div>
-  </div>
-
 </div>
 
-<!-- Icon Rendering Script -->
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+
 <script>
-  lucide.createIcons();
+let drawnNumbers = [];
+let myTicketsData = [];
+let activeGameId = null;
+
+auth.onAuthStateChanged(async (user) => {
+    if (!user) return window.location.href = "index.html";
+    
+    // Fetch active game
+    const gameSnap = await db.collection("games").where("status", "==", "LIVE").limit(1).get();
+    if (gameSnap.empty) {
+        document.getElementById("ticketsContainer").textContent = "No live game active at the moment.";
+        return;
+    }
+
+    activeGameId = gameSnap.docs[0].id;
+    listenToLiveCalls(activeGameId);
+    await loadUserTickets(user.uid, activeGameId);
+});
+
+function listenToLiveCalls(gameId) {
+    db.collection("games").doc(gameId).onSnapshot(doc => {
+        if (!doc.exists) return;
+        drawnNumbers = doc.data().drawnNumbers || [];
+        document.getElementById("lastCallDisplay").textContent = drawnNumbers.length > 0 ? drawnNumbers[drawnNumbers.length - 1] : "--";
+        document.getElementById("drawnNumbersList").textContent = drawnNumbers.join(", ");
+        
+        renderTickets();
+    });
+}
+
+async function loadUserTickets(userId, gameId) {
+    const bookingSnap = await db.collection("bookings")
+        .where("userId", "==", userId)
+        .where("gameId", "==", gameId)
+        .get();
+
+    const ticketIds = [];
+    bookingSnap.forEach(doc => doc.data().ticketIds.forEach(id => ticketIds.push(id)));
+
+    myTicketsData = [];
+    for (let tId of ticketIds) {
+        const masterDoc = await db.collection("masterTickets").doc(tId).get();
+        if (masterDoc.exists) {
+            myTicketsData.push({ ticketId: tId, grid: masterDoc.data().grid });
+        }
+    }
+    renderTickets();
+}
+
+function renderTickets() {
+    const container = document.getElementById("ticketsContainer");
+    if (myTicketsData.length === 0) {
+        container.textContent = "You have no booked tickets for this game.";
+        return;
+    }
+
+    container.innerHTML = myTicketsData.map(ticket => {
+        let rowsHtml = '';
+        for (let r = 0; r < 3; r++) {
+            rowsHtml += '<div class="ticket-row">';
+            for (let c = 0; c < 9; c++) {
+                const val = ticket.grid[r * 9 + c];
+                const isMarked = val !== 0 && drawnNumbers.includes(val);
+                rowsHtml += `<div class="ticket-cell ${isMarked ? 'marked' : ''}">${val !== 0 ? val : ''}</div>`;
+            }
+            rowsHtml += '</div>';
+        }
+        return `<div class="tambola-ticket"><strong>Ticket ID: ${ticket.ticketId}</strong>${rowsHtml}</div>`;
+    }).join('<br>');
+}
+
+// Win Validation Logic
+async function claimWin(claimType) {
+    const user = auth.currentUser;
+    let isValidClaim = false;
+    let winningTicketId = null;
+
+    for (let ticket of myTicketsData) {
+        const grid = ticket.grid;
+        const markedGrid = grid.map(val => val !== 0 && drawnNumbers.includes(val));
+
+        if (claimType === 'EARLY_FIVE') {
+            const count = markedGrid.filter(Boolean).length;
+            if (count >= 5) { isValidClaim = true; winningTicketId = ticket.ticketId; break; }
+        } else if (claimType === 'TOP_LINE') {
+            const topRow = markedGrid.slice(0, 9);
+            const nonZeroCount = grid.slice(0, 9).filter(v => v !== 0).length;
+            if (topRow.filter(Boolean).length === nonZeroCount) { isValidClaim = true; winningTicketId = ticket.ticketId; break; }
+        } else if (claimType === 'FULL_HOUSE') {
+            const nonZeroTotal = grid.filter(v => v !== 0).length;
+            if (markedGrid.filter(Boolean).length === nonZeroTotal) { isValidClaim = true; winningTicketId = ticket.ticketId; break; }
+        }
+    }
+
+    if (isValidClaim) {
+        await db.collection("winners").add({
+            gameId: activeGameId,
+            userId: user.uid,
+            userEmail: user.email,
+            ticketId: winningTicketId,
+            claimType: claimType,
+            claimedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert(`Congratulations! Your claim for ${claimType} on ticket ${winningTicketId} was verified and recorded!`);
+    } else {
+        alert("Bogey / Invalid Claim! Your ticket does not satisfy the requirements based on drawn numbers.");
+    }
+}
 </script>
 
 </body>
