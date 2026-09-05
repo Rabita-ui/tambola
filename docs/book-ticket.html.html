@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambola - Book Tickets</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .ticket-grid-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .ticket-chip {
+            padding: 10px;
+            text-align: center;
+            border: 2px solid #3498db;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            background: #fff;
+        }
+        .ticket-chip.selected {
+            background: #3498db;
+            color: #fff;
+        }
+        .ticket-chip.disabled {
+            background: #e0e0e0;
+            border-color: #ccc;
+            color: #888;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Ticket Booking Portal</h2>
+        <div>
+            <span style="margin-right: 15px; font-weight: bold;">Wallet: <span id="balanceDisplay" style="color: #2ecc71;">0</span> Tokens</span>
+            <a href="dashboard.html" class="btn btn-primary">Dashboard</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Select Active Game</h3>
+        <div class="form-group" style="margin-top: 10px;">
+            <select id="gameSelect">
+                <option value="">-- Select an Upcoming Game --</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card" id="bookingArea" style="display: none;">
+        <h3>Select Master Tickets (T001 - T600)</h3>
+        <p style="margin-bottom: 10px; font-size: 0.9rem; color: #666;">
+            <strong>Offer Active:</strong> Buy 6 Tickets for the price of 5! Price per ticket: <span id="ticketPriceDisplay">0</span> Tokens.
+        </p>
+
+        <div class="ticket-grid-selector" id="ticketContainer">
+            <!-- Dynamically populated -->
+        </div>
+
+        <div style="border-top: 1px solid #eee; padding-top: 15px;">
+            <p>Selected Tickets (<span id="selectedCount">0</span>): <span id="selectedList">None</span></p>
+            <p>Base Price: <span id="basePrice">0</span> Tokens</p>
+            <p style="color: green; font-weight: bold;">Discount (Book 6 Pay 5): -<span id="discountPrice">0</span> Tokens</p>
+            <h3 style="margin: 10px 0;">Total Payable: <span id="totalPayable" style="color: #2ecc71;">0</span> Tokens</h3>
+            
+            <button id="checkoutBtn" class="btn btn-success" disabled>Confirm & Pay Tokens</button>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/wallet.js"></script>
+
+<script>
+let selectedTickets = [];
+let currentTicketPrice = 0;
+let activeGameId = null;
+
+auth.onAuthStateChanged(user => {
+    if (!user) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    listenToWalletBalance(user.uid, (bal) => {
+        document.getElementById("balanceDisplay").textContent = bal;
+    });
+
+    loadUpcomingGames();
+});
+
+// Load active games from Firestore
+async function loadUpcomingGames() {
+    const select = document.getElementById("gameSelect");
+    const snap = await db.collection("games").where("status", "==", "OPEN").get();
+
+    select.innerHTML = `<option value="">-- Select an Upcoming Game --</option>`;
+    snap.forEach(doc => {
+        const game = doc.data();
+        select.innerHTML += `<option value="${doc.id}" data-price="${game.ticketPrice}">${game.title} - ${game.ticketPrice} Tokens/ticket</option>`;
+    });
+}
+
+document.getElementById("gameSelect").addEventListener("change", async (e) => {
+    activeGameId = e.target.value;
+    if (!activeGameId) {
+        document.getElementById("bookingArea").style.display = "none";
+        return;
+    }
+
+    const selectedOption = e.target.options[e.target.selectedIndex];
+    currentTicketPrice = Number(selectedOption.getAttribute("data-price"));
+    document.getElementById("ticketPriceDisplay").textContent = currentTicketPrice;
+
+    await renderTicketSelector(activeGameId);
+    document.getElementById("bookingArea").style.display = "block";
+});
+
+// Render 600 Master Tickets and mark booked ones as disabled
+async function renderTicketSelector(gameId) {
+    const container = document.getElementById("ticketContainer");
+    container.innerHTML = "Loading available tickets...";
+
+    // Get already booked ticket IDs for this game
+    const bookedSnap = await db.collection("bookings").where("gameId", "==", gameId).get();
+    const bookedTicketIds = new Set();
+    bookedSnap.forEach(doc => {
+        doc.data().ticketIds.forEach(id => bookedTicketIds.add(id));
+    });
+
+    selectedTickets = [];
+    updatePricing();
+
+    container.innerHTML = "";
+    for (let i = 1; i <= 600; i++) {
+        const tId = `T${String(i).padStart(3, '0')}`;
+        const chip = document.createElement("div");
+        chip.className = "ticket-chip";
+        chip.textContent = tId;
+
+        if (bookedTicketIds.has(tId)) {
+            chip.classList.add("disabled");
+        } else {
+            chip.addEventListener("click", () => toggleTicketSelection(tId, chip));
+        }
+        container.appendChild(chip);
+    }
+}
+
+function toggleTicketSelection(tId, element) {
+    if (selectedTickets.includes(tId)) {
+        selectedTickets = selectedTickets.filter(id => id !== tId);
+        element.classList.remove("selected");
+    } else {
+        selectedTickets.push(tId);
+        element.classList.add("selected");
+    }
+    updatePricing();
+}
+
+// Calculate "Book 6 Pay 5" Pricing Logic
+function updatePricing() {
+    const count = selectedTickets.length;
+    const setsOfSix = Math.floor(count / 6);
+    const freeTickets = setsOfSix; // 1 free ticket for every 6 selected
+    
+    const basePrice = count * currentTicketPrice;
+    const discount = freeTickets * currentTicketPrice;
+    const finalPrice = basePrice - discount;
+
+    document.getElementById("selectedCount").textContent = count;
+    document.getElementById("selectedList").textContent = selectedTickets.join(", ") || "None";
+    document.getElementById("basePrice").textContent = basePrice;
+    document.getElementById("discountPrice").textContent = discount;
+    document.getElementById("totalPayable").textContent = finalPrice;
+
+    document.getElementById("checkoutBtn").disabled = count === 0;
+}
+
+// Transaction Checkout Handler
+document.getElementById("checkoutBtn").addEventListener("click", async () => {
+    const user = auth.currentUser;
+    const count = selectedTickets.length;
+    const setsOfSix = Math.floor(count / 6);
+    const payableAmount = (count - setsOfSix) * currentTicketPrice;
+
+    if (!confirm(`Confirm booking of ${count} ticket(s) for ${payableAmount} Tokens?`)) return;
+
+    try {
+        await db.runTransaction(async (transaction) => {
+            const userRef = db.collection("users").doc(user.uid);
+            const userDoc = await transaction.get(userRef);
+            const balance = userDoc.data().walletBalance || 0;
+
+            if (balance < payableAmount) {
+                throw new Error("Insufficient token balance. Please deposit tokens first.");
+            }
+
+            // Deduct Tokens
+            transaction.update(userRef, { walletBalance: balance - payableAmount });
+
+            // Create Booking Document
+            const bookingRef = db.collection("bookings").doc();
+            transaction.set(bookingRef, {
+                bookingId: bookingRef.id,
+                gameId: activeGameId,
+                userId: user.uid,
+                userEmail: user.email,
+                ticketIds: selectedTickets,
+                ticketsBooked: count,
+                amountPaid: payableAmount,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // Write Ledger Transaction Entry
+            const txRef = db.collection("transactions").doc();
+            transaction.set(txRef, {
+                userId: user.uid,
+                type: "TICKET_BOOKING",
+                tokens: -payableAmount,
+                details: { gameId: activeGameId, tickets: selectedTickets },
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        });
+
+        alert("Booking successful! Tickets assigned to your account.");
+        window.location.href = "dashboard.html";
+    } catch (err) {
+        alert("Booking Failed: " + err.message);
+    }
+});
+</script>
+
+</body>
+</html>
