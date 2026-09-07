@@ -1,184 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambola - Live Game Room</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <style>
-        .tambola-ticket {
-            display: inline-block;
-            border: 2px solid #333;
-            border-radius: 8px;
-            padding: 8px;
-            background: #fff;
-            margin-bottom: 20px;
-        }
-        .ticket-row {
-            display: flex;
-        }
-        .ticket-cell {
-            width: 40px;
-            height: 40px;
-            border: 1px solid #ccc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-        .ticket-cell.marked {
-            background-color: #2ecc71;
-            color: #fff;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Game - Tambola House</title>
+  
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore-compat.js"></script>
+
+  <!-- Local Config -->
+  <script src="js/firebase-config.js"></script>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f8;
+      color: #172b4d;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar {
+      background-color: #ffffff;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+
+    .logo { font-size: 20px; font-weight: bold; color: #0052cc; }
+
+    button {
+      padding: 9px 16px; border: none; border-radius: 6px;
+      font-weight: 600; cursor: pointer;
+    }
+
+    .btn-secondary { background: #ebecf0; color: #172b4d; }
+    .btn-draw { background: #36b37e; color: #fff; font-size: 16px; padding: 12px 20px; }
+
+    .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+    .card { background: #ffffff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
+
+    /* Current Called Number Display */
+    .current-number {
+      font-size: 64px; font-weight: bold; color: #0052cc;
+      text-align: center; width: 100px; height: 100px; line-height: 100px;
+      background: #deebff; border-radius: 50%; margin: 10px auto;
+    }
+
+    /* Board Grid for Called Numbers (1-90) */
+    .board-grid {
+      display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin-top: 15px;
+    }
+
+    .board-cell {
+      background: #fafbfc; border: 1px solid #dfe1e6; height: 32px;
+      display: flex; justify-content: center; align-items: center;
+      font-size: 12px; font-weight: 600; border-radius: 4px; color: #a5adba;
+    }
+
+    .board-cell.called { background: #36b37e; color: #ffffff; border-color: #36b37e; }
+
+    /* Player Interactive Ticket Grid */
+    .ticket-grid {
+      display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px;
+      background: #0052cc; padding: 8px; border-radius: 6px; margin: 15px 0;
+    }
+
+    .ticket-cell {
+      background: #ffffff; height: 40px; display: flex;
+      justify-content: center; align-items: center; font-weight: bold;
+      border-radius: 3px; font-size: 15px; cursor: pointer; user-select: none;
+    }
+
+    .ticket-cell.empty { background: #deebff; cursor: default; }
+    .ticket-cell.marked { background: #ffab00; color: #172b4d; }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-        <h2>Live Game Room</h2>
-        <div>
-            <a href="dashboard.html" class="btn btn-primary">Dashboard</a>
-        </div>
-    </div>
+  <nav class="navbar">
+    <div class="logo">🎯 Tambola House - Live Room</div>
+    <a href="dashboard.html"><button class="btn-secondary">Dashboard</button></a>
+  </nav>
 
-    <!-- Live Board -->
-    <div class="card">
-        <h3>Live Call Board</h3>
-        <p style="font-size: 1.5rem; margin: 10px 0;">Last Call: <span id="lastCallDisplay" style="color: #e74c3c; font-weight: bold;">--</span></p>
-        <div id="drawnNumbersList" style="word-break: break-all; font-weight: bold;"></div>
-    </div>
-
-    <!-- My Tickets & Claim Actions -->
-    <div class="card">
-        <h3>My Tickets</h3>
-        <div style="margin-bottom: 15px;">
-            <button onclick="claimWin('EARLY_FIVE')" class="btn btn-primary">Claim Early 5</button>
-            <button onclick="claimWin('TOP_LINE')" class="btn btn-primary">Claim Top Line</button>
-            <button onclick="claimWin('MIDDLE_LINE')" class="btn btn-primary">Claim Middle Line</button>
-            <button onclick="claimWin('BOTTOM_LINE')" class="btn btn-primary">Claim Bottom Line</button>
-            <button onclick="claimWin('FULL_HOUSE')" class="btn btn-success">Claim Full House</button>
-        </div>
-        <div id="ticketsContainer">Loading tickets...</div>
-    </div>
-</div>
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js"></script>
-
-<script>
-let drawnNumbers = [];
-let myTicketsData = [];
-let activeGameId = null;
-
-auth.onAuthStateChanged(async (user) => {
-    if (!user) return window.location.href = "index.html";
+  <div class="container">
     
-    // Fetch active game
-    const gameSnap = await db.collection("games").where("status", "==", "LIVE").limit(1).get();
-    if (gameSnap.empty) {
-        document.getElementById("ticketsContainer").textContent = "No live game active at the moment.";
-        return;
+    <!-- Admin Number Caller Control (Only shown to Admin) -->
+    <div id="admin-controls" class="card" style="display: none; border-left: 5px solid #ffab00;">
+      <h3 style="margin-top: 0; color: #172b4d;">⚙️ Admin Number Caller</h3>
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <button class="btn-draw" onclick="drawNextNumber()">🎲 Draw Next Number</button>
+        <span id="drawn-count" style="font-weight: 600; color: #5e6c84;">Drawn: 0 / 90</span>
+      </div>
+    </div>
+
+    <!-- Real-time Game Status & Called Board -->
+    <div class="card">
+      <h3 style="margin-top: 0; text-align: center;">Latest Called Number</h3>
+      <div id="current-num" class="current-number">--</div>
+
+      <h4>Board (1 - 90)</h4>
+      <div id="board" class="board-grid"></div>
+    </div>
+
+    <!-- User's Live Ticket -->
+    <div class="card">
+      <h3 style="margin-top: 0;">🎟️ Your Live Tickets</h3>
+      <p style="font-size: 14px; color: #5e6c84;">Click on a matching called number on your ticket to mark it.</p>
+      <div id="user-tickets-container">Loading your tickets...</div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentUser = null;
+    let currentGameId = "ACTIVE_GAME"; // Can be populated dynamically from URL query params
+    let calledNumbers = [];
+    let isAdmin = false;
+
+    auth.onAuthStateChanged(async user => {
+      if (!user) {
+        window.location.href = 'index.html';
+      } else {
+        currentUser = user;
+        
+        // Verify if Admin
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        if (userDoc.exists && userDoc.data().role === 'admin') {
+          isAdmin = true;
+          document.getElementById('admin-controls').style.display = 'block';
+        }
+
+        renderBoard();
+        listenToLiveGame();
+        loadUserTickets();
+      }
+    });
+
+    // Render empty 1-90 board
+    function renderBoard() {
+      const boardContainer = document.getElementById('board');
+      boardContainer.innerHTML = '';
+      for (let i = 1; i <= 90; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'board-cell';
+        cell.id = `board-${i}`;
+        cell.innerText = i;
+        boardContainer.appendChild(cell);
+      }
     }
 
-    activeGameId = gameSnap.docs[0].id;
-    listenToLiveCalls(activeGameId);
-    await loadUserTickets(user.uid, activeGameId);
-});
+    // Real-time listener for called numbers
+    function listenToLiveGame() {
+      db.collection('games').doc(currentGameId)
+        .onSnapshot(doc => {
+          if (doc.exists) {
+            const data = doc.data();
+            calledNumbers = data.drawnNumbers || [];
 
-function listenToLiveCalls(gameId) {
-    db.collection("games").doc(gameId).onSnapshot(doc => {
-        if (!doc.exists) return;
-        drawnNumbers = doc.data().drawnNumbers || [];
-        document.getElementById("lastCallDisplay").textContent = drawnNumbers.length > 0 ? drawnNumbers[drawnNumbers.length - 1] : "--";
-        document.getElementById("drawnNumbersList").textContent = drawnNumbers.join(", ");
-        
-        renderTickets();
-    });
-}
+            // Update Current Called Number Display
+            const lastNum = calledNumbers.length > 0 ? calledNumbers[calledNumbers.length - 1] : '--';
+            document.getElementById('current-num').innerText = lastNum;
+            document.getElementById('drawn-count').innerText = `Drawn: ${calledNumbers.length} / 90`;
 
-async function loadUserTickets(userId, gameId) {
-    const bookingSnap = await db.collection("bookings")
-        .where("userId", "==", userId)
-        .where("gameId", "==", gameId)
+            // Update Board Grid UI
+            calledNumbers.forEach(num => {
+              const el = document.getElementById(`board-${num}`);
+              if (el) el.classList.add('called');
+            });
+          }
+        });
+    }
+
+    // Admin Draw Next Number Logic
+    async function drawNextNumber() {
+      if (!isAdmin) return;
+
+      let remaining = [];
+      for (let i = 1; i <= 90; i++) {
+        if (!calledNumbers.includes(i)) remaining.push(i);
+      }
+
+      if (remaining.length === 0) {
+        alert("All numbers have been drawn!");
+        return;
+      }
+
+      const nextNum = remaining[Math.floor(Math.random() * remaining.length)];
+      
+      await db.collection('games').doc(currentGameId).set({
+        drawnNumbers: firebase.firestore.FieldValue.arrayUnion(nextNum),
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    }
+
+    // Fetch and display user's tickets
+    async function loadUserTickets() {
+      const container = document.getElementById('user-tickets-container');
+      const snapshot = await db.collection('bookings')
+        .where('userId', '==', currentUser.uid)
         .get();
 
-    const ticketIds = [];
-    bookingSnap.forEach(doc => doc.data().ticketIds.forEach(id => ticketIds.push(id)));
-
-    myTicketsData = [];
-    for (let tId of ticketIds) {
-        const masterDoc = await db.collection("masterTickets").doc(tId).get();
-        if (masterDoc.exists) {
-            myTicketsData.push({ ticketId: tId, grid: masterDoc.data().grid });
-        }
-    }
-    renderTickets();
-}
-
-function renderTickets() {
-    const container = document.getElementById("ticketsContainer");
-    if (myTicketsData.length === 0) {
-        container.textContent = "You have no booked tickets for this game.";
+      if (snapshot.empty) {
+        container.innerHTML = '<p>You have not booked any tickets for this game.</p>';
         return;
-    }
+      }
 
-    container.innerHTML = myTicketsData.map(ticket => {
-        let rowsHtml = '';
+      container.innerHTML = '';
+      snapshot.forEach(doc => {
+        const ticketData = doc.data().numbers;
+        const ticketGrid = document.createElement('div');
+        ticketGrid.className = 'ticket-grid';
+
         for (let r = 0; r < 3; r++) {
-            rowsHtml += '<div class="ticket-row">';
-            for (let c = 0; c < 9; c++) {
-                const val = ticket.grid[r * 9 + c];
-                const isMarked = val !== 0 && drawnNumbers.includes(val);
-                rowsHtml += `<div class="ticket-cell ${isMarked ? 'marked' : ''}">${val !== 0 ? val : ''}</div>`;
+          for (let c = 0; c < 9; c++) {
+            const val = ticketData[r][c];
+            const cell = document.createElement('div');
+            cell.className = val ? 'ticket-cell' : 'ticket-cell empty';
+            cell.innerText = val || '';
+
+            if (val) {
+              cell.onclick = () => {
+                if (calledNumbers.includes(val)) {
+                  cell.classList.toggle('marked');
+                } else {
+                  alert(`Number ${val} has not been called yet!`);
+                }
+              };
             }
-            rowsHtml += '</div>';
+            ticketGrid.appendChild(cell);
+          }
         }
-        return `<div class="tambola-ticket"><strong>Ticket ID: ${ticket.ticketId}</strong>${rowsHtml}</div>`;
-    }).join('<br>');
-}
-
-// Win Validation Logic
-async function claimWin(claimType) {
-    const user = auth.currentUser;
-    let isValidClaim = false;
-    let winningTicketId = null;
-
-    for (let ticket of myTicketsData) {
-        const grid = ticket.grid;
-        const markedGrid = grid.map(val => val !== 0 && drawnNumbers.includes(val));
-
-        if (claimType === 'EARLY_FIVE') {
-            const count = markedGrid.filter(Boolean).length;
-            if (count >= 5) { isValidClaim = true; winningTicketId = ticket.ticketId; break; }
-        } else if (claimType === 'TOP_LINE') {
-            const topRow = markedGrid.slice(0, 9);
-            const nonZeroCount = grid.slice(0, 9).filter(v => v !== 0).length;
-            if (topRow.filter(Boolean).length === nonZeroCount) { isValidClaim = true; winningTicketId = ticket.ticketId; break; }
-        } else if (claimType === 'FULL_HOUSE') {
-            const nonZeroTotal = grid.filter(v => v !== 0).length;
-            if (markedGrid.filter(Boolean).length === nonZeroTotal) { isValidClaim = true; winningTicketId = ticket.ticketId; break; }
-        }
+        container.appendChild(ticketGrid);
+      });
     }
-
-    if (isValidClaim) {
-        await db.collection("winners").add({
-            gameId: activeGameId,
-            userId: user.uid,
-            userEmail: user.email,
-            ticketId: winningTicketId,
-            claimType: claimType,
-            claimedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        alert(`Congratulations! Your claim for ${claimType} on ticket ${winningTicketId} was verified and recorded!`);
-    } else {
-        alert("Bogey / Invalid Claim! Your ticket does not satisfy the requirements based on drawn numbers.");
-    }
-}
-</script>
-
+  </script>
 </body>
 </html>
