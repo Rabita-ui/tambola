@@ -14,17 +14,42 @@
   <!-- Config & Wallet scripts -->
   <script src="js/firebase-config.js"></script>
   <script src="js/wallet.js"></script>
+
+  <style>
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    .modal-card {
+      background: #1a1d24;
+      padding: 25px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+      border: 1px solid #2a2e39;
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar">
     <div class="logo">🎯 Tambola House</div>
     <div class="user-info" style="display: flex; gap: 15px; align-items: center;">
+      <!-- Dynamic Admin Link -->
+      <a id="admin-link" href="admin.html" style="display: none;">
+        <button style="background: #ffab00; color: #000; font-weight: bold;">⚙️ Admin Panel</button>
+      </a>
       <span id="user-wallet-display" class="wallet-badge">Wallet: Loading...</span>
+      <button onclick="openTokenModal()" style="background: #36b37e;">+ Add Tokens</button>
       <button onclick="handleLogout()" style="background: #de350b;">Logout</button>
     </div>
   </nav>
 
-  <main style="max-width: 800px; margin: 0 auto;">
+  <main style="max-width: 800px; margin: 0 auto; padding: 20px;">
     <h2>Welcome to your Dashboard</h2>
     <p id="user-email-display" style="margin-top: 8px; color: #9aa0a6;">Logged in as: ...</p>
 
@@ -34,20 +59,97 @@
     </div>
   </main>
 
+  <!-- Deposit Tokens Modal -->
+  <div id="token-modal" class="modal-overlay">
+    <div class="modal-card">
+      <h3 style="margin-top: 0;">Request Tokens</h3>
+      <p style="font-size: 14px; color: #9aa0a6;">Enter details to submit a request to the Admin.</p>
+      
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px;">Token Amount</label>
+        <input type="number" id="deposit-amount" placeholder="e.g. 500" min="1" style="width: 100%; padding: 10px; background: #222; border: 1px solid #333; color: #fff; border-radius: 4px; box-sizing: border-box;">
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 5px;">Transaction ID / Reference</label>
+        <input type="text" id="deposit-txn" placeholder="e.g. TXN12345678" style="width: 100%; padding: 10px; background: #222; border: 1px solid #333; color: #fff; border-radius: 4px; box-sizing: border-box;">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button onclick="closeTokenModal()" style="background: #42526e;">Cancel</button>
+        <button onclick="submitTokenRequest()" style="background: #36b37e;">Submit Request</button>
+      </div>
+      <p id="modal-msg" style="margin-top: 10px; font-size: 14px;"></p>
+    </div>
+  </div>
+
   <script>
-    auth.onAuthStateChanged(user => {
+    let currentUser = null;
+
+    auth.onAuthStateChanged(async user => {
       if (!user) {
-        // Redirect to index if not authenticated
         window.location.href = 'index.html';
       } else {
+        currentUser = user;
         document.getElementById('user-email-display').innerText = `Logged in as: ${user.email}`;
+
+        // Role check for Admin Button
+        try {
+          const userDoc = await db.collection('users').doc(user.uid).get();
+          if (userDoc.exists && userDoc.data().role === 'admin') {
+            document.getElementById('admin-link').style.display = 'inline-block';
+          }
+        } catch (err) {
+          console.error("Error fetching user role:", err);
+        }
       }
     });
 
     function handleLogout() {
-      auth.signOut().then(() => {
-        window.location.href = 'index.html';
-      });
+      auth.signOut().then(() => window.location.href = 'index.html');
+    }
+
+    function openTokenModal() {
+      document.getElementById('token-modal').style.display = 'flex';
+      document.getElementById('modal-msg').innerText = '';
+    }
+
+    function closeTokenModal() {
+      document.getElementById('token-modal').style.display = 'none';
+    }
+
+    async function submitTokenRequest() {
+      const amount = Number(document.getElementById('deposit-amount').value);
+      const txnRef = document.getElementById('deposit-txn').value.trim();
+      const msg = document.getElementById('modal-msg');
+
+      if (!amount || amount <= 0 || !txnRef) {
+        msg.style.color = '#de350b';
+        msg.innerText = 'Please enter a valid amount and transaction reference.';
+        return;
+      }
+
+      try {
+        msg.style.color = '#36b37e';
+        msg.innerText = 'Submitting...';
+
+        await db.collection('depositRequests').add({
+          userId: currentUser.uid,
+          userEmail: currentUser.email,
+          amount: amount,
+          txnRef: txnRef,
+          status: 'pending',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        alert('Token request submitted! It will reflect in your wallet once the Admin approves it.');
+        closeTokenModal();
+        document.getElementById('deposit-amount').value = '';
+        document.getElementById('deposit-txn').value = '';
+      } catch (err) {
+        msg.style.color = '#de350b';
+        msg.innerText = 'Error: ' + err.message;
+      }
     }
   </script>
 </body>
