@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Panel - Tambola House</title>
-  <link rel="stylesheet" href="css/styles.css">
   
   <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
@@ -16,27 +15,28 @@
 
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #0f1217;
-      color: #f0f2f5;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f8;
+      color: #172b4d;
       margin: 0;
       padding: 20px;
     }
     .admin-container {
-      max-width: 900px;
+      max-width: 950px;
       margin: 0 auto;
     }
     .card {
-      background: #1a1d24;
-      padding: 20px;
+      background: #ffffff;
+      padding: 25px;
       margin-bottom: 25px;
-      border-radius: 8px;
-      border: 1px solid #2a2e39;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border: 1px solid #dfe1e6;
     }
     h2 {
       margin-top: 0;
-      color: #36b37e;
-      border-bottom: 1px solid #2a2e39;
+      color: #0052cc;
+      border-bottom: 2px solid #ebecf0;
       padding-bottom: 10px;
     }
     .form-group {
@@ -45,36 +45,29 @@
     label {
       display: block;
       margin-bottom: 5px;
-      font-weight: bold;
+      font-weight: 600;
     }
     input, select {
       width: 100%;
       padding: 10px;
-      background: #222630;
-      border: 1px solid #333846;
-      color: #fff;
-      border-radius: 4px;
+      background: #fafbfc;
+      border: 1px solid #dfe1e6;
+      color: #172b4d;
+      border-radius: 5px;
       box-sizing: border-box;
     }
     button {
-      background: #2684ff;
+      background: #0052cc;
       color: white;
-      padding: 10px 20px;
+      padding: 10px 18px;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
-      font-weight: bold;
+      font-weight: 600;
     }
-    button:hover {
-      background: #0065ff;
-    }
-    .btn-approve {
-      background: #36b37e;
-    }
-    .btn-reject {
-      background: #de350b;
-      margin-left: 5px;
-    }
+    button:hover { opacity: 0.9; }
+    .btn-approve { background: #36b37e; color: #fff; }
+    .btn-reject { background: #ff5630; color: #fff; margin-left: 5px; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -83,32 +76,34 @@
     th, td {
       padding: 12px;
       text-align: left;
-      border-bottom: 1px solid #2a2e39;
+      border-bottom: 1px solid #dfe1e6;
     }
     th {
-      background-color: #222630;
+      background-color: #fafbfc;
+      color: #5e6c84;
     }
     #loading-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: #0f1217;
+      background: #f4f6f8;
       display: flex;
       justify-content: center;
       align-items: center;
       font-size: 20px;
+      font-weight: bold;
+      color: #0052cc;
       z-index: 1000;
     }
   </style>
 </head>
 <body>
 
-  <!-- Loading Overlay while Auth check completes -->
-  <div id="loading-overlay">Checking Admin Permissions...</div>
+  <div id="loading-overlay">Verifying Admin Privileges...</div>
 
   <div class="admin-container" id="admin-content" style="display: none;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <h1>⚙️ Admin Dashboard</h1>
-      <a href="dashboard.html"><button style="background: #42526e;">Back to User Dashboard</button></a>
+      <h1 style="margin: 0; color: #091e42;">⚙️ Admin Control Panel</h1>
+      <a href="dashboard.html"><button style="background: #ebecf0; color: #172b4d;">Back to Dashboard</button></a>
     </div>
 
     <!-- Section 1: Create New Game -->
@@ -117,7 +112,7 @@
       <form id="create-game-form">
         <div class="form-group">
           <label for="game-title">Game Title</label>
-          <input type="text" id="game-title" placeholder="e.g. Bumper Evening Game" required>
+          <input type="text" id="game-title" placeholder="e.g. Grand Evening Game" required>
         </div>
         <div class="form-group">
           <label for="ticket-price">Ticket Price (Tokens)</label>
@@ -132,22 +127,38 @@
       <p id="game-status" style="margin-top: 10px; font-weight: bold;"></p>
     </div>
 
-    <!-- Section 2: Manage Wallet Deposits -->
+    <!-- Section 2: Incoming Win Claims -->
     <div class="card">
-      <h2>💳 Pending Wallet Deposit Requests</h2>
+      <h2>🏆 Live Win Claims</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>User Email</th>
+            <th>Claim Pattern</th>
+            <th>Ticket Ref</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="claims-table-body">
+          <tr><td colspan="4" style="text-align: center;">Loading claims...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Section 3: Manage Wallet Deposits -->
+    <div class="card">
+      <h2>💳 Pending Deposit Requests</h2>
       <table>
         <thead>
           <tr>
             <th>User Email</th>
             <th>Amount</th>
-            <th>Transaction ID</th>
+            <th>Transaction Reference</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody id="deposits-table-body">
-          <tr>
-            <td colspan="4" style="text-align: center;">Loading requests...</td>
-          </tr>
+          <tr><td colspan="4" style="text-align: center;">Loading deposit requests...</td></tr>
         </tbody>
       </table>
     </div>
@@ -165,12 +176,12 @@
         const userDoc = await db.collection('users').doc(user.uid).get();
 
         if (userDoc.exists && userDoc.data().role === 'admin') {
-          // Hide loading screen and display admin dashboard
           document.getElementById('loading-overlay').style.display = 'none';
           document.getElementById('admin-content').style.display = 'block';
 
           // Initialize Data Listeners
           loadPendingDeposits();
+          loadIncomingClaims();
         } else {
           alert('Access denied: Admin privileges required.');
           window.location.href = 'dashboard.html';
@@ -197,19 +208,19 @@
           title: title,
           ticketPrice: ticketPrice,
           startTime: new Date(startTime),
-          status: 'upcoming', // upcoming, active, completed
+          status: 'upcoming',
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
         statusText.innerText = 'Game created successfully!';
         document.getElementById('create-game-form').reset();
       } catch (error) {
-        statusText.style.color = '#de350b';
+        statusText.style.color = '#ff5630';
         statusText.innerText = 'Failed to create game: ' + error.message;
       }
     });
 
-    // --- 3. Load & Process Deposit Requests ---
+    // --- 3. Manage Deposit Requests ---
     function loadPendingDeposits() {
       db.collection('depositRequests')
         .where('status', '==', 'pending')
@@ -228,7 +239,7 @@
 
             row.innerHTML = `
               <td>${data.userEmail || data.userId}</td>
-              <td>${data.amount} Tokens</td>
+              <td><strong>${data.amount} Tokens</strong></td>
               <td><code>${data.txnRef || 'N/A'}</code></td>
               <td>
                 <button class="btn-approve" onclick="processDeposit('${doc.id}', '${data.userId}', ${data.amount}, true)">Approve</button>
@@ -240,14 +251,12 @@
         });
     }
 
-    // Approve or Reject Deposit Batch Operation
     async function processDeposit(requestId, userId, amount, isApproved) {
       const batch = db.batch();
       const requestRef = db.collection('depositRequests').doc(requestId);
       const userRef = db.collection('users').doc(userId);
 
       if (isApproved) {
-        // Increment user's wallet balance
         batch.update(userRef, {
           walletBalance: firebase.firestore.FieldValue.increment(amount)
         });
@@ -261,6 +270,70 @@
         alert(isApproved ? 'Deposit approved and balance added!' : 'Deposit request rejected.');
       } catch (error) {
         alert('Error processing deposit: ' + error.message);
+      }
+    }
+
+    // --- 4. Live Win Claims Processing ---
+    function loadIncomingClaims() {
+      db.collection('claims')
+        .where('status', '==', 'pending')
+        .onSnapshot((snapshot) => {
+          const tbody = document.getElementById('claims-table-body');
+          tbody.innerHTML = '';
+
+          if (snapshot.empty) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No active win claims to review.</td></tr>';
+            return;
+          }
+
+          snapshot.forEach((doc) => {
+            const claim = doc.data();
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+              <td>${claim.userEmail}</td>
+              <td><strong>${claim.claimType}</strong></td>
+              <td><code>${claim.ticketId.substring(0, 8)}...</code></td>
+              <td>
+                <button class="btn-approve" onclick="verifyClaim('${doc.id}', '${claim.userId}', true, '${claim.claimType}')">Approve & Reward</button>
+                <button class="btn-reject" onclick="verifyClaim('${doc.id}', '${claim.userId}', false, '${claim.claimType}')">Reject</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        });
+    }
+
+    async function verifyClaim(claimId, userId, isApproved, claimType) {
+      const claimRef = db.collection('claims').doc(claimId);
+      const userRef = db.collection('users').doc(userId);
+
+      // Reward structure (adjust token rewards as needed)
+      const rewards = {
+        'Early 5': 50,
+        'Top Line': 100,
+        'Middle Line': 100,
+        'Bottom Line': 100,
+        'Full House': 300
+      };
+
+      const rewardAmount = rewards[claimType] || 50;
+      const batch = db.batch();
+
+      if (isApproved) {
+        batch.update(userRef, {
+          walletBalance: firebase.firestore.FieldValue.increment(rewardAmount)
+        });
+        batch.update(claimRef, { status: 'approved', rewardPaid: rewardAmount, verifiedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      } else {
+        batch.update(claimRef, { status: 'rejected', verifiedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      }
+
+      try {
+        await batch.commit();
+        alert(isApproved ? `Claim verified! Credited ${rewardAmount} tokens to player.` : 'Claim rejected.');
+      } catch (err) {
+        alert('Error verifying claim: ' + err.message);
       }
     }
   </script>
