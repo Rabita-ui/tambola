@@ -1,88 +1,268 @@
-<!-- Add this card into public/admin.html -->
-<div class="card">
-    <h3>Game Management</h3>
-    <form id="createGameForm" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; margin-top: 10px;">
-        <input type="text" id="gameTitle" placeholder="Game Title (e.g., Evening Bumper)" required>
-        <input type="number" id="ticketPrice" placeholder="Price / Ticket" required min="1">
-        <select id="gameStatusSelect">
-            <option value="OPEN">OPEN</option>
-            <option value="LIVE">LIVE</option>
-            <option value="COMPLETED">COMPLETED</option>
-        </select>
-        <button type="submit" class="btn btn-primary">Create Game</button>
-    </form>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Tambola House</title>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Local Config -->
+  <script src="js/firebase-config.js"></script>
 
-<div class="card" id="liveControlCard">
-    <h3>Live Number Board Controller</h3>
-    <div style="margin: 15px 0;">
-        <button id="drawNumberBtn" class="btn btn-success" style="font-size: 1.2rem; padding: 12px 24px;">Draw Next Number</button>
-        <span style="font-size: 1.5rem; font-weight: bold; margin-left: 20px;">Last Drawn: <span id="lastDrawnDisplay" style="color: #e74c3c;">None</span></span>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0f1217;
+      color: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+    }
+    .admin-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #1a1d24;
+      padding: 20px;
+      margin-bottom: 25px;
+      border-radius: 8px;
+      border: 1px solid #2a2e39;
+    }
+    h2 {
+      margin-top: 0;
+      color: #36b37e;
+      border-bottom: 1px solid #2a2e39;
+      padding-bottom: 10px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      background: #222630;
+      border: 1px solid #333846;
+      color: #fff;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background: #2684ff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #0065ff;
+    }
+    .btn-approve {
+      background: #36b37e;
+    }
+    .btn-reject {
+      background: #de350b;
+      margin-left: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #2a2e39;
+    }
+    th {
+      background-color: #222630;
+    }
+    #loading-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #0f1217;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 20px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading Overlay while Auth check completes -->
+  <div id="loading-overlay">Checking Admin Permissions...</div>
+
+  <div class="admin-container" id="admin-content" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h1>⚙️ Admin Dashboard</h1>
+      <a href="dashboard.html"><button style="background: #42526e;">Back to User Dashboard</button></a>
     </div>
 
-    <div>
-        <h4>Drawn Numbers (<span id="drawnCount">0</span>/90):</h4>
-        <div id="drawnNumbersGrid" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;"></div>
+    <!-- Section 1: Create New Game -->
+    <div class="card">
+      <h2>🎮 Create New Tambola Game</h2>
+      <form id="create-game-form">
+        <div class="form-group">
+          <label for="game-title">Game Title</label>
+          <input type="text" id="game-title" placeholder="e.g. Bumper Evening Game" required>
+        </div>
+        <div class="form-group">
+          <label for="ticket-price">Ticket Price (Tokens)</label>
+          <input type="number" id="ticket-price" min="1" placeholder="10" required>
+        </div>
+        <div class="form-group">
+          <label for="game-time">Start Time</label>
+          <input type="datetime-local" id="game-time" required>
+        </div>
+        <button type="submit">Publish Game</button>
+      </form>
+      <p id="game-status" style="margin-top: 10px; font-weight: bold;"></p>
     </div>
-</div>
 
-<script>
-let currentActiveGameId = null;
+    <!-- Section 2: Manage Wallet Deposits -->
+    <div class="card">
+      <h2>💳 Pending Wallet Deposit Requests</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>User Email</th>
+            <th>Amount</th>
+            <th>Transaction ID</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="deposits-table-body">
+          <tr>
+            <td colspan="4" style="text-align: center;">Loading requests...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-// Handle Game Creation
-document.getElementById("createGameForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const title = document.getElementById("gameTitle").value;
-    const price = Number(document.getElementById("ticketPrice").value);
-    const status = document.getElementById("gameStatusSelect").value;
+  <script>
+    // --- 1. Security Check & Role Access Guard ---
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
 
-    const gameRef = db.collection("games").doc();
-    await gameRef.set({
-        gameId: gameRef.id,
-        title: title,
-        ticketPrice: price,
-        status: status,
-        drawnNumbers: [],
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      try {
+        const userDoc = await db.collection('users').doc(user.uid).get();
+
+        if (userDoc.exists && userDoc.data().role === 'admin') {
+          // Hide loading screen and display admin dashboard
+          document.getElementById('loading-overlay').style.display = 'none';
+          document.getElementById('admin-content').style.display = 'block';
+
+          // Initialize Data Listeners
+          loadPendingDeposits();
+        } else {
+          alert('Access denied: Admin privileges required.');
+          window.location.href = 'dashboard.html';
+        }
+      } catch (error) {
+        console.error('Permission check failed:', error);
+        window.location.href = 'dashboard.html';
+      }
     });
 
-    alert("Game Created Successfully!");
-    currentActiveGameId = gameRef.id;
-    listenToLiveGame(currentActiveGameId);
-    document.getElementById("createGameForm").reset();
-});
+    // --- 2. Create Game Handler ---
+    document.getElementById('create-game-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('game-title').value;
+      const ticketPrice = Number(document.getElementById('ticket-price').value);
+      const startTime = document.getElementById('game-time').value;
+      const statusText = document.getElementById('game-status');
 
-// Real-time Number Drawing Logic
-function listenToLiveGame(gameId) {
-    db.collection("games").doc(gameId).onSnapshot(doc => {
-        if (!doc.exists) return;
-        const game = doc.data();
-        const drawn = game.drawnNumbers || [];
+      try {
+        statusText.style.color = '#36b37e';
+        statusText.innerText = 'Creating game...';
 
-        document.getElementById("drawnCount").textContent = drawn.length;
-        document.getElementById("lastDrawnDisplay").textContent = drawn.length > 0 ? drawn[drawn.length - 1] : "None";
+        await db.collection('games').add({
+          title: title,
+          ticketPrice: ticketPrice,
+          startTime: new Date(startTime),
+          status: 'upcoming', // upcoming, active, completed
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
 
-        const grid = document.getElementById("drawnNumbersGrid");
-        grid.innerHTML = drawn.map(n => `<span style="background: #3498db; color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold;">${n}</span>`).join('');
+        statusText.innerText = 'Game created successfully!';
+        document.getElementById('create-game-form').reset();
+      } catch (error) {
+        statusText.style.color = '#de350b';
+        statusText.innerText = 'Failed to create game: ' + error.message;
+      }
     });
-}
 
-document.getElementById("drawNumberBtn").addEventListener("click", async () => {
-    if (!currentActiveGameId) return alert("Select or create a game first.");
+    // --- 3. Load & Process Deposit Requests ---
+    function loadPendingDeposits() {
+      db.collection('depositRequests')
+        .where('status', '==', 'pending')
+        .onSnapshot((snapshot) => {
+          const tbody = document.getElementById('deposits-table-body');
+          tbody.innerHTML = '';
 
-    const gameRef = db.collection("games").doc(currentActiveGameId);
-    const doc = await gameRef.get();
-    const drawn = doc.data().drawnNumbers || [];
+          if (snapshot.empty) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No pending deposit requests.</td></tr>';
+            return;
+          }
 
-    if (drawn.length >= 90) return alert("All 90 numbers have been drawn!");
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            const row = document.createElement('tr');
 
-    let nextNum;
-    do {
-        nextNum = Math.floor(Math.random() * 90) + 1;
-    } while (drawn.includes(nextNum));
+            row.innerHTML = `
+              <td>${data.userEmail || data.userId}</td>
+              <td>${data.amount} Tokens</td>
+              <td><code>${data.txnRef || 'N/A'}</code></td>
+              <td>
+                <button class="btn-approve" onclick="processDeposit('${doc.id}', '${data.userId}', ${data.amount}, true)">Approve</button>
+                <button class="btn-reject" onclick="processDeposit('${doc.id}', '${data.userId}', ${data.amount}, false)">Reject</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        });
+    }
 
-    await gameRef.update({
-        drawnNumbers: firebase.firestore.FieldValue.arrayUnion(nextNum)
-    });
-});
-</script>
+    // Approve or Reject Deposit Batch Operation
+    async function processDeposit(requestId, userId, amount, isApproved) {
+      const batch = db.batch();
+      const requestRef = db.collection('depositRequests').doc(requestId);
+      const userRef = db.collection('users').doc(userId);
+
+      if (isApproved) {
+        // Increment user's wallet balance
+        batch.update(userRef, {
+          walletBalance: firebase.firestore.FieldValue.increment(amount)
+        });
+        batch.update(requestRef, { status: 'approved', processedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      } else {
+        batch.update(requestRef, { status: 'rejected', processedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      }
+
+      try {
+        await batch.commit();
+        alert(isApproved ? 'Deposit approved and balance added!' : 'Deposit request rejected.');
+      } catch (error) {
+        alert('Error processing deposit: ' + error.message);
+      }
+    }
+  </script>
+</body>
+</html>
