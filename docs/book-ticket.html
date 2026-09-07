@@ -1,250 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambola - Book Tickets</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <style>
-        .ticket-grid-selector {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px;
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .ticket-chip {
-            padding: 10px;
-            text-align: center;
-            border: 2px solid #3498db;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            background: #fff;
-        }
-        .ticket-chip.selected {
-            background: #3498db;
-            color: #fff;
-        }
-        .ticket-chip.disabled {
-            background: #e0e0e0;
-            border-color: #ccc;
-            color: #888;
-            cursor: not-allowed;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Tickets - Tambola House</title>
+  
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore-compat.js"></script>
+
+  <!-- Local Config & Wallet Helper -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/wallet.js"></script>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f8;
+      color: #172b4d;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar {
+      background-color: #ffffff;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: bold;
+      color: #0052cc;
+    }
+
+    .wallet-badge {
+      background: #e3fcef;
+      color: #006644;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 9px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary { background: #0052cc; color: #fff; }
+    .btn-secondary { background: #ebecf0; color: #172b4d; }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .card {
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      background: #fafbfc;
+      border: 1px solid #dfe1e6;
+      border-radius: 5px;
+      color: #172b4d;
+    }
+
+    /* Tambola Ticket Layout (3x9 Grid) */
+    .ticket-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 4px;
+      background: #0052cc;
+      padding: 8px;
+      border-radius: 6px;
+      margin: 15px 0;
+    }
+
+    .ticket-cell {
+      background: #ffffff;
+      height: 35px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      border-radius: 3px;
+      font-size: 14px;
+    }
+
+    .ticket-cell.empty {
+      background: #deebff;
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-        <h2>Ticket Booking Portal</h2>
-        <div>
-            <span style="margin-right: 15px; font-weight: bold;">Wallet: <span id="balanceDisplay" style="color: #2ecc71;">0</span> Tokens</span>
-            <a href="dashboard.html" class="btn btn-primary">Dashboard</a>
-        </div>
+  <nav class="navbar">
+    <div class="logo">🎯 Tambola House</div>
+    <div class="user-info" style="display: flex; gap: 12px; align-items: center;">
+      <span id="user-wallet-display" class="wallet-badge">Wallet: Loading...</span>
+      <a href="dashboard.html"><button class="btn-secondary">Dashboard</button></a>
     </div>
+  </nav>
 
+  <div class="container">
     <div class="card">
-        <h3>Select Active Game</h3>
-        <div class="form-group" style="margin-top: 10px;">
-            <select id="gameSelect">
-                <option value="">-- Select an Upcoming Game --</option>
-            </select>
+      <h2 style="margin-top: 0;">🎟️ Book Tambola Tickets</h2>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="font-weight: 600;">Select Upcoming Game</label>
+        <select id="game-select" onchange="loadGameDetails()">
+          <option value="">-- Choose a Game --</option>
+        </select>
+      </div>
+
+      <div id="game-info" style="display: none; background: #fafbfc; padding: 15px; border-radius: 6px; border: 1px solid #dfe1e6; margin-bottom: 20px;">
+        <p style="margin: 5px 0;"><strong>Ticket Price:</strong> <span id="info-price">0</span> Tokens</p>
+      </div>
+
+      <!-- Generated Ticket Preview -->
+      <div id="ticket-preview-container" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="margin: 0;">Your Generated Ticket Preview</h3>
+          <button class="btn-secondary" onclick="generateNewPreview()">🔄 Regenerate Numbers</button>
         </div>
+        <div id="ticket-grid" class="ticket-grid"></div>
+        <button class="btn-primary" style="width: 100%; padding: 12px;" onclick="purchaseTicket()">Buy Ticket Now</button>
+      </div>
+
+      <p id="booking-msg" style="margin-top: 15px; font-weight: 600; text-align: center;"></p>
     </div>
+  </div>
 
-    <div class="card" id="bookingArea" style="display: none;">
-        <h3>Select Master Tickets (T001 - T600)</h3>
-        <p style="margin-bottom: 10px; font-size: 0.9rem; color: #666;">
-            <strong>Offer Active:</strong> Buy 6 Tickets for the price of 5! Price per ticket: <span id="ticketPriceDisplay">0</span> Tokens.
-        </p>
+  <script>
+    let currentUser = null;
+    let currentWalletBalance = 0;
+    let selectedGame = null;
+    let currentTicketMatrix = null;
 
-        <div class="ticket-grid-selector" id="ticketContainer">
-            <!-- Dynamically populated -->
-        </div>
-
-        <div style="border-top: 1px solid #eee; padding-top: 15px;">
-            <p>Selected Tickets (<span id="selectedCount">0</span>): <span id="selectedList">None</span></p>
-            <p>Base Price: <span id="basePrice">0</span> Tokens</p>
-            <p style="color: green; font-weight: bold;">Discount (Book 6 Pay 5): -<span id="discountPrice">0</span> Tokens</p>
-            <h3 style="margin: 10px 0;">Total Payable: <span id="totalPayable" style="color: #2ecc71;">0</span> Tokens</h3>
-            
-            <button id="checkoutBtn" class="btn btn-success" disabled>Confirm & Pay Tokens</button>
-        </div>
-    </div>
-</div>
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js"></script>
-<script src="js/wallet.js"></script>
-
-<script>
-let selectedTickets = [];
-let currentTicketPrice = 0;
-let activeGameId = null;
-
-auth.onAuthStateChanged(user => {
-    if (!user) {
-        window.location.href = "index.html";
-        return;
-    }
-
-    listenToWalletBalance(user.uid, (bal) => {
-        document.getElementById("balanceDisplay").textContent = bal;
+    auth.onAuthStateChanged(async user => {
+      if (!user) {
+        window.location.href = 'index.html';
+      } else {
+        currentUser = user;
+        loadUpcomingGames();
+      }
     });
 
-    loadUpcomingGames();
-});
+    // Load available games created by Admin
+    async function loadUpcomingGames() {
+      const select = document.getElementById('game-select');
+      const snapshot = await db.collection('games').where('status', '==', 'upcoming').get();
 
-// Load active games from Firestore
-async function loadUpcomingGames() {
-    const select = document.getElementById("gameSelect");
-    const snap = await db.collection("games").where("status", "==", "OPEN").get();
-
-    select.innerHTML = `<option value="">-- Select an Upcoming Game --</option>`;
-    snap.forEach(doc => {
+      select.innerHTML = '<option value="">-- Choose a Game --</option>';
+      snapshot.forEach(doc => {
         const game = doc.data();
-        select.innerHTML += `<option value="${doc.id}" data-price="${game.ticketPrice}">${game.title} - ${game.ticketPrice} Tokens/ticket</option>`;
-    });
-}
+        select.innerHTML += `<option value="${doc.id}" data-price="${game.ticketPrice}">${game.title} (${game.ticketPrice} Tokens)</option>`;
+      });
+    }
 
-document.getElementById("gameSelect").addEventListener("change", async (e) => {
-    activeGameId = e.target.value;
-    if (!activeGameId) {
-        document.getElementById("bookingArea").style.display = "none";
+    function loadGameDetails() {
+      const select = document.getElementById('game-select');
+      const selectedOption = select.options[select.selectedIndex];
+
+      if (!select.value) {
+        document.getElementById('game-info').style.display = 'none';
+        document.getElementById('ticket-preview-container').style.display = 'none';
         return;
+      }
+
+      selectedGame = {
+        id: select.value,
+        price: Number(selectedOption.dataset.price)
+      };
+
+      document.getElementById('info-price').innerText = selectedGame.price;
+      document.getElementById('game-info').style.display = 'block';
+      document.getElementById('ticket-preview-container').style.display = 'block';
+
+      generateNewPreview();
     }
 
-    const selectedOption = e.target.options[e.target.selectedIndex];
-    currentTicketPrice = Number(selectedOption.getAttribute("data-price"));
-    document.getElementById("ticketPriceDisplay").textContent = currentTicketPrice;
-
-    await renderTicketSelector(activeGameId);
-    document.getElementById("bookingArea").style.display = "block";
-});
-
-// Render 600 Master Tickets and mark booked ones as disabled
-async function renderTicketSelector(gameId) {
-    const container = document.getElementById("ticketContainer");
-    container.innerHTML = "Loading available tickets...";
-
-    // Get already booked ticket IDs for this game
-    const bookedSnap = await db.collection("bookings").where("gameId", "==", gameId).get();
-    const bookedTicketIds = new Set();
-    bookedSnap.forEach(doc => {
-        doc.data().ticketIds.forEach(id => bookedTicketIds.add(id));
-    });
-
-    selectedTickets = [];
-    updatePricing();
-
-    container.innerHTML = "";
-    for (let i = 1; i <= 600; i++) {
-        const tId = `T${String(i).padStart(3, '0')}`;
-        const chip = document.createElement("div");
-        chip.className = "ticket-chip";
-        chip.textContent = tId;
-
-        if (bookedTicketIds.has(tId)) {
-            chip.classList.add("disabled");
-        } else {
-            chip.addEventListener("click", () => toggleTicketSelection(tId, chip));
+    // Generate valid 3x9 Tambola Ticket Matrix
+    function generateTambolaTicket() {
+      let grid = Array(3).fill(null).map(() => Array(9).fill(0));
+      for (let col = 0; col < 9; col++) {
+        let min = col === 0 ? 1 : col * 10;
+        let max = col === 8 ? 90 : col * 10 + 9;
+        let nums = [];
+        while (nums.length < 2) {
+          let rand = Math.floor(Math.random() * (max - min + 1)) + min;
+          if (!nums.includes(rand)) nums.push(rand);
         }
-        container.appendChild(chip);
+        nums.sort((a, b) => a - b);
+        grid[0][col] = nums[0];
+        grid[1][col] = nums[1];
+      }
+      return grid;
     }
-}
 
-function toggleTicketSelection(tId, element) {
-    if (selectedTickets.includes(tId)) {
-        selectedTickets = selectedTickets.filter(id => id !== tId);
-        element.classList.remove("selected");
-    } else {
-        selectedTickets.push(tId);
-        element.classList.add("selected");
+    function generateNewPreview() {
+      currentTicketMatrix = generateTambolaTicket();
+      const gridContainer = document.getElementById('ticket-grid');
+      gridContainer.innerHTML = '';
+
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 9; c++) {
+          const val = currentTicketMatrix[r][c];
+          const cell = document.createElement('div');
+          cell.className = val ? 'ticket-cell' : 'ticket-cell empty';
+          cell.innerText = val || '';
+          gridContainer.appendChild(cell);
+        }
+      }
     }
-    updatePricing();
-}
 
-// Calculate "Book 6 Pay 5" Pricing Logic
-function updatePricing() {
-    const count = selectedTickets.length;
-    const setsOfSix = Math.floor(count / 6);
-    const freeTickets = setsOfSix; // 1 free ticket for every 6 selected
-    
-    const basePrice = count * currentTicketPrice;
-    const discount = freeTickets * currentTicketPrice;
-    const finalPrice = basePrice - discount;
+    // Purchase Ticket with Atomic Transaction
+    async function purchaseTicket() {
+      const msg = document.getElementById('booking-msg');
+      msg.style.color = '#0052cc';
+      msg.innerText = 'Processing booking...';
 
-    document.getElementById("selectedCount").textContent = count;
-    document.getElementById("selectedList").textContent = selectedTickets.join(", ") || "None";
-    document.getElementById("basePrice").textContent = basePrice;
-    document.getElementById("discountPrice").textContent = discount;
-    document.getElementById("totalPayable").textContent = finalPrice;
+      const userRef = db.collection('users').doc(currentUser.uid);
+      const bookingRef = db.collection('bookings').doc();
 
-    document.getElementById("checkoutBtn").disabled = count === 0;
-}
-
-// Transaction Checkout Handler
-document.getElementById("checkoutBtn").addEventListener("click", async () => {
-    const user = auth.currentUser;
-    const count = selectedTickets.length;
-    const setsOfSix = Math.floor(count / 6);
-    const payableAmount = (count - setsOfSix) * currentTicketPrice;
-
-    if (!confirm(`Confirm booking of ${count} ticket(s) for ${payableAmount} Tokens?`)) return;
-
-    try {
+      try {
         await db.runTransaction(async (transaction) => {
-            const userRef = db.collection("users").doc(user.uid);
-            const userDoc = await transaction.get(userRef);
-            const balance = userDoc.data().walletBalance || 0;
+          const userDoc = await transaction.get(userRef);
+          if (!userDoc.exists) throw "User record not found.";
 
-            if (balance < payableAmount) {
-                throw new Error("Insufficient token balance. Please deposit tokens first.");
-            }
+          const balance = userDoc.data().walletBalance || 0;
+          if (balance < selectedGame.price) {
+            throw "Insufficient tokens in wallet. Please add tokens first.";
+          }
 
-            // Deduct Tokens
-            transaction.update(userRef, { walletBalance: balance - payableAmount });
+          // Deduct tokens
+          transaction.update(userRef, { walletBalance: balance - selectedGame.price });
 
-            // Create Booking Document
-            const bookingRef = db.collection("bookings").doc();
-            transaction.set(bookingRef, {
-                bookingId: bookingRef.id,
-                gameId: activeGameId,
-                userId: user.uid,
-                userEmail: user.email,
-                ticketIds: selectedTickets,
-                ticketsBooked: count,
-                amountPaid: payableAmount,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            // Write Ledger Transaction Entry
-            const txRef = db.collection("transactions").doc();
-            transaction.set(txRef, {
-                userId: user.uid,
-                type: "TICKET_BOOKING",
-                tokens: -payableAmount,
-                details: { gameId: activeGameId, tickets: selectedTickets },
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+          // Create ticket purchase document
+          transaction.set(bookingRef, {
+            userId: currentUser.uid,
+            userEmail: currentUser.email,
+            gameId: selectedGame.id,
+            numbers: currentTicketMatrix,
+            pricePaid: selectedGame.price,
+            bookedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
         });
 
-        alert("Booking successful! Tickets assigned to your account.");
-        window.location.href = "dashboard.html";
-    } catch (err) {
-        alert("Booking Failed: " + err.message);
-    }
-});
-</script>
+        msg.style.color = '#006644';
+        msg.innerText = 'Ticket successfully booked! Redirecting to dashboard...';
+        setTimeout(() => window.location.href = 'dashboard.html', 1500);
 
+      } catch (error) {
+        msg.style.color = '#ff5630';
+        msg.innerText = 'Error: ' + error;
+      }
+    }
+  </script>
 </body>
 </html>
