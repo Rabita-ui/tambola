@@ -1,82 +1,32 @@
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Tambola Platform</title>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Local Scripts -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/wallet.js"></script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">🎯 Tambola Live</div>
+    <div id="nav-user-info" class="user-info">
+      <span id="user-wallet-display" class="wallet-badge">Wallet: -- Tokens</span>
+    </div>
+  </nav>
 
-    // Helper Functions
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
-
-    function isAdmin() {
-      return isAuthenticated() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
-
-    // --- Users Collection ---
-    match /users/{userId} {
-      allow read: if isAuthenticated();
-      // Users can only initialize their account; they cannot modify walletBalance or role directly
-      allow create: if isAuthenticated() 
-                    && request.resource.data.walletBalance == 0 
-                    && request.resource.data.role == 'player';
-      allow update: if isAdmin() || (
-        isOwner(userId) && 
-        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['walletBalance', 'role', 'status'])
-      );
-    }
-
-    // --- Master Tickets (Read-only for players, Admin managed) ---
-    match /masterTickets/{ticketId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
-    }
-
-    // --- Games Collection ---
-    match /games/{gameId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
-    }
-
-    // --- Game Tickets (Game-specific instances) ---
-    match /gameTickets/{docId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
-    }
-
-    // --- Bookings ---
-    match /bookings/{bookingId} {
-      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow write: if isAdmin();
-    }
-
-    // --- Transactions Ledger ---
-    match /transactions/{transactionId} {
-      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow write: if isAdmin();
-    }
-
-    // --- Deposit Requests ---
-    match /depositRequests/{requestId} {
-      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if isAdmin();
-    }
-
-    // --- Withdrawal Requests ---
-    match /withdrawalRequests/{requestId} {
-      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if isAdmin();
-    }
-
-    // --- Winners ---
-    match /winners/{winnerId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
-    }
-  }
-}
+  <main style="max-width: 600px; margin: 40px auto; text-align: center;">
+    <h1>Welcome to Tambola Live</h1>
+    <p style="margin: 20px 0;">Sign in to join active games, manage your wallet, and purchase tickets!</p>
+    <a href="dashboard.html"><button>Go to Dashboard</button></a>
+  </main>
+</body>
+</html>
