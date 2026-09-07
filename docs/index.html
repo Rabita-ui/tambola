@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Online Tambola Platform</title>
+  <title>Tambola Live - Login & Register</title>
   <link rel="stylesheet" href="css/styles.css">
   
   <!-- Firebase Compat SDKs -->
@@ -11,22 +11,73 @@
   <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore-compat.js"></script>
   
-  <!-- Local Scripts -->
+  <!-- Config -->
   <script src="js/firebase-config.js"></script>
-  <script src="js/wallet.js"></script>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="logo">🎯 Tambola Live</div>
-    <div id="nav-user-info" class="user-info">
-      <span id="user-wallet-display" class="wallet-badge">Wallet: -- Tokens</span>
+  <div style="max-width: 400px; margin: 50px auto; background: #1a1d24; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+    
+    <!-- Login Form -->
+    <div id="login-box">
+      <h2 style="margin-bottom: 20px; text-align: center;">Sign In</h2>
+      <input type="email" id="login-email" placeholder="Email" style="width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 4px; border: 1px solid #333; background: #222; color: #fff;">
+      <input type="password" id="login-pass" placeholder="Password" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #333; background: #222; color: #fff;">
+      <button onclick="handleLogin()" style="width: 100%; margin-bottom: 15px;">Login</button>
+      <p style="font-size: 14px; text-align: center;">Don't have an account? <a href="#" onclick="toggleAuth('register')" style="color: #2684ff;">Register</a></p>
     </div>
-  </nav>
 
-  <main style="max-width: 600px; margin: 40px auto; text-align: center;">
-    <h1>Welcome to Tambola Live</h1>
-    <p style="margin: 20px 0;">Sign in to join active games, manage your wallet, and purchase tickets!</p>
-    <a href="dashboard.html"><button>Go to Dashboard</button></a>
-  </main>
+    <!-- Register Form -->
+    <div id="register-box" style="display: none;">
+      <h2 style="margin-bottom: 20px; text-align: center;">Register</h2>
+      <input type="email" id="reg-email" placeholder="Email" style="width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 4px; border: 1px solid #333; background: #222; color: #fff;">
+      <input type="password" id="reg-pass" placeholder="Password" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #333; background: #222; color: #fff;">
+      <button onclick="handleRegister()" style="width: 100%; margin-bottom: 15px;">Create Account</button>
+      <p style="font-size: 14px; text-align: center;">Already have an account? <a href="#" onclick="toggleAuth('login')" style="color: #2684ff;">Login</a></p>
+    </div>
+
+    <p id="auth-error" style="color: #ff5630; font-size: 14px; margin-top: 15px; text-align: center;"></p>
+  </div>
+
+  <script>
+    function toggleAuth(view) {
+      document.getElementById('login-box').style.display = view === 'login' ? 'block' : 'none';
+      document.getElementById('register-box').style.display = view === 'register' ? 'block' : 'none';
+      document.getElementById('auth-error').innerText = '';
+    }
+
+    async function handleLogin() {
+      const email = document.getElementById('login-email').value;
+      const pass = document.getElementById('login-pass').value;
+      try {
+        await auth.signInWithEmailAndPassword(email, pass);
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        document.getElementById('auth-error').innerText = err.message;
+      }
+    }
+
+    async function handleRegister() {
+      const email = document.getElementById('reg-email').value;
+      const pass = document.getElementById('reg-pass').value;
+      try {
+        const cred = await auth.createUserWithEmailAndPassword(email, pass);
+        // Create user document in Firestore
+        await db.collection('users').doc(cred.user.uid).set({
+          email: email,
+          walletBalance: 0,
+          role: 'player',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        document.getElementById('auth-error').innerText = err.message;
+      }
+    }
+
+    // Auto-redirect if logged in
+    auth.onAuthStateChanged(user => {
+      if (user) window.location.href = 'dashboard.html';
+    });
+  </script>
 </body>
 </html>
