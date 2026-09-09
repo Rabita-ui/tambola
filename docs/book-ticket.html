@@ -5,132 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Book Ticket - Tambola House</title>
   
-  <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore-compat.js"></script>
-
-  <!-- Local Config -->
   <script src="js/firebase-config.js"></script>
 
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f6f8;
-      color: #172b4d;
-      margin: 0;
-      padding: 0;
-    }
-
-    .navbar {
-      background-color: #ffffff;
-      padding: 15px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-    }
-
-    .logo {
-      font-size: 20px;
-      font-weight: bold;
-      color: #0052cc;
-    }
-
-    .container {
-      max-width: 800px;
-      margin: 30px auto;
-      padding: 0 20px;
-    }
-
-    .card {
-      background: #ffffff;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      border: 1px solid #dfe1e6;
-      margin-bottom: 20px;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #172b4d;
-    }
-
-    select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #dfe1e6;
-      border-radius: 6px;
-      font-size: 15px;
-      background: #fafbfc;
-    }
-
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .btn-primary {
-      background-color: #0052cc;
-      color: #ffffff;
-    }
-
-    .btn-secondary {
-      background-color: #ebecf0;
-      color: #172b4d;
-    }
-
-    .ticket-container {
-      background: #ffffff;
-      border: 2px solid #0052cc;
-      border-radius: 8px;
-      padding: 15px;
-      margin-top: 20px;
-    }
-
-    .ticket-grid {
-      display: grid;
-      grid-template-columns: repeat(9, 1fr);
-      gap: 4px;
-      background: #0052cc;
-      padding: 8px;
-      border-radius: 6px;
-      margin-top: 10px;
-    }
-
-    .ticket-cell {
-      background: #ffffff;
-      height: 40px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-weight: bold;
-      border-radius: 3px;
-      font-size: 15px;
-    }
-
-    .ticket-cell.empty {
-      background: #deebff;
-    }
-
-    .wallet-badge {
-      background: #e3fcef;
-      color: #006644;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-weight: 600;
-      font-size: 14px;
-    }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f8; color: #172b4d; margin: 0; padding: 0; }
+    .navbar { background-color: #ffffff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+    .logo { font-size: 20px; font-weight: bold; color: #0052cc; }
+    .container { max-width: 800px; margin: 30px auto; padding: 0 20px; }
+    .card { background: #ffffff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #dfe1e6; margin-bottom: 20px; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; color: #172b4d; }
+    select { width: 100%; padding: 12px; border: 1px solid #dfe1e6; border-radius: 6px; font-size: 15px; background: #fafbfc; }
+    button { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .btn-primary { background-color: #0052cc; color: #ffffff; }
+    .btn-secondary { background-color: #ebecf0; color: #172b4d; }
+    .ticket-container { background: #ffffff; border: 2px solid #0052cc; border-radius: 8px; padding: 15px; margin-top: 20px; }
+    .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; background: #0052cc; padding: 8px; border-radius: 6px; margin-top: 10px; }
+    .ticket-cell { background: #ffffff; height: 40px; display: flex; justify-content: center; align-items: center; font-weight: bold; border-radius: 3px; font-size: 15px; }
+    .ticket-cell.empty { background: #deebff; }
+    .wallet-badge { background: #e3fcef; color: #006644; padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -187,7 +83,6 @@
       }
       currentUser = user;
       
-      // Load user balance
       const userDoc = await db.collection('users').doc(user.uid).get();
       if (userDoc.exists) {
         document.getElementById('wallet-balance').innerText = `Balance: ${userDoc.data().walletBalance || 0} Tokens`;
@@ -200,9 +95,7 @@
       const select = document.getElementById('game-select');
       select.innerHTML = '<option value="">-- Choose a Game --</option>';
 
-      const snapshot = await db.collection('games')
-        .where('status', '==', 'upcoming')
-        .get();
+      const snapshot = await db.collection('games').where('status', '==', 'upcoming').get();
 
       if (snapshot.empty) {
         select.innerHTML = '<option value="">No upcoming games available</option>';
@@ -232,20 +125,11 @@
         return;
       }
 
-      selectedGame = {
-        id: select.value,
-        price: Number(select.options[select.selectedIndex].dataset.price)
-      };
-
+      selectedGame = { id: select.value, price: Number(select.options[select.selectedIndex].dataset.price) };
       document.getElementById('game-price').innerText = selectedGame.price;
       gameInfo.style.display = 'block';
 
-      // Fetch unbooked pre-generated tickets for this game
-      const snapshot = await db.collection('games')
-        .doc(selectedGame.id)
-        .collection('tickets')
-        .where('isBooked', '==', false)
-        .get();
+      const snapshot = await db.collection('games').doc(selectedGame.id).collection('tickets').where('isBooked', '==', false).get();
 
       availableTickets = [];
       snapshot.forEach(doc => availableTickets.push({ id: doc.id, ...doc.data() }));
@@ -268,14 +152,13 @@
       const gridContainer = document.getElementById('ticket-grid');
       gridContainer.innerHTML = '';
 
-      for (let r = 0; r < 3; r++) {
-        for (let c = 0; c < 9; c++) {
-          const val = ticket.matrix[r][c];
-          const cell = document.createElement('div');
-          cell.className = val ? 'ticket-cell' : 'ticket-cell empty';
-          cell.innerText = val || '';
-          gridContainer.appendChild(cell);
-        }
+      // Flat array rendering loop (27 cells)
+      for (let i = 0; i < 27; i++) {
+        const val = ticket.matrix[i];
+        const cell = document.createElement('div');
+        cell.className = (val && val !== 0) ? 'ticket-cell' : 'ticket-cell empty';
+        cell.innerText = (val && val !== 0) ? val : '';
+        gridContainer.appendChild(cell);
       }
 
       document.getElementById('ticket-preview-container').style.display = 'block';
@@ -306,18 +189,8 @@
             throw new Error("Insufficient wallet tokens! Please add tokens to your wallet.");
           }
 
-          // Deduct funds
-          transaction.update(userRef, { 
-            walletBalance: currentBalance - selectedGame.price 
-          });
-
-          // Reserve pre-generated ticket
-          transaction.update(ticketRef, { 
-            isBooked: true, 
-            bookedBy: currentUser.uid 
-          });
-
-          // Log booking for player
+          transaction.update(userRef, { walletBalance: currentBalance - selectedGame.price });
+          transaction.update(ticketRef, { isBooked: true, bookedBy: currentUser.uid });
           transaction.set(bookingRef, {
             userId: currentUser.uid,
             userEmail: currentUser.email,
