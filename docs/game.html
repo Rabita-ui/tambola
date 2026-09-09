@@ -3,281 +3,166 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live Game - Tambola House</title>
-  
-  <!-- Firebase Compat SDKs -->
+  <title>Live Game Room - Tambola House</title>
+
   <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore-compat.js"></script>
-
-  <!-- Local Config -->
   <script src="js/firebase-config.js"></script>
 
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f6f8;
-      color: #172b4d;
-      margin: 0;
-      padding: 0;
-    }
-
-    .navbar {
-      background-color: #ffffff;
-      padding: 15px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-    }
-
-    .logo { font-size: 20px; font-weight: bold; color: #0052cc; }
-
-    button {
-      padding: 9px 16px; border: none; border-radius: 6px;
-      font-weight: 600; cursor: pointer; transition: background 0.2s;
-    }
-
-    .btn-secondary { background: #ebecf0; color: #172b4d; }
-    .btn-draw { background: #36b37e; color: #fff; font-size: 16px; padding: 12px 20px; }
-    .btn-claim { background: #ffab00; color: #172b4d; font-weight: bold; }
-
-    .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
-    .card { background: #ffffff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
-
-    .current-number {
-      font-size: 64px; font-weight: bold; color: #0052cc;
-      text-align: center; width: 100px; height: 100px; line-height: 100px;
-      background: #deebff; border-radius: 50%; margin: 10px auto;
-    }
-
-    .board-grid {
-      display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin-top: 15px;
-    }
-
-    .board-cell {
-      background: #fafbfc; border: 1px solid #dfe1e6; height: 32px;
-      display: flex; justify-content: center; align-items: center;
-      font-size: 12px; font-weight: 600; border-radius: 4px; color: #a5adba;
-    }
-
-    .board-cell.called { background: #36b37e; color: #ffffff; border-color: #36b37e; }
-
-    .ticket-card {
-      background: #ffffff; border: 1px solid #dfe1e6; border-radius: 8px;
-      padding: 15px; margin-bottom: 20px;
-    }
-
-    .ticket-grid {
-      display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px;
-      background: #0052cc; padding: 8px; border-radius: 6px; margin: 12px 0;
-    }
-
-    .ticket-cell {
-      background: #ffffff; height: 40px; display: flex;
-      justify-content: center; align-items: center; font-weight: bold;
-      border-radius: 3px; font-size: 15px; cursor: pointer; user-select: none;
-    }
-
-    .ticket-cell.empty { background: #deebff; cursor: default; }
-    .ticket-cell.marked { background: #ffab00; color: #172b4d; }
-    .ticket-cell.auto-matched { background: #36b37e; color: #ffffff; }
-
-    .claim-actions {
-      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;
-    }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f8; color: #172b4d; margin: 0; padding: 20px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    .card { background: white; padding: 20px; border-radius: 10px; border: 1px solid #dfe1e6; margin-bottom: 20px; }
+    .current-num { font-size: 48px; font-weight: bold; color: #0052cc; text-align: center; }
+    .board-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin-top: 10px; }
+    .board-cell { background: #fafbfc; border: 1px solid #dfe1e6; text-align: center; padding: 8px 0; font-weight: 600; border-radius: 4px; }
+    .board-cell.called { background: #36b37e; color: white; border-color: #36b37e; }
+    .ticket-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; background: #0052cc; padding: 8px; border-radius: 6px; margin-top: 10px; }
+    .ticket-cell { background: white; height: 40px; display: flex; justify-content: center; align-items: center; font-weight: bold; border-radius: 3px; }
+    .ticket-cell.matched { background: #36b37e; color: white; }
+    .ticket-cell.empty { background: #deebff; }
+    button { background: #0052cc; color: white; padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-right: 5px; margin-top: 10px; }
   </style>
 </head>
 <body>
 
-  <nav class="navbar">
-    <div class="logo">🎯 Tambola House - Live Room</div>
-    <a href="dashboard.html"><button class="btn-secondary">Dashboard</button></a>
-  </nav>
-
   <div class="container">
-    
-    <!-- Admin Controls -->
-    <div id="admin-controls" class="card" style="display: none; border-left: 5px solid #ffab00;">
-      <h3 style="margin-top: 0; color: #172b4d;">⚙️ Admin Controls</h3>
-      <div style="display: flex; align-items: center; gap: 20px;">
-        <button class="btn-draw" onclick="drawNextNumber()">🎲 Draw Next Number</button>
-        <span id="drawn-count" style="font-weight: 600; color: #5e6c84;">Drawn: 0 / 90</span>
+    <div class="card" style="text-align: center;">
+      <h2 style="margin: 0; color: #5e6c84;">Current Called Number</h2>
+      <div class="current-num" id="current-number">--</div>
+      <div id="admin-controls" style="display: none;">
+        <button onclick="drawNextNumber()">🎲 Draw Next Number</button>
       </div>
     </div>
 
-    <!-- Live Board -->
     <div class="card">
-      <h3 style="margin-top: 0; text-align: center;">Latest Called Number</h3>
-      <div id="current-num" class="current-number">--</div>
-
-      <h4>Board (1 - 90)</h4>
-      <div id="board" class="board-grid"></div>
+      <h3>🎟️ Your Ticket</h3>
+      <div id="ticket-container" class="ticket-grid">Loading your ticket...</div>
+      <div style="margin-top: 15px;">
+        <button onclick="submitClaim('Early 5')">Claim Early 5</button>
+        <button onclick="submitClaim('Top Line')">Claim Top Line</button>
+        <button onclick="submitClaim('Middle Line')">Claim Middle Line</button>
+        <button onclick="submitClaim('Bottom Line')">Claim Bottom Line</button>
+        <button onclick="submitClaim('Full House')">Claim Full House</button>
+      </div>
+      <p id="claim-msg" style="font-weight: bold; margin-top: 10px;"></p>
     </div>
 
-    <!-- Player Tickets -->
     <div class="card">
-      <h3 style="margin-top: 0;">🎟️ Your Live Tickets</h3>
-      <p style="font-size: 14px; color: #5e6c84;">Numbers turn green automatically as they are drawn. Click claim buttons when eligible!</p>
-      <div id="user-tickets-container">Loading your tickets...</div>
+      <h3>📋 Called Numbers Board</h3>
+      <div class="board-grid" id="board-grid"></div>
     </div>
-
   </div>
 
   <script>
     let currentUser = null;
-    let currentGameId = "ACTIVE_GAME";
-    let calledNumbers = [];
-    let userTickets = [];
-    let isAdmin = false;
+    let activeGameId = null;
+    let drawnNumbers = [];
+    let playerTicket = null;
+    let playerBookingId = null;
 
-    auth.onAuthStateChanged(async user => {
-      if (!user) {
-        window.location.href = 'index.html';
-      } else {
-        currentUser = user;
-        
-        const userDoc = await db.collection('users').doc(user.uid).get();
-        if (userDoc.exists && userDoc.data().role === 'admin') {
-          isAdmin = true;
-          document.getElementById('admin-controls').style.display = 'block';
-        }
+    // Render 1-90 board
+    const board = document.getElementById('board-grid');
+    for (let i = 1; i <= 90; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'board-cell';
+      cell.id = `num-${i}`;
+      cell.innerText = i;
+      board.appendChild(cell);
+    }
 
-        renderBoard();
-        listenToLiveGame();
-        loadUserTickets();
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) { window.location.href = 'index.html'; return; }
+      currentUser = user;
+
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (userDoc.exists && userDoc.data().role === 'admin') {
+        document.getElementById('admin-controls').style.display = 'block';
       }
+
+      loadActiveGame();
     });
 
-    function renderBoard() {
-      const boardContainer = document.getElementById('board');
-      boardContainer.innerHTML = '';
-      for (let i = 1; i <= 90; i++) {
-        const cell = document.createElement('div');
-        cell.className = 'board-cell';
-        cell.id = `board-${i}`;
-        cell.innerText = i;
-        boardContainer.appendChild(cell);
+    async function loadActiveGame() {
+      const gamesSnap = await db.collection('games').where('status', '==', 'upcoming').limit(1).get();
+      if (gamesSnap.empty) {
+        document.getElementById('ticket-container').innerText = 'No live game active right now.';
+        return;
+      }
+
+      activeGameId = gamesSnap.docs[0].id;
+
+      // Listen to live drawn numbers
+      db.collection('games').doc(activeGameId).onSnapshot((doc) => {
+        if (!doc.exists) return;
+        drawnNumbers = doc.data().drawnNumbers || [];
+        updateBoard();
+      });
+
+      // Fetch player's ticket
+      const bookingSnap = await db.collection('bookings')
+        .where('gameId', '==', activeGameId)
+        .where('userId', '==', currentUser.uid)
+        .limit(1)
+        .get();
+
+      if (!bookingSnap.empty) {
+        playerBookingId = bookingSnap.docs[0].id;
+        playerTicket = bookingSnap.docs[0].data().numbers;
+        renderTicket();
+      } else {
+        document.getElementById('ticket-container').innerText = 'You do not have a booked ticket for this game.';
       }
     }
 
-    function listenToLiveGame() {
-      db.collection('games').doc(currentGameId)
-        .onSnapshot(doc => {
-          if (doc.exists) {
-            const data = doc.data();
-            calledNumbers = data.drawnNumbers || [];
+    function updateBoard() {
+      if (drawnNumbers.length > 0) {
+        document.getElementById('current-number').innerText = drawnNumbers[drawnNumbers.length - 1];
+      }
+      for (let i = 1; i <= 90; i++) {
+        const cell = document.getElementById(`num-${i}`);
+        if (drawnNumbers.includes(i)) cell.classList.add('called');
+      }
+      if (playerTicket) renderTicket();
+    }
 
-            const lastNum = calledNumbers.length > 0 ? calledNumbers[calledNumbers.length - 1] : '--';
-            document.getElementById('current-num').innerText = lastNum;
-            document.getElementById('drawn-count').innerText = `Drawn: ${calledNumbers.length} / 90`;
-
-            calledNumbers.forEach(num => {
-              const el = document.getElementById(`board-${num}`);
-              if (el) el.classList.add('called');
-            });
-
-            // Re-render user tickets with auto-matching updates
-            updateTicketDisplay();
-          }
-        });
+    function renderTicket() {
+      const grid = document.getElementById('ticket-container');
+      grid.innerHTML = '';
+      for (let i = 0; i < 27; i++) {
+        const val = playerTicket[i];
+        const cell = document.createElement('div');
+        const isMatched = val && drawnNumbers.includes(val);
+        cell.className = (val && val !== 0) ? (isMatched ? 'ticket-cell matched' : 'ticket-cell') : 'ticket-cell empty';
+        cell.innerText = (val && val !== 0) ? val : '';
+        grid.appendChild(cell);
+      }
     }
 
     async function drawNextNumber() {
-      if (!isAdmin) return;
-      let remaining = [];
-      for (let i = 1; i <= 90; i++) {
-        if (!calledNumbers.includes(i)) remaining.push(i);
-      }
+      if (!activeGameId) return;
+      if (drawnNumbers.length >= 90) { alert('All 90 numbers have been drawn!'); return; }
 
-      if (remaining.length === 0) {
-        alert("All numbers drawn!");
-        return;
-      }
+      let nextNum;
+      do { nextNum = Math.floor(Math.random() * 90) + 1; } while (drawnNumbers.includes(nextNum));
 
-      const nextNum = remaining[Math.floor(Math.random() * remaining.length)];
-      await db.collection('games').doc(currentGameId).set({
-        drawnNumbers: firebase.firestore.FieldValue.arrayUnion(nextNum),
-        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
-    }
-
-    async function loadUserTickets() {
-      const snapshot = await db.collection('bookings')
-        .where('userId', '==', currentUser.uid)
-        .get();
-
-      userTickets = [];
-      snapshot.forEach(doc => {
-        userTickets.push({ id: doc.id, numbers: doc.data().numbers });
-      });
-
-      updateTicketDisplay();
-    }
-
-    // Render tickets with Automated Marking and Claim Options
-    function updateTicketDisplay() {
-      const container = document.getElementById('user-tickets-container');
-      if (userTickets.length === 0) {
-        container.innerHTML = '<p>No tickets booked for this session.</p>';
-        return;
-      }
-
-      container.innerHTML = '';
-
-      userTickets.forEach((ticket, idx) => {
-        const card = document.createElement('div');
-        card.className = 'ticket-card';
-
-        const header = document.createElement('h4');
-        header.style.margin = '0';
-        header.innerText = `Ticket #${idx + 1} (${ticket.id.substring(0, 6)})`;
-        card.appendChild(header);
-
-        const grid = document.createElement('div');
-        grid.className = 'ticket-grid';
-
-        for (let r = 0; r < 3; r++) {
-          for (let c = 0; c < 9; c++) {
-            const val = ticket.numbers[r][c];
-            const cell = document.createElement('div');
-            
-            if (!val) {
-              cell.className = 'ticket-cell empty';
-              cell.innerText = '';
-            } else {
-              const isDrawn = calledNumbers.includes(val);
-              cell.className = isDrawn ? 'ticket-cell auto-matched' : 'ticket-cell';
-              cell.innerText = val;
-            }
-            grid.appendChild(cell);
-          }
-        }
-        card.appendChild(grid);
-
-        // Win Claim Buttons
-        const claimActions = document.createElement('div');
-        claimActions.className = 'claim-actions';
-        
-        ['Early 5', 'Top Line', 'Middle Line', 'Bottom Line', 'Full House'].forEach(claimType => {
-          const btn = document.createElement('button');
-          btn.className = 'btn-claim';
-          btn.innerText = `Claim ${claimType}`;
-          btn.onclick = () => submitClaim(ticket.id, ticket.numbers, claimType);
-          claimActions.appendChild(btn);
-        });
-
-        card.appendChild(claimActions);
-        container.appendChild(card);
+      await db.collection('games').doc(activeGameId).update({
+        drawnNumbers: firebase.firestore.FieldValue.arrayUnion(nextNum)
       });
     }
 
-    // Submit Win Claim to Firestore for Admin Validation
-    async function submitClaim(ticketId, ticketNumbers, claimType) {
+    async function submitClaim(claimType) {
+      if (!playerBookingId) { alert('No valid ticket found to submit a claim.'); return; }
+
+      const msg = document.getElementById('claim-msg');
+      msg.style.color = '#0052cc';
+      msg.innerText = `Submitting ${claimType} claim...`;
+
       try {
         await db.collection('claims').add({
-          gameId: currentGameId,
-          ticketId: ticketId,
+          gameId: activeGameId,
+          ticketId: playerBookingId,
           userId: currentUser.uid,
           userEmail: currentUser.email,
           claimType: claimType,
@@ -285,9 +170,11 @@
           submittedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        alert(`Your claim for "${claimType}" has been submitted to the Admin!`);
+        msg.style.color = '#36b37e';
+        msg.innerText = `${claimType} claim submitted to host for verification!`;
       } catch (err) {
-        alert('Error submitting claim: ' + err.message);
+        msg.style.color = '#ff5630';
+        msg.innerText = 'Failed to submit claim: ' + err.message;
       }
     }
   </script>
