@@ -14,86 +14,21 @@
   <script src="js/firebase-config.js"></script>
 
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f6f8;
-      color: #172b4d;
-      margin: 0;
-      padding: 20px;
-    }
-    .admin-container {
-      max-width: 950px;
-      margin: 0 auto;
-    }
-    .card {
-      background: #ffffff;
-      padding: 25px;
-      margin-bottom: 25px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      border: 1px solid #dfe1e6;
-    }
-    h2 {
-      margin-top: 0;
-      color: #0052cc;
-      border-bottom: 2px solid #ebecf0;
-      padding-bottom: 10px;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 600;
-    }
-    input, select {
-      width: 100%;
-      padding: 10px;
-      background: #fafbfc;
-      border: 1px solid #dfe1e6;
-      color: #172b4d;
-      border-radius: 5px;
-      box-sizing: border-box;
-    }
-    button {
-      background: #0052cc;
-      color: white;
-      padding: 10px 18px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-    }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f8; color: #172b4d; margin: 0; padding: 20px; }
+    .admin-container { max-width: 950px; margin: 0 auto; }
+    .card { background: #ffffff; padding: 25px; margin-bottom: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #dfe1e6; }
+    h2 { margin-top: 0; color: #0052cc; border-bottom: 2px solid #ebecf0; padding-bottom: 10px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: 600; }
+    input, select { width: 100%; padding: 10px; background: #fafbfc; border: 1px solid #dfe1e6; color: #172b4d; border-radius: 5px; box-sizing: border-box; }
+    button { background: #0052cc; color: white; padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
     button:hover { opacity: 0.9; }
     .btn-approve { background: #36b37e; color: #fff; }
     .btn-reject { background: #ff5630; color: #fff; margin-left: 5px; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #dfe1e6;
-    }
-    th {
-      background-color: #fafbfc;
-      color: #5e6c84;
-    }
-    #loading-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: #f4f6f8;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 20px;
-      font-weight: bold;
-      color: #0052cc;
-      z-index: 1000;
-    }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #dfe1e6; }
+    th { background-color: #fafbfc; color: #5e6c84; }
+    #loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #f4f6f8; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; color: #0052cc; z-index: 1000; }
   </style>
 </head>
 <body>
@@ -179,7 +114,6 @@
           document.getElementById('loading-overlay').style.display = 'none';
           document.getElementById('admin-content').style.display = 'block';
 
-          // Initialize Data Listeners
           loadPendingDeposits();
           loadIncomingClaims();
         } else {
@@ -204,7 +138,6 @@
         statusText.style.color = '#36b37e';
         statusText.innerText = 'Creating game and generating ticket copies...';
 
-        // Create main game doc
         const gameRef = await db.collection('games').add({
           title: title,
           ticketPrice: ticketPrice,
@@ -214,13 +147,12 @@
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // Generate batch of 30 master tickets for players to reserve
         const batch = db.batch();
         for (let i = 1; i <= 30; i++) {
           const ticketRef = gameRef.collection('tickets').doc(`ticket_${i}`);
           batch.set(ticketRef, {
             ticketNumber: i,
-            matrix: generateTambolaTicket(),
+            matrix: generateTambolaTicketFlat(), // Flat array fix
             isBooked: false,
             bookedBy: null
           });
@@ -235,8 +167,7 @@
       }
     });
 
-    // Helper: Master 3x9 Matrix Generator
-    function generateTambolaTicket() {
+    function generateTambolaTicketFlat() {
       let grid = Array(3).fill(null).map(() => Array(9).fill(0));
       for (let col = 0; col < 9; col++) {
         let min = col === 0 ? 1 : col * 10;
@@ -250,7 +181,7 @@
         grid[0][col] = nums[0];
         grid[1][col] = nums[1];
       }
-      return grid;
+      return grid.flat();
     }
 
     // --- 3. Manage Deposit Requests ---
@@ -269,7 +200,6 @@
           snapshot.forEach((doc) => {
             const data = doc.data();
             const row = document.createElement('tr');
-
             row.innerHTML = `
               <td>${data.userEmail || data.userId}</td>
               <td><strong>${data.amount} Tokens</strong></td>
@@ -290,9 +220,7 @@
       const userRef = db.collection('users').doc(userId);
 
       if (isApproved) {
-        batch.update(userRef, {
-          walletBalance: firebase.firestore.FieldValue.increment(amount)
-        });
+        batch.update(userRef, { walletBalance: firebase.firestore.FieldValue.increment(amount) });
         batch.update(requestRef, { status: 'approved', processedAt: firebase.firestore.FieldValue.serverTimestamp() });
       } else {
         batch.update(requestRef, { status: 'rejected', processedAt: firebase.firestore.FieldValue.serverTimestamp() });
@@ -322,7 +250,6 @@
           snapshot.forEach((doc) => {
             const claim = doc.data();
             const row = document.createElement('tr');
-
             row.innerHTML = `
               <td>${claim.userEmail}</td>
               <td><strong>${claim.claimType}</strong></td>
@@ -341,21 +268,12 @@
       const claimRef = db.collection('claims').doc(claimId);
       const userRef = db.collection('users').doc(userId);
 
-      const rewards = {
-        'Early 5': 50,
-        'Top Line': 100,
-        'Middle Line': 100,
-        'Bottom Line': 100,
-        'Full House': 300
-      };
-
+      const rewards = { 'Early 5': 50, 'Top Line': 100, 'Middle Line': 100, 'Bottom Line': 100, 'Full House': 300 };
       const rewardAmount = rewards[claimType] || 50;
       const batch = db.batch();
 
       if (isApproved) {
-        batch.update(userRef, {
-          walletBalance: firebase.firestore.FieldValue.increment(rewardAmount)
-        });
+        batch.update(userRef, { walletBalance: firebase.firestore.FieldValue.increment(rewardAmount) });
         batch.update(claimRef, { status: 'approved', rewardPaid: rewardAmount, verifiedAt: firebase.firestore.FieldValue.serverTimestamp() });
       } else {
         batch.update(claimRef, { status: 'rejected', verifiedAt: firebase.firestore.FieldValue.serverTimestamp() });
